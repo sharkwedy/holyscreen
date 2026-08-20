@@ -1,0 +1,51 @@
+name: Release packages
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev ninja-build
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.11.1"
+          modules: "qthttpserver qtwebsockets"
+          cache: true
+
+      - name: Configure
+        run: cmake -S . -B build -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        run: cmake --build build --config Release --target package
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: HolyScreen-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            build/*.dmg
+            build/*.zip
+            build/*.exe
+            build/*.deb
+            build/*.tar.gz
+          if-no-files-found: error

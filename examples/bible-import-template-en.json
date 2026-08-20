@@ -1,0 +1,21 @@
+{
+  "translation": {
+    "name": "English Demonstration",
+    "abbreviation": "EN-DEMO",
+    "language": "en"
+  },
+  "verses": [
+    {
+      "book": "John",
+      "chapter": 3,
+      "verse": 16,
+      "text": "Demonstration text for John 3:16. Replace it with licensed translation content."
+    },
+    {
+      "book": "John",
+      "chapter": 3,
+      "verse": 17,
+      "text": "Demonstration text for John 3:17."
+    }
+  ]
+}
