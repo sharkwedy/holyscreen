@@ -19,6 +19,8 @@
 #include "bible/BibleJsonImporter.h"
 #include "bible/BibleReferenceParser.h"
 #include "bible/BibleRepository.h"
+#include "core/CommandBus.h"
+#include "core/EventBus.h"
 
 #include <QObject>
 #include <QFileSystemWatcher>
@@ -139,6 +141,9 @@ class ApplicationController final : public QObject {
 public:
     explicit ApplicationController(QObject *parent = nullptr);
     ~ApplicationController() override;
+
+    [[nodiscard]] CommandBus &commandBus();
+    [[nodiscard]] EventBus &eventBus();
 
     [[nodiscard]] QVariantList screens() const;
     [[nodiscard]] QVariantList outputWindows() const;
@@ -441,6 +446,8 @@ signals:
     void overlaysChanged();
 
 private:
+    CommandBus m_commandBus;
+    EventBus m_eventBus;
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);

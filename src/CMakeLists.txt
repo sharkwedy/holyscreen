@@ -1,3 +1,14 @@
+add_library(presenter-core
+    core/CommandTypes.h
+    core/CommandBus.cpp
+    core/CommandBus.h
+    core/EventTypes.h
+    core/EventBus.cpp
+    core/EventBus.h
+)
+target_include_directories(presenter-core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(presenter-core PUBLIC Qt6::Core)
+
 add_library(presenter-screens
     screens/ScreenManager.cpp
     screens/ScreenManager.h
@@ -37,6 +48,10 @@ target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
 add_library(presenter-persistence
+    persistence/ApplicationDatabase.cpp
+    persistence/ApplicationDatabase.h
+    persistence/DatabaseMigrator.cpp
+    persistence/DatabaseMigrator.h
     persistence/SettingsRepository.cpp
 )
 target_include_directories(presenter-persistence PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -84,7 +99,7 @@ add_library(presenter-app
 )
 target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-app PUBLIC
-    presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::HttpServer Qt6::WebSockets
+    presenter-core presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::HttpServer Qt6::WebSockets
 )
 
 qt_add_executable(church-presenter

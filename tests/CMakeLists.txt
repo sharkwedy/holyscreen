@@ -1,3 +1,11 @@
+qt_add_executable(test_command_bus unit/core/CommandBusTest.cpp)
+target_link_libraries(test_command_bus PRIVATE Qt6::Test presenter-core)
+add_test(NAME test_command_bus COMMAND test_command_bus)
+
+qt_add_executable(test_event_bus unit/core/EventBusTest.cpp)
+target_link_libraries(test_event_bus PRIVATE Qt6::Test presenter-core)
+add_test(NAME test_event_bus COMMAND test_event_bus)
+
 qt_add_executable(test_screens
     unit/screens/OutputManagerTest.cpp
 )
@@ -70,6 +78,14 @@ qt_add_executable(test_persistence
 target_link_libraries(test_persistence PRIVATE Qt6::Test presenter-persistence)
 add_test(NAME test_persistence COMMAND test_persistence)
 
+qt_add_executable(test_database_migrator unit/persistence/DatabaseMigratorTest.cpp)
+target_link_libraries(test_database_migrator PRIVATE Qt6::Test presenter-persistence)
+add_test(NAME test_database_migrator COMMAND test_database_migrator)
+
+qt_add_executable(test_application_database unit/persistence/ApplicationDatabaseTest.cpp)
+target_link_libraries(test_application_database PRIVATE Qt6::Test presenter-persistence)
+add_test(NAME test_application_database COMMAND test_application_database)
+
 qt_add_executable(test_media_repository
     unit/library/MediaRepositoryTest.cpp
 )
@@ -101,6 +117,14 @@ add_test(NAME test_history_repository COMMAND test_history_repository)
 qt_add_executable(test_data_recovery unit/app/DataRecoveryServiceTest.cpp)
 target_link_libraries(test_data_recovery PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_data_recovery COMMAND test_data_recovery)
+
+qt_add_executable(test_application_command_bridge unit/app/ApplicationCommandBridgeTest.cpp)
+target_link_libraries(test_application_command_bridge PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_application_command_bridge COMMAND test_application_command_bridge)
+set_tests_properties(test_application_command_bridge PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+    TIMEOUT 15
+)
 
 qt_add_executable(test_app_logger unit/app/AppLoggerTest.cpp)
 target_link_libraries(test_app_logger PRIVATE Qt6::Test presenter-app)

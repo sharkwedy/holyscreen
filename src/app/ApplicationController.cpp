@@ -1,5 +1,6 @@
 #include "app/ApplicationController.h"
 #include "app/AppLogger.h"
+#include "persistence/ApplicationDatabase.h"
 #include "screens/OutputRouting.h"
 
 #include <algorithm>
@@ -140,6 +141,25 @@ ApplicationController::ApplicationController(QObject *parent)
     , m_screenManager(std::make_unique<ScreenManager>(*m_screenProvider))
     , m_clock(std::make_unique<SystemClock>())
 {
+    m_commandBus.registerHandler(QStringLiteral("presentation.blackout.set"),
+                                 [this](const Command &command) {
+        const auto enabled = command.payload.value(QStringLiteral("enabled")).toBool();
+        if (m_blackout != enabled) {
+            m_blackout = enabled;
+            emit blackoutChanged(enabled);
+            m_eventBus.publish(DomainEvent{
+                .type = QStringLiteral("presentation.blackout.changed"),
+                .payload = {{QStringLiteral("enabled"), enabled}},
+                .occurredAt = QDateTime::currentDateTimeUtc(),
+                .correlationId = command.id,
+            });
+        }
+        return CommandResult{
+            .accepted = true,
+            .message = QStringLiteral("Blackout atualizado."),
+        };
+    });
+
     m_clockFontFamily = QFontDatabase::systemFont(QFontDatabase::GeneralFont).family();
     m_mediaCatalogDebounce.setSingleShot(true);
     m_mediaCatalogDebounce.setInterval(350);
@@ -221,6 +241,9 @@ ApplicationController::ApplicationController(QObject *parent)
 }
 
 ApplicationController::~ApplicationController(){if(m_recovery)m_recovery->endSession();}
+
+CommandBus &ApplicationController::commandBus() { return m_commandBus; }
+EventBus &ApplicationController::eventBus() { return m_eventBus; }
 
 QVariantList ApplicationController::screens() const { return m_screens; }
 
@@ -528,9 +551,13 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
 
 void ApplicationController::setBlackout(bool enabled)
 {
-    if (m_blackout == enabled) return;
-    m_blackout = enabled;
-    emit blackoutChanged(enabled);
+    m_commandBus.dispatch(Command{
+        .id = QUuid::createUuid().toString(QUuid::WithoutBraces),
+        .type = QStringLiteral("presentation.blackout.set"),
+        .payload = {{QStringLiteral("enabled"), enabled}},
+        .source = QStringLiteral("operator"),
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    });
 }
 
 void ApplicationController::identifyScreens()
@@ -1616,10 +1643,23 @@ void ApplicationController::loadSettings()
         : overridePath;
     m_dataDirectory=appData;
     QDir().mkpath(appData);
+    const auto databasePath = appData + QStringLiteral("/presenter.db");
     m_recovery=std::make_unique<DataRecoveryService>(appData);
     if(!m_recovery->applyPendingRestore())qWarning()<<"Could not apply pending database restore";
+    const auto migration = ApplicationDatabase::migrate(databasePath);
+    if (!migration.success) {
+        qCritical() << "Database migration failed:" << migration.error;
+        m_diagnostics = {
+            {QStringLiteral("database"), databasePath},
+            {QStringLiteral("schemaVersion"), migration.currentVersion},
+            {QStringLiteral("migrationError"), migration.error},
+        };
+        setStatusMessage(QStringLiteral("Não foi possível atualizar o banco local: %1")
+                             .arg(migration.error));
+        return;
+    }
     m_recovery->beginSession();
-    m_settings = std::make_unique<SettingsRepository>(appData + QStringLiteral("/presenter.db"));
+    m_settings = std::make_unique<SettingsRepository>(databasePath);
     if (!m_settings->open()) {
         qWarning() << "Failed to open settings database";
         return;
@@ -1668,7 +1708,7 @@ void ApplicationController::loadSettings()
     m_images.setAutoplayIntervalMs(m_settings->value(QStringLiteral("presentation/imageIntervalMs"), 5000).toInt());
     m_images.setAutoplay(m_settings->value(QStringLiteral("presentation/imageAutoplay"), false).toBool());
 
-    m_mediaRepository = std::make_unique<MediaRepository>(appData + QStringLiteral("/presenter.db"));
+    m_mediaRepository = std::make_unique<MediaRepository>(databasePath);
     if (!m_mediaRepository->open()) {
         qWarning() << "Failed to open media database";
     }
@@ -1677,13 +1717,13 @@ void ApplicationController::loadSettings()
     refreshMediaPlaylist();
     refreshImageLibrary();
     refreshMediaCatalog();
-    m_bibleRepository = std::make_unique<BibleRepository>(appData + QStringLiteral("/presenter.db"));
+    m_bibleRepository = std::make_unique<BibleRepository>(databasePath);
     if (!m_bibleRepository->open()) qWarning() << "Failed to open Bible database";
     refreshBibleTranslations();
-    m_presentationRepository = std::make_unique<PresentationRepository>(appData + QStringLiteral("/presenter.db"));
+    m_presentationRepository = std::make_unique<PresentationRepository>(databasePath);
     if (!m_presentationRepository->open()) qWarning() << "Failed to open presentation database";
     refreshTextPresentations();
-    m_themeRepository = std::make_unique<ThemeRepository>(appData + QStringLiteral("/presenter.db"));
+    m_themeRepository = std::make_unique<ThemeRepository>(databasePath);
     if (!m_themeRepository->open()) qWarning() << "Failed to open theme database";
     if (m_themeRepository->themes().isEmpty()) {
         Theme standard; standard.name=QStringLiteral("Padrão"); standard.fontFamily=m_clockFontFamily;
@@ -1691,13 +1731,13 @@ void ApplicationController::loadSettings()
     }
     refreshThemes(); loadActiveTheme();
     refreshSongs();
-    m_eventRepository=std::make_unique<EventRepository>(appData+QStringLiteral("/presenter.db"));
+    m_eventRepository=std::make_unique<EventRepository>(databasePath);
     if(!m_eventRepository->open())qWarning()<<"Failed to open event database";
     refreshEvents();
-    m_historyRepository=std::make_unique<HistoryRepository>(appData+QStringLiteral("/presenter.db"));
+    m_historyRepository=std::make_unique<HistoryRepository>(databasePath);
     if(!m_historyRepository->open())qWarning()<<"Failed to open history database";
     refreshHistory();
-    m_diagnostics={{"version",QCoreApplication::applicationVersion()},{"qtVersion",QString::fromLatin1(qVersion())},{"platform",QSysInfo::prettyProductName()},{"cpu",QSysInfo::currentCpuArchitecture()},{"dataDirectory",m_dataDirectory},{"database",appData+QStringLiteral("/presenter.db")},{"recoveredFromCrash",recoveredFromCrash()}};
+    m_diagnostics={{"version",QCoreApplication::applicationVersion()},{"qtVersion",QString::fromLatin1(qVersion())},{"platform",QSysInfo::prettyProductName()},{"cpu",QSysInfo::currentCpuArchitecture()},{"dataDirectory",m_dataDirectory},{"database",databasePath},{"schemaVersion",migration.currentVersion},{"migrationBackup",migration.backupPath},{"recoveredFromCrash",recoveredFromCrash()}};
 
     const auto serialized = m_settings->value(QStringLiteral("outputs/items")).toStringList();
     for (const auto &entry : serialized) {
