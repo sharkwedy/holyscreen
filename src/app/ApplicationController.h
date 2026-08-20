@@ -12,6 +12,7 @@
 #include "library/HistoryRepository.h"
 #include "library/MediaFolderScanner.h"
 #include "app/DataRecoveryService.h"
+#include "app/AutosaveCoordinator.h"
 #include "app/UpdateChecker.h"
 #include "presentation/TextPresentationController.h"
 #include "presentation/TimedMediaPlayback.h"
@@ -60,6 +61,8 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY undoStateChanged)
     Q_PROPERTY(QString undoLabel READ undoLabel NOTIFY undoStateChanged)
     Q_PROPERTY(QString redoLabel READ redoLabel NOTIFY undoStateChanged)
+    Q_PROPERTY(bool autosavePending READ autosavePending NOTIFY autosaveChanged)
+    Q_PROPERTY(QString autosaveStatus READ autosaveStatus NOTIFY autosaveChanged)
     Q_PROPERTY(bool identifyVisible READ identifyVisible NOTIFY identifyVisibleChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(QVariantList mediaPlaylist READ mediaPlaylist NOTIFY mediaPlaylistChanged)
@@ -175,6 +178,8 @@ public:
     [[nodiscard]] bool canRedo() const;
     [[nodiscard]] QString undoLabel() const;
     [[nodiscard]] QString redoLabel() const;
+    [[nodiscard]] bool autosavePending() const;
+    [[nodiscard]] QString autosaveStatus() const;
     [[nodiscard]] bool identifyVisible() const;
     [[nodiscard]] QString statusMessage() const;
     [[nodiscard]] QVariantList mediaPlaylist() const;
@@ -405,6 +410,7 @@ signals:
     void debugOptionsChanged();
     void blackoutChanged(bool active);
     void undoStateChanged();
+    void autosaveChanged();
     void identifyVisibleChanged();
     void statusMessageChanged();
     void mediaPlaylistChanged();
@@ -491,6 +497,7 @@ private:
     void refreshImageLibrary();
     void refreshTextPresentations();
     void saveCurrentPresentation();
+    bool persistCurrentPresentation();
     void refreshThemes();
     void loadActiveTheme();
     void refreshSongs();
@@ -530,6 +537,8 @@ private:
     std::unique_ptr<EventRepository> m_eventRepository;
     std::unique_ptr<HistoryRepository> m_historyRepository;
     std::unique_ptr<DataRecoveryService> m_recovery;
+    std::unique_ptr<AutosaveCoordinator> m_autosave;
+    QString m_autosaveStatus = QStringLiteral("Salvo");
     QVariantList m_mediaPlaylist;
     MediaFolderScanner m_mediaFolderScanner;
     QFileSystemWatcher m_mediaFolderWatcher;

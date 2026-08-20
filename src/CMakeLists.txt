@@ -103,6 +103,8 @@ target_link_libraries(presenter-bible PUBLIC Qt6::Core Qt6::Sql)
 
 add_library(presenter-app
     app/ApplicationController.cpp
+    app/AutosaveCoordinator.cpp
+    app/AutosaveCoordinator.h
     app/DataRecoveryService.cpp
     app/DataRecoveryService.h
     app/AppLogger.cpp

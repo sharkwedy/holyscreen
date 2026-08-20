@@ -507,6 +507,11 @@ ApplicationWindow {
                 font.letterSpacing: 1
             }
             Item { Layout.fillWidth: true }
+            Label {
+                text: presentationController.autosaveStatus
+                color: presentationController.autosavePending ? "#ffba70" : "#8da0bc"
+                font.pixelSize: 11
+            }
             Button { text: "BÍBLIA"; onClicked: bibleDialog.open() }
             Button { text: "PALCO"; onClicked: stageMessageDialog.open() }
             Button { text: "AO VIVO"; onClicked: liveDialog.open() }

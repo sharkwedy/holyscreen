@@ -138,6 +138,10 @@ qt_add_executable(test_data_recovery unit/app/DataRecoveryServiceTest.cpp)
 target_link_libraries(test_data_recovery PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_data_recovery COMMAND test_data_recovery)
 
+qt_add_executable(test_autosave_coordinator unit/app/AutosaveCoordinatorTest.cpp)
+target_link_libraries(test_autosave_coordinator PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_autosave_coordinator COMMAND test_autosave_coordinator)
+
 qt_add_executable(test_application_command_bridge unit/app/ApplicationCommandBridgeTest.cpp)
 target_link_libraries(test_application_command_bridge PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_application_command_bridge COMMAND test_application_command_bridge)

@@ -169,6 +169,23 @@ ApplicationController::ApplicationController(QObject *parent)
                 };
             },
         }, this);
+    m_autosave = std::make_unique<AutosaveCoordinator>(
+        [this] { return persistCurrentPresentation(); }, this);
+    connect(m_autosave.get(), &AutosaveCoordinator::dirtyChanged, this, [this](bool dirty) {
+        m_autosaveStatus = dirty ? QStringLiteral("Alterações pendentes…")
+                                 : QStringLiteral("Salvo");
+        emit autosaveChanged();
+    });
+    connect(m_autosave.get(), &AutosaveCoordinator::saved, this, [this] {
+        m_autosaveStatus = QStringLiteral("Salvo automaticamente");
+        emit autosaveChanged();
+    });
+    connect(m_autosave.get(), &AutosaveCoordinator::saveFailed,
+            this, [this](const QString &message) {
+        m_autosaveStatus = QStringLiteral("Falha ao salvar");
+        emit autosaveChanged();
+        setStatusMessage(message);
+    });
     m_clockFontFamily = QFontDatabase::systemFont(QFontDatabase::GeneralFont).family();
     m_mediaCatalogDebounce.setSingleShot(true);
     m_mediaCatalogDebounce.setInterval(350);
@@ -249,7 +266,11 @@ ApplicationController::ApplicationController(QObject *parent)
     });
 }
 
-ApplicationController::~ApplicationController(){if(m_recovery)m_recovery->endSession();}
+ApplicationController::~ApplicationController()
+{
+    if (m_autosave) m_autosave->flush();
+    if (m_recovery) m_recovery->endSession();
+}
 
 CommandBus &ApplicationController::commandBus() { return m_commandBus; }
 EventBus &ApplicationController::eventBus() { return m_eventBus; }
@@ -299,6 +320,8 @@ bool ApplicationController::canUndo() const { return m_undoManager.canUndo(); }
 bool ApplicationController::canRedo() const { return m_undoManager.canRedo(); }
 QString ApplicationController::undoLabel() const { return m_undoManager.undoLabel(); }
 QString ApplicationController::redoLabel() const { return m_undoManager.redoLabel(); }
+bool ApplicationController::autosavePending() const { return m_autosave && m_autosave->dirty(); }
+QString ApplicationController::autosaveStatus() const { return m_autosaveStatus; }
 bool ApplicationController::identifyVisible() const { return m_identifyVisible; }
 QString ApplicationController::statusMessage() const { return m_statusMessage; }
 QVariantList ApplicationController::mediaPlaylist() const { return m_mediaPlaylist; }
@@ -1075,6 +1098,7 @@ void ApplicationController::stopImage() { m_images.stop(); }
 
 QString ApplicationController::createTextPresentation(const QString &title)
 {
+    if (m_autosave && !m_autosave->flush()) return {};
     if (!m_presentationRepository) return {};
     Presentation item{.type = PresentationType::Text, .title = title.trimmed()};
     item.slides.append(Slide{.label = QStringLiteral("1"), .text = QStringLiteral("")});
@@ -1085,6 +1109,7 @@ QString ApplicationController::createTextPresentation(const QString &title)
 
 void ApplicationController::deleteTextPresentation(const QString &id)
 {
+    if (m_autosave && !m_autosave->flush()) return;
     if (!m_presentationRepository || !m_presentationRepository->remove(id)) return;
     if (currentPresentationId() == id) { m_textPresentation.stop(); m_textPresentation.setPresentation({}); }
     refreshTextPresentations(); refreshSongs(); emit currentPresentationChanged(); emit currentSlideChanged();
@@ -1092,6 +1117,7 @@ void ApplicationController::deleteTextPresentation(const QString &id)
 
 void ApplicationController::selectTextPresentation(const QString &id)
 {
+    if (m_autosave && !m_autosave->flush()) return;
     if (!m_presentationRepository) return;
     const auto item = m_presentationRepository->presentation(id);
     if (item.id.isEmpty()) return;
@@ -1177,6 +1203,7 @@ void ApplicationController::applyTheme(const QString &id)
 QString ApplicationController::createSong(const QString &title, const QString &author,
                                           const QString &structuredLyrics, const QString &sequenceText)
 {
+    if (m_autosave && !m_autosave->flush()) return {};
     if(!m_presentationRepository)return{};
     Presentation song{.type=PresentationType::Song,.title=title.trimmed(),.author=author.trimmed(),.defaultTheme=m_activeTheme.id};
     const auto blocks=structuredLyrics.split(QRegularExpression(QStringLiteral("\\n\\s*\\n")),Qt::SkipEmptyParts);
@@ -1196,6 +1223,7 @@ QString ApplicationController::createSong(const QString &title, const QString &a
 
 void ApplicationController::selectSong(const QString &id)
 {
+    if (m_autosave && !m_autosave->flush()) return;
     if(!m_presentationRepository)return;const auto song=m_presentationRepository->presentation(id);
     if(song.id.isEmpty()||song.type!=PresentationType::Song)return;
     m_textPresentation.stop();m_textPresentation.setPresentation(song);loadActiveTheme();
@@ -1234,7 +1262,7 @@ void ApplicationController::executeEventItem(const QString&id)
     }
 }
 void ApplicationController::clearHistory(){if(m_historyRepository&&m_historyRepository->clear())refreshHistory();}
-QString ApplicationController::createBackup(){if(!m_recovery)return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
+QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
 bool ApplicationController::scheduleRestore(const QUrl&source){if(!m_recovery)return false;const auto path=source.isLocalFile()?source.toLocalFile():source.toString();const bool ok=m_recovery->scheduleRestore(path);setStatusMessage(ok?QStringLiteral("Restauração agendada. Reinicie o HolyScreen para aplicá-la."):QStringLiteral("O arquivo não é um backup SQLite válido."));emit maintenanceChanged();return ok;}
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
 void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(QUrl(m_updateEndpoint),QCoreApplication::applicationVersion());}
@@ -2027,10 +2055,18 @@ void ApplicationController::refreshTextPresentations()
 
 void ApplicationController::saveCurrentPresentation()
 {
-    if (!m_presentationRepository || currentPresentationId().isEmpty()) return;
+    if (!m_presentationRepository || currentPresentationId().isEmpty() || !m_autosave) return;
+    m_autosave->markDirty();
+}
+
+bool ApplicationController::persistCurrentPresentation()
+{
+    if (!m_presentationRepository || currentPresentationId().isEmpty()) return true;
     if (!m_presentationRepository->save(m_textPresentation.presentation()).isEmpty()) {
         refreshTextPresentations(); emit textSlidesChanged(); emit currentSlideChanged();
+        return true;
     }
+    return false;
 }
 
 void ApplicationController::refreshThemes()

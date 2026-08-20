@@ -2,6 +2,7 @@
 #include <QtTest/QTest>
 
 #include "app/ApplicationController.h"
+#include "library/PresentationRepository.h"
 
 #include <QGuiApplication>
 #include <QTemporaryDir>
@@ -16,6 +17,7 @@ private slots:
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
+    void autosaveDebouncesPresentationEdits();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -109,6 +111,28 @@ void ApplicationCommandBridgeTest::undoAndRedoUseCommandBus()
     QVERIFY(controller.canUndo());
     QCOMPARE(qvariant_cast<Command>(commandSpy.last().at(0)).type,
              QStringLiteral("system.redo"));
+}
+
+void ApplicationCommandBridgeTest::autosaveDebouncesPresentationEdits()
+{
+    ApplicationController controller;
+    const auto presentationId = controller.createTextPresentation(QStringLiteral("Avisos"));
+    QVERIFY(!presentationId.isEmpty());
+    const auto slideId = controller.currentSlideId();
+    QVERIFY(!slideId.isEmpty());
+
+    controller.updateTextSlide(slideId, QStringLiteral("1"), QStringLiteral("Primeiro texto"));
+    controller.updateTextSlide(slideId, QStringLiteral("1"), QStringLiteral("Texto final"));
+
+    QVERIFY(controller.autosavePending());
+    QTRY_VERIFY_WITH_TIMEOUT(!controller.autosavePending(), 2000);
+
+    PresentationRepository persisted(
+        qEnvironmentVariable("HOLYSCREEN_DATA_DIR") + QStringLiteral("/presenter.db"));
+    QVERIFY(persisted.open());
+    const auto reloaded = persisted.presentation(presentationId);
+    QCOMPARE(reloaded.slides.size(), 1);
+    QCOMPARE(reloaded.slides.front().text, QStringLiteral("Texto final"));
 }
 
 int main(int argc, char **argv)
