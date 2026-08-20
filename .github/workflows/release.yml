@@ -59,6 +59,27 @@ jobs:
             --output release-tools/linuxdeploy-plugin-qt-x86_64.AppImage \
             "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/${LINUXDEPLOY_QT_VERSION}/linuxdeploy-plugin-qt-x86_64.AppImage"
           chmod +x release-tools/*.AppImage
+
+          qt_plugins_dir="$(qmake -query QT_INSTALL_PLUGINS)"
+          test -n "$qt_plugins_dir"
+          sql_drivers_dir="${qt_plugins_dir}/sqldrivers"
+          test -d "$sql_drivers_dir"
+          test ! -L "$sql_drivers_dir"
+          mapfile -d '' unused_sql_drivers < <(
+            find "$sql_drivers_dir" -maxdepth 1 -type f \
+              -name 'libqsql*.so' ! -name 'libqsqlite.so' -print0
+          )
+          for driver in "${unused_sql_drivers[@]}"; do
+            test -f "$driver"
+            test ! -L "$driver"
+            case "$driver" in
+              "$sql_drivers_dir"/libqsql*.so) ;;
+              *) echo "Unexpected SQL driver path: $driver" >&2; exit 1 ;;
+            esac
+            rm -- "$driver"
+          done
+          test -f "$sql_drivers_dir/libqsqlite.so"
+
           export APPIMAGE_EXTRACT_AND_RUN=1
           export PATH="$PWD/release-tools:$PATH"
           export QML_SOURCES_PATHS="$PWD/src/ui"
