@@ -123,6 +123,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           mapfile -d '' assets < <(find dist -type f -print0)
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
