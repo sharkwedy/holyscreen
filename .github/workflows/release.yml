@@ -5,14 +5,14 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -20,7 +20,11 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev ninja-build
+        run: sudo apt-get update && sudo apt-get install -y fakeroot libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev ninja-build patchelf
+
+      - name: Install Windows packaging dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis -y --no-progress
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -38,6 +42,36 @@ jobs:
       - name: Package
         run: cmake --build build --config Release --target package
 
+      - name: Build self-contained Linux AppImage
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          LINUXDEPLOY_VERSION: 1-alpha-20251107-1
+          LINUXDEPLOY_SHA256: c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d
+          LINUXDEPLOY_QT_VERSION: 1-alpha-20250213-1
+        run: |
+          mkdir -p release-tools
+          curl --fail --location --retry 3 \
+            --output release-tools/linuxdeploy-x86_64.AppImage \
+            "https://github.com/linuxdeploy/linuxdeploy/releases/download/${LINUXDEPLOY_VERSION}/linuxdeploy-x86_64.AppImage"
+          printf '%s  %s\n' "$LINUXDEPLOY_SHA256" release-tools/linuxdeploy-x86_64.AppImage | sha256sum --check
+          curl --fail --location --retry 3 \
+            --output release-tools/linuxdeploy-plugin-qt-x86_64.AppImage \
+            "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/${LINUXDEPLOY_QT_VERSION}/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x release-tools/*.AppImage
+          export APPIMAGE_EXTRACT_AND_RUN=1
+          export PATH="$PWD/release-tools:$PATH"
+          export QML_SOURCES_PATHS="$PWD/src/ui"
+          export LDAI_OUTPUT="$PWD/build/HolyScreen-${GITHUB_REF_NAME}-Linux-x86_64.AppImage"
+          release-tools/linuxdeploy-x86_64.AppImage \
+            --appimage-extract-and-run \
+            --appdir build/AppDir \
+            --executable build/src/church-presenter \
+            --desktop-file packaging/app.holyscreen.presenter.desktop \
+            --icon-file packaging/holyscreen.svg \
+            --plugin qt \
+            --output appimage
+
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
@@ -48,4 +82,30 @@ jobs:
             build/*.exe
             build/*.deb
             build/*.tar.gz
+            build/*.AppImage
           if-no-files-found: error
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v5
+        with:
+          path: dist
+
+      - name: Generate checksums
+        shell: bash
+        run: find dist -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+
+      - name: Publish GitHub pre-release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mapfile -d '' assets < <(find dist -type f -print0)
+          gh release create "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS \
+            --generate-notes \
+            --prerelease \
+            --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)" \
+            --verify-tag
