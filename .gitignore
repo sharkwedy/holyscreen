@@ -1,0 +1,5 @@
+/build/
+/cmake-build-*/
+/.qt/
+.DS_Store
+*.user

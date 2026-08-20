@@ -1,0 +1,149 @@
+#include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
+
+#include "app/ApplicationController.h"
+#include "library/PresentationRepository.h"
+
+#include <QGuiApplication>
+#include <QTemporaryDir>
+
+using namespace churchpresenter;
+
+class ApplicationCommandBridgeTest final : public QObject {
+    Q_OBJECT
+
+private slots:
+    void operatorBlackoutUsesCommandAndEventBuses();
+    void operatorOverlayUsesCommandAndEventBuses();
+    void operatorMediaUsesCommandAndEventBuses();
+    void undoAndRedoUseCommandBus();
+    void autosaveDebouncesPresentationEdits();
+};
+
+void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 1);
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.setBlackout(true);
+
+    QVERIFY(controller.blackout());
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto result = qvariant_cast<CommandResult>(commandSpy.first().at(1));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("presentation.blackout.set"));
+    QCOMPARE(command.source, QStringLiteral("operator"));
+    QVERIFY(result.accepted);
+    QCOMPARE(event.type, QStringLiteral("presentation.blackout.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::operatorOverlayUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.setAudienceMessage(QStringLiteral("Aviso importante"));
+
+    QCOMPARE(controller.audienceMessage(), QStringLiteral("Aviso importante"));
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("overlay.audience-message.set"));
+    QCOMPARE(event.type, QStringLiteral("overlay.state.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.stopMedia();
+
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("media.stop"));
+    QCOMPARE(event.type, QStringLiteral("media.state.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::undoAndRedoUseCommandBus()
+{
+    qRegisterMetaType<Command>();
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+
+    controller.setBlackout(true);
+    QVERIFY(controller.blackout());
+    QVERIFY(controller.canUndo());
+
+    controller.undo();
+    QVERIFY(!controller.blackout());
+    QVERIFY(controller.canRedo());
+    QCOMPARE(qvariant_cast<Command>(commandSpy.last().at(0)).type,
+             QStringLiteral("system.undo"));
+
+    controller.redo();
+    QVERIFY(controller.blackout());
+    QVERIFY(controller.canUndo());
+    QCOMPARE(qvariant_cast<Command>(commandSpy.last().at(0)).type,
+             QStringLiteral("system.redo"));
+}
+
+void ApplicationCommandBridgeTest::autosaveDebouncesPresentationEdits()
+{
+    ApplicationController controller;
+    const auto presentationId = controller.createTextPresentation(QStringLiteral("Avisos"));
+    QVERIFY(!presentationId.isEmpty());
+    const auto slideId = controller.currentSlideId();
+    QVERIFY(!slideId.isEmpty());
+
+    controller.updateTextSlide(slideId, QStringLiteral("1"), QStringLiteral("Primeiro texto"));
+    controller.updateTextSlide(slideId, QStringLiteral("1"), QStringLiteral("Texto final"));
+
+    QVERIFY(controller.autosavePending());
+    QTRY_VERIFY_WITH_TIMEOUT(!controller.autosavePending(), 2000);
+
+    PresentationRepository persisted(
+        qEnvironmentVariable("HOLYSCREEN_DATA_DIR") + QStringLiteral("/presenter.db"));
+    QVERIFY(persisted.open());
+    const auto reloaded = persisted.presentation(presentationId);
+    QCOMPARE(reloaded.slides.size(), 1);
+    QCOMPARE(reloaded.slides.front().text, QStringLiteral("Texto final"));
+}
+
+int main(int argc, char **argv)
+{
+    qputenv("QT_QPA_PLATFORM", QByteArrayLiteral("offscreen"));
+    QGuiApplication app(argc, argv);
+    QTemporaryDir dataDirectory;
+    if (!dataDirectory.isValid()) return 2;
+    qputenv("HOLYSCREEN_DATA_DIR", dataDirectory.path().toUtf8());
+    ApplicationCommandBridgeTest test;
+    return QTest::qExec(&test, argc, argv);
+}
+
+#include "ApplicationCommandBridgeTest.moc"

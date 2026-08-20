@@ -1,0 +1,27 @@
+{
+  "translation": {
+    "name": "Tradução de Demonstração",
+    "abbreviation": "DEMO",
+    "language": "pt-BR"
+  },
+  "verses": [
+    {
+      "book": "João",
+      "chapter": 3,
+      "verse": 16,
+      "text": "Texto demonstrativo para João 3:16. Substitua pelo conteúdo licenciado da tradução."
+    },
+    {
+      "book": "João",
+      "chapter": 3,
+      "verse": 17,
+      "text": "Texto demonstrativo para João 3:17."
+    },
+    {
+      "book": "Salmos",
+      "chapter": 23,
+      "verse": 1,
+      "text": "Texto demonstrativo para Salmos 23:1."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# Avisos de terceiros
+
+O HolyScreen utiliza bibliotecas de terceiros sem incorporar traduções bíblicas ou mídias do usuário.
+
+## Qt 6
+
+O aplicativo usa módulos Qt Core, Gui, Quick, Quick Controls, Multimedia, SQL, Network, HttpServer, WebSockets e Test. Qt é disponibilizado sob diferentes licenças, incluindo GPLv3, LGPLv3 e licença comercial conforme o módulo e a distribuição. O HolyScreen é GPLv3. Consulte <https://www.qt.io/licensing> e os avisos incluídos na distribuição Qt usada para gerar cada pacote.
+
+## SQLite
+
+SQLite é de domínio público. Consulte <https://www.sqlite.org/copyright.html>.
+
+## Conteúdo importado
+
+Traduções bíblicas, imagens, músicas, áudios e vídeos importados não são redistribuídos com o HolyScreen. A licença e a autorização de uso desses conteúdos são responsabilidade do usuário.
+
+Este arquivo será atualizado quando libgit2, RtMidi ou outros adapters forem adicionados ao produto.
