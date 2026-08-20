@@ -6,6 +6,10 @@ qt_add_executable(test_event_bus unit/core/EventBusTest.cpp)
 target_link_libraries(test_event_bus PRIVATE Qt6::Test presenter-core)
 add_test(NAME test_event_bus COMMAND test_event_bus)
 
+qt_add_executable(test_undo_manager unit/core/UndoManagerTest.cpp)
+target_link_libraries(test_undo_manager PRIVATE Qt6::Test presenter-core)
+add_test(NAME test_undo_manager COMMAND test_undo_manager)
+
 qt_add_executable(test_output_module unit/modules/OutputModuleTest.cpp)
 target_link_libraries(test_output_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_module COMMAND test_output_module)
@@ -17,6 +21,10 @@ add_test(NAME test_overlay_command_module COMMAND test_overlay_command_module)
 qt_add_executable(test_media_command_module unit/modules/MediaCommandModuleTest.cpp)
 target_link_libraries(test_media_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_media_command_module COMMAND test_media_command_module)
+
+qt_add_executable(test_undo_command_module unit/modules/UndoCommandModuleTest.cpp)
+target_link_libraries(test_undo_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_undo_command_module COMMAND test_undo_command_module)
 
 qt_add_executable(test_screens
     unit/screens/OutputManagerTest.cpp

@@ -5,6 +5,8 @@ add_library(presenter-core
     core/EventTypes.h
     core/EventBus.cpp
     core/EventBus.h
+    core/UndoManager.cpp
+    core/UndoManager.h
 )
 target_include_directories(presenter-core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-core PUBLIC Qt6::Core)
@@ -54,6 +56,8 @@ add_library(presenter-modules
     modules/OverlayCommandModule.h
     modules/MediaCommandModule.cpp
     modules/MediaCommandModule.h
+    modules/UndoCommandModule.cpp
+    modules/UndoCommandModule.h
 )
 target_include_directories(presenter-modules PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation Qt6::Core)

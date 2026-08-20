@@ -10,6 +10,7 @@ class OutputModuleTest final : public QObject {
 
 private slots:
     void ownsBlackoutStateAndPublishesCorrelatedEvent();
+    void rejectsMissingBooleanPayload();
 };
 
 void OutputModuleTest::ownsBlackoutStateAndPublishesCorrelatedEvent()
@@ -19,7 +20,8 @@ void OutputModuleTest::ownsBlackoutStateAndPublishesCorrelatedEvent()
     qRegisterMetaType<DomainEvent>();
     CommandBus commandBus;
     EventBus eventBus;
-    OutputModule module(commandBus, eventBus);
+    UndoManager undoManager;
+    OutputModule module(commandBus, eventBus, &undoManager);
     QSignalSpy changedSpy(&module, &OutputModule::blackoutChanged);
     QSignalSpy commandSpy(&commandBus, &CommandBus::commandDispatched);
     QSignalSpy eventSpy(&eventBus, &EventBus::eventPublished);
@@ -35,6 +37,33 @@ void OutputModuleTest::ownsBlackoutStateAndPublishesCorrelatedEvent()
     const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
     QCOMPARE(command.source, QStringLiteral("remote"));
     QCOMPARE(event.correlationId, command.id);
+
+    QVERIFY(undoManager.canUndo());
+    QVERIFY(undoManager.undo().success);
+    QVERIFY(!module.blackout());
+    QVERIFY(undoManager.canRedo());
+    QVERIFY(undoManager.redo().success);
+    QVERIFY(module.blackout());
+    QCOMPARE(changedSpy.count(), 3);
+    QCOMPARE(eventSpy.count(), 3);
+}
+
+void OutputModuleTest::rejectsMissingBooleanPayload()
+{
+    CommandBus commandBus;
+    EventBus eventBus;
+    OutputModule module(commandBus, eventBus);
+
+    const auto result = commandBus.dispatch(Command{
+        .id = QStringLiteral("invalid-blackout"),
+        .type = QStringLiteral("presentation.blackout.set"),
+        .source = QStringLiteral("remote"),
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    });
+
+    QVERIFY(!result.accepted);
+    QCOMPARE(result.errorCode, QStringLiteral("invalid_payload"));
+    QVERIFY(!module.blackout());
 }
 
 QTEST_APPLESS_MAIN(OutputModuleTest)

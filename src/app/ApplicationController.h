@@ -24,6 +24,7 @@
 #include "modules/OutputModule.h"
 #include "modules/OverlayCommandModule.h"
 #include "modules/MediaCommandModule.h"
+#include "modules/UndoCommandModule.h"
 
 #include <QObject>
 #include <QFileSystemWatcher>
@@ -55,6 +56,10 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool debugDiagnostics READ debugDiagnostics WRITE setDebugDiagnostics NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugLogging READ debugLogging WRITE setDebugLogging NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
+    Q_PROPERTY(bool canUndo READ canUndo NOTIFY undoStateChanged)
+    Q_PROPERTY(bool canRedo READ canRedo NOTIFY undoStateChanged)
+    Q_PROPERTY(QString undoLabel READ undoLabel NOTIFY undoStateChanged)
+    Q_PROPERTY(QString redoLabel READ redoLabel NOTIFY undoStateChanged)
     Q_PROPERTY(bool identifyVisible READ identifyVisible NOTIFY identifyVisibleChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(QVariantList mediaPlaylist READ mediaPlaylist NOTIFY mediaPlaylistChanged)
@@ -166,6 +171,10 @@ public:
     [[nodiscard]] bool debugDiagnostics() const;
     [[nodiscard]] bool debugLogging() const;
     [[nodiscard]] bool blackout() const;
+    [[nodiscard]] bool canUndo() const;
+    [[nodiscard]] bool canRedo() const;
+    [[nodiscard]] QString undoLabel() const;
+    [[nodiscard]] QString redoLabel() const;
     [[nodiscard]] bool identifyVisible() const;
     [[nodiscard]] QString statusMessage() const;
     [[nodiscard]] QVariantList mediaPlaylist() const;
@@ -257,6 +266,8 @@ public:
     Q_INVOKABLE bool setOutputBibleTranslation(const QString &screenFingerprint, const QString &translationId);
     Q_INVOKABLE bool setOutputRole(const QString &screenFingerprint, const QString &role);
     Q_INVOKABLE void setBlackout(bool enabled);
+    Q_INVOKABLE void undo();
+    Q_INVOKABLE void redo();
     Q_INVOKABLE void identifyScreens();
     Q_INVOKABLE void clearStatusMessage();
     Q_INVOKABLE void moveMedia(const QString &id, int newIndex);
@@ -393,6 +404,7 @@ signals:
     void simulatedOutputCountChanged();
     void debugOptionsChanged();
     void blackoutChanged(bool active);
+    void undoStateChanged();
     void identifyVisibleChanged();
     void statusMessageChanged();
     void mediaPlaylistChanged();
@@ -451,7 +463,9 @@ signals:
 private:
     CommandBus m_commandBus;
     EventBus m_eventBus;
+    UndoManager m_undoManager;
     OutputModule m_outputModule;
+    UndoCommandModule m_undoCommands;
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);

@@ -15,6 +15,7 @@ private slots:
     void operatorBlackoutUsesCommandAndEventBuses();
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
+    void undoAndRedoUseCommandBus();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -85,6 +86,29 @@ void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
     QCOMPARE(command.type, QStringLiteral("media.stop"));
     QCOMPARE(event.type, QStringLiteral("media.state.changed"));
     QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::undoAndRedoUseCommandBus()
+{
+    qRegisterMetaType<Command>();
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+
+    controller.setBlackout(true);
+    QVERIFY(controller.blackout());
+    QVERIFY(controller.canUndo());
+
+    controller.undo();
+    QVERIFY(!controller.blackout());
+    QVERIFY(controller.canRedo());
+    QCOMPARE(qvariant_cast<Command>(commandSpy.last().at(0)).type,
+             QStringLiteral("system.undo"));
+
+    controller.redo();
+    QVERIFY(controller.blackout());
+    QVERIFY(controller.canUndo());
+    QCOMPARE(qvariant_cast<Command>(commandSpy.last().at(0)).type,
+             QStringLiteral("system.redo"));
 }
 
 int main(int argc, char **argv)

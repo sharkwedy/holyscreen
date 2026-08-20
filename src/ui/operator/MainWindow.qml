@@ -1243,6 +1243,25 @@ ApplicationWindow {
                         value: presentationController.simulatedOutputCount
                         onMoved: presentationController.simulatedOutputCount = Math.round(value)
                     }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Button {
+                            text: presentationController.undoLabel.length > 0
+                                  ? "DESFAZER: " + presentationController.undoLabel.toUpperCase()
+                                  : "DESFAZER"
+                            Layout.fillWidth: true
+                            enabled: presentationController.canUndo
+                            onClicked: presentationController.undo()
+                        }
+                        Button {
+                            text: presentationController.redoLabel.length > 0
+                                  ? "REFAZER: " + presentationController.redoLabel.toUpperCase()
+                                  : "REFAZER"
+                            Layout.fillWidth: true
+                            enabled: presentationController.canRedo
+                            onClicked: presentationController.redo()
+                        }
+                    }
                     Button {
                         text: presentationController.blackout ? "RESTAURAR APRESENTAÇÃO" : "BLACKOUT"
                         Layout.fillWidth: true
@@ -1284,6 +1303,8 @@ ApplicationWindow {
     Shortcut { sequence: "End"; enabled: presentationController.textVisible; onActivated: presentationController.lastTextSlide() }
     Shortcut { sequence: "Escape"; enabled: presentationController.textVisible; onActivated: presentationController.stopTextPresentation() }
     Shortcut { sequence: "B"; onActivated: presentationController.setBlackout(!presentationController.blackout) }
+    Shortcut { sequence: StandardKey.Undo; enabled: presentationController.canUndo; onActivated: presentationController.undo() }
+    Shortcut { sequence: StandardKey.Redo; enabled: presentationController.canRedo; onActivated: presentationController.redo() }
     Shortcut { sequence: "Ctrl+B"; onActivated: presentationController.createBackup() }
     Shortcut { sequence: "Ctrl+S"; enabled: presentationController.currentSlideId.length > 0; onActivated: presentationController.updateTextSlide(presentationController.currentSlideId, slideLabelEditor.text, slideTextEditor.text) }
     Shortcut { sequence: "F5"; onActivated: presentationController.checkForUpdates() }

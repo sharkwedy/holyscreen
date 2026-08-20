@@ -137,13 +137,16 @@ QVariantMap mapTheme(const Theme &t)
 
 ApplicationController::ApplicationController(QObject *parent)
     : QObject(parent)
-    , m_outputModule(m_commandBus, m_eventBus)
+    , m_outputModule(m_commandBus, m_eventBus, &m_undoManager)
+    , m_undoCommands(m_commandBus, m_eventBus, m_undoManager)
     , m_screenProvider(std::make_unique<QtScreenProvider>())
     , m_screenManager(std::make_unique<ScreenManager>(*m_screenProvider))
     , m_clock(std::make_unique<SystemClock>())
 {
     connect(&m_outputModule, &OutputModule::blackoutChanged,
             this, &ApplicationController::blackoutChanged);
+    connect(&m_undoManager, &UndoManager::stateChanged,
+            this, &ApplicationController::undoStateChanged);
     m_overlayCommands = std::make_unique<OverlayCommandModule>(
         m_commandBus, m_eventBus, m_overlays, this);
     m_mediaCommands = std::make_unique<MediaCommandModule>(
@@ -292,6 +295,10 @@ bool ApplicationController::debugSimulatedOutputs() const { return m_debugSimula
 bool ApplicationController::debugDiagnostics() const { return m_debugDiagnostics; }
 bool ApplicationController::debugLogging() const { return m_debugLogging; }
 bool ApplicationController::blackout() const { return m_outputModule.blackout(); }
+bool ApplicationController::canUndo() const { return m_undoManager.canUndo(); }
+bool ApplicationController::canRedo() const { return m_undoManager.canRedo(); }
+QString ApplicationController::undoLabel() const { return m_undoManager.undoLabel(); }
+QString ApplicationController::redoLabel() const { return m_undoManager.redoLabel(); }
 bool ApplicationController::identifyVisible() const { return m_identifyVisible; }
 QString ApplicationController::statusMessage() const { return m_statusMessage; }
 QVariantList ApplicationController::mediaPlaylist() const { return m_mediaPlaylist; }
@@ -559,6 +566,9 @@ void ApplicationController::setBlackout(bool enabled)
 {
     m_outputModule.requestBlackout(enabled);
 }
+
+void ApplicationController::undo() { m_undoCommands.requestUndo(); }
+void ApplicationController::redo() { m_undoCommands.requestRedo(); }
 
 void ApplicationController::identifyScreens()
 {
