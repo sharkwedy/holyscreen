@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=HolyScreen
+Comment=Motor de apresentação para igrejas
+Exec=church-presenter
+Icon=app.holyscreen.presenter
+Terminal=false
+Categories=AudioVideo;Presentation;
+StartupNotify=true
