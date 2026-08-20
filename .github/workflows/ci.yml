@@ -23,7 +23,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: "6.11.1"
-          modules: "qthttpserver qtwebsockets"
+          modules: "qthttpserver qtmultimedia qtwebsockets"
           cache: true
 
       - name: Configure
