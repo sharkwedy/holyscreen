@@ -137,29 +137,35 @@ QVariantMap mapTheme(const Theme &t)
 
 ApplicationController::ApplicationController(QObject *parent)
     : QObject(parent)
+    , m_outputModule(m_commandBus, m_eventBus)
     , m_screenProvider(std::make_unique<QtScreenProvider>())
     , m_screenManager(std::make_unique<ScreenManager>(*m_screenProvider))
     , m_clock(std::make_unique<SystemClock>())
 {
-    m_commandBus.registerHandler(QStringLiteral("presentation.blackout.set"),
-                                 [this](const Command &command) {
-        const auto enabled = command.payload.value(QStringLiteral("enabled")).toBool();
-        if (m_blackout != enabled) {
-            m_blackout = enabled;
-            emit blackoutChanged(enabled);
-            m_eventBus.publish(DomainEvent{
-                .type = QStringLiteral("presentation.blackout.changed"),
-                .payload = {{QStringLiteral("enabled"), enabled}},
-                .occurredAt = QDateTime::currentDateTimeUtc(),
-                .correlationId = command.id,
-            });
-        }
-        return CommandResult{
-            .accepted = true,
-            .message = QStringLiteral("Blackout atualizado."),
-        };
-    });
-
+    connect(&m_outputModule, &OutputModule::blackoutChanged,
+            this, &ApplicationController::blackoutChanged);
+    m_overlayCommands = std::make_unique<OverlayCommandModule>(
+        m_commandBus, m_eventBus, m_overlays, this);
+    m_mediaCommands = std::make_unique<MediaCommandModule>(
+        m_commandBus, m_eventBus,
+        MediaCommandModule::Actions{
+            .play = [this](const QString &id) { return applyPlayMedia(id); },
+            .togglePause = [this] { return applyToggleMediaPause(); },
+            .stop = [this] { return applyStopMedia(); },
+            .seek = [this](int positionMs) { return applySeekMedia(positionMs); },
+            .previous = [this] { return applyPreviousMedia(); },
+            .next = [this] { return applyNextMedia(); },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("mediaId"), currentMediaId()},
+                    {QStringLiteral("mediaType"), currentMediaType()},
+                    {QStringLiteral("state"), mediaState()},
+                    {QStringLiteral("positionMs"), mediaPositionMs()},
+                    {QStringLiteral("durationMs"), mediaDurationMs()},
+                    {QStringLiteral("repeatMode"), mediaRepeatMode()},
+                };
+            },
+        }, this);
     m_clockFontFamily = QFontDatabase::systemFont(QFontDatabase::GeneralFont).family();
     m_mediaCatalogDebounce.setSingleShot(true);
     m_mediaCatalogDebounce.setInterval(350);
@@ -285,7 +291,7 @@ bool ApplicationController::debugEnabled() const { return m_debugEnabled; }
 bool ApplicationController::debugSimulatedOutputs() const { return m_debugSimulatedOutputs; }
 bool ApplicationController::debugDiagnostics() const { return m_debugDiagnostics; }
 bool ApplicationController::debugLogging() const { return m_debugLogging; }
-bool ApplicationController::blackout() const { return m_blackout; }
+bool ApplicationController::blackout() const { return m_outputModule.blackout(); }
 bool ApplicationController::identifyVisible() const { return m_identifyVisible; }
 QString ApplicationController::statusMessage() const { return m_statusMessage; }
 QVariantList ApplicationController::mediaPlaylist() const { return m_mediaPlaylist; }
@@ -551,13 +557,7 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
 
 void ApplicationController::setBlackout(bool enabled)
 {
-    m_commandBus.dispatch(Command{
-        .id = QUuid::createUuid().toString(QUuid::WithoutBraces),
-        .type = QStringLiteral("presentation.blackout.set"),
-        .payload = {{QStringLiteral("enabled"), enabled}},
-        .source = QStringLiteral("operator"),
-        .issuedAt = QDateTime::currentDateTimeUtc(),
-    });
+    m_outputModule.requestBlackout(enabled);
 }
 
 void ApplicationController::identifyScreens()
@@ -660,12 +660,17 @@ void ApplicationController::moveMedia(const QString &id, int newIndex)
 
 void ApplicationController::playMedia(const QString &id)
 {
-    if (!m_mediaRepository) return;
+    m_mediaCommands->requestPlay(id);
+}
+
+bool ApplicationController::applyPlayMedia(const QString &id)
+{
+    if (!m_mediaRepository) return false;
     const auto item = m_mediaRepository->item(id);
-    if (item.id.isEmpty()) return;
+    if (item.id.isEmpty()) return false;
     if (!QFileInfo::exists(item.path)) {
         setStatusMessage(QStringLiteral("O arquivo não existe mais: %1").arg(item.title));
-        return;
+        return false;
     }
 
     const auto previousItem = m_mediaRepository->item(m_currentMediaId);
@@ -687,7 +692,7 @@ void ApplicationController::playMedia(const QString &id)
         }
         if (!m_images.show(id)) {
             setStatusMessage(QStringLiteral("Não foi possível exibir a imagem selecionada."));
-            return;
+            return false;
         }
         m_stillMedia.start(item.durationMs > 0 ? static_cast<int>(item.durationMs)
                                                : m_images.autoplayIntervalMs());
@@ -699,7 +704,7 @@ void ApplicationController::playMedia(const QString &id)
         emit mediaDurationChanged();
         recordHistory(QStringLiteral("image"), id, item.title);
         setStatusMessage({});
-        return;
+        return true;
     }
 
     m_stillMedia.stop();
@@ -724,20 +729,38 @@ void ApplicationController::playMedia(const QString &id)
     m_video.play();
     recordHistory(isVideo ? QStringLiteral("video") : QStringLiteral("audio"), id, item.title);
     setStatusMessage({});
+    return true;
 }
 
 void ApplicationController::toggleMediaPause()
 {
+    m_mediaCommands->requestTogglePause();
+}
+
+bool ApplicationController::applyToggleMediaPause()
+{
     if (currentMediaType() == QStringLiteral("image")) {
         if (m_stillMedia.playing()) m_stillMedia.pause();
         else m_stillMedia.resume();
-        return;
+        return true;
     }
-    if (m_video.state() == VideoState::Playing) m_video.pause();
-    else if (m_video.state() == VideoState::Paused || m_video.state() == VideoState::Ready) m_video.play();
+    if (m_video.state() == VideoState::Playing) {
+        m_video.pause();
+        return true;
+    }
+    if (m_video.state() == VideoState::Paused || m_video.state() == VideoState::Ready) {
+        m_video.play();
+        return true;
+    }
+    return false;
 }
 
 void ApplicationController::stopMedia()
+{
+    m_mediaCommands->requestStop();
+}
+
+bool ApplicationController::applyStopMedia()
 {
     if (currentMediaType() == QStringLiteral("image")) {
         m_stillMedia.stop();
@@ -748,17 +771,29 @@ void ApplicationController::stopMedia()
         m_videoVisible = false;
         emit videoVisibleChanged();
     }
+    return true;
 }
 
 void ApplicationController::seekMedia(int positionMs)
 {
+    m_mediaCommands->requestSeek(positionMs);
+}
+
+bool ApplicationController::applySeekMedia(int positionMs)
+{
     if (currentMediaType() == QStringLiteral("image")) m_stillMedia.seek(positionMs);
     else m_video.seek(positionMs);
+    return true;
 }
 
 void ApplicationController::previousMedia()
 {
-    if (m_mediaPlaylist.isEmpty()) return;
+    m_mediaCommands->requestPrevious();
+}
+
+bool ApplicationController::applyPreviousMedia()
+{
+    if (m_mediaPlaylist.isEmpty()) return false;
     int currentIndex = 0;
     for (int index = 0; index < m_mediaPlaylist.size(); ++index) {
         if (m_mediaPlaylist[index].toMap().value(QStringLiteral("id")).toString() == m_currentMediaId) {
@@ -767,12 +802,17 @@ void ApplicationController::previousMedia()
         }
     }
     const auto target = currentIndex > 0 ? currentIndex - 1 : m_mediaPlaylist.size() - 1;
-    playMedia(m_mediaPlaylist[target].toMap().value(QStringLiteral("id")).toString());
+    return applyPlayMedia(m_mediaPlaylist[target].toMap().value(QStringLiteral("id")).toString());
 }
 
 void ApplicationController::nextMedia()
 {
-    if (m_mediaPlaylist.isEmpty()) return;
+    m_mediaCommands->requestNext();
+}
+
+bool ApplicationController::applyNextMedia()
+{
+    if (m_mediaPlaylist.isEmpty()) return false;
     int currentIndex = -1;
     for (int index = 0; index < m_mediaPlaylist.size(); ++index) {
         if (m_mediaPlaylist[index].toMap().value(QStringLiteral("id")).toString() == m_currentMediaId) {
@@ -781,17 +821,19 @@ void ApplicationController::nextMedia()
         }
     }
     const auto target = (currentIndex + 1) % m_mediaPlaylist.size();
-    playMedia(m_mediaPlaylist[target].toMap().value(QStringLiteral("id")).toString());
+    return applyPlayMedia(m_mediaPlaylist[target].toMap().value(QStringLiteral("id")).toString());
 }
 
 void ApplicationController::advanceMediaAfterFinish()
 {
     if (m_mediaRepeatMode == QStringLiteral("one")) {
-        if (currentMediaType() == QStringLiteral("image")) playMedia(m_currentMediaId);
+        if (currentMediaType() == QStringLiteral("image")) {
+            m_mediaCommands->requestPlay(m_currentMediaId, QStringLiteral("system"));
+        }
         return;
     }
     if (m_mediaPlaylist.isEmpty()) {
-        stopMedia();
+        m_mediaCommands->requestStop(QStringLiteral("system"));
         return;
     }
 
@@ -803,11 +845,15 @@ void ApplicationController::advanceMediaAfterFinish()
         }
     }
     if (currentIndex >= 0 && currentIndex + 1 < m_mediaPlaylist.size()) {
-        playMedia(m_mediaPlaylist[currentIndex + 1].toMap().value(QStringLiteral("id")).toString());
+        m_mediaCommands->requestPlay(
+            m_mediaPlaylist[currentIndex + 1].toMap().value(QStringLiteral("id")).toString(),
+            QStringLiteral("system"));
     } else if (m_mediaRepeatMode == QStringLiteral("all")) {
-        playMedia(m_mediaPlaylist.front().toMap().value(QStringLiteral("id")).toString());
+        m_mediaCommands->requestPlay(
+            m_mediaPlaylist.front().toMap().value(QStringLiteral("id")).toString(),
+            QStringLiteral("system"));
     } else {
-        stopMedia();
+        m_mediaCommands->requestStop(QStringLiteral("system"));
     }
 }
 
@@ -1446,15 +1492,22 @@ void ApplicationController::setStageMessage(const QString &message)
     emit stageMessageChanged();
 }
 
-void ApplicationController::setAudienceMessage(const QString &message) { m_overlays.setMessage(message); }
-void ApplicationController::setAlertMessage(const QString &message) { m_overlays.setAlert(message); }
+void ApplicationController::setAudienceMessage(const QString &message)
+{ m_overlayCommands->requestAudienceMessage(message); }
+void ApplicationController::setAlertMessage(const QString &message)
+{ m_overlayCommands->requestAlert(message); }
 void ApplicationController::setLowerThird(const QString &title, const QString &subtitle)
-{ m_overlays.setLowerThird(title, subtitle); }
-void ApplicationController::startCountdown(int seconds) { m_overlays.startCountdown(seconds); }
-void ApplicationController::stopCountdown() { m_overlays.stopCountdown(); }
-void ApplicationController::startStopwatch() { m_overlays.startStopwatch(); }
-void ApplicationController::pauseStopwatch() { m_overlays.pauseStopwatch(); }
-void ApplicationController::resetStopwatch() { m_overlays.resetStopwatch(); }
+{ m_overlayCommands->requestLowerThird(title, subtitle); }
+void ApplicationController::startCountdown(int seconds)
+{ m_overlayCommands->requestCountdownStart(seconds); }
+void ApplicationController::stopCountdown()
+{ m_overlayCommands->requestCountdownStop(); }
+void ApplicationController::startStopwatch()
+{ m_overlayCommands->requestStopwatchStart(); }
+void ApplicationController::pauseStopwatch()
+{ m_overlayCommands->requestStopwatchPause(); }
+void ApplicationController::resetStopwatch()
+{ m_overlayCommands->requestStopwatchReset(); }
 
 void ApplicationController::setDebugEnabled(bool enabled)
 {

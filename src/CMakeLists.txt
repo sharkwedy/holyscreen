@@ -47,6 +47,17 @@ add_library(presenter-presentation
 target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
+add_library(presenter-modules
+    modules/OutputModule.cpp
+    modules/OutputModule.h
+    modules/OverlayCommandModule.cpp
+    modules/OverlayCommandModule.h
+    modules/MediaCommandModule.cpp
+    modules/MediaCommandModule.h
+)
+target_include_directories(presenter-modules PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation Qt6::Core)
+
 add_library(presenter-persistence
     persistence/ApplicationDatabase.cpp
     persistence/ApplicationDatabase.h
@@ -99,7 +110,7 @@ add_library(presenter-app
 )
 target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-app PUBLIC
-    presenter-core presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::HttpServer Qt6::WebSockets
+    presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::HttpServer Qt6::WebSockets
 )
 
 qt_add_executable(church-presenter

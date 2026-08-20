@@ -21,6 +21,9 @@
 #include "bible/BibleRepository.h"
 #include "core/CommandBus.h"
 #include "core/EventBus.h"
+#include "modules/OutputModule.h"
+#include "modules/OverlayCommandModule.h"
+#include "modules/MediaCommandModule.h"
 
 #include <QObject>
 #include <QFileSystemWatcher>
@@ -448,6 +451,7 @@ signals:
 private:
     CommandBus m_commandBus;
     EventBus m_eventBus;
+    OutputModule m_outputModule;
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);
@@ -460,6 +464,12 @@ private:
     void rebuildMediaFolderWatcher();
     void updateCurrentMediaMetadata(const MediaItem &metadata);
     void advanceMediaAfterFinish();
+    bool applyPlayMedia(const QString &id);
+    bool applyToggleMediaPause();
+    bool applyStopMedia();
+    bool applySeekMedia(int positionMs);
+    bool applyPreviousMedia();
+    bool applyNextMedia();
     void refreshAudioLibrary();
     void updateCurrentAudioMetadata(const MediaItem &metadata);
     void refreshVideoLibrary();
@@ -497,7 +507,6 @@ private:
     bool m_debugSimulatedOutputs = true;
     bool m_debugDiagnostics = true;
     bool m_debugLogging = false;
-    bool m_blackout = false;
     bool m_identifyVisible = false;
     QString m_statusMessage;
     std::unique_ptr<SettingsRepository> m_settings;
@@ -521,6 +530,7 @@ private:
     QString m_imageFileSearch;
     QString m_currentMediaId;
     QString m_mediaRepeatMode = QStringLiteral("off");
+    std::unique_ptr<MediaCommandModule> m_mediaCommands;
     QVariantList m_audioLibrary;
     QString m_currentAudioId;
     QVariantList m_videoLibrary;
@@ -529,6 +539,7 @@ private:
     QVariantList m_imageLibrary;
     TextPresentationController m_textPresentation;
     OverlayController m_overlays;
+    std::unique_ptr<OverlayCommandModule> m_overlayCommands;
     QVariantList m_textPresentations;
     QVariantList m_themes;
     Theme m_activeTheme;

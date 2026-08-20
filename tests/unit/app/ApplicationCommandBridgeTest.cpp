@@ -13,6 +13,8 @@ class ApplicationCommandBridgeTest final : public QObject {
 
 private slots:
     void operatorBlackoutUsesCommandAndEventBuses();
+    void operatorOverlayUsesCommandAndEventBuses();
+    void operatorMediaUsesCommandAndEventBuses();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -39,6 +41,49 @@ void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
     QCOMPARE(command.source, QStringLiteral("operator"));
     QVERIFY(result.accepted);
     QCOMPARE(event.type, QStringLiteral("presentation.blackout.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::operatorOverlayUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.setAudienceMessage(QStringLiteral("Aviso importante"));
+
+    QCOMPARE(controller.audienceMessage(), QStringLiteral("Aviso importante"));
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("overlay.audience-message.set"));
+    QCOMPARE(event.type, QStringLiteral("overlay.state.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.stopMedia();
+
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("media.stop"));
+    QCOMPARE(event.type, QStringLiteral("media.state.changed"));
     QCOMPARE(event.correlationId, command.id);
 }
 
