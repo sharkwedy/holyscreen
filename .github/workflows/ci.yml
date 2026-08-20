@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
@@ -32,7 +33,14 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
+      - name: Test (Linux headless)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build -C Release --output-on-failure
+
       - name: Test
+        if: runner.os != 'Linux'
         run: ctest --test-dir build -C Release --output-on-failure
 
       - name: QML lint
