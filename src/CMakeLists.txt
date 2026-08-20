@@ -150,28 +150,3 @@ target_link_libraries(church-presenter
         presenter-bible
 )
 
-install(TARGETS church-presenter
-    BUNDLE DESTINATION .
-    RUNTIME DESTINATION bin
-)
-if(APPLE)
-    install(CODE "
-        execute_process(
-            COMMAND \"${MACDEPLOYQT_EXECUTABLE}\"
-                    \"\${CMAKE_INSTALL_PREFIX}/church-presenter.app\"
-                    \"-qmldir=${CMAKE_CURRENT_SOURCE_DIR}/ui\"
-                    -always-overwrite
-            RESULT_VARIABLE deploy_result
-        )
-        if(NOT deploy_result EQUAL 0)
-            message(FATAL_ERROR \"macdeployqt failed with exit code \${deploy_result}\")
-        endif()
-    ")
-else()
-    qt_generate_deploy_qml_app_script(
-        TARGET church-presenter
-        OUTPUT_SCRIPT deploy_script
-        NO_UNSUPPORTED_PLATFORM_ERROR
-    )
-    install(SCRIPT ${deploy_script})
-endif()
