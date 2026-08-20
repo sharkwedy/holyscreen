@@ -104,8 +104,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mapfile -d '' assets < <(find dist -type f -print0)
-          gh release create "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS \
-            --generate-notes \
-            --prerelease \
-            --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)" \
-            --verify-tag
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS --clobber
+            gh release edit "$GITHUB_REF_NAME" \
+              --prerelease \
+              --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)"
+          else
+            gh release create "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS \
+              --generate-notes \
+              --prerelease \
+              --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)" \
+              --verify-tag
+          fi
