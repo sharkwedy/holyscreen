@@ -452,6 +452,7 @@ ApplicationWindow {
     }
 
     menuBar: MenuBar {
+        visible: presentationController.debugEnabled
         Menu {
             title: "Debug"
             MenuItem {
@@ -486,49 +487,42 @@ ApplicationWindow {
     }
 
     header: ToolBar {
-        height: 58
-        background: Rectangle { color: "#101a2d"; border.color: "#21304a" }
+        height: 48
+        background: Rectangle { color: "#15191d"; border.color: "#353b40" }
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: 24
-            anchors.rightMargin: 18
-            spacing: 20
+            anchors.leftMargin: 18
+            anchors.rightMargin: 14
+            spacing: 12
             Label {
-                text: "HOLYSCREEN"
-                color: "#e6edf7"
+                text: "HolyScreen"
+                color: "#f2f4f5"
                 font.bold: true
-                font.letterSpacing: 2
-                font.pixelSize: 18
+                font.pixelSize: 15
             }
-            Label {
-                text: "MOTOR DE APRESENTAÇÃO"
-                color: "#7e91af"
-                font.pixelSize: 11
-                font.letterSpacing: 1
-            }
+            ToolButton { text: "Live"; onClicked: liveDialog.open() }
+            ToolButton { text: "Prévia" }
+            ToolButton { text: "Agenda" }
+            ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
             Item { Layout.fillWidth: true }
-            Label {
-                text: presentationController.autosaveStatus
-                color: presentationController.autosavePending ? "#ffba70" : "#8da0bc"
-                font.pixelSize: 11
-            }
-            Button { text: "BÍBLIA"; onClicked: bibleDialog.open() }
-            Button { text: "PALCO"; onClicked: stageMessageDialog.open() }
-            Button { text: "AO VIVO"; onClicked: liveDialog.open() }
-            Label {
-                text: presentationController.blackout ? "BLACKOUT ATIVO" : "SAÍDAS PRONTAS"
-                color: presentationController.blackout ? "#ffba70" : "#70e1a7"
-                font.bold: true
-                font.pixelSize: 12
-            }
-            Rectangle {
-                Layout.preferredWidth: 8; Layout.preferredHeight: 8; radius: 4
-                color: presentationController.blackout ? "#f97316" : "#22c55e"
-            }
+            ToolButton { text: "⚙"; onClicked: stageMessageDialog.open() }
+            ToolButton { text: "⛶"; onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen }
+            Button { text: presentationController.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: presentationController.setBlackout(false) }
         }
     }
 
+    Dashboard {
+        anchors.fill: parent
+        controller: presentationController
+        onOpenLibrary: mediaLibraryDialog.open()
+        onOpenBible: bibleDialog.open()
+        onImportAudio: audioDialog.open()
+        onImportVideo: videoDialog.open()
+        onImportImage: imageDialog.open()
+    }
+
     RowLayout {
+        visible: false
         anchors.fill: parent
         anchors.margins: 18
         spacing: 16

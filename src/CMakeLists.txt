@@ -135,6 +135,7 @@ qt_add_qml_module(church-presenter
     VERSION 1.0
     QML_FILES
         ui/operator/MainWindow.qml
+        ui/operator/Dashboard.qml
         ui/output/OutputWindow.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml

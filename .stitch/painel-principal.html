@@ -1,0 +1,473 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HolyScreen - Main Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#dde3eb",
+                        "inverse-primary": "#5d5e63",
+                        "surface-container-high": "#242b31",
+                        "secondary-container": "#0566d9",
+                        "on-primary-container": "#7b7c82",
+                        "surface-container-lowest": "#080f14",
+                        "inverse-surface": "#dde3eb",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-variant": "#2f353c",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#af6f00",
+                        "on-error": "#690005",
+                        "tertiary-container": "#1c0e00",
+                        "secondary": "#adc6ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-container": "#e6ecff",
+                        "on-secondary-fixed": "#001a42",
+                        "on-primary-fixed-variant": "#45474b",
+                        "primary": "#c6c6cc",
+                        "surface-tint": "#c6c6cc",
+                        "surface-dim": "#0e141a",
+                        "on-tertiary": "#472a00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-bright": "#333a40",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary": "#ffb95f",
+                        "surface-container-highest": "#2f353c",
+                        "surface-container": "#1a2026",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-container": "#0f1115",
+                        "primary-fixed-dim": "#c6c6cc",
+                        "outline": "#909095",
+                        "background": "#0e141a",
+                        "on-surface-variant": "#c6c6cb",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-fixed": "#1a1c20",
+                        "primary-fixed": "#e2e2e8",
+                        "surface-container-low": "#161c22",
+                        "on-background": "#dde3eb",
+                        "inverse-on-surface": "#2b3137",
+                        "on-primary": "#2f3035",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface": "#0e141a",
+                        "on-secondary": "#002e6a",
+                        "outline-variant": "#45474b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "touch-target": "44px",
+                        "gutter": "16px",
+                        "margin": "24px",
+                        "unit": "4px",
+                        "panel-padding": "20px"
+                    },
+                    "fontFamily": {
+                        "mono-data": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "bible-verse": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-data": ["13px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "bible-verse": ["20px", { "lineHeight": "30px", "fontWeight": "400" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for panels */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2026; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #45474b; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #909095; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen w-screen overflow-hidden flex flex-col font-body-sm">
+<!-- Top App Bar -->
+<header class="bg-surface-dim dark:bg-surface-dim border-b border-outline-variant flex justify-between items-center w-full px-margin h-touch-target shrink-0 z-50">
+<div class="flex items-center gap-gutter">
+<span class="text-body-lg font-headline-md font-bold text-on-surface dark:text-on-surface tracking-tight">HolyScreen</span>
+<div class="hidden md:flex items-center gap-unit ml-margin">
+<a class="text-on-surface-variant font-medium font-label-caps text-label-caps px-3 py-2 rounded-DEFAULT hover:text-primary transition-colors duration-200" href="#">Live</a>
+<a class="text-on-surface-variant font-medium font-label-caps text-label-caps px-3 py-2 rounded-DEFAULT hover:text-primary transition-colors duration-200" href="#">Preview</a>
+<a class="text-on-surface-variant font-medium font-label-caps text-label-caps px-3 py-2 rounded-DEFAULT hover:text-primary transition-colors duration-200" href="#">Schedule</a>
+<a class="text-secondary font-bold font-label-caps text-label-caps border-b-2 border-secondary pb-1 px-3 mt-1 hover:text-primary transition-colors duration-200" href="#">Library</a>
+</div>
+</div>
+<div class="flex items-center gap-unit">
+<button class="bg-surface-variant text-on-surface hover:bg-surface-bright p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="bg-surface-variant text-on-surface hover:bg-surface-bright p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">fullscreen</span>
+</button>
+<button class="bg-error text-on-error hover:bg-error/90 font-label-caps text-label-caps px-4 py-2 rounded-DEFAULT ml-2 transition-colors">Go Live</button>
+</div>
+</header>
+<!-- Main Dashboard Grid -->
+<main class="flex-1 flex overflow-hidden p-margin gap-gutter max-w-[1920px] mx-auto w-full">
+<!-- Left Column: File Search & Library (25%) -->
+<section class="w-1/4 min-w-[300px] flex flex-col bg-surface-container border border-outline-variant rounded-lg overflow-hidden shrink-0">
+<!-- Search & Tabs -->
+<div class="p-panel-padding border-b border-outline-variant flex flex-col gap-unit">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-variant border border-outline-variant rounded-DEFAULT py-2 pl-10 pr-10 text-on-surface font-body-sm focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary placeholder:text-on-surface-variant/50 transition-all" placeholder="Search media..." type="text">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex gap-unit mt-2">
+<button class="flex-1 py-1.5 px-2 bg-surface-variant text-on-surface font-label-caps text-label-caps rounded-DEFAULT hover:bg-surface-bright transition-colors text-center border border-transparent">Letras</button>
+<button class="flex-1 py-1.5 px-2 bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-DEFAULT font-bold text-center border border-secondary/30">Áudio</button>
+<button class="flex-1 py-1.5 px-2 bg-surface-variant text-on-surface font-label-caps text-label-caps rounded-DEFAULT hover:bg-surface-bright transition-colors text-center border border-transparent">Vídeo</button>
+<button class="flex-1 py-1.5 px-2 bg-surface-variant text-on-surface font-label-caps text-label-caps rounded-DEFAULT hover:bg-surface-bright transition-colors text-center border border-transparent">Imagem</button>
+</div>
+</div>
+<!-- File List -->
+<div class="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
+<!-- Active Item -->
+<div class="flex items-center gap-3 p-2 rounded-DEFAULT bg-surface-variant border-l-4 border-secondary cursor-pointer hover:bg-surface-bright transition-colors group">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0">audio_file</span>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-on-surface truncate">Fundo musical - Preciso de Ti Diante do trono</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant truncate">04:32 • 320kbps</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-on-surface-variant hover:text-secondary transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+<!-- Inactive Items -->
+<div class="flex items-center gap-3 p-2 rounded-DEFAULT border-l-4 border-transparent hover:bg-surface-variant cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0">audio_file</span>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-on-surface truncate">Fundo Musical _ Jesus é o Caminho</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant truncate">05:15 • 320kbps</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-on-surface-variant hover:text-secondary transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-2 rounded-DEFAULT border-l-4 border-transparent hover:bg-surface-variant cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0">audio_file</span>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-on-surface truncate">Fundo Musical Caminho no Deserto</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant truncate">08:42 • 256kbps</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-on-surface-variant hover:text-secondary transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-2 rounded-DEFAULT border-l-4 border-transparent hover:bg-surface-variant cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] shrink-0">audio_file</span>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-on-surface truncate">Exemplo de Mulher Eyshila Fundo</p>
+<p class="font-mono-data text-mono-data text-on-surface-variant truncate">03:20 • 320kbps</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-on-surface-variant hover:text-secondary transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</button>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="p-panel-padding border-t border-outline-variant bg-surface-container-high flex justify-between items-center">
+<span class="font-mono-data text-mono-data text-on-surface-variant">412 items</span>
+<button class="flex items-center gap-1 text-on-surface hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+<span class="font-label-caps text-label-caps">Sync</span>
+</button>
+</div>
+</section>
+<!-- Center Column: Player & Playlist (45%) -->
+<section class="flex-1 flex flex-col gap-gutter min-w-[500px]">
+<!-- Player Area -->
+<div class="bg-surface-container border border-outline-variant rounded-lg flex flex-col shrink-0">
+<!-- Preview Canvas -->
+<div class="aspect-video bg-black rounded-t-lg relative flex items-center justify-center overflow-hidden border-b border-outline-variant group">
+<!-- Using animation placeholder as requested for visual interest in the player -->
+
+<div class="text-center z-10 p-4">
+<span class="material-symbols-outlined text-[64px] text-on-surface/50 mb-2">music_note</span>
+<h2 class="font-headline-md text-headline-md text-on-surface drop-shadow-md">Fundo musical - Preciso de Ti...</h2>
+<p class="font-body-sm text-secondary drop-shadow-md">Diante do trono</p>
+</div>
+<!-- Overlay Controls on Hover -->
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-end p-4">
+<button class="bg-surface-variant/80 hover:bg-surface-bright text-on-surface p-2 rounded-full backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Transport Controls -->
+<div class="p-panel-padding flex flex-col gap-4">
+<!-- Progress Bar -->
+<div class="flex items-center gap-3">
+<span class="font-mono-data text-mono-data text-secondary w-[50px] text-right">00:49</span>
+<div class="flex-1 h-2 bg-surface-variant rounded-full relative cursor-pointer group">
+<div class="absolute top-0 left-0 h-full bg-secondary rounded-full w-[20%] relative group-hover:brightness-110 transition-all">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity translate-x-1/2"></div>
+</div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface-variant w-[50px]">04:32</span>
+</div>
+<!-- Buttons -->
+<div class="flex items-center justify-between">
+<!-- Left Actions -->
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-DEFAULT hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">shuffle</span>
+</button>
+<button class="text-secondary p-2 rounded-DEFAULT hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined fill">repeat</span>
+</button>
+</div>
+<!-- Main Transport -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface hover:text-secondary p-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[28px]">skip_previous</span>
+</button>
+<button class="bg-secondary text-on-secondary hover:bg-secondary-fixed p-3 rounded-full shadow-lg shadow-secondary/20 transition-all active:scale-95 flex items-center justify-center w-12 h-12">
+<span class="material-symbols-outlined fill text-[32px]">pause</span>
+</button>
+<button class="text-on-surface hover:text-secondary p-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[28px]">stop</span>
+</button>
+<button class="text-on-surface hover:text-secondary p-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[28px]">skip_next</span>
+</button>
+</div>
+<!-- Volume & Extra -->
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">volume_up</span>
+<div class="w-24 h-1.5 bg-surface-variant rounded-full cursor-pointer relative">
+<div class="absolute top-0 left-0 h-full bg-on-surface-variant rounded-full w-[75%]"></div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-DEFAULT hover:bg-surface-variant transition-colors ml-2">
+<span class="material-symbols-outlined text-[20px]">cast</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Playlist -->
+<div class="flex-1 bg-surface-container border border-outline-variant rounded-lg flex flex-col overflow-hidden">
+<div class="px-panel-padding py-3 border-b border-outline-variant bg-surface-container-high flex justify-between items-center shrink-0">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">queue_music</span>
+                        Reprodução
+                    </h3>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-error p-1.5 rounded-DEFAULT hover:bg-surface-variant transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span class="font-label-caps text-label-caps">Limpar</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- Table Header -->
+<div class="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-panel-padding py-2 border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-10 font-label-caps text-label-caps text-on-surface-variant">
+<div class="w-8"></div>
+<div class="">TÍTULO</div>
+<div class="w-24 text-right">DURAÇÃO</div>
+<div class="w-16 text-center">AÇÃO</div>
+</div>
+<!-- Table Body -->
+<div class="flex flex-col">
+<!-- Playing Row -->
+<div class="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-panel-padding py-3 border-b border-outline-variant/50 bg-secondary-container/10 items-center group relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="w-8 flex justify-center">
+<span class="material-symbols-outlined fill text-secondary text-[20px] animate-pulse">volume_up</span>
+</div>
+<div class="min-w-0 font-body-sm font-medium text-secondary truncate">
+                                Fundo musical - Preciso de Ti Diante do trono
+                            </div>
+<div class="w-24 text-right font-mono-data text-mono-data text-secondary">
+                                04:32
+                            </div>
+<div class="w-16 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-error p-1 rounded-DEFAULT"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+<!-- Queued Row 1 -->
+<div class="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-panel-padding py-3 border-b border-outline-variant/50 hover:bg-surface-variant/50 items-center group transition-colors cursor-pointer">
+<div class="w-8 flex justify-center text-on-surface-variant group-hover:text-on-surface">
+<span class="font-mono-data text-mono-data">2</span>
+</div>
+<div class="min-w-0 font-body-sm text-on-surface truncate">
+                                Fundo Musical _ Jesus é o Caminho - Heloisa Rosa
+                            </div>
+<div class="w-24 text-right font-mono-data text-mono-data text-on-surface-variant">
+                                05:15
+                            </div>
+<div class="w-16 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-error p-1 rounded-DEFAULT"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+<!-- Queued Row 2 -->
+<div class="grid grid-cols-[auto_1fr_auto_auto] gap-4 px-panel-padding py-3 border-b border-outline-variant/50 hover:bg-surface-variant/50 items-center group transition-colors cursor-pointer">
+<div class="w-8 flex justify-center text-on-surface-variant group-hover:text-on-surface">
+<span class="font-mono-data text-mono-data">3</span>
+</div>
+<div class="min-w-0 font-body-sm text-on-surface truncate">
+                                Fundo Musical Caminho no Deserto (Way Maker)
+                            </div>
+<div class="w-24 text-right font-mono-data text-mono-data text-on-surface-variant">
+                                08:42
+                            </div>
+<div class="w-16 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-error p-1 rounded-DEFAULT"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Bible Reader (30%) -->
+<section class="w-[30%] min-w-[350px] flex flex-col bg-surface-container border border-outline-variant rounded-lg overflow-hidden shrink-0">
+<!-- Bible Header & Selection -->
+<div class="bg-surface-container-high border-b border-outline-variant flex flex-col shrink-0">
+<div class="p-3 flex justify-between items-center border-b border-outline-variant">
+<h3 class="font-headline-md text-body-lg font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+                        Bíblia Sagrada
+                    </h3>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+<div class="flex border-b border-outline-variant bg-surface-variant">
+<button class="flex-1 py-2 px-3 flex items-center justify-between font-label-caps text-label-caps text-on-surface border-r border-outline-variant hover:bg-surface-bright transition-colors">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">book</span> 1 Pedro</span>
+<span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+<button class="flex-1 py-2 px-3 flex items-center justify-between font-label-caps text-label-caps text-on-surface border-r border-outline-variant hover:bg-surface-bright transition-colors">
+<span class="">Cap: 5</span>
+<span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+<button class="flex-1 py-2 px-3 flex items-center justify-between font-label-caps text-label-caps text-on-surface hover:bg-surface-bright transition-colors">
+<span class="">ARC</span>
+<span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+</div>
+</div>
+<!-- Verse List -->
+<div class="flex-1 overflow-y-auto bg-background">
+<!-- Active Verse -->
+<div class="p-panel-padding border-b border-outline-variant bg-tertiary-container/30 border-l-4 border-l-tertiary group relative">
+<div class="flex gap-3">
+<span class="font-mono-data text-mono-data text-tertiary font-bold pt-1">1</span>
+<p class="font-bible-verse text-bible-verse text-on-surface leading-relaxed flex-1">
+                            Aos presbíteros que estão entre vós, admoesto eu, que sou também presbítero com eles, e testemunha das aflições de Cristo, e participante da glória que se há de revelar:
+                        </p>
+</div>
+<div class="absolute right-2 top-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="bg-tertiary text-on-tertiary font-label-caps text-label-caps px-2 py-1 rounded-DEFAULT shadow-md flex items-center gap-1 hover:bg-tertiary-fixed transition-colors">
+<span class="material-symbols-outlined text-[14px]">present_to_all</span> Project
+                        </button>
+</div>
+</div>
+<!-- Active Verse 2 (Continuing the highlighted block from image) -->
+<div class="p-panel-padding border-b border-outline-variant bg-tertiary-container/30 border-l-4 border-l-tertiary group relative">
+<div class="flex gap-3">
+<span class="font-mono-data text-mono-data text-tertiary font-bold pt-1">2</span>
+<p class="font-bible-verse text-bible-verse text-on-surface leading-relaxed flex-1">
+                            apascentai o rebanho de Deus que está entre vós, tendo cuidado dele, não por força, mas voluntariamente; nem por torpe ganância, mas de ânimo pronto;
+                        </p>
+</div>
+<div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="bg-surface-bright text-on-surface font-label-caps text-label-caps px-2 py-1 rounded-DEFAULT border border-outline-variant shadow-sm flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[14px]">present_to_all</span> Project
+                        </button>
+</div>
+</div>
+<!-- Inactive Verse -->
+<div class="p-panel-padding border-b border-outline-variant hover:bg-surface-container transition-colors group relative border-l-4 border-l-transparent">
+<div class="flex gap-3">
+<span class="font-mono-data text-mono-data text-on-surface-variant font-bold pt-1">3</span>
+<p class="font-bible-verse text-bible-verse text-on-surface/80 leading-relaxed flex-1">
+                            nem como tendo domínio sobre a herança de Deus, mas servindo de exemplo ao rebanho.
+                        </p>
+</div>
+<div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="bg-surface-bright text-on-surface font-label-caps text-label-caps px-2 py-1 rounded-DEFAULT border border-outline-variant shadow-sm flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[14px]">present_to_all</span> Project
+                        </button>
+</div>
+</div>
+<!-- Inactive Verse -->
+<div class="p-panel-padding border-b border-outline-variant hover:bg-surface-container transition-colors group relative border-l-4 border-l-transparent">
+<div class="flex gap-3">
+<span class="font-mono-data text-mono-data text-on-surface-variant font-bold pt-1">4</span>
+<p class="font-bible-verse text-bible-verse text-on-surface/80 leading-relaxed flex-1">
+                            E, quando aparecer o Sumo Pastor, alcançareis a incorruptível coroa de glória.
+                        </p>
+</div>
+<div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="bg-surface-bright text-on-surface font-label-caps text-label-caps px-2 py-1 rounded-DEFAULT border border-outline-variant shadow-sm flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[14px]">present_to_all</span> Project
+                        </button>
+</div>
+</div>
+<!-- Inactive Verse -->
+<div class="p-panel-padding border-b border-outline-variant hover:bg-surface-container transition-colors group relative border-l-4 border-l-transparent">
+<div class="flex gap-3">
+<span class="font-mono-data text-mono-data text-on-surface-variant font-bold pt-1">5</span>
+<p class="font-bible-verse text-bible-verse text-on-surface/80 leading-relaxed flex-1">
+                            Semelhantemente vós, jovens, sede sujeitos aos anciãos; e sede todos sujeitos uns aos outros e revesti-vos de humildade, porque Deus resiste aos soberbos, mas dá graça aos humildes.
+                        </p>
+</div>
+<div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="bg-surface-bright text-on-surface font-label-caps text-label-caps px-2 py-1 rounded-DEFAULT border border-outline-variant shadow-sm flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[14px]">present_to_all</span> Project
+                        </button>
+</div>
+</div>
+</div>
+<!-- Bible Footer -->
+<div class="p-2 border-t border-outline-variant bg-surface-container-highest text-center shrink-0">
+<p class="font-label-caps text-label-caps text-on-surface-variant">Almeida Revista e Corrigida (ARC)</p>
+<p class="font-label-caps text-[10px] text-on-surface-variant/70 mt-1">© 2009 Sociedade Bíblica do Brasil.</p>
+</div>
+</section>
+</main>
+
+
+</body></html>
