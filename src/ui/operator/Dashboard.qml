@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -68,7 +70,7 @@ Item {
                         }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: dashboard.line }
+                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dashboard.line }
                 ListView {
                     id: libraryList
                     Layout.fillWidth: true; Layout.fillHeight: true
@@ -162,7 +164,7 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent; spacing: 0
                     Rectangle {
-                        Layout.fillWidth: true; height: 42; color: dashboard.panelHigh
+                        Layout.fillWidth: true; Layout.preferredHeight: 42; color: dashboard.panelHigh
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10
                             Label { text: "▾  Reprodução"; color: dashboard.textMain; font.bold: true; font.pixelSize: 12 }
@@ -198,7 +200,7 @@ Item {
             ColumnLayout {
                 anchors.fill: parent; spacing: 0
                 Rectangle {
-                    Layout.fillWidth: true; height: 48; color: dashboard.panelHigh
+                    Layout.fillWidth: true; Layout.preferredHeight: 48; color: dashboard.panelHigh
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10
                         Label { text: "▣  Bíblia Sagrada"; color: dashboard.textMain; font.bold: true }
@@ -212,7 +214,7 @@ Item {
                     SpinBox { from: 1; to: 150; value: 4 }
                     ComboBox { Layout.preferredWidth: 82; model: ["ARC", "NVI"] }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: dashboard.line }
+                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dashboard.line }
                 ListView {
                     Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 0
                     model: [
@@ -235,7 +237,7 @@ Item {
                     }
                 }
                 Rectangle {
-                    Layout.fillWidth: true; height: 48; color: dashboard.panelHigh
+                    Layout.fillWidth: true; Layout.preferredHeight: 48; color: dashboard.panelHigh
                     ColumnLayout {
                         anchors.centerIn: parent; spacing: 1
                         Label { text: "Almeida Revista e Corrigida (ARC)"; color: dashboard.textMain; font.bold: true; font.pixelSize: 10 }
