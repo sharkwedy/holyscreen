@@ -1,5 +1,7 @@
 #include "app/ApplicationController.h"
+#include "remote/RemoteQrCode.h"
 #include "app/AppLogger.h"
+#include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
 #include "screens/OutputRouting.h"
 #include "bible/BibleImportService.h"
@@ -28,6 +30,7 @@
 #include <QSet>
 #include <QRandomGenerator>
 #include <QPointer>
+#include <QJsonArray>
 #include <QtConcurrentRun>
 
 namespace churchpresenter {
@@ -156,8 +159,24 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::blackoutChanged);
     connect(&m_undoManager, &UndoManager::stateChanged,
             this, &ApplicationController::undoStateChanged);
+    m_outputRoutingCommands = std::make_unique<OutputRoutingCommandModule>(
+        m_commandBus, m_eventBus,
+        OutputRoutingCommandModule::Actions{
+            .output = [this](const QString &fingerprint) {
+                return outputRoutingState(fingerprint);
+            },
+            .setEnabled = [this](const QString &fingerprint, bool enabled) {
+                return applyToggleScreen(fingerprint, enabled);
+            },
+            .setRole = [this](const QString &fingerprint, const QString &role) {
+                return applyOutputRole(fingerprint, role);
+            },
+            .setMediaEnabled = [this](const QString &fingerprint, bool enabled) {
+                return applyOutputMediaEnabled(fingerprint, enabled);
+            },
+        }, &m_undoManager, this);
     m_overlayCommands = std::make_unique<OverlayCommandModule>(
-        m_commandBus, m_eventBus, m_overlays, this);
+        m_commandBus, m_eventBus, m_overlays, &m_undoManager, this);
     m_mediaCommands = std::make_unique<MediaCommandModule>(
         m_commandBus, m_eventBus,
         MediaCommandModule::Actions{
@@ -167,6 +186,10 @@ ApplicationController::ApplicationController(QObject *parent)
             .seek = [this](int positionMs) { return applySeekMedia(positionMs); },
             .previous = [this] { return applyPreviousMedia(); },
             .next = [this] { return applyNextMedia(); },
+            .setRepeat = [this](const QString &mode) {
+                applyMediaRepeatMode(mode);
+                return true;
+            },
             .stateSnapshot = [this] {
                 return QVariantMap{
                     {QStringLiteral("mediaId"), currentMediaId()},
@@ -177,7 +200,85 @@ ApplicationController::ApplicationController(QObject *parent)
                     {QStringLiteral("repeatMode"), mediaRepeatMode()},
                 };
             },
+        }, &m_undoManager, this);
+    m_presentationCommands = std::make_unique<PresentationCommandModule>(
+        m_commandBus, m_eventBus,
+        PresentationCommandModule::Actions{
+            .show = [this](int index) { return applyShowTextSlide(index); },
+            .next = [this] { m_textPresentation.next(); return true; },
+            .previous = [this] { m_textPresentation.previous(); return true; },
+            .first = [this] { m_textPresentation.first(); return true; },
+            .last = [this] { m_textPresentation.last(); return true; },
+            .stop = [this] { m_textPresentation.stop(); return true; },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("slideIndex"), currentSlideIndex()},
+                    {QStringLiteral("slideId"), currentSlideId()},
+                    {QStringLiteral("visible"), textVisible()},
+                };
+            },
         }, this);
+    m_stageCommands = std::make_unique<StageCommandModule>(
+        m_commandBus, m_eventBus,
+        StageCommandModule::Actions{
+            .message = [this] { return stageMessage(); },
+            .setMessage = [this](const QString &message) {
+                return applyStageMessage(message);
+            },
+        }, &m_undoManager, this);
+    m_bibleCommands = std::make_unique<BibleCommandModule>(
+        m_commandBus, m_eventBus,
+        BibleCommandModule::Actions{
+            .search = [this](const QString &reference) {
+                return applyBibleSearch(reference);
+            },
+            .present = [this](int bookId, int chapter, int verse) {
+                return applyBiblePresentation(bookId, chapter, verse);
+            },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("reference"), bibleReferenceInput()},
+                    {QStringLiteral("resultCount"), bibleResults().size()},
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("slideIndex"), currentSlideIndex()},
+                };
+            },
+        }, this);
+    m_eventCommands = std::make_unique<EventCommandModule>(
+        m_commandBus, m_eventBus,
+        EventCommandModule::Actions{
+            .select = [this](const QString &id) { return applyEventSelection(id); },
+            .executeItem = [this](const QString &id) {
+                return applyEventItemExecution(id);
+            },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("eventId"), currentEventId()},
+                    {QStringLiteral("itemCount"), eventItems().size()},
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("mediaId"), currentMediaId()},
+                };
+            },
+        }, this);
+    m_themeCommands = std::make_unique<ThemeCommandModule>(
+        m_commandBus, m_eventBus,
+        ThemeCommandModule::Actions{
+            .currentThemeId = [this] { return m_activeTheme.id; },
+            .apply = [this](const QString &id) { return applyThemeSelection(id); },
+            .stateSnapshot = [this] { return activeTheme(); },
+        }, &m_undoManager, this);
+    m_playlistCommands = std::make_unique<PlaylistCommandModule>(
+        m_commandBus, m_eventBus,
+        PlaylistCommandModule::Actions{
+            .snapshot = [this] { return mediaPlaylist(); },
+            .move = [this](const QString &id, int index) { return applyMoveMedia(id, index); },
+            .remove = [this](const QString &id) { return applyRemoveMedia(id); },
+            .clear = [this] { return applyClearMediaPlaylist(); },
+            .restore = [this](const QVariantList &snapshot) {
+                return restoreMediaPlaylist(snapshot);
+            },
+        }, &m_undoManager, this);
     m_autosave = std::make_unique<AutosaveCoordinator>(
         [this] { return persistCurrentPresentation(); }, this);
     connect(m_autosave.get(), &AutosaveCoordinator::dirtyChanged, this, [this](bool dirty) {
@@ -205,8 +306,25 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    m_remoteServer.setStateProvider([this] { return remoteState(); });
+    m_remoteServer.setCommandDispatcher([this](const Command &command) {
+        return m_commandBus.dispatch(command);
+    });
+    connect(&m_remoteServer, &LocalApiServer::statusChanged,
+            this, &ApplicationController::remoteChanged);
+    connect(&m_eventBus, &EventBus::eventPublished, this, [this](const DomainEvent &event) {
+        m_remoteServer.broadcastEvent(event, m_commandBus.stateRevision() + 1);
+    });
+    connect(&m_commandBus, &CommandBus::commandDispatched, this,
+            [this](const Command &, const CommandResult &result) {
+        if (result.accepted) m_remoteServer.broadcastState();
+    });
     loadSettings();
     refreshScreens();
+    if (m_remoteEnabled && (!remotePasswordConfigured() || !restartRemoteServer())) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
 
     connect(m_screenManager.get(), &ScreenManager::screenConfigurationChanged,
             this, [this] {
@@ -282,6 +400,7 @@ ApplicationController::ApplicationController(QObject *parent)
 
 ApplicationController::~ApplicationController()
 {
+    m_remoteServer.stop();
     if (m_bibleImportCancelled) m_bibleImportCancelled->store(true);
     if (m_bibleImportWatcher.isRunning()) m_bibleImportWatcher.waitForFinished();
     if (m_autosave) m_autosave->flush();
@@ -376,6 +495,18 @@ bool ApplicationController::debugEnabled() const { return m_debugEnabled; }
 bool ApplicationController::debugSimulatedOutputs() const { return m_debugSimulatedOutputs; }
 bool ApplicationController::debugDiagnostics() const { return m_debugDiagnostics; }
 bool ApplicationController::debugLogging() const { return m_debugLogging; }
+bool ApplicationController::remoteEnabled() const { return m_remoteEnabled; }
+int ApplicationController::remotePort() const { return m_remotePort; }
+QString ApplicationController::remoteInterface() const { return m_remoteInterface; }
+bool ApplicationController::remotePasswordConfigured() const { return m_remoteServer.hasPassword(); }
+QString ApplicationController::remoteUrl() const { return m_remoteServer.remoteUrl(); }
+QString ApplicationController::remoteQrCode() const
+{
+    return RemoteQrCode::svgDataUrl(remoteUrl());
+}
+int ApplicationController::remoteClients() const { return m_remoteServer.clientCount(); }
+int ApplicationController::remoteSessions() const { return m_remoteServer.sessionCount(); }
+QString ApplicationController::remoteError() const { return m_remoteServer.lastError(); }
 bool ApplicationController::blackout() const { return m_outputModule.blackout(); }
 bool ApplicationController::canUndo() const { return m_undoManager.canUndo(); }
 bool ApplicationController::canRedo() const { return m_undoManager.canRedo(); }
@@ -595,6 +726,11 @@ QVariantList ApplicationController::bibleResults() const{return m_bibleResults;}
 
 bool ApplicationController::toggleScreen(const QString &screenFingerprint, bool enabled)
 {
+    return m_outputRoutingCommands->requestEnabled(screenFingerprint, enabled).accepted;
+}
+
+bool ApplicationController::applyToggleScreen(const QString &screenFingerprint, bool enabled)
+{
     const auto found = std::find_if(m_screens.cbegin(), m_screens.cend(), [&](const QVariant &entry) {
         return entry.toMap().value(QStringLiteral("id")).toString() == screenFingerprint;
     });
@@ -667,6 +803,11 @@ bool ApplicationController::setOutputBibleTranslation(
 
 bool ApplicationController::setOutputRole(const QString &screenFingerprint, const QString &role)
 {
+    return m_outputRoutingCommands->requestRole(screenFingerprint, role).accepted;
+}
+
+bool ApplicationController::applyOutputRole(const QString &screenFingerprint, const QString &role)
+{
     const auto normalized = outputRoleFromName(role);
     if (!m_outputs.setRole(screenFingerprint, normalized)) return false;
     saveOutputs();
@@ -676,10 +817,28 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
 
 bool ApplicationController::setOutputMediaEnabled(const QString &screenFingerprint, bool enabled)
 {
+    return m_outputRoutingCommands->requestMediaEnabled(screenFingerprint, enabled).accepted;
+}
+
+bool ApplicationController::applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled)
+{
     if (!m_outputs.setMediaEnabled(screenFingerprint, enabled)) return false;
     saveOutputs();
     refreshScreens();
     return true;
+}
+
+QVariantMap ApplicationController::outputRoutingState(const QString &screenFingerprint) const
+{
+    const auto found = std::find_if(m_screens.cbegin(), m_screens.cend(),
+                                    [&screenFingerprint](const QVariant &entry) {
+        return entry.toMap().value(QStringLiteral("fingerprint")).toString()
+            == screenFingerprint;
+    });
+    if (found == m_screens.cend()) return {};
+    auto state = found->toMap();
+    state.insert(QStringLiteral("enabled"), state.value(QStringLiteral("selected")).toBool());
+    return state;
 }
 
 bool ApplicationController::setOutputDisplayName(
@@ -846,18 +1005,32 @@ bool ApplicationController::openFileLocation(const QString &path)
 
 void ApplicationController::removeMedia(const QString &id)
 {
-    if (!m_mediaRepository) return;
+    m_playlistCommands->requestRemove(id);
+}
+
+bool ApplicationController::applyRemoveMedia(const QString &id)
+{
+    if (!m_mediaRepository) return false;
     const auto item = m_mediaRepository->item(id);
+    if (item.id.isEmpty()) return false;
     if (item.type == MediaType::Video) removeVideo(id);
     else if (item.type == MediaType::Image) removeImage(id);
     else removeAudio(id);
+    return m_mediaRepository->item(id).id.isEmpty();
 }
 
 void ApplicationController::moveMedia(const QString &id, int newIndex)
 {
+    m_playlistCommands->requestMove(id, newIndex);
+}
+
+bool ApplicationController::applyMoveMedia(const QString &id, int newIndex)
+{
     if (m_mediaRepository && m_mediaRepository->moveInPlaylist(id, newIndex)) {
         refreshMediaPlaylist();
+        return true;
     }
+    return false;
 }
 
 void ApplicationController::shuffleMediaPlaylist()
@@ -883,14 +1056,49 @@ void ApplicationController::shuffleMediaPlaylist()
 
 void ApplicationController::clearMediaPlaylist()
 {
-    if (!m_mediaRepository) return;
-    stopMedia();
+    m_playlistCommands->requestClear();
+}
+
+bool ApplicationController::applyClearMediaPlaylist()
+{
+    if (!m_mediaRepository) return false;
+    applyStopMedia();
     if (!m_mediaRepository->clearPlaylist()) {
         setStatusMessage(QStringLiteral("Não foi possível limpar a playlist."));
-        return;
+        return false;
     }
+    refreshAudioLibrary();
+    refreshVideoLibrary();
+    refreshImageLibrary();
     refreshMediaPlaylist();
     setStatusMessage(QStringLiteral("Playlist limpa."));
+    return true;
+}
+
+bool ApplicationController::restoreMediaPlaylist(const QVariantList &snapshot)
+{
+    if (!m_mediaRepository || !m_mediaRepository->clearPlaylist()) return false;
+    for (const auto &entry : snapshot) {
+        const auto value = entry.toMap();
+        const auto typeName = value.value(QStringLiteral("type")).toString();
+        const auto type = typeName == QStringLiteral("video") ? MediaType::Video
+            : typeName == QStringLiteral("image") ? MediaType::Image : MediaType::Audio;
+        const auto restoredId = m_mediaRepository->add(MediaItem{
+            .id = value.value(QStringLiteral("id")).toString(),
+            .type = type,
+            .title = value.value(QStringLiteral("title")).toString(),
+            .path = value.value(QStringLiteral("path")).toString(),
+            .durationMs = value.value(QStringLiteral("durationMs")).toLongLong(),
+            .artist = value.value(QStringLiteral("artist")).toString(),
+            .album = value.value(QStringLiteral("album")).toString(),
+        });
+        if (restoredId.isEmpty()) return false;
+    }
+    refreshAudioLibrary();
+    refreshVideoLibrary();
+    refreshImageLibrary();
+    refreshMediaPlaylist();
+    return true;
 }
 
 bool ApplicationController::saveMediaPlaylist(const QUrl &destination)
@@ -1362,28 +1570,96 @@ void ApplicationController::selectTextPresentation(const QString &id)
 }
 
 void ApplicationController::addTextSlide(const QString &label, const QString &text)
-{ if (m_textPresentation.addSlide(label, text)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.addSlide(label, text)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Adicionar slide"), before, after);
+    }
+}
 void ApplicationController::updateTextSlide(const QString &id, const QString &label, const QString &text)
-{ if (m_textPresentation.updateSlide(id, label, text)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.updateSlide(id, label, text)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Editar slide"), before, after);
+    }
+}
 void ApplicationController::duplicateTextSlide(const QString &id)
-{ if (m_textPresentation.duplicateSlide(id)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.duplicateSlide(id)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Duplicar slide"), before, after);
+    }
+}
 void ApplicationController::splitTextSlide(const QString &id, int cursorPosition)
-{ if (m_textPresentation.splitSlide(id, cursorPosition)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.splitSlide(id, cursorPosition)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Dividir slide"), before, after);
+    }
+}
 void ApplicationController::removeTextSlide(const QString &id)
-{ if (m_textPresentation.removeSlide(id)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.removeSlide(id)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Remover slide"), before, after);
+    }
+}
 void ApplicationController::moveTextSlide(const QString &id, int newIndex)
-{ if (m_textPresentation.moveSlide(id, newIndex)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.moveSlide(id, newIndex)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Mover slide"), before, after);
+    }
+}
+
+bool ApplicationController::applyPresentationSnapshot(const Presentation &presentation)
+{
+    m_textPresentation.setPresentation(presentation);
+    saveCurrentPresentation();
+    return true;
+}
+
+void ApplicationController::recordPresentationEdit(const QString &label,
+                                                   const Presentation &before,
+                                                   const Presentation &after)
+{
+    m_undoManager.record(
+        label,
+        [this, before] { return applyPresentationSnapshot(before); },
+        [this, after] { return applyPresentationSnapshot(after); });
+}
 
 void ApplicationController::showTextSlide(int index)
 {
-    stopVideo(); m_images.stop();
-    if(m_textPresentation.show(index)&&index==0){const auto&p=m_textPresentation.presentation();const auto type=p.type==PresentationType::Song?QStringLiteral("song"):p.type==PresentationType::Bible?QStringLiteral("bible"):QStringLiteral("text");recordHistory(type,p.id,p.title);}
+    m_presentationCommands->requestShow(index);
 }
-void ApplicationController::nextTextSlide() { m_textPresentation.next(); }
-void ApplicationController::previousTextSlide() { m_textPresentation.previous(); }
-void ApplicationController::firstTextSlide() { m_textPresentation.first(); }
-void ApplicationController::lastTextSlide() { m_textPresentation.last(); }
-void ApplicationController::stopTextPresentation() { m_textPresentation.stop(); }
+void ApplicationController::nextTextSlide() { m_presentationCommands->requestNext(); }
+void ApplicationController::previousTextSlide() { m_presentationCommands->requestPrevious(); }
+void ApplicationController::firstTextSlide() { m_presentationCommands->requestFirst(); }
+void ApplicationController::lastTextSlide() { m_presentationCommands->requestLast(); }
+void ApplicationController::stopTextPresentation() { m_presentationCommands->requestStop(); }
+
+bool ApplicationController::applyShowTextSlide(int index)
+{
+    applyStopMedia();
+    m_images.stop();
+    if (!m_textPresentation.show(index)) return false;
+    if (index == 0) {
+        const auto &presentation = m_textPresentation.presentation();
+        const auto type = presentation.type == PresentationType::Song
+            ? QStringLiteral("song")
+            : presentation.type == PresentationType::Bible
+                ? QStringLiteral("bible") : QStringLiteral("text");
+        recordHistory(type, presentation.id, presentation.title);
+    }
+    return true;
+}
 
 QString ApplicationController::createTheme(const QString &name)
 {
@@ -1428,11 +1704,17 @@ void ApplicationController::deleteTheme(const QString &id)
 
 void ApplicationController::applyTheme(const QString &id)
 {
-    if (!m_themeRepository) return;
-    const auto theme=m_themeRepository->theme(id); if(theme.id.isEmpty())return;
+    m_themeCommands->requestApply(id);
+}
+
+bool ApplicationController::applyThemeSelection(const QString &id)
+{
+    if (!m_themeRepository) return false;
+    const auto theme=m_themeRepository->theme(id); if(theme.id.isEmpty())return false;
     m_activeTheme=theme;
     if(!currentPresentationId().isEmpty()){auto p=m_textPresentation.presentation();p.defaultTheme=id;m_textPresentation.setPresentation(p);saveCurrentPresentation();}
     emit activeThemeChanged();
+    return true;
 }
 
 QString ApplicationController::createSong(const QString &title, const QString &author,
@@ -1479,7 +1761,9 @@ QString ApplicationController::createEvent(const QString &title,const QString &s
     if(!id.isEmpty()){refreshEvents();selectEvent(id);}return id;
 }
 void ApplicationController::selectEvent(const QString&id)
-{if(!m_eventRepository||m_eventRepository->event(id).id.isEmpty())return;m_currentEventId=id;refreshEventItems();emit currentEventChanged();}
+{ m_eventCommands->requestSelect(id); }
+bool ApplicationController::applyEventSelection(const QString&id)
+{if(!m_eventRepository||m_eventRepository->event(id).id.isEmpty())return false;m_currentEventId=id;refreshEventItems();emit currentEventChanged();return true;}
 void ApplicationController::deleteEvent(const QString&id)
 {if(!m_eventRepository||!m_eventRepository->removeEvent(id))return;if(m_currentEventId==id){m_currentEventId.clear();m_eventItems.clear();emit currentEventChanged();emit eventItemsChanged();}refreshEvents();}
 void ApplicationController::addEventItem(const QString&type,const QString&referenceId,const QString&title,qint64 durationMs)
@@ -1491,14 +1775,53 @@ void ApplicationController::addEventItem(const QString&type,const QString&refere
 void ApplicationController::removeEventItem(const QString&id){if(m_eventRepository&&m_eventRepository->removeItem(id))refreshEventItems();}
 void ApplicationController::moveEventItem(const QString&id,int newIndex){if(m_eventRepository&&m_eventRepository->moveItem(id,newIndex))refreshEventItems();}
 void ApplicationController::executeEventItem(const QString&id)
+{ m_eventCommands->requestExecuteItem(id); }
+bool ApplicationController::applyEventItemExecution(const QString&id)
 {
-    if(!m_eventRepository)return;for(const auto&item:m_eventRepository->items(m_currentEventId))if(item.id==id){
-        switch(item.type){case PlaylistItemType::Song:selectSong(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Text:selectTextPresentation(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Image:showImage(item.referenceId);break;case PlaylistItemType::Video:playVideo(item.referenceId);break;case PlaylistItemType::Audio:playAudio(item.referenceId);break;}return;
-    }
+    if(!m_eventRepository)return false;for(const auto&item:m_eventRepository->items(m_currentEventId))if(item.id==id){
+        switch(item.type){case PlaylistItemType::Song:selectSong(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Text:selectTextPresentation(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Image:showImage(item.referenceId);break;case PlaylistItemType::Video:playVideo(item.referenceId);break;case PlaylistItemType::Audio:playAudio(item.referenceId);break;}return true;
+    }return false;
 }
 void ApplicationController::clearHistory(){if(m_historyRepository&&m_historyRepository->clear())refreshHistory();}
 QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
 bool ApplicationController::scheduleRestore(const QUrl&source){if(!m_recovery)return false;const auto path=source.isLocalFile()?source.toLocalFile():source.toString();const bool ok=m_recovery->scheduleRestore(path);setStatusMessage(ok?QStringLiteral("Restauração agendada. Reinicie o HolyScreen para aplicá-la."):QStringLiteral("O arquivo não é um backup SQLite válido."));emit maintenanceChanged();return ok;}
+bool ApplicationController::exportDiagnostics(const QUrl &destination)
+{
+    if (destination.isEmpty()) return false;
+    auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
+    if (!path.endsWith(QStringLiteral(".zip"), Qt::CaseInsensitive)) path += QStringLiteral(".zip");
+    const QVariantMap application{
+        {QStringLiteral("version"), QCoreApplication::applicationVersion()},
+        {QStringLiteral("qtVersion"), QString::fromLatin1(qVersion())},
+        {QStringLiteral("platform"), QSysInfo::prettyProductName()},
+        {QStringLiteral("cpu"), QSysInfo::currentCpuArchitecture()},
+        {QStringLiteral("schemaVersion"), m_diagnostics.value(QStringLiteral("schemaVersion"))},
+        {QStringLiteral("recoveredFromCrash"), recoveredFromCrash()},
+    };
+    const QVariantMap configuration{
+        {QStringLiteral("wallpaperFit"), wallpaperFit()},
+        {QStringLiteral("clockVisible"), clockVisible()},
+        {QStringLiteral("clockPosition"), clockPosition()},
+        {QStringLiteral("mediaRepeatMode"), mediaRepeatMode()},
+        {QStringLiteral("simulatedOutputCount"), simulatedOutputCount()},
+        {QStringLiteral("debugEnabled"), debugEnabled()},
+        {QStringLiteral("debugSimulatedOutputs"), debugSimulatedOutputs()},
+        {QStringLiteral("debugDiagnostics"), debugDiagnostics()},
+        {QStringLiteral("debugLogging"), debugLogging()},
+    };
+    QString error;
+    const auto exported = DiagnosticExporter::exportZip({
+        .destinationPath = path,
+        .application = application,
+        .screens = screens(),
+        .configuration = configuration,
+        .logPath = AppLogger::logPath(),
+    }, &error);
+    setStatusMessage(exported
+        ? QStringLiteral("Diagnóstico exportado para %1.").arg(QDir::toNativeSeparators(path))
+        : error);
+    return exported;
+}
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
 void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(QUrl(m_updateEndpoint),QCoreApplication::applicationVersion());}
 
@@ -1669,6 +1992,12 @@ void ApplicationController::finishBibleImport(const BibleImportResult &result)
 
 bool ApplicationController::searchBibleReference()
 {
+    return m_bibleCommands->requestSearch(m_bibleReferenceInput).accepted;
+}
+
+bool ApplicationController::applyBibleSearch(const QString &referenceInput)
+{
+    setBibleReferenceInput(referenceInput);
     m_bibleResults.clear();
     if (!m_bibleRepository) return false;
     const auto reference = m_bibleReferenceParser.parse(m_bibleReferenceInput);
@@ -1785,14 +2114,19 @@ QVariantList ApplicationController::bibleVerseNumbers(int bookId, int chapter) c
 
 bool ApplicationController::presentBibleReference(int bookId, int chapter, int verse)
 {
+    return m_bibleCommands->requestPresent(bookId, chapter, verse).accepted;
+}
+
+bool ApplicationController::applyBiblePresentation(int bookId, int chapter, int verse)
+{
     if (bookId < static_cast<int>(BibleBook::Genesis)
         || bookId > static_cast<int>(BibleBook::Revelation)
         || chapter <= 0 || verse <= 0) return false;
-    setBibleReferenceInput(QStringLiteral("%1 %2:%3")
+    const auto reference = QStringLiteral("%1 %2:%3")
                                .arg(bibleBookName(static_cast<BibleBook>(bookId)))
                                .arg(chapter)
-                               .arg(verse));
-    if (!searchBibleReference()) return false;
+                               .arg(verse);
+    if (!applyBibleSearch(reference)) return false;
     showBibleVerse(0);
     return true;
 }
@@ -2004,11 +2338,17 @@ void ApplicationController::setImageFileSearch(const QString &search)
 
 void ApplicationController::setStageMessage(const QString &message)
 {
+    m_stageCommands->requestMessage(message);
+}
+
+bool ApplicationController::applyStageMessage(const QString &message)
+{
     const auto normalized = message.trimmed();
-    if (m_stageMessage == normalized) return;
+    if (m_stageMessage == normalized) return true;
     m_stageMessage = normalized;
     saveSetting(QStringLiteral("stageMessage"), normalized);
     emit stageMessageChanged();
+    return true;
 }
 
 void ApplicationController::setAudienceMessage(const QString &message)
@@ -2062,6 +2402,140 @@ void ApplicationController::setDebugLogging(bool enabled)
     emit debugOptionsChanged();
 }
 
+void ApplicationController::setRemoteEnabled(bool enabled)
+{
+    if (enabled == m_remoteEnabled && enabled == m_remoteServer.running()) return;
+    if (enabled && !remotePasswordConfigured()) {
+        setStatusMessage(QStringLiteral("Defina uma senha antes de habilitar o controle remoto."));
+        emit remoteChanged();
+        return;
+    }
+    if (enabled) {
+        m_remoteEnabled = restartRemoteServer();
+        setStatusMessage(m_remoteEnabled ? QStringLiteral("Controle remoto habilitado.")
+                                         : m_remoteServer.lastError());
+    } else {
+        m_remoteServer.stop();
+        m_remoteEnabled = false;
+        setStatusMessage(QStringLiteral("Controle remoto desabilitado."));
+    }
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), m_remoteEnabled);
+    emit remoteChanged();
+}
+
+void ApplicationController::setRemotePort(int port)
+{
+    const auto normalized = std::clamp(port, 1024, 65535);
+    if (m_remotePort == normalized) return;
+    m_remotePort = normalized;
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/port"), normalized);
+    if (m_remoteEnabled && !restartRemoteServer()) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
+    emit remoteChanged();
+}
+
+void ApplicationController::setRemoteInterface(const QString &interfaceAddress)
+{
+    const QHostAddress address(interfaceAddress.trimmed());
+    if (address.isNull() || address.protocol() != QAbstractSocket::IPv4Protocol) {
+        setStatusMessage(QStringLiteral("Informe um endereço IPv4 válido para o remoto."));
+        return;
+    }
+    const auto normalized = address.toString();
+    if (m_remoteInterface == normalized) return;
+    m_remoteInterface = normalized;
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/interface"), normalized);
+    if (m_remoteEnabled && !restartRemoteServer()) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
+    emit remoteChanged();
+}
+
+bool ApplicationController::setRemotePassword(const QString &password)
+{
+    if (password.size() < 8) {
+        setStatusMessage(QStringLiteral("A senha do remoto deve ter pelo menos 8 caracteres."));
+        return false;
+    }
+    const auto credentials = m_remoteServer.setPassword(password);
+    if (credentials.isEmpty() || !m_settings
+        || !m_settings->setValue(QStringLiteral("remote/credentials"), credentials)) {
+        setStatusMessage(QStringLiteral("Não foi possível salvar a senha do remoto."));
+        return false;
+    }
+    setStatusMessage(QStringLiteral("Senha do controle remoto atualizada. Sessões antigas foram revogadas."));
+    emit remoteChanged();
+    return true;
+}
+
+void ApplicationController::revokeRemoteSessions()
+{
+    m_remoteServer.revokeAllSessions();
+    setStatusMessage(QStringLiteral("Todas as sessões remotas foram revogadas."));
+    emit remoteChanged();
+}
+
+bool ApplicationController::restartRemoteServer()
+{
+    m_remoteServer.stop();
+    return m_remoteServer.start(static_cast<quint16>(m_remotePort),
+                                QHostAddress(m_remoteInterface));
+}
+
+QJsonObject ApplicationController::remoteState() const
+{
+    return {
+        {QStringLiteral("stateRevision"), static_cast<qint64>(m_commandBus.stateRevision())},
+        {QStringLiteral("presentation"), QJsonObject{
+            {QStringLiteral("id"), currentPresentationId()},
+            {QStringLiteral("title"), currentPresentationTitle()},
+            {QStringLiteral("slideIndex"), currentSlideIndex()},
+            {QStringLiteral("slideId"), currentSlideId()},
+            {QStringLiteral("slideText"), currentSlideText()},
+            {QStringLiteral("nextSlideText"), nextSlideText()},
+            {QStringLiteral("visible"), textVisible()},
+        }},
+        {QStringLiteral("media"), QJsonObject{
+            {QStringLiteral("id"), currentMediaId()},
+            {QStringLiteral("title"), currentMediaTitle()},
+            {QStringLiteral("type"), currentMediaType()},
+            {QStringLiteral("state"), mediaState()},
+            {QStringLiteral("positionMs"), mediaPositionMs()},
+            {QStringLiteral("durationMs"), mediaDurationMs()},
+            {QStringLiteral("repeatMode"), mediaRepeatMode()},
+            {QStringLiteral("playlist"), QJsonArray::fromVariantList(mediaPlaylist())},
+        }},
+        {QStringLiteral("bible"), QJsonObject{
+            {QStringLiteral("reference"), bibleReferenceInput()},
+            {QStringLiteral("results"), QJsonArray::fromVariantList(bibleResults())},
+            {QStringLiteral("translations"), QJsonArray::fromVariantList(bibleTranslations())},
+        }},
+        {QStringLiteral("event"), QJsonObject{
+            {QStringLiteral("id"), currentEventId()},
+            {QStringLiteral("events"), QJsonArray::fromVariantList(events())},
+            {QStringLiteral("items"), QJsonArray::fromVariantList(eventItems())},
+        }},
+        {QStringLiteral("stage"), QJsonObject{{QStringLiteral("message"), stageMessage()}}},
+        {QStringLiteral("overlays"), QJsonObject{
+            {QStringLiteral("audienceMessage"), audienceMessage()},
+            {QStringLiteral("alertMessage"), alertMessage()},
+            {QStringLiteral("lowerThirdTitle"), lowerThirdTitle()},
+            {QStringLiteral("lowerThirdSubtitle"), lowerThirdSubtitle()},
+        }},
+        {QStringLiteral("timers"), QJsonObject{
+            {QStringLiteral("countdownText"), countdownText()},
+            {QStringLiteral("countdownRunning"), countdownRunning()},
+            {QStringLiteral("stopwatchText"), stopwatchText()},
+            {QStringLiteral("stopwatchRunning"), stopwatchRunning()},
+        }},
+        {QStringLiteral("blackout"), blackout()},
+        {QStringLiteral("outputs"), QJsonArray::fromVariantList(screens())},
+    };
+}
+
 void ApplicationController::setAudioVolume(double volume)
 {
     setMediaVolume(volume);
@@ -2084,6 +2558,11 @@ void ApplicationController::setMediaVolume(double volume)
 }
 
 void ApplicationController::setMediaRepeatMode(const QString &mode)
+{
+    m_mediaCommands->requestRepeat(mode);
+}
+
+void ApplicationController::applyMediaRepeatMode(const QString &mode)
 {
     const auto normalized = mode == QStringLiteral("one") ? QStringLiteral("one")
                           : mode == QStringLiteral("all") ? QStringLiteral("all")
@@ -2274,6 +2753,16 @@ void ApplicationController::loadSettings()
     m_debugSimulatedOutputs = m_settings->value(QStringLiteral("developer/debugSimulatedOutputs"), true).toBool();
     m_debugDiagnostics = m_settings->value(QStringLiteral("developer/debugDiagnostics"), true).toBool();
     m_debugLogging = m_settings->value(QStringLiteral("developer/debugLogging"), false).toBool();
+    m_remoteEnabled = m_settings->value(QStringLiteral("remote/enabled"), false).toBool();
+    m_remotePort = std::clamp(m_settings->value(QStringLiteral("remote/port"), 43120).toInt(),
+                              1024, 65535);
+    m_remoteInterface = m_settings->value(QStringLiteral("remote/interface"),
+                                          QStringLiteral("0.0.0.0")).toString();
+    const auto credentials = m_settings->value(QStringLiteral("remote/credentials")).toMap();
+    if (!credentials.isEmpty() && !m_remoteServer.loadCredentials(credentials)) {
+        qWarning() << "remote_credentials_invalid";
+        m_remoteEnabled = false;
+    }
     m_mediaFolderPaths = m_settings->value(QStringLiteral("library/mediaFolders"), QStringList{}).toStringList();
     m_favoriteMediaPaths = m_settings->value(QStringLiteral("library/favoriteMedia"), QStringList{}).toStringList();
     m_biblePrimaryTranslationId = m_settings->value(QStringLiteral("bible/primaryTranslationId")).toString();

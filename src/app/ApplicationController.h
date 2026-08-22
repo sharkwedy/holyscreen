@@ -24,9 +24,17 @@
 #include "core/CommandBus.h"
 #include "core/EventBus.h"
 #include "modules/OutputModule.h"
+#include "modules/BibleCommandModule.h"
+#include "modules/EventCommandModule.h"
+#include "modules/ThemeCommandModule.h"
+#include "modules/PlaylistCommandModule.h"
+#include "modules/OutputRoutingCommandModule.h"
 #include "modules/OverlayCommandModule.h"
 #include "modules/MediaCommandModule.h"
+#include "modules/PresentationCommandModule.h"
+#include "modules/StageCommandModule.h"
 #include "modules/UndoCommandModule.h"
+#include "remote/LocalApiServer.h"
 
 #include <QObject>
 #include <QFileSystemWatcher>
@@ -69,6 +77,15 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool debugSimulatedOutputs READ debugSimulatedOutputs WRITE setDebugSimulatedOutputs NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugDiagnostics READ debugDiagnostics WRITE setDebugDiagnostics NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugLogging READ debugLogging WRITE setDebugLogging NOTIFY debugOptionsChanged)
+    Q_PROPERTY(bool remoteEnabled READ remoteEnabled WRITE setRemoteEnabled NOTIFY remoteChanged)
+    Q_PROPERTY(int remotePort READ remotePort WRITE setRemotePort NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteInterface READ remoteInterface WRITE setRemoteInterface NOTIFY remoteChanged)
+    Q_PROPERTY(bool remotePasswordConfigured READ remotePasswordConfigured NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteUrl READ remoteUrl NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteQrCode READ remoteQrCode NOTIFY remoteChanged)
+    Q_PROPERTY(int remoteClients READ remoteClients NOTIFY remoteChanged)
+    Q_PROPERTY(int remoteSessions READ remoteSessions NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteError READ remoteError NOTIFY remoteChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY undoStateChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY undoStateChanged)
@@ -203,6 +220,15 @@ public:
     [[nodiscard]] bool debugSimulatedOutputs() const;
     [[nodiscard]] bool debugDiagnostics() const;
     [[nodiscard]] bool debugLogging() const;
+    [[nodiscard]] bool remoteEnabled() const;
+    [[nodiscard]] int remotePort() const;
+    [[nodiscard]] QString remoteInterface() const;
+    [[nodiscard]] bool remotePasswordConfigured() const;
+    [[nodiscard]] QString remoteUrl() const;
+    [[nodiscard]] QString remoteQrCode() const;
+    [[nodiscard]] int remoteClients() const;
+    [[nodiscard]] int remoteSessions() const;
+    [[nodiscard]] QString remoteError() const;
     [[nodiscard]] bool blackout() const;
     [[nodiscard]] bool canUndo() const;
     [[nodiscard]] bool canRedo() const;
@@ -388,6 +414,9 @@ public:
     Q_INVOKABLE void clearHistory();
     Q_INVOKABLE QString createBackup();
     Q_INVOKABLE bool scheduleRestore(const QUrl &source);
+    Q_INVOKABLE bool exportDiagnostics(const QUrl &destination);
+    Q_INVOKABLE bool setRemotePassword(const QString &password);
+    Q_INVOKABLE void revokeRemoteSessions();
     Q_INVOKABLE void runBenchmark();
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
@@ -440,6 +469,9 @@ public slots:
     void setDebugSimulatedOutputs(bool enabled);
     void setDebugDiagnostics(bool enabled);
     void setDebugLogging(bool enabled);
+    void setRemoteEnabled(bool enabled);
+    void setRemotePort(int port);
+    void setRemoteInterface(const QString &interfaceAddress);
     void setMediaVolume(double volume);
     void setMediaRepeatMode(const QString &mode);
     void setAudioVolume(double volume);
@@ -474,6 +506,7 @@ signals:
     void clockStyleChanged();
     void simulatedOutputCountChanged();
     void debugOptionsChanged();
+    void remoteChanged();
     void blackoutChanged(bool active);
     void undoStateChanged();
     void autosaveChanged();
@@ -543,6 +576,8 @@ private:
     UndoManager m_undoManager;
     OutputModule m_outputModule;
     UndoCommandModule m_undoCommands;
+    LocalApiServer m_remoteServer;
+    std::unique_ptr<OutputRoutingCommandModule> m_outputRoutingCommands;
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);
@@ -563,6 +598,27 @@ private:
     bool applySeekMedia(int positionMs);
     bool applyPreviousMedia();
     bool applyNextMedia();
+    void applyMediaRepeatMode(const QString &mode);
+    bool applyShowTextSlide(int index);
+    bool applyStageMessage(const QString &message);
+    bool applyToggleScreen(const QString &screenFingerprint, bool enabled);
+    bool applyOutputRole(const QString &screenFingerprint, const QString &role);
+    bool applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
+    [[nodiscard]] QVariantMap outputRoutingState(const QString &screenFingerprint) const;
+    [[nodiscard]] QJsonObject remoteState() const;
+    bool restartRemoteServer();
+    bool applyBibleSearch(const QString &reference);
+    bool applyBiblePresentation(int bookId, int chapter, int verse);
+    bool applyEventSelection(const QString &id);
+    bool applyEventItemExecution(const QString &id);
+    bool applyThemeSelection(const QString &id);
+    bool applyMoveMedia(const QString &id, int newIndex);
+    bool applyRemoveMedia(const QString &id);
+    bool applyClearMediaPlaylist();
+    bool restoreMediaPlaylist(const QVariantList &snapshot);
+    bool applyPresentationSnapshot(const Presentation &presentation);
+    void recordPresentationEdit(const QString &label, const Presentation &before,
+                                const Presentation &after);
     void refreshAudioLibrary();
     void updateCurrentAudioMetadata(const MediaItem &metadata);
     void refreshVideoLibrary();
@@ -614,6 +670,9 @@ private:
     bool m_debugSimulatedOutputs = true;
     bool m_debugDiagnostics = true;
     bool m_debugLogging = false;
+    bool m_remoteEnabled = false;
+    int m_remotePort = 43120;
+    QString m_remoteInterface = QStringLiteral("0.0.0.0");
     bool m_identifyVisible = false;
     QString m_statusMessage;
     std::unique_ptr<SettingsRepository> m_settings;
@@ -649,6 +708,12 @@ private:
     bool m_videoVisible = false;
     QVariantList m_imageLibrary;
     TextPresentationController m_textPresentation;
+    std::unique_ptr<PresentationCommandModule> m_presentationCommands;
+    std::unique_ptr<StageCommandModule> m_stageCommands;
+    std::unique_ptr<BibleCommandModule> m_bibleCommands;
+    std::unique_ptr<EventCommandModule> m_eventCommands;
+    std::unique_ptr<ThemeCommandModule> m_themeCommands;
+    std::unique_ptr<PlaylistCommandModule> m_playlistCommands;
     OverlayController m_overlays;
     std::unique_ptr<OverlayCommandModule> m_overlayCommands;
     QVariantList m_textPresentations;

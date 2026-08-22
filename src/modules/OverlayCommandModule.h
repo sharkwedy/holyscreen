@@ -2,6 +2,7 @@
 
 #include "core/CommandBus.h"
 #include "core/EventBus.h"
+#include "core/UndoManager.h"
 #include "presentation/OverlayController.h"
 
 #include <QObject>
@@ -13,7 +14,8 @@ class OverlayCommandModule final : public QObject {
 
 public:
     OverlayCommandModule(CommandBus &commandBus, EventBus &eventBus,
-                         OverlayController &overlays, QObject *parent = nullptr);
+                         OverlayController &overlays, UndoManager *undoManager = nullptr,
+                         QObject *parent = nullptr);
 
     CommandResult requestAudienceMessage(const QString &message,
                                          const QString &source = QStringLiteral("operator"));
@@ -32,11 +34,13 @@ private:
     CommandResult dispatch(const QString &type, const QVariantMap &payload,
                            const QString &source);
     CommandResult complete(const Command &command, const QString &message);
+    bool publishState(const QString &correlationId);
     [[nodiscard]] CommandResult invalidPayload(const QString &message) const;
 
     CommandBus &m_commandBus;
     EventBus &m_eventBus;
     OverlayController &m_overlays;
+    UndoManager *m_undoManager = nullptr;
 };
 
 } // namespace churchpresenter

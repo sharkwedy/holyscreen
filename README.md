@@ -11,7 +11,7 @@ HolyScreen is an open-source desktop presentation engine for churches. Built
 with C++20 and Qt 6/QML, it works offline and keeps screen discovery,
 presentation state, persistence, and rendering separate.
 
-> Status: `0.10.3` development preview. This is not yet the stable `1.0.0` release.
+> Status: `0.11.0` development pre-release. This is not yet the stable `1.0.0` release.
 
 ![HolyScreen operator dashboard](.stitch/painel-principal.png)
 
@@ -28,8 +28,12 @@ presentation state, persistence, and rendering separate.
   per-output translations;
 - Stage View with current/next slide, clock, timer, and messages;
 - message, alert, lower-third, countdown, and stopwatch overlays;
-- history, basic reports, backup, restore, and crash recovery;
-- an early local HTTP/WebSocket API and web remote.
+- history, basic reports, transactional migrations, backup, restore, crash
+  recovery, autosave, undo/redo, and sanitized diagnostic exports;
+- a password-protected local HTTP/WebSocket API v1 and responsive offline web
+  remote for presentations, media, Bible, events, Stage View, overlays, and
+  timers;
+- a shared command/event architecture used by the desktop UI and remote.
 
 See the [roadmap](docs/ROADMAP.md) for the path to 1.0 and [IDEA.md](IDEA.md)
 for the original product design.
@@ -46,11 +50,29 @@ Development previews may be unsigned. Your operating system can ask you to
 confirm that you trust the application. Back up important presentation data
 before upgrading between previews.
 
+- Windows SmartScreen can require **More info → Run anyway**.
+- On macOS, open **System Settings → Privacy & Security** after the first
+  blocked launch, or Control-click the app and choose **Open**.
+- On Linux, an AppImage may need `chmod +x HolyScreen-*.AppImage`.
+
+## Local web remote
+
+Open **Settings → Remote**, choose the IPv4 interface and port, define a fixed
+password, and enable the server. Scan the displayed QR code from a device on
+the same trusted local network. The server is disabled by default and must not
+be exposed directly to the internet.
+
+Only a salted PBKDF2-HMAC-SHA256 password hash is persisted. Sessions expire,
+can be revoked, and are protected by login and command rate limits. The web app
+has no CDN or runtime internet dependency. See the [Remote API and security
+guide](docs/REMOTE_API.md).
+
 ## Build from source
 
 Requirements: CMake 3.21+, a C++20 compiler, and Qt 6.8+ with Core, Gui, Quick,
 Quick Controls, SQL, Multimedia, Network, Concurrent, HttpServer, WebSockets,
-and Test. CMake downloads pinned libgit2 and miniz sources during configure.
+and Test. CMake downloads pinned libgit2, miniz, and QR generator sources during
+configure.
 
 ```bash
 cmake -S . -B build -DBUILD_TESTING=ON
@@ -62,8 +84,8 @@ cmake --build build --target church-presenter_qmllint
 Run the application:
 
 ```bash
-open build/src/church-presenter.app                    # macOS
-build/src/church-presenter.exe                         # Windows
+open build/src/HolyScreen.app                          # macOS
+build/src/holyscreen.exe                               # Windows
 build/src/church-presenter                             # Linux
 ```
 

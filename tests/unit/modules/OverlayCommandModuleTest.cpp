@@ -10,6 +10,7 @@ class OverlayCommandModuleTest final : public QObject {
 
 private slots:
     void routesOperatorAndRemoteActionsThroughTheSameCommands();
+    void overlayMessagesAreUndoable();
 };
 
 void OverlayCommandModuleTest::routesOperatorAndRemoteActionsThroughTheSameCommands()
@@ -42,6 +43,24 @@ void OverlayCommandModuleTest::routesOperatorAndRemoteActionsThroughTheSameComma
     const auto remoteEvent = qvariant_cast<DomainEvent>(eventSpy.last().at(0));
     QCOMPARE(remoteEvent.type, QStringLiteral("overlay.state.changed"));
     QCOMPARE(remoteEvent.correlationId, QStringLiteral("remote-command-1"));
+}
+
+void OverlayCommandModuleTest::overlayMessagesAreUndoable()
+{
+    CommandBus commandBus;
+    EventBus eventBus;
+    UndoManager undo;
+    OverlayController overlays;
+    OverlayCommandModule module(commandBus, eventBus, overlays, &undo);
+
+    QVERIFY(module.requestAudienceMessage(QStringLiteral("Primeiro aviso")).accepted);
+    QVERIFY(module.requestAudienceMessage(QStringLiteral("Segundo aviso")).accepted);
+    QCOMPARE(overlays.message(), QStringLiteral("Segundo aviso"));
+    QVERIFY(undo.canUndo());
+    QVERIFY(undo.undo().success);
+    QCOMPARE(overlays.message(), QStringLiteral("Primeiro aviso"));
+    QVERIFY(undo.redo().success);
+    QCOMPARE(overlays.message(), QStringLiteral("Segundo aviso"));
 }
 
 QTEST_APPLESS_MAIN(OverlayCommandModuleTest)

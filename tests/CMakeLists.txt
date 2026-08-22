@@ -2,6 +2,10 @@ qt_add_executable(test_command_bus unit/core/CommandBusTest.cpp)
 target_link_libraries(test_command_bus PRIVATE Qt6::Test presenter-core)
 add_test(NAME test_command_bus COMMAND test_command_bus)
 
+qt_add_executable(test_command_catalog unit/core/CommandCatalogTest.cpp)
+target_link_libraries(test_command_catalog PRIVATE Qt6::Test presenter-core)
+add_test(NAME test_command_catalog COMMAND test_command_catalog)
+
 qt_add_executable(test_event_bus unit/core/EventBusTest.cpp)
 target_link_libraries(test_event_bus PRIVATE Qt6::Test presenter-core)
 add_test(NAME test_event_bus COMMAND test_event_bus)
@@ -13,6 +17,34 @@ add_test(NAME test_undo_manager COMMAND test_undo_manager)
 qt_add_executable(test_output_module unit/modules/OutputModuleTest.cpp)
 target_link_libraries(test_output_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_module COMMAND test_output_module)
+
+qt_add_executable(test_bible_command_module unit/modules/BibleCommandModuleTest.cpp)
+target_link_libraries(test_bible_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_bible_command_module COMMAND test_bible_command_module)
+
+qt_add_executable(test_event_command_module unit/modules/EventCommandModuleTest.cpp)
+target_link_libraries(test_event_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_event_command_module COMMAND test_event_command_module)
+
+qt_add_executable(test_theme_command_module unit/modules/ThemeCommandModuleTest.cpp)
+target_link_libraries(test_theme_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_theme_command_module COMMAND test_theme_command_module)
+
+qt_add_executable(test_playlist_command_module unit/modules/PlaylistCommandModuleTest.cpp)
+target_link_libraries(test_playlist_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_playlist_command_module COMMAND test_playlist_command_module)
+
+qt_add_executable(test_output_routing_command_module unit/modules/OutputRoutingCommandModuleTest.cpp)
+target_link_libraries(test_output_routing_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_output_routing_command_module COMMAND test_output_routing_command_module)
+
+qt_add_executable(test_presentation_command_module unit/modules/PresentationCommandModuleTest.cpp)
+target_link_libraries(test_presentation_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_presentation_command_module COMMAND test_presentation_command_module)
+
+qt_add_executable(test_stage_command_module unit/modules/StageCommandModuleTest.cpp)
+target_link_libraries(test_stage_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_stage_command_module COMMAND test_stage_command_module)
 
 qt_add_executable(test_overlay_command_module unit/modules/OverlayCommandModuleTest.cpp)
 target_link_libraries(test_overlay_command_module PRIVATE Qt6::Test presenter-modules)
@@ -154,9 +186,21 @@ qt_add_executable(test_app_logger unit/app/AppLoggerTest.cpp)
 target_link_libraries(test_app_logger PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_app_logger COMMAND test_app_logger)
 
+qt_add_executable(test_diagnostic_exporter unit/app/DiagnosticExporterTest.cpp)
+target_link_libraries(test_diagnostic_exporter PRIVATE Qt6::Test presenter-app miniz)
+add_test(NAME test_diagnostic_exporter COMMAND test_diagnostic_exporter)
+
 qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_local_api_server COMMAND test_local_api_server)
+
+qt_add_executable(test_remote_auth_manager unit/remote/RemoteAuthManagerTest.cpp)
+target_link_libraries(test_remote_auth_manager PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_remote_auth_manager COMMAND test_remote_auth_manager)
+
+qt_add_executable(test_remote_qr_code unit/remote/RemoteQrCodeTest.cpp)
+target_link_libraries(test_remote_qr_code PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_remote_qr_code COMMAND test_remote_qr_code)
 
 qt_add_executable(test_bible_reference_parser unit/bible/BibleReferenceParserTest.cpp)
 target_link_libraries(test_bible_reference_parser PRIVATE Qt6::Test presenter-bible)

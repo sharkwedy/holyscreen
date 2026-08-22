@@ -17,6 +17,18 @@ bool CommandBus::registerHandler(const QString &commandType, Handler handler)
     return true;
 }
 
+bool CommandBus::hasHandler(const QString &commandType) const
+{
+    return m_handlers.contains(commandType.trimmed());
+}
+
+QStringList CommandBus::registeredCommandTypes() const
+{
+    auto types = m_handlers.keys();
+    types.sort();
+    return types;
+}
+
 CommandResult CommandBus::dispatch(const Command &command)
 {
     if (command.id.trimmed().isEmpty() || command.type.trimmed().isEmpty()

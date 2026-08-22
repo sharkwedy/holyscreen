@@ -10,6 +10,7 @@ class MediaCommandModuleTest final : public QObject {
 
 private slots:
     void routesOperatorAndRemoteThroughUnifiedPlayerCommands();
+    void repeatModeIsValidatedAndUndoable();
 };
 
 void MediaCommandModuleTest::routesOperatorAndRemoteThroughUnifiedPlayerCommands()
@@ -51,6 +52,32 @@ void MediaCommandModuleTest::routesOperatorAndRemoteThroughUnifiedPlayerCommands
     QCOMPARE(event.type, QStringLiteral("media.state.changed"));
     QCOMPARE(event.correlationId, QStringLiteral("remote-seek-1"));
     QCOMPARE(event.payload.value(QStringLiteral("positionMs")).toInt(), 4200);
+}
+
+void MediaCommandModuleTest::repeatModeIsValidatedAndUndoable()
+{
+    CommandBus commandBus;
+    EventBus eventBus;
+    UndoManager undo;
+    QString repeatMode = QStringLiteral("off");
+    MediaCommandModule module(commandBus, eventBus, {
+        .setRepeat = [&repeatMode](const QString &mode) { repeatMode = mode; return true; },
+        .stateSnapshot = [&repeatMode] {
+            return QVariantMap{{QStringLiteral("repeatMode"), repeatMode}};
+        },
+    }, &undo);
+
+    QVERIFY(module.requestRepeat(QStringLiteral("all")).accepted);
+    QCOMPARE(repeatMode, QStringLiteral("all"));
+    QVERIFY(undo.canUndo());
+    QVERIFY(undo.undo().success);
+    QCOMPARE(repeatMode, QStringLiteral("off"));
+    QVERIFY(undo.redo().success);
+    QCOMPARE(repeatMode, QStringLiteral("all"));
+
+    const auto invalid = module.requestRepeat(QStringLiteral("forever"));
+    QVERIFY(!invalid.accepted);
+    QCOMPARE(invalid.errorCode, QStringLiteral("invalid_payload"));
 }
 
 QTEST_APPLESS_MAIN(MediaCommandModuleTest)

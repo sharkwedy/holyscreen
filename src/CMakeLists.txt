@@ -1,4 +1,6 @@
 add_library(presenter-core
+    core/CommandCatalog.cpp
+    core/CommandCatalog.h
     core/CommandTypes.h
     core/CommandBus.cpp
     core/CommandBus.h
@@ -50,6 +52,20 @@ target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
 add_library(presenter-modules
+    modules/PlaylistCommandModule.cpp
+    modules/PlaylistCommandModule.h
+    modules/ThemeCommandModule.cpp
+    modules/ThemeCommandModule.h
+    modules/EventCommandModule.cpp
+    modules/EventCommandModule.h
+    modules/BibleCommandModule.cpp
+    modules/BibleCommandModule.h
+    modules/OutputRoutingCommandModule.cpp
+    modules/OutputRoutingCommandModule.h
+    modules/StageCommandModule.cpp
+    modules/StageCommandModule.h
+    modules/PresentationCommandModule.cpp
+    modules/PresentationCommandModule.h
     modules/OutputModule.cpp
     modules/OutputModule.h
     modules/OverlayCommandModule.cpp
@@ -119,6 +135,8 @@ target_link_libraries(presenter-bible PRIVATE libgit2package miniz)
 
 add_library(presenter-app
     app/ApplicationController.cpp
+    app/DiagnosticExporter.cpp
+    app/DiagnosticExporter.h
     app/AutosaveCoordinator.cpp
     app/AutosaveCoordinator.h
     app/DataRecoveryService.cpp
@@ -129,11 +147,18 @@ add_library(presenter-app
     app/UpdateChecker.h
     remote/LocalApiServer.cpp
     remote/LocalApiServer.h
+    remote/RemoteAuthManager.cpp
+    remote/RemoteAuthManager.h
+    remote/RemoteQrCode.cpp
+    remote/RemoteQrCode.h
+    ${qrcodegen_SOURCE_DIR}/cpp/qrcodegen.cpp
 )
 target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(presenter-app PRIVATE ${qrcodegen_SOURCE_DIR}/cpp)
 target_link_libraries(presenter-app PUBLIC
     presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
+target_link_libraries(presenter-app PRIVATE miniz)
 
 qt_add_executable(church-presenter
     WIN32
@@ -147,6 +172,17 @@ set_target_properties(church-presenter PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
 )
+if(APPLE)
+    set(holyscreen_macos_icon "${CMAKE_SOURCE_DIR}/packaging/macos/HolyScreen.icns")
+    set_source_files_properties(${holyscreen_macos_icon} PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    target_sources(church-presenter PRIVATE ${holyscreen_macos_icon})
+    set_target_properties(church-presenter PROPERTIES
+        OUTPUT_NAME "HolyScreen"
+        MACOSX_BUNDLE_ICON_FILE "HolyScreen.icns"
+    )
+endif()
 if(WIN32)
     set_target_properties(church-presenter PROPERTIES OUTPUT_NAME "holyscreen")
     target_sources(church-presenter PRIVATE
