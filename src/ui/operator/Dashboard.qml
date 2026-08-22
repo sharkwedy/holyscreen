@@ -22,6 +22,9 @@ Item {
     readonly property color textMain: "#f2f4f5"
     readonly property color textMuted: "#aab2b8"
     readonly property color accent: "#b9c7ff"
+    readonly property color bibleSelected: "#344d78"
+    readonly property color biblePresented: "#245d45"
+    readonly property color biblePresentedBorder: "#58dc9a"
     readonly property var selectedBibleTranslation: {
         for (let index = 0; index < controller.bibleTranslations.length; ++index) {
             const translation = controller.bibleTranslations[index]
@@ -59,6 +62,14 @@ Item {
     property real mediaVolumeBeforeMute: 0.8
     property var screenBeingRenamed: null
     property var contextMediaItem: null
+    property int selectedBibleBookId: 1
+    property int selectedBibleChapter: 1
+    property int selectedBibleVerseIndex: -1
+    readonly property var bibleChapterModel: {
+        const translationId = controller.biblePrimaryTranslationId
+        return translationId && selectedBibleBookId > 0
+                ? controller.bibleChapterNumbers(selectedBibleBookId) : []
+    }
     readonly property var libraryModel: selectedLibraryTab === 0 ? controller.songs
                                         : selectedLibraryTab === 1 ? controller.folderAudioFiles
                                         : selectedLibraryTab === 2 ? controller.folderVideoFiles
@@ -76,6 +87,54 @@ Item {
     function ensureExternalOutputs() {
         if (controller.outputWindows.length === 0 && externalScreenCount() > 0)
             controller.enableAllScreens()
+    }
+
+    function bibleBook(bookId) {
+        for (let index = 0; index < controller.bibleBooks.length; ++index) {
+            const book = controller.bibleBooks[index]
+            if (book.id === bookId)
+                return book
+        }
+        return null
+    }
+
+    function searchSelectedBibleChapter() {
+        const book = bibleBook(selectedBibleBookId)
+        if (!book || selectedBibleChapter <= 0
+                || !controller.biblePrimaryTranslationId)
+            return
+        const verses = controller.bibleVerseNumbers(selectedBibleBookId,
+                                                      selectedBibleChapter)
+        if (verses.length === 0)
+            return
+        controller.bibleReferenceInput = book.name + " " + selectedBibleChapter
+                + ":" + verses[0] + "-" + verses[verses.length - 1]
+        controller.searchBibleReference()
+    }
+
+    function selectBibleBook(bookId) {
+        selectedBibleBookId = Number(bookId)
+        const chapters = controller.bibleChapterNumbers(selectedBibleBookId)
+        selectedBibleChapter = chapters.length > 0 ? Number(chapters[0]) : 0
+        searchSelectedBibleChapter()
+    }
+
+    function syncBibleSelectors() {
+        let reference = controller.bibleReferenceInput
+        if (controller.bibleResults.length > 0)
+            reference = controller.bibleResults[0].label
+        const match = /^(.+?)\s+(\d+)\s*(?::|\.)/.exec(reference.trim())
+        if (!match)
+            return
+        const requestedBook = match[1].toLocaleLowerCase()
+        for (let index = 0; index < controller.bibleBooks.length; ++index) {
+            const book = controller.bibleBooks[index]
+            if (book.name.toLocaleLowerCase() === requestedBook) {
+                selectedBibleBookId = Number(book.id)
+                selectedBibleChapter = Number(match[2])
+                return
+            }
+        }
     }
 
     function setScreenMediaEnabled(screen, enabled) {
@@ -102,11 +161,20 @@ Item {
         screenNameField.selectAll()
     }
 
-    Component.onCompleted: Qt.callLater(ensureExternalOutputs)
+    Component.onCompleted: Qt.callLater(function() {
+        ensureExternalOutputs()
+        syncBibleSelectors()
+        if (controller.bibleResults.length === 0)
+            searchSelectedBibleChapter()
+    })
 
     Connections {
         target: dashboard.controller
         function onScreensChanged() { Qt.callLater(dashboard.ensureExternalOutputs) }
+        function onBibleResultsChanged() {
+            dashboard.selectedBibleVerseIndex = -1
+            Qt.callLater(dashboard.syncBibleSelectors)
+        }
     }
 
     Dialog {
@@ -624,11 +692,38 @@ Item {
                 }
                 RowLayout {
                     Layout.fillWidth: true; Layout.margins: 8
-                    TextField {
+                    ComboBox {
+                        id: bibleBookCombo
                         Layout.fillWidth: true
-                        text: dashboard.controller.bibleReferenceInput
-                        readOnly: true
-                        placeholderText: "Pesquise uma referência em Navegar"
+                        model: dashboard.controller.bibleBooks
+                        textRole: "name"
+                        valueRole: "id"
+                        currentIndex: {
+                            for (let index = 0; index < dashboard.controller.bibleBooks.length; ++index) {
+                                if (dashboard.controller.bibleBooks[index].id
+                                        === dashboard.selectedBibleBookId)
+                                    return index
+                            }
+                            return -1
+                        }
+                        onActivated: dashboard.selectBibleBook(currentValue)
+                    }
+                    ComboBox {
+                        id: bibleChapterCombo
+                        Layout.preferredWidth: 76
+                        model: dashboard.bibleChapterModel
+                        currentIndex: {
+                            for (let index = 0; index < dashboard.bibleChapterModel.length; ++index) {
+                                if (Number(dashboard.bibleChapterModel[index])
+                                        === dashboard.selectedBibleChapter)
+                                    return index
+                            }
+                            return dashboard.bibleChapterModel.length > 0 ? 0 : -1
+                        }
+                        onActivated: {
+                            dashboard.selectedBibleChapter = Number(currentValue)
+                            dashboard.searchSelectedBibleChapter()
+                        }
                     }
                     ComboBox {
                         id: bibleTranslationCombo
@@ -646,8 +741,7 @@ Item {
                         }
                         onActivated: {
                             dashboard.controller.biblePrimaryTranslationId = currentValue
-                            if (dashboard.controller.bibleReferenceInput.trim().length > 0)
-                                dashboard.controller.searchBibleReference()
+                            dashboard.searchSelectedBibleChapter()
                         }
                     }
                 }
@@ -659,9 +753,20 @@ Item {
                         id: bibleVerseDelegate
                         required property var modelData
                         required property int index
+                        readonly property bool isSelected: dashboard.selectedBibleVerseIndex === index
+                        readonly property bool isPresented:
+                            dashboard.controller.currentPresentationType === "bible"
+                            && dashboard.controller.currentSlideLabel === modelData.label
                         width: ListView.view.width
                         height: verseText.implicitHeight + 30
-                        color: index % 2 ? dashboard.panelHigh : "transparent"
+                        color: isPresented
+                               ? dashboard.biblePresented
+                               : isSelected ? dashboard.bibleSelected
+                               : index % 2 ? dashboard.panelHigh : "transparent"
+                        border.color: isPresented
+                                      ? dashboard.biblePresentedBorder
+                                      : isSelected ? dashboard.accent : "transparent"
+                        border.width: isPresented || isSelected ? 1 : 0
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10; spacing: 10
                             Label { text: bibleVerseDelegate.modelData.verse; color: dashboard.accent; font.bold: true; Layout.alignment: Qt.AlignTop }
@@ -675,6 +780,13 @@ Item {
                                 color: dashboard.textMain
                                 wrapMode: Text.WordWrap
                                 lineHeight: 1.25
+                            }
+                        }
+                        TapHandler {
+                            onTapped: dashboard.selectedBibleVerseIndex = bibleVerseDelegate.index
+                            onDoubleTapped: {
+                                dashboard.selectedBibleVerseIndex = bibleVerseDelegate.index
+                                dashboard.controller.showBibleVerse(bibleVerseDelegate.index)
                             }
                         }
                     }

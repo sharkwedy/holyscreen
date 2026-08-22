@@ -26,7 +26,7 @@ O QR de acesso ao controle remoto usa a biblioteca QR Code generator, Copyright 
 
 Traduções bíblicas, imagens, músicas, áudios e vídeos importados não são redistribuídos com o HolyScreen. A licença e a autorização de uso desses conteúdos são responsabilidade do usuário.
 
-A captura de tela dos READMEs exibe quatro versículos da Bíblia Livre (BLIVRE),
+A captura de tela dos READMEs exibe versículos da Bíblia Livre (BLIVRE),
 marcada como domínio público no repositório
 [`damarals/biblias`](https://github.com/damarals/biblias). A tradução completa não
 é incorporada ao aplicativo nem aos pacotes de distribuição.
