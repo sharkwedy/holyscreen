@@ -8,9 +8,44 @@
 #include <QGuiApplication>
 #include <QDir>
 #include <QFile>
+#include <QEventLoop>
+#include <QJsonDocument>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QTemporaryDir>
+#include <QTcpServer>
 
 using namespace churchpresenter;
+
+namespace {
+
+struct HttpResult {
+    int status = 0;
+    QJsonObject body;
+};
+
+HttpResult postJson(QNetworkAccessManager &network, const QUrl &url,
+                    const QByteArray &body, const QString &token = {})
+{
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    if (!token.isEmpty())
+        request.setRawHeader(QByteArrayLiteral("Authorization"),
+                             QByteArrayLiteral("Bearer ") + token.toUtf8());
+    auto *reply = network.post(request, body);
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+    const HttpResult result{
+        .status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(),
+        .body = QJsonDocument::fromJson(reply->readAll()).object(),
+    };
+    reply->deleteLater();
+    return result;
+}
+
+} // namespace
 
 class ApplicationCommandBridgeTest final : public QObject {
     Q_OBJECT
@@ -25,6 +60,7 @@ private slots:
     void autosaveDebouncesPresentationEdits();
     void presentationEditsSupportUndoAndRedo();
     void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
+    void remoteServerRequiresPasswordAndPersistsLocalConfiguration();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -222,6 +258,50 @@ void ApplicationCommandBridgeTest::canonicalBibleImportRequiresLicenseThenComple
     QCOMPARE(controller.bibleImportProgress(), 100);
     QVERIFY(controller.bibleImportMessage().contains(QStringLiteral("1 tradução")));
     QVERIFY(stateSpy.count() > 2);
+}
+
+void ApplicationCommandBridgeTest::remoteServerRequiresPasswordAndPersistsLocalConfiguration()
+{
+    QTcpServer portProbe;
+    QVERIFY(portProbe.listen(QHostAddress::LocalHost, 0));
+    const auto port = portProbe.serverPort();
+    portProbe.close();
+
+    {
+        ApplicationController controller;
+        QVERIFY(!controller.remoteEnabled());
+        controller.setRemoteEnabled(true);
+        QVERIFY(!controller.remoteEnabled());
+        QVERIFY(controller.setRemotePassword(QStringLiteral("senha-local")));
+        controller.setRemoteInterface(QStringLiteral("127.0.0.1"));
+        controller.setRemotePort(port);
+        controller.setRemoteEnabled(true);
+        QVERIFY2(controller.remoteEnabled(), qPrintable(controller.remoteError()));
+        QVERIFY(controller.remoteUrl().contains(QString::number(port)));
+        QVERIFY(controller.remoteQrCode().startsWith(
+            QStringLiteral("data:image/svg+xml;base64,")));
+
+        QNetworkAccessManager network;
+        const auto login = postJson(
+            network, QUrl(controller.remoteUrl() + QStringLiteral("/api/v1/session")),
+            QByteArrayLiteral(R"JSON({"password":"senha-local"})JSON"));
+        QCOMPARE(login.status, 201);
+        const auto token = login.body.value(QStringLiteral("token")).toString();
+        QVERIFY(!token.isEmpty());
+        const auto command = postJson(
+            network, QUrl(controller.remoteUrl() + QStringLiteral("/api/v1/commands")),
+            QByteArrayLiteral(R"JSON({"id":"bridge-e2e","type":"stage.message.set","payload":{"message":"Mensagem remota"}})JSON"),
+            token);
+        QCOMPARE(command.status, 200);
+        QVERIFY(command.body.value(QStringLiteral("accepted")).toBool());
+        QCOMPARE(controller.stageMessage(), QStringLiteral("Mensagem remota"));
+    }
+
+    ApplicationController restored;
+    QVERIFY(restored.remotePasswordConfigured());
+    QCOMPARE(restored.remotePort(), static_cast<int>(port));
+    QCOMPARE(restored.remoteInterface(), QStringLiteral("127.0.0.1"));
+    QVERIFY2(restored.remoteEnabled(), qPrintable(restored.remoteError()));
 }
 
 int main(int argc, char **argv)

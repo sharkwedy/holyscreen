@@ -1,4 +1,5 @@
 #include "app/ApplicationController.h"
+#include "remote/RemoteQrCode.h"
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
@@ -29,6 +30,7 @@
 #include <QSet>
 #include <QRandomGenerator>
 #include <QPointer>
+#include <QJsonArray>
 #include <QtConcurrentRun>
 
 namespace churchpresenter {
@@ -304,8 +306,25 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    m_remoteServer.setStateProvider([this] { return remoteState(); });
+    m_remoteServer.setCommandDispatcher([this](const Command &command) {
+        return m_commandBus.dispatch(command);
+    });
+    connect(&m_remoteServer, &LocalApiServer::statusChanged,
+            this, &ApplicationController::remoteChanged);
+    connect(&m_eventBus, &EventBus::eventPublished, this, [this](const DomainEvent &event) {
+        m_remoteServer.broadcastEvent(event, m_commandBus.stateRevision() + 1);
+    });
+    connect(&m_commandBus, &CommandBus::commandDispatched, this,
+            [this](const Command &, const CommandResult &result) {
+        if (result.accepted) m_remoteServer.broadcastState();
+    });
     loadSettings();
     refreshScreens();
+    if (m_remoteEnabled && (!remotePasswordConfigured() || !restartRemoteServer())) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
 
     connect(m_screenManager.get(), &ScreenManager::screenConfigurationChanged,
             this, [this] {
@@ -381,6 +400,7 @@ ApplicationController::ApplicationController(QObject *parent)
 
 ApplicationController::~ApplicationController()
 {
+    m_remoteServer.stop();
     if (m_bibleImportCancelled) m_bibleImportCancelled->store(true);
     if (m_bibleImportWatcher.isRunning()) m_bibleImportWatcher.waitForFinished();
     if (m_autosave) m_autosave->flush();
@@ -475,6 +495,18 @@ bool ApplicationController::debugEnabled() const { return m_debugEnabled; }
 bool ApplicationController::debugSimulatedOutputs() const { return m_debugSimulatedOutputs; }
 bool ApplicationController::debugDiagnostics() const { return m_debugDiagnostics; }
 bool ApplicationController::debugLogging() const { return m_debugLogging; }
+bool ApplicationController::remoteEnabled() const { return m_remoteEnabled; }
+int ApplicationController::remotePort() const { return m_remotePort; }
+QString ApplicationController::remoteInterface() const { return m_remoteInterface; }
+bool ApplicationController::remotePasswordConfigured() const { return m_remoteServer.hasPassword(); }
+QString ApplicationController::remoteUrl() const { return m_remoteServer.remoteUrl(); }
+QString ApplicationController::remoteQrCode() const
+{
+    return RemoteQrCode::svgDataUrl(remoteUrl());
+}
+int ApplicationController::remoteClients() const { return m_remoteServer.clientCount(); }
+int ApplicationController::remoteSessions() const { return m_remoteServer.sessionCount(); }
+QString ApplicationController::remoteError() const { return m_remoteServer.lastError(); }
 bool ApplicationController::blackout() const { return m_outputModule.blackout(); }
 bool ApplicationController::canUndo() const { return m_undoManager.canUndo(); }
 bool ApplicationController::canRedo() const { return m_undoManager.canRedo(); }
@@ -2370,6 +2402,140 @@ void ApplicationController::setDebugLogging(bool enabled)
     emit debugOptionsChanged();
 }
 
+void ApplicationController::setRemoteEnabled(bool enabled)
+{
+    if (enabled == m_remoteEnabled && enabled == m_remoteServer.running()) return;
+    if (enabled && !remotePasswordConfigured()) {
+        setStatusMessage(QStringLiteral("Defina uma senha antes de habilitar o controle remoto."));
+        emit remoteChanged();
+        return;
+    }
+    if (enabled) {
+        m_remoteEnabled = restartRemoteServer();
+        setStatusMessage(m_remoteEnabled ? QStringLiteral("Controle remoto habilitado.")
+                                         : m_remoteServer.lastError());
+    } else {
+        m_remoteServer.stop();
+        m_remoteEnabled = false;
+        setStatusMessage(QStringLiteral("Controle remoto desabilitado."));
+    }
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), m_remoteEnabled);
+    emit remoteChanged();
+}
+
+void ApplicationController::setRemotePort(int port)
+{
+    const auto normalized = std::clamp(port, 1024, 65535);
+    if (m_remotePort == normalized) return;
+    m_remotePort = normalized;
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/port"), normalized);
+    if (m_remoteEnabled && !restartRemoteServer()) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
+    emit remoteChanged();
+}
+
+void ApplicationController::setRemoteInterface(const QString &interfaceAddress)
+{
+    const QHostAddress address(interfaceAddress.trimmed());
+    if (address.isNull() || address.protocol() != QAbstractSocket::IPv4Protocol) {
+        setStatusMessage(QStringLiteral("Informe um endereço IPv4 válido para o remoto."));
+        return;
+    }
+    const auto normalized = address.toString();
+    if (m_remoteInterface == normalized) return;
+    m_remoteInterface = normalized;
+    if (m_settings) m_settings->setValue(QStringLiteral("remote/interface"), normalized);
+    if (m_remoteEnabled && !restartRemoteServer()) {
+        m_remoteEnabled = false;
+        if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), false);
+    }
+    emit remoteChanged();
+}
+
+bool ApplicationController::setRemotePassword(const QString &password)
+{
+    if (password.size() < 8) {
+        setStatusMessage(QStringLiteral("A senha do remoto deve ter pelo menos 8 caracteres."));
+        return false;
+    }
+    const auto credentials = m_remoteServer.setPassword(password);
+    if (credentials.isEmpty() || !m_settings
+        || !m_settings->setValue(QStringLiteral("remote/credentials"), credentials)) {
+        setStatusMessage(QStringLiteral("Não foi possível salvar a senha do remoto."));
+        return false;
+    }
+    setStatusMessage(QStringLiteral("Senha do controle remoto atualizada. Sessões antigas foram revogadas."));
+    emit remoteChanged();
+    return true;
+}
+
+void ApplicationController::revokeRemoteSessions()
+{
+    m_remoteServer.revokeAllSessions();
+    setStatusMessage(QStringLiteral("Todas as sessões remotas foram revogadas."));
+    emit remoteChanged();
+}
+
+bool ApplicationController::restartRemoteServer()
+{
+    m_remoteServer.stop();
+    return m_remoteServer.start(static_cast<quint16>(m_remotePort),
+                                QHostAddress(m_remoteInterface));
+}
+
+QJsonObject ApplicationController::remoteState() const
+{
+    return {
+        {QStringLiteral("stateRevision"), static_cast<qint64>(m_commandBus.stateRevision())},
+        {QStringLiteral("presentation"), QJsonObject{
+            {QStringLiteral("id"), currentPresentationId()},
+            {QStringLiteral("title"), currentPresentationTitle()},
+            {QStringLiteral("slideIndex"), currentSlideIndex()},
+            {QStringLiteral("slideId"), currentSlideId()},
+            {QStringLiteral("slideText"), currentSlideText()},
+            {QStringLiteral("nextSlideText"), nextSlideText()},
+            {QStringLiteral("visible"), textVisible()},
+        }},
+        {QStringLiteral("media"), QJsonObject{
+            {QStringLiteral("id"), currentMediaId()},
+            {QStringLiteral("title"), currentMediaTitle()},
+            {QStringLiteral("type"), currentMediaType()},
+            {QStringLiteral("state"), mediaState()},
+            {QStringLiteral("positionMs"), mediaPositionMs()},
+            {QStringLiteral("durationMs"), mediaDurationMs()},
+            {QStringLiteral("repeatMode"), mediaRepeatMode()},
+            {QStringLiteral("playlist"), QJsonArray::fromVariantList(mediaPlaylist())},
+        }},
+        {QStringLiteral("bible"), QJsonObject{
+            {QStringLiteral("reference"), bibleReferenceInput()},
+            {QStringLiteral("results"), QJsonArray::fromVariantList(bibleResults())},
+            {QStringLiteral("translations"), QJsonArray::fromVariantList(bibleTranslations())},
+        }},
+        {QStringLiteral("event"), QJsonObject{
+            {QStringLiteral("id"), currentEventId()},
+            {QStringLiteral("events"), QJsonArray::fromVariantList(events())},
+            {QStringLiteral("items"), QJsonArray::fromVariantList(eventItems())},
+        }},
+        {QStringLiteral("stage"), QJsonObject{{QStringLiteral("message"), stageMessage()}}},
+        {QStringLiteral("overlays"), QJsonObject{
+            {QStringLiteral("audienceMessage"), audienceMessage()},
+            {QStringLiteral("alertMessage"), alertMessage()},
+            {QStringLiteral("lowerThirdTitle"), lowerThirdTitle()},
+            {QStringLiteral("lowerThirdSubtitle"), lowerThirdSubtitle()},
+        }},
+        {QStringLiteral("timers"), QJsonObject{
+            {QStringLiteral("countdownText"), countdownText()},
+            {QStringLiteral("countdownRunning"), countdownRunning()},
+            {QStringLiteral("stopwatchText"), stopwatchText()},
+            {QStringLiteral("stopwatchRunning"), stopwatchRunning()},
+        }},
+        {QStringLiteral("blackout"), blackout()},
+        {QStringLiteral("outputs"), QJsonArray::fromVariantList(screens())},
+    };
+}
+
 void ApplicationController::setAudioVolume(double volume)
 {
     setMediaVolume(volume);
@@ -2587,6 +2753,16 @@ void ApplicationController::loadSettings()
     m_debugSimulatedOutputs = m_settings->value(QStringLiteral("developer/debugSimulatedOutputs"), true).toBool();
     m_debugDiagnostics = m_settings->value(QStringLiteral("developer/debugDiagnostics"), true).toBool();
     m_debugLogging = m_settings->value(QStringLiteral("developer/debugLogging"), false).toBool();
+    m_remoteEnabled = m_settings->value(QStringLiteral("remote/enabled"), false).toBool();
+    m_remotePort = std::clamp(m_settings->value(QStringLiteral("remote/port"), 43120).toInt(),
+                              1024, 65535);
+    m_remoteInterface = m_settings->value(QStringLiteral("remote/interface"),
+                                          QStringLiteral("0.0.0.0")).toString();
+    const auto credentials = m_settings->value(QStringLiteral("remote/credentials")).toMap();
+    if (!credentials.isEmpty() && !m_remoteServer.loadCredentials(credentials)) {
+        qWarning() << "remote_credentials_invalid";
+        m_remoteEnabled = false;
+    }
     m_mediaFolderPaths = m_settings->value(QStringLiteral("library/mediaFolders"), QStringList{}).toStringList();
     m_favoriteMediaPaths = m_settings->value(QStringLiteral("library/favoriteMedia"), QStringList{}).toStringList();
     m_biblePrimaryTranslationId = m_settings->value(QStringLiteral("bible/primaryTranslationId")).toString();

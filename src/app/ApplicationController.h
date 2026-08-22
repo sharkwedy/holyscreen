@@ -34,6 +34,7 @@
 #include "modules/PresentationCommandModule.h"
 #include "modules/StageCommandModule.h"
 #include "modules/UndoCommandModule.h"
+#include "remote/LocalApiServer.h"
 
 #include <QObject>
 #include <QFileSystemWatcher>
@@ -76,6 +77,15 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool debugSimulatedOutputs READ debugSimulatedOutputs WRITE setDebugSimulatedOutputs NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugDiagnostics READ debugDiagnostics WRITE setDebugDiagnostics NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugLogging READ debugLogging WRITE setDebugLogging NOTIFY debugOptionsChanged)
+    Q_PROPERTY(bool remoteEnabled READ remoteEnabled WRITE setRemoteEnabled NOTIFY remoteChanged)
+    Q_PROPERTY(int remotePort READ remotePort WRITE setRemotePort NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteInterface READ remoteInterface WRITE setRemoteInterface NOTIFY remoteChanged)
+    Q_PROPERTY(bool remotePasswordConfigured READ remotePasswordConfigured NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteUrl READ remoteUrl NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteQrCode READ remoteQrCode NOTIFY remoteChanged)
+    Q_PROPERTY(int remoteClients READ remoteClients NOTIFY remoteChanged)
+    Q_PROPERTY(int remoteSessions READ remoteSessions NOTIFY remoteChanged)
+    Q_PROPERTY(QString remoteError READ remoteError NOTIFY remoteChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY undoStateChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY undoStateChanged)
@@ -210,6 +220,15 @@ public:
     [[nodiscard]] bool debugSimulatedOutputs() const;
     [[nodiscard]] bool debugDiagnostics() const;
     [[nodiscard]] bool debugLogging() const;
+    [[nodiscard]] bool remoteEnabled() const;
+    [[nodiscard]] int remotePort() const;
+    [[nodiscard]] QString remoteInterface() const;
+    [[nodiscard]] bool remotePasswordConfigured() const;
+    [[nodiscard]] QString remoteUrl() const;
+    [[nodiscard]] QString remoteQrCode() const;
+    [[nodiscard]] int remoteClients() const;
+    [[nodiscard]] int remoteSessions() const;
+    [[nodiscard]] QString remoteError() const;
     [[nodiscard]] bool blackout() const;
     [[nodiscard]] bool canUndo() const;
     [[nodiscard]] bool canRedo() const;
@@ -396,6 +415,8 @@ public:
     Q_INVOKABLE QString createBackup();
     Q_INVOKABLE bool scheduleRestore(const QUrl &source);
     Q_INVOKABLE bool exportDiagnostics(const QUrl &destination);
+    Q_INVOKABLE bool setRemotePassword(const QString &password);
+    Q_INVOKABLE void revokeRemoteSessions();
     Q_INVOKABLE void runBenchmark();
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
@@ -448,6 +469,9 @@ public slots:
     void setDebugSimulatedOutputs(bool enabled);
     void setDebugDiagnostics(bool enabled);
     void setDebugLogging(bool enabled);
+    void setRemoteEnabled(bool enabled);
+    void setRemotePort(int port);
+    void setRemoteInterface(const QString &interfaceAddress);
     void setMediaVolume(double volume);
     void setMediaRepeatMode(const QString &mode);
     void setAudioVolume(double volume);
@@ -482,6 +506,7 @@ signals:
     void clockStyleChanged();
     void simulatedOutputCountChanged();
     void debugOptionsChanged();
+    void remoteChanged();
     void blackoutChanged(bool active);
     void undoStateChanged();
     void autosaveChanged();
@@ -551,6 +576,7 @@ private:
     UndoManager m_undoManager;
     OutputModule m_outputModule;
     UndoCommandModule m_undoCommands;
+    LocalApiServer m_remoteServer;
     std::unique_ptr<OutputRoutingCommandModule> m_outputRoutingCommands;
     void refreshScreens();
     void loadSettings();
@@ -579,6 +605,8 @@ private:
     bool applyOutputRole(const QString &screenFingerprint, const QString &role);
     bool applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
     [[nodiscard]] QVariantMap outputRoutingState(const QString &screenFingerprint) const;
+    [[nodiscard]] QJsonObject remoteState() const;
+    bool restartRemoteServer();
     bool applyBibleSearch(const QString &reference);
     bool applyBiblePresentation(int bookId, int chapter, int verse);
     bool applyEventSelection(const QString &id);
@@ -642,6 +670,9 @@ private:
     bool m_debugSimulatedOutputs = true;
     bool m_debugDiagnostics = true;
     bool m_debugLogging = false;
+    bool m_remoteEnabled = false;
+    int m_remotePort = 43120;
+    QString m_remoteInterface = QStringLiteral("0.0.0.0");
     bool m_identifyVisible = false;
     QString m_statusMessage;
     std::unique_ptr<SettingsRepository> m_settings;

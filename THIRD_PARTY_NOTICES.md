@@ -18,6 +18,10 @@ O importador de repositórios bíblicos usa libgit2, distribuída sob GPLv2 com 
 
 A validação e extração de arquivos ZIP usa miniz, distribuída sob licença MIT. O código-fonte e a licença estão em <https://github.com/richgel999/miniz>.
 
+## QR Code generator library
+
+O QR de acesso ao controle remoto usa a biblioteca QR Code generator, Copyright © 2025 Project Nayuki, distribuída sob licença MIT. O código-fonte e a licença estão em <https://github.com/nayuki/QR-Code-generator>.
+
 ## Conteúdo importado
 
 Traduções bíblicas, imagens, músicas, áudios e vídeos importados não são redistribuídos com o HolyScreen. A licença e a autorização de uso desses conteúdos são responsabilidade do usuário.

@@ -47,6 +47,7 @@ Dialog {
             TabButton { text: "Telas"; palette.buttonText: settings.textMain }
             TabButton { text: "Mídia"; palette.buttonText: settings.textMain }
             TabButton { text: "Aparência"; palette.buttonText: settings.textMain }
+            TabButton { text: "Remoto"; palette.buttonText: settings.textMain }
             TabButton { text: "Avançado"; palette.buttonText: settings.textMain }
         }
 
@@ -191,7 +192,7 @@ Dialog {
                         Label { text: "Repetição"; color: settings.textMain; Layout.preferredWidth: 160 }
                         ComboBox {
                             Layout.fillWidth: true
-                            model: [{"id":"none", "name":"Sem repetição"}, {"id":"one", "name":"Repetir item"}, {"id":"all", "name":"Repetir playlist"}]
+                            model: [{"id":"off", "name":"Sem repetição"}, {"id":"one", "name":"Repetir item"}, {"id":"all", "name":"Repetir playlist"}]
                             textRole: "name"; valueRole: "id"
                             currentIndex: settings.valueIndex(model, settings.controller.mediaRepeatMode)
                             onActivated: settings.controller.mediaRepeatMode = currentValue
@@ -377,6 +378,117 @@ Dialog {
                         SpinBox { from: -100; to: 100; value: settings.controller.clockMarginHorizontal; onValueModified: settings.controller.clockMarginHorizontal = value }
                         Label { text: "Margem vertical (%)"; color: settings.textMain }
                         SpinBox { from: -100; to: 100; value: settings.controller.clockMarginVertical; onValueModified: settings.controller.clockMarginVertical = value }
+                    }
+                }
+            }
+
+            ScrollView {
+                clip: true
+                ColumnLayout {
+                    width: parent.width
+                    spacing: 12
+                    Label { text: "Controle remoto local"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label {
+                        Layout.fillWidth: true
+                        text: "O servidor fica desligado por padrão e deve ser usado somente na rede local confiável."
+                        color: settings.textMuted
+                        wrapMode: Text.WordWrap
+                    }
+                    CheckBox {
+                        text: "Habilitar controle remoto"
+                        checked: settings.controller.remoteEnabled
+                        enabled: settings.controller.remotePasswordConfigured
+                        palette.windowText: settings.textMain
+                        onClicked: settings.controller.remoteEnabled = checked
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: "Interface IPv4"; color: settings.textMain; Layout.preferredWidth: 170 }
+                        ComboBox {
+                            id: remoteInterfacePicker
+                            Layout.fillWidth: true
+                            editable: true
+                            model: ["0.0.0.0", "127.0.0.1"]
+                            editText: settings.controller.remoteInterface
+                            onAccepted: settings.controller.remoteInterface = editText
+                            onActivated: settings.controller.remoteInterface = currentText
+                        }
+                    }
+                    RowLayout {
+                        Label { text: "Porta"; color: settings.textMain; Layout.preferredWidth: 170 }
+                        SpinBox {
+                            from: 1024; to: 65535
+                            value: settings.controller.remotePort
+                            onValueModified: settings.controller.remotePort = value
+                        }
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
+                    Label { text: "Senha fixa"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        TextField {
+                            id: remotePasswordField
+                            Layout.fillWidth: true
+                            echoMode: TextInput.Password
+                            placeholderText: settings.controller.remotePasswordConfigured
+                                             ? "Nova senha (mínimo 8 caracteres)"
+                                             : "Defina uma senha (mínimo 8 caracteres)"
+                            onAccepted: saveRemotePasswordButton.clicked()
+                        }
+                        Button {
+                            id: saveRemotePasswordButton
+                            text: settings.controller.remotePasswordConfigured ? "Trocar senha" : "Definir senha"
+                            enabled: remotePasswordField.text.length >= 8
+                            onClicked: {
+                                if (settings.controller.setRemotePassword(remotePasswordField.text))
+                                    remotePasswordField.clear()
+                            }
+                        }
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
+                    Label { text: "Acesso"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label {
+                        Layout.fillWidth: true
+                        text: settings.controller.remoteEnabled
+                              ? settings.controller.remoteUrl : "Servidor remoto desabilitado"
+                        color: settings.controller.remoteEnabled ? "#70e1a7" : settings.textMuted
+                        wrapMode: Text.WrapAnywhere
+                        font.bold: settings.controller.remoteEnabled
+                    }
+                    Image {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: 196
+                        Layout.preferredHeight: 196
+                        visible: settings.controller.remoteEnabled
+                                 && settings.controller.remoteQrCode.length > 0
+                        source: settings.controller.remoteQrCode
+                        fillMode: Image.PreserveAspectFit
+                        cache: false
+                    }
+                    Label {
+                        visible: settings.controller.remoteEnabled
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignHCenter
+                        text: "Leia o QR na mesma rede local para abrir o controle."
+                        color: settings.textMuted
+                        wrapMode: Text.WordWrap
+                    }
+                    Label {
+                        text: "Clientes conectados: " + settings.controller.remoteClients
+                              + "  •  Sessões ativas: " + settings.controller.remoteSessions
+                        color: settings.textMuted
+                    }
+                    Button {
+                        text: "Revogar todas as sessões"
+                        enabled: settings.controller.remoteSessions > 0
+                        onClicked: settings.controller.revokeRemoteSessions()
+                    }
+                    Label {
+                        visible: settings.controller.remoteError.length > 0
+                        Layout.fillWidth: true
+                        text: settings.controller.remoteError
+                        color: "#ff8f8f"
+                        wrapMode: Text.WordWrap
                     }
                 }
             }

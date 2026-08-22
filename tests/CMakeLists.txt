@@ -194,6 +194,14 @@ qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_local_api_server COMMAND test_local_api_server)
 
+qt_add_executable(test_remote_auth_manager unit/remote/RemoteAuthManagerTest.cpp)
+target_link_libraries(test_remote_auth_manager PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_remote_auth_manager COMMAND test_remote_auth_manager)
+
+qt_add_executable(test_remote_qr_code unit/remote/RemoteQrCodeTest.cpp)
+target_link_libraries(test_remote_qr_code PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_remote_qr_code COMMAND test_remote_qr_code)
+
 qt_add_executable(test_bible_reference_parser unit/bible/BibleReferenceParserTest.cpp)
 target_link_libraries(test_bible_reference_parser PRIVATE Qt6::Test presenter-bible)
 add_test(NAME test_bible_reference_parser COMMAND test_bible_reference_parser)

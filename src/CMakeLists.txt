@@ -147,8 +147,14 @@ add_library(presenter-app
     app/UpdateChecker.h
     remote/LocalApiServer.cpp
     remote/LocalApiServer.h
+    remote/RemoteAuthManager.cpp
+    remote/RemoteAuthManager.h
+    remote/RemoteQrCode.cpp
+    remote/RemoteQrCode.h
+    ${qrcodegen_SOURCE_DIR}/cpp/qrcodegen.cpp
 )
 target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(presenter-app PRIVATE ${qrcodegen_SOURCE_DIR}/cpp)
 target_link_libraries(presenter-app PUBLIC
     presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
