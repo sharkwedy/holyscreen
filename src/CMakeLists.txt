@@ -120,6 +120,7 @@ target_link_libraries(presenter-app PUBLIC
 )
 
 qt_add_executable(church-presenter
+    WIN32
     MACOSX_BUNDLE
     app/main.cpp
 )
@@ -130,12 +131,22 @@ set_target_properties(church-presenter PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
     MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
 )
+if(WIN32)
+    set_target_properties(church-presenter PROPERTIES OUTPUT_NAME "holyscreen")
+    target_sources(church-presenter PRIVATE
+        ${CMAKE_SOURCE_DIR}/packaging/windows/holyscreen.rc
+        ${CMAKE_SOURCE_DIR}/packaging/windows/holyscreen.ico
+    )
+endif()
 qt_add_qml_module(church-presenter
     URI ChurchPresenter
     VERSION 1.0
     QML_FILES
         ui/operator/MainWindow.qml
         ui/operator/Dashboard.qml
+        ui/operator/SettingsDialog.qml
+        ui/operator/BibleBrowser.qml
+        ui/operator/QuickBibleSearch.qml
         ui/output/OutputWindow.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml

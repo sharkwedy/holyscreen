@@ -205,6 +205,13 @@ bool MediaRepository::remove(const QString &id)
     return query.exec() && normalizePositions(existing.type) && normalizePlaylistPositions();
 }
 
+bool MediaRepository::clearPlaylist()
+{
+    if (m_connectionName.isEmpty()) return false;
+    QSqlQuery query(QSqlDatabase::database(m_connectionName, false));
+    return query.exec(QStringLiteral("DELETE FROM media_items"));
+}
+
 bool MediaRepository::moveInPlaylist(const QString &id, int newIndex)
 {
     auto ordered = playlistItems();

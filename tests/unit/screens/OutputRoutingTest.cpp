@@ -52,7 +52,7 @@ void OutputRoutingTest::preservesTheConfiguredRoleForEachOutput()
     };
     const QVector<OutputDescriptor> outputs{
         {.screenId = "stage", .screenFingerprint = "lg", .displayName = "Palco",
-         .enabled = true, .connected = true, .role = OutputRole::Stage},
+         .enabled = true, .connected = true, .role = OutputRole::Stage, .mediaEnabled = false},
         {.screenId = "audience", .screenFingerprint = "dell", .displayName = "Público",
          .enabled = true, .connected = true, .role = OutputRole::Audience},
     };
@@ -61,7 +61,9 @@ void OutputRoutingTest::preservesTheConfiguredRoleForEachOutput()
 
     QCOMPARE(placements.size(), 2);
     QCOMPARE(placements[0].role, OutputRole::Stage);
+    QVERIFY(!placements[0].mediaEnabled);
     QCOMPARE(placements[1].role, OutputRole::Audience);
+    QVERIFY(placements[1].mediaEnabled);
 }
 
 QTEST_APPLESS_MAIN(OutputRoutingTest)

@@ -164,6 +164,42 @@ QVector<BibleVerse> BibleRepository::verses(
     return result;
 }
 
+QVector<int> BibleRepository::chapters(
+    const QString &translationId, BibleBook book) const
+{
+    QVector<int> result;
+    if (m_connectionName.isEmpty() || translationId.isEmpty()
+        || book == BibleBook::Unknown) return result;
+    QSqlQuery query(QSqlDatabase::database(m_connectionName, false));
+    query.prepare(QStringLiteral(
+        "SELECT DISTINCT chapter FROM bible_verses "
+        "WHERE translation_id=:translation AND book=:book ORDER BY chapter"));
+    query.bindValue(QStringLiteral(":translation"), translationId);
+    query.bindValue(QStringLiteral(":book"), static_cast<int>(book));
+    if (!query.exec()) return result;
+    while (query.next()) result.append(query.value(0).toInt());
+    return result;
+}
+
+QVector<int> BibleRepository::verseNumbers(
+    const QString &translationId, BibleBook book, int chapter) const
+{
+    QVector<int> result;
+    if (m_connectionName.isEmpty() || translationId.isEmpty()
+        || book == BibleBook::Unknown || chapter <= 0) return result;
+    QSqlQuery query(QSqlDatabase::database(m_connectionName, false));
+    query.prepare(QStringLiteral(
+        "SELECT verse FROM bible_verses "
+        "WHERE translation_id=:translation AND book=:book AND chapter=:chapter "
+        "ORDER BY verse"));
+    query.bindValue(QStringLiteral(":translation"), translationId);
+    query.bindValue(QStringLiteral(":book"), static_cast<int>(book));
+    query.bindValue(QStringLiteral(":chapter"), chapter);
+    if (!query.exec()) return result;
+    while (query.next()) result.append(query.value(0).toInt());
+    return result;
+}
+
 QVector<BibleVerse> BibleRepository::search(
     const QString &translationId, const QString &text, int limit) const
 {

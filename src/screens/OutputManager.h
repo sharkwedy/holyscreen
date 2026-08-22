@@ -31,6 +31,7 @@ struct OutputDescriptor {
     OutputRole role = OutputRole::Audience;
     OutputConnectionState state = OutputConnectionState::Missing;
     QString bibleTranslationId;
+    bool mediaEnabled = true;
 };
 
 struct EnableOutputResult {
@@ -52,6 +53,8 @@ public:
     qsizetype enableAllAudienceScreens(const QVector<ScreenDescriptor> &screens);
     bool setBibleTranslation(const QString &screenFingerprint, const QString &translationId);
     bool setRole(const QString &screenFingerprint, OutputRole role);
+    bool setMediaEnabled(const QString &screenFingerprint, bool enabled);
+    bool setDisplayName(const QString &screenFingerprint, const QString &displayName);
     void applyScreens(const QVector<ScreenDescriptor> &screens);
     void replaceOutputs(const QVector<OutputDescriptor> &outputs);
     void restore(const OutputDescriptor &output);

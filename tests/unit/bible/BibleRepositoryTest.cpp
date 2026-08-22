@@ -29,6 +29,7 @@ void BibleRepositoryTest::storesTranslationsAndVerseRangesIndependently()
     QVERIFY(repository.importVerses(pt, {
         {pt, BibleBook::John, 3, 16, QStringLiteral("Texto dezesseis")},
         {pt, BibleBook::John, 3, 17, QStringLiteral("Texto dezessete")},
+        {pt, BibleBook::John, 4, 1, QStringLiteral("Texto do capítulo quatro")},
     }));
     QVERIFY(repository.importVerses(en, {
         {en, BibleBook::John, 3, 16, QStringLiteral("English sixteen")},
@@ -40,6 +41,9 @@ void BibleRepositoryTest::storesTranslationsAndVerseRangesIndependently()
     QCOMPARE(range.at(1).verse, 17);
     QCOMPARE(repository.verses(en, {BibleBook::John, 3, 16, 16}).front().text,
              QStringLiteral("English sixteen"));
+    QCOMPARE(repository.chapters(pt, BibleBook::John), QVector<int>({3, 4}));
+    QCOMPARE(repository.verseNumbers(pt, BibleBook::John, 3), QVector<int>({16, 17}));
+    QVERIFY(repository.verseNumbers(pt, BibleBook::John, 99).isEmpty());
 }
 
 void BibleRepositoryTest::searchesVerseTextWithinOneTranslation()
