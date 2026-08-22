@@ -37,11 +37,21 @@ jobs:
         if: runner.os == 'Linux'
         env:
           QT_QPA_PLATFORM: offscreen
-        run: ctest --test-dir build -C Release --output-on-failure
+        run: ctest --test-dir build -C Release --output-on-failure --output-junit build/ctest-results.xml
 
       - name: Test
         if: runner.os != 'Linux'
-        run: ctest --test-dir build -C Release --output-on-failure
+        run: ctest --test-dir build -C Release --output-on-failure --output-junit build/ctest-results.xml
+
+      - name: Upload CTest diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-diagnostics-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            build/ctest-results.xml
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
 
       - name: QML lint
         run: cmake --build build --config Release --target church-presenter_qmllint

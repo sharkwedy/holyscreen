@@ -91,6 +91,8 @@ target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-pres
 
 add_library(presenter-bible
     bible/BibleTypes.h
+    bible/PathContainment.h
+    bible/PathContainment.cpp
     bible/BibleImportTypes.h
     bible/BibleImportTypes.cpp
     bible/IBibleSourceImporter.h
