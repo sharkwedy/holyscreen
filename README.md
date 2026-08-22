@@ -1,47 +1,53 @@
 # HolyScreen
 
-HolyScreen é um motor desktop open source de apresentação para igrejas. O aplicativo é construído em C++20 e Qt 6/QML, funciona offline e separa descoberta de telas, estado de apresentação, persistência e renderização.
+[![CI](https://github.com/sharkwedy/holyscreen/actions/workflows/ci.yml/badge.svg)](https://github.com/sharkwedy/holyscreen/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/sharkwedy/holyscreen?include_prereleases)](https://github.com/sharkwedy/holyscreen/releases)
+[![Downloads](https://img.shields.io/github/downloads/sharkwedy/holyscreen/total)](https://github.com/sharkwedy/holyscreen/releases)
+[![License: GPL v3](https://img.shields.io/github/license/sharkwedy/holyscreen)](LICENSE)
 
-> Estado: `0.10.0` em desenvolvimento. Ainda não é o release estável `1.0.0`.
+[Português do Brasil](README.pt-BR.md)
 
-## O que já funciona
+HolyScreen is an open-source desktop presentation engine for churches. Built
+with C++20 and Qt 6/QML, it works offline and keeps screen discovery,
+presentation state, persistence, and rendering separate.
 
-- tela principal reservada ao operador e até cinco saídas externas persistentes;
-- papéis de saída Público e Palco, identificação de monitores, blackout e simulações;
-- wallpaper, relógio, texto, letras, Bíblia, imagens, áudio e vídeo;
-- player unificado de áudio, vídeo e imagens com playlist, seek, volume e repetição;
-- seleção recursiva de pastas, catálogo separado por tipo e pesquisa por nome de arquivo;
-- apresentações, músicas estruturadas, temas e playlists de culto;
-- importação bíblica JSON, pesquisa de referências e traduções independentes por saída;
-- Stage View com slide atual, próximo slide, relógio, timer e mensagem;
-- overlays de mensagem, alerta, lower third, countdown e cronômetro;
-- histórico, relatórios básicos, backup, restauração e recuperação após crash;
-- protótipo de API HTTP/WebSocket e controle web local.
+> Status: `0.10.3` development preview. This is not yet the stable `1.0.0` release.
 
-## Em desenvolvimento para o 1.0
+![HolyScreen operator dashboard](.stitch/painel-principal.png)
 
-- Command Bus/Event Bus e migrações versionadas;
-- controle remoto autenticado e API `/api/v1`;
-- importação bíblica em massa por pasta, Git público e ZIP;
-- saída Broadcast, OBS, MIDI, OSC, HTTP e WebSocket;
-- automações offline, escalas e relatórios avançados;
-- acabamento da interface, documentação e validação nas três plataformas.
+## What works today
 
-O acompanhamento por ondas está em [docs/ROADMAP.md](docs/ROADMAP.md). A motivação e o desenho original permanecem em [IDEA.md](IDEA.md).
+- a dedicated operator screen and up to five persistent external outputs;
+- Audience and Stage output roles, monitor identification, blackout, and simulations;
+- wallpaper, clock, text, lyrics, Bible, image, audio, and video presentation;
+- unified media player with playlists, seeking, volume, and repeat;
+- recursive media folders, type-specific catalogs, and filename search;
+- presentations, structured songs, themes, and service playlists;
+- JSON Bible import, reference search, and per-output translations;
+- Stage View with current/next slide, clock, timer, and messages;
+- message, alert, lower-third, countdown, and stopwatch overlays;
+- history, basic reports, backup, restore, and crash recovery;
+- an early local HTTP/WebSocket API and web remote.
 
-## Requisitos
+See the [roadmap](docs/ROADMAP.md) for the path to 1.0 and [IDEA.md](IDEA.md)
+for the original product design.
 
-- CMake 3.21 ou superior;
-- compilador com C++20;
-- Qt 6.8 ou superior com Core, Gui, Quick, Quick Controls, SQL, Multimedia, Network, HttpServer, WebSockets e Test.
+## Install a development preview
 
-No macOS com Homebrew:
+1. Open the [Releases](https://github.com/sharkwedy/holyscreen/releases) page.
+2. Download the asset for your system: `.exe`/`.zip` on Windows, `.dmg` on
+   macOS, or `.AppImage`/`.deb`/`.tar.gz` on Linux.
+3. Verify the download against the release's `SHA256SUMS` file.
+4. Install or extract it, then start HolyScreen.
 
-```bash
-brew install cmake qt
-```
+Development previews may be unsigned. Your operating system can ask you to
+confirm that you trust the application. Back up important presentation data
+before upgrading between previews.
 
-## Compilar e testar
+## Build from source
+
+Requirements: CMake 3.21+, a C++20 compiler, and Qt 6.8+ with Core, Gui, Quick,
+Quick Controls, SQL, Multimedia, Network, HttpServer, WebSockets, and Test.
 
 ```bash
 cmake -S . -B build -DBUILD_TESTING=ON
@@ -50,7 +56,7 @@ ctest --test-dir build --output-on-failure
 cmake --build build --target church-presenter_qmllint
 ```
 
-## Executar
+Run the application:
 
 ```bash
 open build/src/church-presenter.app                    # macOS
@@ -58,12 +64,18 @@ build/src/church-presenter.exe                         # Windows
 build/src/church-presenter                             # Linux
 ```
 
-Os dados locais são mantidos no diretório de dados definido pelo sistema operacional, em `presenter.db`. Defina `HOLYSCREEN_DATA_DIR` para usar um diretório alternativo em testes.
+Local data is stored in the operating system's application-data directory in
+`presenter.db`. Set `HOLYSCREEN_DATA_DIR` to use a different directory in tests.
 
-## Distribuição
+## Contributing and support
 
-O target `package` gera DMG no macOS, NSIS/ZIP no Windows e DEB/TGZ no Linux. O release final será publicado somente quando a suíte, o QML lint, os testes físicos e o endurance estiverem aprovados.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), the
+[Code of Conduct](CODE_OF_CONDUCT.md), and [governance](GOVERNANCE.md) before
+opening a pull request. For help, see [SUPPORT.md](SUPPORT.md). Report security
+problems through the private process in [SECURITY.md](SECURITY.md).
 
-## Licença
+## License
 
-O código do HolyScreen é distribuído sob a [GNU General Public License v3.0](LICENSE). Traduções bíblicas e mídias importadas não fazem parte do programa e continuam sujeitas às licenças de seus respectivos titulares. Consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+HolyScreen is licensed under the [GNU General Public License v3.0](LICENSE).
+Imported Bible translations and media remain subject to their owners' licenses.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
