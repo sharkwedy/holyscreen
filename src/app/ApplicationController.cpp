@@ -2,6 +2,7 @@
 #include "app/AppLogger.h"
 #include "persistence/ApplicationDatabase.h"
 #include "screens/OutputRouting.h"
+#include "bible/BibleImportService.h"
 
 #include <algorithm>
 #include <QDebug>
@@ -26,6 +27,8 @@
 #include <QDirIterator>
 #include <QSet>
 #include <QRandomGenerator>
+#include <QPointer>
+#include <QtConcurrentRun>
 
 namespace churchpresenter {
 
@@ -273,10 +276,14 @@ ApplicationController::ApplicationController(QObject *parent)
         else m_updateStatus=QStringLiteral("HolyScreen está atualizado (%1).").arg(QCoreApplication::applicationVersion());
         emit updateChanged();
     });
+    connect(&m_bibleImportWatcher, &QFutureWatcher<BibleImportResult>::finished,
+            this, [this] { finishBibleImport(m_bibleImportWatcher.result()); });
 }
 
 ApplicationController::~ApplicationController()
 {
+    if (m_bibleImportCancelled) m_bibleImportCancelled->store(true);
+    if (m_bibleImportWatcher.isRunning()) m_bibleImportWatcher.waitForFinished();
     if (m_autosave) m_autosave->flush();
     if (m_recovery) m_recovery->endSession();
 }
@@ -553,6 +560,18 @@ QVariantMap ApplicationController::diagnostics()const{return m_diagnostics;}
 QString ApplicationController::updateStatus()const{return m_updateStatus;}
 QString ApplicationController::updateEndpoint()const{return m_updateEndpoint;}
 QVariantList ApplicationController::bibleTranslations() const{return m_bibleTranslations;}
+bool ApplicationController::bibleImportRunning() const{return m_bibleImportWatcher.isRunning();}
+int ApplicationController::bibleImportProgress() const
+{
+    if (m_bibleImportProgressTotal <= 0) return 0;
+    return std::clamp((m_bibleImportProgressCurrent * 100) / m_bibleImportProgressTotal, 0, 100);
+}
+QString ApplicationController::bibleImportMessage() const{return m_bibleImportMessage;}
+bool ApplicationController::bibleImportRequiresLicenseConfirmation() const{return m_bibleImportRequiresLicenseConfirmation;}
+QString ApplicationController::bibleImportLicenseWarning() const
+{
+    return m_bibleImportRestrictedTranslations.join(QStringLiteral("\n"));
+}
 QVariantList ApplicationController::bibleBooks() const
 {
     QVariantList result;
@@ -1511,6 +1530,141 @@ int ApplicationController::importBibleTranslation(const QUrl &source)
     return imported.verses.size();
 }
 
+bool ApplicationController::importBibleFolder(const QUrl &folder)
+{
+    const auto path = folder.isLocalFile() ? folder.toLocalFile() : folder.toString();
+    return startBibleImport({.kind = BibleSourceKind::LocalFolder, .location = path}, false);
+}
+
+bool ApplicationController::importBibleGit(const QString &url)
+{
+    return startBibleImport(
+        {.kind = BibleSourceKind::GitHttps, .location = url.trimmed()}, false);
+}
+
+bool ApplicationController::importBibleZip(const QString &url)
+{
+    return startBibleImport(
+        {.kind = BibleSourceKind::ZipUrl, .location = url.trimmed()}, false);
+}
+
+bool ApplicationController::confirmBibleImportLicenses()
+{
+    if (!m_bibleImportRequiresLicenseConfirmation
+        || m_pendingBibleImportSource.location.isEmpty()) return false;
+    return startBibleImport(m_pendingBibleImportSource, true);
+}
+
+void ApplicationController::cancelBibleImport()
+{
+    if (!m_bibleImportWatcher.isRunning() || !m_bibleImportCancelled) return;
+    m_bibleImportCancelled->store(true);
+    m_bibleImportMessage = QStringLiteral("Cancelando importação...");
+    emit bibleImportStateChanged();
+}
+
+bool ApplicationController::updateBibleTranslationFromSource(const QString &translationId)
+{
+    if (!m_bibleRepository || m_bibleImportWatcher.isRunning()) return false;
+    const auto metadata = m_bibleRepository->translationSource(translationId);
+    if (!metadata.has_value() || metadata->location.trimmed().isEmpty()) {
+        setStatusMessage(QStringLiteral("Essa tradução não possui uma origem atualizável registrada."));
+        return false;
+    }
+    return startBibleImport({.kind = metadata->kind,
+                             .location = metadata->location,
+                             .revision = metadata->revision},
+                            false);
+}
+
+bool ApplicationController::startBibleImport(
+    const BibleSource &source, bool confirmRestrictedLicenses)
+{
+    if (m_bibleImportWatcher.isRunning()) {
+        setStatusMessage(QStringLiteral("Já existe uma importação bíblica em andamento."));
+        return false;
+    }
+    if (source.location.trimmed().isEmpty()) {
+        setStatusMessage(QStringLiteral("Informe a pasta ou URL da origem bíblica."));
+        return false;
+    }
+    m_pendingBibleImportSource = source;
+    m_bibleImportRequiresLicenseConfirmation = false;
+    m_bibleImportRestrictedTranslations.clear();
+    m_bibleImportProgressCurrent = 0;
+    m_bibleImportProgressTotal = 0;
+    m_bibleImportMessage = QStringLiteral("Preparando importação...");
+    m_bibleImportCancelled = std::make_shared<std::atomic_bool>(false);
+    emit bibleImportStateChanged();
+
+    const auto databasePath = QDir(m_dataDirectory).filePath(QStringLiteral("presenter.db"));
+    const auto cancellation = m_bibleImportCancelled;
+    const QPointer<ApplicationController> guard(this);
+    auto future = QtConcurrent::run(
+        [databasePath, source, confirmRestrictedLicenses, cancellation, guard] {
+            const auto progressCallback = [guard](const BibleImportProgress &progress) {
+                if (!guard) return;
+                QMetaObject::invokeMethod(
+                    guard.data(),
+                    [guard, progress] {
+                        if (guard) guard->updateBibleImportProgress(progress);
+                    },
+                    Qt::QueuedConnection);
+            };
+            return BibleImportService(databasePath).run(
+                source, {.confirmRestrictedLicenses = confirmRestrictedLicenses},
+                progressCallback,
+                [cancellation] { return cancellation->load(); });
+        });
+    m_bibleImportWatcher.setFuture(future);
+    emit bibleImportStateChanged();
+    return true;
+}
+
+void ApplicationController::updateBibleImportProgress(const BibleImportProgress &progress)
+{
+    m_bibleImportProgressCurrent = progress.current;
+    m_bibleImportProgressTotal = progress.total;
+    m_bibleImportMessage = progress.message;
+    emit bibleImportStateChanged();
+}
+
+void ApplicationController::finishBibleImport(const BibleImportResult &result)
+{
+    m_bibleImportProgressCurrent = result.success ? 1 : 0;
+    m_bibleImportProgressTotal = result.success ? 1 : 0;
+    m_bibleImportRequiresLicenseConfirmation = result.requiresLicenseConfirmation;
+    m_bibleImportRestrictedTranslations = result.restrictedTranslations;
+    if (result.requiresLicenseConfirmation) {
+        m_bibleImportMessage = QStringLiteral("Confirmação de licença necessária.");
+        setStatusMessage(QStringLiteral(
+            "A origem contém traduções não marcadas como domínio público. Confirme a licença antes de importar."));
+    } else if (result.cancelled) {
+        m_bibleImportMessage = QStringLiteral("Importação cancelada.");
+        setStatusMessage(m_bibleImportMessage);
+        m_pendingBibleImportSource = {};
+    } else if (!result.success) {
+        m_bibleImportMessage = result.errorSummary().isEmpty()
+            ? QStringLiteral("A importação falhou.") : result.errorSummary();
+        setStatusMessage(m_bibleImportMessage);
+        m_pendingBibleImportSource = {};
+    } else {
+        refreshBibleTranslations();
+        m_bibleImportMessage = QStringLiteral("%1 tradução(ões) e %2 versículo(s) importados.")
+                                   .arg(result.importedTranslations)
+                                   .arg(result.importedVerses);
+        if (result.failedTranslations > 0) {
+            m_bibleImportMessage += QStringLiteral(" %1 tradução(ões) ignoradas por erro: %2")
+                                        .arg(result.failedTranslations)
+                                        .arg(result.errorSummary());
+        }
+        setStatusMessage(m_bibleImportMessage);
+        m_pendingBibleImportSource = {};
+    }
+    m_bibleImportCancelled.reset();
+    emit bibleImportStateChanged();
+}
+
 bool ApplicationController::searchBibleReference()
 {
     m_bibleResults.clear();
@@ -2427,7 +2581,20 @@ void ApplicationController::refreshBibleTranslations()
     QSet<QString> availableIds;
     if (m_bibleRepository) {
         for (const auto &translation : m_bibleRepository->translations()) {
-            updated.append(mapBibleTranslation(translation));
+            auto item = mapBibleTranslation(translation);
+            const auto source = m_bibleRepository->translationSource(translation.id);
+            if (source.has_value()) {
+                item.insert(QStringLiteral("sourceKind"), bibleSourceKindName(source->kind));
+                item.insert(QStringLiteral("sourceLocation"), source->location);
+                item.insert(QStringLiteral("sourceRevision"), source->revision);
+                item.insert(QStringLiteral("license"), source->license);
+                item.insert(QStringLiteral("publisher"), source->publisher);
+                item.insert(QStringLiteral("importedAt"), source->importedAt);
+                item.insert(QStringLiteral("canUpdate"), true);
+            } else {
+                item.insert(QStringLiteral("canUpdate"), false);
+            }
+            updated.append(item);
             availableIds.insert(translation.id);
         }
     }

@@ -6,6 +6,9 @@ Versioning where practical before 1.0.
 ## [Unreleased]
 
 - Added governance, support, security, contribution templates, and bilingual documentation.
+- Added canonical Bible repository/folder, public Git HTTPS, and public ZIP
+  imports with source/license/revision metadata, transactional idempotent
+  updates, progress, cancellation, and restricted-license confirmation.
 
 ## [0.10.3] - 2026-08-20
 

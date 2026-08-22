@@ -91,15 +91,29 @@ target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-pres
 
 add_library(presenter-bible
     bible/BibleTypes.h
+    bible/BibleImportTypes.h
+    bible/BibleImportTypes.cpp
+    bible/IBibleSourceImporter.h
     bible/BibleReferenceParser.h
     bible/BibleReferenceParser.cpp
     bible/BibleRepository.h
     bible/BibleRepository.cpp
     bible/BibleJsonImporter.h
     bible/BibleJsonImporter.cpp
+    bible/CanonicalBibleImporter.h
+    bible/CanonicalBibleImporter.cpp
+    bible/BibleSourceStager.h
+    bible/BibleSourceStager.cpp
+    bible/BibleImportService.h
+    bible/BibleImportService.cpp
 )
 target_include_directories(presenter-bible PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-bible PUBLIC Qt6::Core Qt6::Sql)
+target_include_directories(presenter-bible PRIVATE
+    ${libgit2_SOURCE_DIR}/include
+    ${libgit2_BINARY_DIR}/include
+)
+target_link_libraries(presenter-bible PUBLIC Qt6::Core Qt6::Sql Qt6::Network)
+target_link_libraries(presenter-bible PRIVATE libgit2package miniz)
 
 add_library(presenter-app
     app/ApplicationController.cpp
@@ -116,7 +130,7 @@ add_library(presenter-app
 )
 target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-app PUBLIC
-    presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::HttpServer Qt6::WebSockets
+    presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
 
 qt_add_executable(church-presenter
@@ -161,4 +175,3 @@ target_link_libraries(church-presenter
         presenter-app presenter-screens presenter-presentation presenter-persistence presenter-library
         presenter-bible
 )
-

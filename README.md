@@ -23,7 +23,9 @@ presentation state, persistence, and rendering separate.
 - unified media player with playlists, seeking, volume, and repeat;
 - recursive media folders, type-specific catalogs, and filename search;
 - presentations, structured songs, themes, and service playlists;
-- JSON Bible import, reference search, and per-output translations;
+- canonical folder, public Git HTTPS, ZIP, and legacy JSON Bible import with
+  source metadata, safe updates, progress/cancellation, reference search, and
+  per-output translations;
 - Stage View with current/next slide, clock, timer, and messages;
 - message, alert, lower-third, countdown, and stopwatch overlays;
 - history, basic reports, backup, restore, and crash recovery;
@@ -47,7 +49,8 @@ before upgrading between previews.
 ## Build from source
 
 Requirements: CMake 3.21+, a C++20 compiler, and Qt 6.8+ with Core, Gui, Quick,
-Quick Controls, SQL, Multimedia, Network, HttpServer, WebSockets, and Test.
+Quick Controls, SQL, Multimedia, Network, Concurrent, HttpServer, WebSockets,
+and Test. CMake downloads pinned libgit2 and miniz sources during configure.
 
 ```bash
 cmake -S . -B build -DBUILD_TESTING=ON
@@ -79,3 +82,6 @@ problems through the private process in [SECURITY.md](SECURITY.md).
 HolyScreen is licensed under the [GNU General Public License v3.0](LICENSE).
 Imported Bible translations and media remain subject to their owners' licenses.
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+See the [Bible import guide](docs/BIBLE_IMPORT.md) for the canonical format,
+supported sources, license confirmation, updates, and safety limits.

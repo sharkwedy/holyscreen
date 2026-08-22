@@ -3,6 +3,7 @@
 #include "persistence/ApplicationDatabase.h"
 
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QSet>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -16,6 +17,7 @@ class ApplicationDatabaseTest final : public QObject {
 
 private slots:
     void createsVersionedBaselineSchema();
+    void migratesVersionOneWithBackup();
 };
 
 void ApplicationDatabaseTest::createsVersionedBaselineSchema()
@@ -28,7 +30,7 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
 
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 0);
-    QCOMPARE(result.currentVersion, 1);
+    QCOMPARE(result.currentVersion, 2);
 
     const auto connection = QStringLiteral("schema-check-%1")
                                 .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -53,6 +55,7 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
             QStringLiteral("history"),
             QStringLiteral("bible_translations"),
             QStringLiteral("bible_verses"),
+            QStringLiteral("bible_translation_sources"),
         };
         for (const auto &table : expected) {
             QVERIFY2(tables.contains(table), qPrintable(QStringLiteral("Tabela ausente: %1").arg(table)));
@@ -60,6 +63,33 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
         database.close();
     }
     QSqlDatabase::removeDatabase(connection);
+}
+
+void ApplicationDatabaseTest::migratesVersionOneWithBackup()
+{
+    QTemporaryDir directory;
+    const auto path = directory.filePath(QStringLiteral("presenter.db"));
+    QVERIFY(ApplicationDatabase::migrate(path).success);
+
+    const auto connection = QStringLiteral("schema-v1-%1")
+                                .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
+    {
+        auto database = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), connection);
+        database.setDatabaseName(path);
+        QVERIFY(database.open());
+        QSqlQuery query(database);
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE bible_translation_sources")));
+        QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version=2")));
+        database.close();
+    }
+    QSqlDatabase::removeDatabase(connection);
+
+    const auto result = ApplicationDatabase::migrate(path);
+    QVERIFY2(result.success, qPrintable(result.error));
+    QCOMPARE(result.previousVersion, 1);
+    QCOMPARE(result.currentVersion, 2);
+    QVERIFY(!result.backupPath.isEmpty());
+    QVERIFY(QFileInfo::exists(result.backupPath));
 }
 
 int main(int argc, char **argv)

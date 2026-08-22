@@ -1,6 +1,7 @@
 #include "bible/BibleRepository.h"
 
 #include <QDir>
+#include <QDateTime>
 #include <QFileInfo>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -10,6 +11,16 @@
 #include <algorithm>
 
 namespace churchpresenter {
+
+namespace {
+
+QString nonNullTrimmed(const QString &value)
+{
+    const auto trimmed = value.trimmed();
+    return trimmed.isNull() ? QStringLiteral("") : trimmed;
+}
+
+} // namespace
 
 BibleRepository::BibleRepository(QString databasePath)
     : m_databasePath(std::move(databasePath))
@@ -60,6 +71,16 @@ bool BibleRepository::open()
             "verse INTEGER NOT NULL,"
             "text TEXT NOT NULL,"
             "PRIMARY KEY(translation_id,book,chapter,verse),"
+            "FOREIGN KEY(translation_id) REFERENCES bible_translations(id) ON DELETE CASCADE"
+            ")"))) return false;
+    if (!query.exec(QStringLiteral(
+            "CREATE TABLE IF NOT EXISTS bible_translation_sources ("
+            "translation_id TEXT PRIMARY KEY NOT NULL,"
+            "source_kind TEXT NOT NULL,source_location TEXT NOT NULL,"
+            "source_revision TEXT NOT NULL DEFAULT '',license TEXT NOT NULL,"
+            "publisher TEXT NOT NULL DEFAULT '',source_name TEXT NOT NULL DEFAULT '',"
+            "source_code TEXT NOT NULL DEFAULT '',scope TEXT NOT NULL DEFAULT '',"
+            "imported_at TEXT NOT NULL,content_hash TEXT NOT NULL DEFAULT '',"
             "FOREIGN KEY(translation_id) REFERENCES bible_translations(id) ON DELETE CASCADE"
             ")"))) return false;
     return query.exec(QStringLiteral(
@@ -139,6 +160,119 @@ bool BibleRepository::importVerses(
         }
     }
     return database.commit();
+}
+
+bool BibleRepository::replaceImportedTranslation(
+    const PlannedBibleTranslation &planned, const BibleImportCancellation &cancel)
+{
+    if (m_connectionName.isEmpty() && !open()) return false;
+    auto translation = planned.translation;
+    translation.id = translation.id.trimmed();
+    translation.name = translation.name.trimmed();
+    translation.abbreviation = translation.abbreviation.trimmed().toUpper();
+    translation.language = translation.language.trimmed();
+    if ((cancel && cancel()) || translation.id.isEmpty() || translation.name.isEmpty()
+        || translation.abbreviation.isEmpty() || translation.language.isEmpty()
+        || planned.verses.isEmpty() || planned.source.license.trimmed().isEmpty()) return false;
+    for (const auto &verse : planned.verses) {
+        if (cancel && cancel()) return false;
+        if (verse.book == BibleBook::Unknown || verse.chapter <= 0 || verse.verse <= 0
+            || verse.text.trimmed().isEmpty()) return false;
+    }
+
+    auto database = QSqlDatabase::database(m_connectionName, false);
+    if (!database.transaction()) return false;
+    const auto rollback = [&database] { database.rollback(); return false; };
+
+    QSqlQuery translationQuery(database);
+    translationQuery.prepare(QStringLiteral(
+        "INSERT INTO bible_translations(id,name,abbreviation,language) "
+        "VALUES(:id,:name,:abbreviation,:language) "
+        "ON CONFLICT(id) DO UPDATE SET name=excluded.name,"
+        "abbreviation=excluded.abbreviation,language=excluded.language"));
+    translationQuery.bindValue(QStringLiteral(":id"), translation.id);
+    translationQuery.bindValue(QStringLiteral(":name"), translation.name);
+    translationQuery.bindValue(QStringLiteral(":abbreviation"), translation.abbreviation);
+    translationQuery.bindValue(QStringLiteral(":language"), translation.language);
+    if (!translationQuery.exec()) return rollback();
+
+    QSqlQuery deleteQuery(database);
+    deleteQuery.prepare(QStringLiteral("DELETE FROM bible_verses WHERE translation_id=:id"));
+    deleteQuery.bindValue(QStringLiteral(":id"), translation.id);
+    if (!deleteQuery.exec()) return rollback();
+
+    QSqlQuery verseQuery(database);
+    verseQuery.prepare(QStringLiteral(
+        "INSERT INTO bible_verses(translation_id,book,chapter,verse,text) "
+        "VALUES(:translation,:book,:chapter,:verse,:text)"));
+    for (const auto &verse : planned.verses) {
+        if (cancel && cancel()) return rollback();
+        verseQuery.bindValue(QStringLiteral(":translation"), translation.id);
+        verseQuery.bindValue(QStringLiteral(":book"), static_cast<int>(verse.book));
+        verseQuery.bindValue(QStringLiteral(":chapter"), verse.chapter);
+        verseQuery.bindValue(QStringLiteral(":verse"), verse.verse);
+        verseQuery.bindValue(QStringLiteral(":text"), verse.text.trimmed());
+        if (!verseQuery.exec()) return rollback();
+    }
+
+    const auto importedAt = QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);
+    QSqlQuery sourceQuery(database);
+    sourceQuery.prepare(QStringLiteral(
+        "INSERT INTO bible_translation_sources("
+        "translation_id,source_kind,source_location,source_revision,license,publisher,"
+        "source_name,source_code,scope,imported_at,content_hash) "
+        "VALUES(:translation,:kind,:location,:revision,:license,:publisher,"
+        ":sourceName,:sourceCode,:scope,:importedAt,:contentHash) "
+        "ON CONFLICT(translation_id) DO UPDATE SET "
+        "source_kind=excluded.source_kind,source_location=excluded.source_location,"
+        "source_revision=excluded.source_revision,license=excluded.license,"
+        "publisher=excluded.publisher,source_name=excluded.source_name,"
+        "source_code=excluded.source_code,scope=excluded.scope,"
+        "imported_at=excluded.imported_at,content_hash=excluded.content_hash"));
+    sourceQuery.bindValue(QStringLiteral(":translation"), translation.id);
+    sourceQuery.bindValue(QStringLiteral(":kind"), bibleSourceKindName(planned.source.kind));
+    sourceQuery.bindValue(QStringLiteral(":location"), nonNullTrimmed(planned.source.location));
+    sourceQuery.bindValue(QStringLiteral(":revision"), nonNullTrimmed(planned.source.revision));
+    sourceQuery.bindValue(QStringLiteral(":license"), nonNullTrimmed(planned.source.license));
+    sourceQuery.bindValue(QStringLiteral(":publisher"), nonNullTrimmed(planned.source.publisher));
+    sourceQuery.bindValue(QStringLiteral(":sourceName"), nonNullTrimmed(planned.source.sourceName));
+    sourceQuery.bindValue(QStringLiteral(":sourceCode"), nonNullTrimmed(planned.source.sourceCode));
+    sourceQuery.bindValue(QStringLiteral(":scope"), nonNullTrimmed(planned.source.scope));
+    sourceQuery.bindValue(QStringLiteral(":importedAt"), importedAt);
+    sourceQuery.bindValue(QStringLiteral(":contentHash"), nonNullTrimmed(planned.source.contentHash));
+    if (!sourceQuery.exec()) return rollback();
+    return database.commit();
+}
+
+std::optional<BibleTranslationSource> BibleRepository::translationSource(
+    const QString &translationId) const
+{
+    if (m_connectionName.isEmpty() || translationId.trimmed().isEmpty()) return std::nullopt;
+    QSqlQuery query(QSqlDatabase::database(m_connectionName, false));
+    query.prepare(QStringLiteral(
+        "SELECT translation_id,source_kind,source_location,source_revision,license,publisher,"
+        "source_name,source_code,scope,imported_at,content_hash "
+        "FROM bible_translation_sources WHERE translation_id=:id"));
+    query.bindValue(QStringLiteral(":id"), translationId);
+    if (!query.exec() || !query.next()) return std::nullopt;
+    const auto kindName = query.value(1).toString();
+    BibleSourceKind kind = BibleSourceKind::LocalFolder;
+    if (kindName == QStringLiteral("git-https")) kind = BibleSourceKind::GitHttps;
+    else if (kindName == QStringLiteral("zip-url")) kind = BibleSourceKind::ZipUrl;
+    else if (kindName == QStringLiteral("holyscreen-json")) kind = BibleSourceKind::HolyScreenJson;
+    return BibleTranslationSource{
+        .translationId = query.value(0).toString(),
+        .kind = kind,
+        .location = query.value(2).toString(),
+        .revision = query.value(3).toString(),
+        .license = query.value(4).toString(),
+        .publisher = query.value(5).toString(),
+        .sourceName = query.value(6).toString(),
+        .sourceCode = query.value(7).toString(),
+        .scope = query.value(8).toString(),
+        .importedAt = query.value(9).toString(),
+        .contentHash = query.value(10).toString(),
+    };
 }
 
 QVector<BibleVerse> BibleRepository::verses(

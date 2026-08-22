@@ -109,6 +109,21 @@ MigrationResult ApplicationDatabase::migrate(const QString &databasePath)
         }
         return true;
     });
+    migrator.addMigration(2, QStringLiteral("Bible import source metadata"),
+                          [](QSqlDatabase &database, QString *error) {
+        QSqlQuery query(database);
+        const bool ok = query.exec(QStringLiteral(
+            "CREATE TABLE IF NOT EXISTS bible_translation_sources("
+            "translation_id TEXT PRIMARY KEY NOT NULL,"
+            "source_kind TEXT NOT NULL,source_location TEXT NOT NULL,"
+            "source_revision TEXT NOT NULL DEFAULT '',license TEXT NOT NULL,"
+            "publisher TEXT NOT NULL DEFAULT '',source_name TEXT NOT NULL DEFAULT '',"
+            "source_code TEXT NOT NULL DEFAULT '',scope TEXT NOT NULL DEFAULT '',"
+            "imported_at TEXT NOT NULL,content_hash TEXT NOT NULL DEFAULT '',"
+            "FOREIGN KEY(translation_id) REFERENCES bible_translations(id) ON DELETE CASCADE)"));
+        if (!ok && error) *error = query.lastError().text();
+        return ok;
+    });
     return migrator.migrate();
 }
 

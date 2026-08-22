@@ -10,8 +10,16 @@ O aplicativo usa módulos Qt Core, Gui, Quick, Quick Controls, Multimedia, SQL, 
 
 SQLite é de domínio público. Consulte <https://www.sqlite.org/copyright.html>.
 
+## libgit2 1.9.7
+
+O importador de repositórios bíblicos usa libgit2, distribuída sob GPLv2 com uma exceção de vinculação. O código-fonte e a licença estão em <https://github.com/libgit2/libgit2>.
+
+## miniz 3.1.2
+
+A validação e extração de arquivos ZIP usa miniz, distribuída sob licença MIT. O código-fonte e a licença estão em <https://github.com/richgel999/miniz>.
+
 ## Conteúdo importado
 
 Traduções bíblicas, imagens, músicas, áudios e vídeos importados não são redistribuídos com o HolyScreen. A licença e a autorização de uso desses conteúdos são responsabilidade do usuário.
 
-Este arquivo será atualizado quando libgit2, RtMidi ou outros adapters forem adicionados ao produto.
+Este arquivo será atualizado quando RtMidi ou outros adapters forem adicionados ao produto.

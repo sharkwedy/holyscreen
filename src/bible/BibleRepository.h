@@ -1,9 +1,11 @@
 #pragma once
 
-#include "bible/BibleTypes.h"
+#include "bible/BibleImportTypes.h"
 
 #include <QString>
 #include <QVector>
+
+#include <optional>
 
 namespace churchpresenter {
 
@@ -19,6 +21,11 @@ public:
     [[nodiscard]] QString saveTranslation(BibleTranslation translation);
     [[nodiscard]] QVector<BibleTranslation> translations() const;
     bool importVerses(const QString &translationId, const QVector<BibleVerse> &verses);
+    bool replaceImportedTranslation(
+        const PlannedBibleTranslation &translation,
+        const BibleImportCancellation &cancel = {});
+    [[nodiscard]] std::optional<BibleTranslationSource> translationSource(
+        const QString &translationId) const;
     [[nodiscard]] QVector<BibleVerse> verses(
         const QString &translationId, const BibleReference &reference) const;
     [[nodiscard]] QVector<int> chapters(

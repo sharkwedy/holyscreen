@@ -9,7 +9,7 @@
 
 namespace churchpresenter {
 
-BibleImportResult BibleJsonImporter::parse(const QByteArray &json) const
+BibleJsonImportResult BibleJsonImporter::parse(const QByteArray &json) const
 {
     QJsonParseError parseError;
     const auto document = QJsonDocument::fromJson(json, &parseError);
