@@ -7,7 +7,7 @@ O desenvolvimento é realizado por ondas. Uma onda só termina com build, testes
 | 0 | Linha de base, GPLv3, documentação e suíte verde | Em validação multiplataforma |
 | 1 | Command/Event Bus, migrações e confiabilidade | Em andamento |
 | 2 | Controle remoto autenticado e API v1 | Pendente |
-| 3 | Importação bíblica por pasta, Git e ZIP | Pendente |
+| 3 | Importação bíblica por pasta, Git e ZIP | Em validação multiplataforma |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Pendente |
 | 5 | Automações offline | Pendente |
 | 6 | Escalas e relatórios avançados | Pendente |

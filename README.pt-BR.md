@@ -35,3 +35,8 @@ cmake --build build --target church-presenter_qmllint
 Consulte [ROADMAP.md](docs/ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md),
 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [GOVERNANCE.md](GOVERNANCE.md),
 [SUPPORT.md](SUPPORT.md) e [SECURITY.md](SECURITY.md). O código é GPLv3.
+
+A importação bíblica aceita pasta/repositório canônico, Git HTTPS público, ZIP
+público e JSON legado, com atualização idempotente, metadados de origem,
+progresso, cancelamento e confirmação para conteúdo não marcado como domínio
+público. Consulte o [guia de importação bíblica](docs/BIBLE_IMPORT.md).

@@ -7,7 +7,7 @@
 
 namespace churchpresenter {
 
-struct BibleImportResult {
+struct BibleJsonImportResult {
     BibleTranslation translation;
     QVector<BibleVerse> verses;
     QString error;
@@ -17,7 +17,7 @@ struct BibleImportResult {
 
 class BibleJsonImporter final {
 public:
-    [[nodiscard]] BibleImportResult parse(const QByteArray &json) const;
+    [[nodiscard]] BibleJsonImportResult parse(const QByteArray &json) const;
 };
 
 } // namespace churchpresenter

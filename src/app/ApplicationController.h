@@ -18,6 +18,7 @@
 #include "presentation/TimedMediaPlayback.h"
 #include "presentation/OverlayController.h"
 #include "bible/BibleJsonImporter.h"
+#include "bible/BibleImportService.h"
 #include "bible/BibleReferenceParser.h"
 #include "bible/BibleRepository.h"
 #include "core/CommandBus.h"
@@ -32,7 +33,9 @@
 #include <QTimer>
 #include <QUrl>
 #include <QVariantList>
+#include <QFutureWatcher>
 
+#include <atomic>
 #include <memory>
 
 namespace churchpresenter {
@@ -160,6 +163,11 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QString bibleTertiaryTranslationId READ bibleTertiaryTranslationId WRITE setBibleTertiaryTranslationId NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QString bibleReferenceInput READ bibleReferenceInput WRITE setBibleReferenceInput NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QVariantList bibleResults READ bibleResults NOTIFY bibleResultsChanged)
+    Q_PROPERTY(bool bibleImportRunning READ bibleImportRunning NOTIFY bibleImportStateChanged)
+    Q_PROPERTY(int bibleImportProgress READ bibleImportProgress NOTIFY bibleImportStateChanged)
+    Q_PROPERTY(QString bibleImportMessage READ bibleImportMessage NOTIFY bibleImportStateChanged)
+    Q_PROPERTY(bool bibleImportRequiresLicenseConfirmation READ bibleImportRequiresLicenseConfirmation NOTIFY bibleImportStateChanged)
+    Q_PROPERTY(QString bibleImportLicenseWarning READ bibleImportLicenseWarning NOTIFY bibleImportStateChanged)
 
 public:
     explicit ApplicationController(QObject *parent = nullptr);
@@ -289,6 +297,11 @@ public:
     [[nodiscard]] QString bibleTertiaryTranslationId() const;
     [[nodiscard]] QString bibleReferenceInput() const;
     [[nodiscard]] QVariantList bibleResults() const;
+    [[nodiscard]] bool bibleImportRunning() const;
+    [[nodiscard]] int bibleImportProgress() const;
+    [[nodiscard]] QString bibleImportMessage() const;
+    [[nodiscard]] bool bibleImportRequiresLicenseConfirmation() const;
+    [[nodiscard]] QString bibleImportLicenseWarning() const;
 
     Q_INVOKABLE bool toggleScreen(const QString &screenFingerprint, bool enabled);
     Q_INVOKABLE void enableAllScreens();
@@ -378,6 +391,12 @@ public:
     Q_INVOKABLE void runBenchmark();
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
+    Q_INVOKABLE bool importBibleFolder(const QUrl &folder);
+    Q_INVOKABLE bool importBibleGit(const QString &url);
+    Q_INVOKABLE bool importBibleZip(const QString &url);
+    Q_INVOKABLE bool confirmBibleImportLicenses();
+    Q_INVOKABLE void cancelBibleImport();
+    Q_INVOKABLE bool updateBibleTranslationFromSource(const QString &translationId);
     Q_INVOKABLE bool searchBibleReference();
     Q_INVOKABLE void showBibleVerse(int index);
     Q_INVOKABLE QVariantList bibleChapterNumbers(int bookId) const;
@@ -511,6 +530,7 @@ signals:
     void bibleTranslationsChanged();
     void bibleSelectionChanged();
     void bibleResultsChanged();
+    void bibleImportStateChanged();
     void stageMessageChanged();
     void overlaysChanged();
 
@@ -559,6 +579,9 @@ private:
     void refreshHistory();
     void recordHistory(const QString &type,const QString &referenceId,const QString &title);
     void refreshBibleTranslations();
+    bool startBibleImport(const BibleSource &source, bool confirmRestrictedLicenses);
+    void updateBibleImportProgress(const BibleImportProgress &progress);
+    void finishBibleImport(const BibleImportResult &result);
 
     std::unique_ptr<QtScreenProvider> m_screenProvider;
     std::unique_ptr<ScreenManager> m_screenManager;
@@ -652,6 +675,14 @@ private:
     QString m_bibleTertiaryTranslationId;
     QString m_bibleReferenceInput;
     QVariantList m_bibleResults;
+    QFutureWatcher<BibleImportResult> m_bibleImportWatcher;
+    std::shared_ptr<std::atomic_bool> m_bibleImportCancelled;
+    BibleSource m_pendingBibleImportSource;
+    int m_bibleImportProgressCurrent = 0;
+    int m_bibleImportProgressTotal = 0;
+    QString m_bibleImportMessage;
+    bool m_bibleImportRequiresLicenseConfirmation = false;
+    QStringList m_bibleImportRestrictedTranslations;
     BibleReference m_currentBibleReference;
     QString m_stageMessage;
 };

@@ -4,7 +4,7 @@ if(POLICY CMP0219)
     cmake_policy(SET CMP0219 OLD)
 endif()
 
-project(holyscreen VERSION 0.10.3 LANGUAGES CXX)
+project(holyscreen VERSION 0.10.3 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,7 +12,33 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(CTest)
 
-find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Test REQUIRED)
+include(FetchContent)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build bundled dependencies statically" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "Do not build bundled dependency tests" FORCE)
+set(BUILD_CLI OFF CACHE BOOL "Do not build the libgit2 CLI" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "Do not build bundled dependency examples" FORCE)
+set(BUILD_FUZZERS OFF CACHE BOOL "Do not build bundled dependency fuzzers" FORCE)
+set(INSTALL_PROJECT OFF CACHE BOOL "Do not install bundled dependencies" FORCE)
+set(USE_SSH OFF CACHE STRING "HolyScreen imports public HTTPS repositories only" FORCE)
+set(USE_HTTP_PARSER builtin CACHE STRING "Use bundled libgit2 HTTP parser" FORCE)
+set(REGEX_BACKEND builtin CACHE STRING "Use bundled libgit2 regex backend" FORCE)
+set(USE_BUNDLED_ZLIB ON CACHE STRING "Use bundled libgit2 zlib" FORCE)
+set(USE_NTLMCLIENT OFF CACHE BOOL "Public Bible imports do not use NTLM" FORCE)
+set(STATIC_CRT OFF CACHE BOOL "Match the Qt dynamic MSVC runtime" FORCE)
+
+FetchContent_Declare(libgit2
+    URL https://github.com/libgit2/libgit2/archive/refs/tags/v1.9.7.tar.gz
+    URL_HASH SHA256=1a4fbe7589e814777ae76b64734ad80f4ecad22cd33a22682a2aaea4ae5375e7
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_Declare(miniz
+    URL https://github.com/richgel999/miniz/archive/refs/tags/3.1.2.tar.gz
+    URL_HASH SHA256=98468f8924934b723276680f85238b6c78bf1f8b49b4459cc9b7214a20e2e9fb
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(libgit2 miniz)
+
+find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test REQUIRED)
 qt_standard_project_setup(REQUIRES 6.8)
 
 add_subdirectory(src)
@@ -21,6 +47,7 @@ install(TARGETS church-presenter
     BUNDLE DESTINATION .
     RUNTIME DESTINATION bin
 )
+install(FILES THIRD_PARTY_NOTICES.md DESTINATION share/doc/HolyScreen)
 if(APPLE)
     qt_generate_deploy_script(
         TARGET church-presenter

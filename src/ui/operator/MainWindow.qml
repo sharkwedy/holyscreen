@@ -229,9 +229,97 @@ ApplicationWindow {
     }
     FileDialog {
         id: bibleImportDialog
-        title: "Importar tradução bíblica"
+        title: "Importar JSON HolyScreen legado"
         nameFilters: ["HolyScreen Bíblia JSON (*.json)"]
         onAccepted: presentationController.importBibleTranslation(selectedFile)
+    }
+    FolderDialog {
+        id: bibleFolderDialog
+        title: "Selecionar repositório, data/canonical ou pasta da tradução"
+        onAccepted: presentationController.importBibleFolder(selectedFolder)
+    }
+    Dialog {
+        id: bibleOnlineImportDialog
+        title: "Importar Bíblia de origem pública"
+        modal: true
+        width: 620
+        standardButtons: Dialog.Close
+        contentItem: ColumnLayout {
+            spacing: 12
+            Label {
+                Layout.fillWidth: true
+                text: "Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário."
+                wrapMode: Text.WordWrap
+                color: "#b8c6dc"
+            }
+            Label { text: "REPOSITÓRIO GIT HTTPS"; color: "#8da0bc"; font.bold: true }
+            RowLayout {
+                Layout.fillWidth: true
+                TextField {
+                    id: bibleGitUrl
+                    Layout.fillWidth: true
+                    placeholderText: "https://github.com/usuario/repositorio.git"
+                }
+                Button {
+                    text: "IMPORTAR GIT"
+                    enabled: !presentationController.bibleImportRunning && bibleGitUrl.text.trim().length > 0
+                    onClicked: {
+                        if (presentationController.importBibleGit(bibleGitUrl.text))
+                            bibleOnlineImportDialog.close()
+                    }
+                }
+            }
+            Label { text: "ARQUIVO ZIP HTTPS"; color: "#8da0bc"; font.bold: true }
+            RowLayout {
+                Layout.fillWidth: true
+                TextField {
+                    id: bibleZipUrl
+                    Layout.fillWidth: true
+                    placeholderText: "https://exemplo.org/biblias.zip"
+                }
+                Button {
+                    text: "IMPORTAR ZIP"
+                    enabled: !presentationController.bibleImportRunning && bibleZipUrl.text.trim().length > 0
+                    onClicked: {
+                        if (presentationController.importBibleZip(bibleZipUrl.text))
+                            bibleOnlineImportDialog.close()
+                    }
+                }
+            }
+        }
+    }
+    Dialog {
+        id: bibleLicenseDialog
+        title: "Confirmar licenças das traduções"
+        modal: true
+        width: 580
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: presentationController.confirmBibleImportLicenses()
+        contentItem: ColumnLayout {
+            spacing: 10
+            Label {
+                Layout.fillWidth: true
+                text: "As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:"
+                wrapMode: Text.WordWrap
+                color: "#ffba70"
+            }
+            Label {
+                Layout.fillWidth: true
+                text: presentationController.bibleImportLicenseWarning
+                wrapMode: Text.WordWrap
+                color: "#eff6ff"
+                font.bold: true
+            }
+        }
+    }
+    Connections {
+        target: presentationController
+        function onBibleImportStateChanged() {
+            if (presentationController.bibleImportRequiresLicenseConfirmation
+                    && !presentationController.bibleImportRunning
+                    && !bibleLicenseDialog.visible)
+                bibleLicenseDialog.open()
+        }
     }
     Dialog {
         id: bibleDialog
@@ -249,7 +337,48 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Label { text: "TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)"; color: "#8da0bc"; font.bold: true }
                 Item { Layout.fillWidth: true }
-                Button { text: "IMPORTAR JSON"; onClicked: bibleImportDialog.open() }
+                Button {
+                    text: "IMPORTAR PASTA"
+                    enabled: !presentationController.bibleImportRunning
+                    onClicked: bibleFolderDialog.open()
+                }
+                Button {
+                    text: "GIT / ZIP"
+                    enabled: !presentationController.bibleImportRunning
+                    onClicked: bibleOnlineImportDialog.open()
+                }
+                Button {
+                    text: "JSON LEGADO"
+                    enabled: !presentationController.bibleImportRunning
+                    onClicked: bibleImportDialog.open()
+                }
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                visible: presentationController.bibleImportRunning
+                         || presentationController.bibleImportMessage.length > 0
+                RowLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        Layout.fillWidth: true
+                        text: presentationController.bibleImportMessage
+                        color: presentationController.bibleImportRunning ? "#70e1a7" : "#b8c6dc"
+                        elide: Text.ElideRight
+                    }
+                    Button {
+                        text: "CANCELAR"
+                        visible: presentationController.bibleImportRunning
+                        onClicked: presentationController.cancelBibleImport()
+                    }
+                }
+                ProgressBar {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    value: presentationController.bibleImportProgress
+                    indeterminate: presentationController.bibleImportRunning
+                                   && presentationController.bibleImportProgress === 0
+                }
             }
             GridLayout {
                 Layout.fillWidth: true
@@ -281,6 +410,49 @@ ApplicationWindow {
             }
             RowLayout {
                 Layout.fillWidth: true
+                visible: presentationController.bibleTranslations.length > 0
+                Label { text: "ORIGEM:"; color: "#8da0bc"; font.bold: true }
+                ComboBox {
+                    id: bibleManagedTranslation
+                    Layout.fillWidth: true
+                    model: presentationController.bibleTranslations
+                    textRole: "displayName"
+                    valueRole: "id"
+                }
+                Label {
+                    text: bibleManagedTranslation.currentIndex >= 0
+                          ? (bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].license || "origem legada")
+                          : ""
+                    color: "#8da0bc"
+                }
+                Button {
+                    text: "ATUALIZAR DA ORIGEM"
+                    enabled: !presentationController.bibleImportRunning
+                             && bibleManagedTranslation.currentIndex >= 0
+                             && !!bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].canUpdate
+                    onClicked: presentationController.updateBibleTranslationFromSource(
+                                   bibleManagedTranslation.currentValue)
+                }
+            }
+            Label {
+                Layout.fillWidth: true
+                visible: bibleManagedTranslation.currentIndex >= 0
+                         && !!bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].sourceLocation
+                text: {
+                    if (bibleManagedTranslation.currentIndex < 0)
+                        return ""
+                    const item = bibleManagedTranslation.model[bibleManagedTranslation.currentIndex]
+                    const revision = item.sourceRevision
+                                     ? " • revisão " + item.sourceRevision.substring(0, 12) : ""
+                    const publisher = item.publisher ? " • " + item.publisher : ""
+                    return "Origem: " + item.sourceLocation + revision + publisher
+                }
+                color: "#64748b"
+                elide: Text.ElideMiddle
+                font.pixelSize: 11
+            }
+            RowLayout {
+                Layout.fillWidth: true
                 TextField {
                     Layout.fillWidth: true
                     placeholderText: "João 3:16, Jo 3 16 ou João 3.16"
@@ -293,7 +465,7 @@ ApplicationWindow {
             Label {
                 visible: presentationController.bibleTranslations.length === 0
                 Layout.fillWidth: true
-                text: "Importe uma tradução em JSON para começar. Os textos bíblicos não são embutidos por questões de licenciamento."
+                text: "Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento."
                 color: "#ffba70"
                 wrapMode: Text.WordWrap
             }

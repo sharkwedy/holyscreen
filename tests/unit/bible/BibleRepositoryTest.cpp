@@ -11,6 +11,7 @@ class BibleRepositoryTest final : public QObject {
 private slots:
     void storesTranslationsAndVerseRangesIndependently();
     void searchesVerseTextWithinOneTranslation();
+    void replacesCanonicalTranslationAtomicallyAndPersistsSource();
 };
 
 void BibleRepositoryTest::storesTranslationsAndVerseRangesIndependently()
@@ -61,6 +62,68 @@ void BibleRepositoryTest::searchesVerseTextWithinOneTranslation()
     const auto found = repository.search(translation, QStringLiteral("PASTOR"));
     QCOMPARE(found.size(), 1);
     QCOMPARE(found.front().verse, 1);
+}
+
+void BibleRepositoryTest::replacesCanonicalTranslationAtomicallyAndPersistsSource()
+{
+    QTemporaryDir directory;
+    BibleRepository repository(directory.filePath(QStringLiteral("presenter.db")));
+    QVERIFY(repository.open());
+
+    PlannedBibleTranslation first{
+        .translation = {QStringLiteral("canonical:TB"), QStringLiteral("Tradução Brasileira"),
+                        QStringLiteral("TB"), QStringLiteral("pt-BR")},
+        .source = {
+            .translationId = QStringLiteral("canonical:TB"),
+            .kind = BibleSourceKind::GitHttps,
+            .location = QStringLiteral("https://example.test/biblias.git"),
+            .revision = QStringLiteral("abc123"),
+            .license = QStringLiteral("public-domain"),
+            .publisher = QStringLiteral("SBB"),
+            .sourceName = QStringLiteral("canonical"),
+            .sourceCode = QStringLiteral("TB"),
+            .scope = QStringLiteral("full"),
+            .contentHash = QStringLiteral("hash-1"),
+        },
+        .verses = {
+            {QStringLiteral("canonical:TB"), BibleBook::John, 1, 1, QStringLiteral("Primeiro")},
+            {QStringLiteral("canonical:TB"), BibleBook::John, 1, 2, QStringLiteral("Será removido")},
+        },
+    };
+    QVERIFY(repository.replaceImportedTranslation(first));
+
+    auto source = repository.translationSource(QStringLiteral("canonical:TB"));
+    QVERIFY(source.has_value());
+    QCOMPARE(source->kind, BibleSourceKind::GitHttps);
+    QCOMPARE(source->revision, QStringLiteral("abc123"));
+    QCOMPARE(source->license, QStringLiteral("public-domain"));
+    QVERIFY(!source->importedAt.isEmpty());
+
+    auto updated = first;
+    updated.translation.name = QStringLiteral("Tradução Brasileira Atualizada");
+    updated.source.revision = QStringLiteral("def456"),
+    updated.source.contentHash = QStringLiteral("hash-2");
+    updated.verses = {
+        {QStringLiteral("canonical:TB"), BibleBook::John, 1, 1, QStringLiteral("Texto atualizado")},
+    };
+    QVERIFY(repository.replaceImportedTranslation(updated));
+
+    QCOMPARE(repository.translations().size(), 1);
+    QCOMPARE(repository.translations().front().name, QStringLiteral("Tradução Brasileira Atualizada"));
+    const auto verses = repository.verses(
+        QStringLiteral("canonical:TB"), {BibleBook::John, 1, 1, 2});
+    QCOMPARE(verses.size(), 1);
+    QCOMPARE(verses.front().text, QStringLiteral("Texto atualizado"));
+    source = repository.translationSource(QStringLiteral("canonical:TB"));
+    QCOMPARE(source->revision, QStringLiteral("def456"));
+    QCOMPARE(source->contentHash, QStringLiteral("hash-2"));
+
+    updated.verses.append({QStringLiteral("canonical:TB"), BibleBook::Unknown, 1, 2,
+                           QStringLiteral("inválido")});
+    QVERIFY(!repository.replaceImportedTranslation(updated));
+    QCOMPARE(repository.verses(QStringLiteral("canonical:TB"), {BibleBook::John, 1, 1, 2}).size(), 1);
+    QCOMPARE(repository.translationSource(QStringLiteral("canonical:TB"))->revision,
+             QStringLiteral("def456"));
 }
 
 QTEST_GUILESS_MAIN(BibleRepositoryTest)

@@ -170,6 +170,18 @@ qt_add_executable(test_bible_json_importer unit/bible/BibleJsonImporterTest.cpp)
 target_link_libraries(test_bible_json_importer PRIVATE Qt6::Test presenter-bible)
 add_test(NAME test_bible_json_importer COMMAND test_bible_json_importer)
 
+qt_add_executable(test_canonical_bible_importer unit/bible/CanonicalBibleImporterTest.cpp)
+target_link_libraries(test_canonical_bible_importer PRIVATE Qt6::Test presenter-bible)
+add_test(NAME test_canonical_bible_importer COMMAND test_canonical_bible_importer)
+
+qt_add_executable(test_bible_source_stager unit/bible/BibleSourceStagerTest.cpp)
+target_link_libraries(test_bible_source_stager PRIVATE Qt6::Test presenter-bible)
+add_test(NAME test_bible_source_stager COMMAND test_bible_source_stager)
+
+qt_add_executable(test_bible_import_service unit/bible/BibleImportServiceTest.cpp)
+target_link_libraries(test_bible_import_service PRIVATE Qt6::Test presenter-bible)
+add_test(NAME test_bible_import_service COMMAND test_bible_import_service)
+
 add_test(NAME test_app_starts COMMAND $<TARGET_FILE:church-presenter> --quit-after-startup)
 set_tests_properties(test_app_starts PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"

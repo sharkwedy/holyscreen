@@ -5,6 +5,8 @@
 #include "library/PresentationRepository.h"
 
 #include <QGuiApplication>
+#include <QDir>
+#include <QFile>
 #include <QTemporaryDir>
 
 using namespace churchpresenter;
@@ -18,6 +20,7 @@ private slots:
     void operatorMediaUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
     void autosaveDebouncesPresentationEdits();
+    void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -27,7 +30,7 @@ void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
     qRegisterMetaType<DomainEvent>();
 
     ApplicationController controller;
-    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 1);
+    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 2);
     QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
     QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
 
@@ -133,6 +136,38 @@ void ApplicationCommandBridgeTest::autosaveDebouncesPresentationEdits()
     const auto reloaded = persisted.presentation(presentationId);
     QCOMPARE(reloaded.slides.size(), 1);
     QCOMPARE(reloaded.slides.front().text, QStringLiteral("Texto final"));
+}
+
+void ApplicationCommandBridgeTest::canonicalBibleImportRequiresLicenseThenCompletesAsynchronously()
+{
+    QTemporaryDir source;
+    const auto translation = source.filePath(QStringLiteral("data/canonical/DEMO"));
+    QVERIFY(QDir().mkpath(translation));
+    QFile metadata(QDir(translation).filePath(QStringLiteral("meta.json")));
+    QVERIFY(metadata.open(QIODevice::WriteOnly));
+    QVERIFY(metadata.write(
+        R"JSON({"code":"DEMO","name":"Demonstração","license":"copyright"})JSON") > 0);
+    metadata.close();
+    QFile book(QDir(translation).filePath(QStringLiteral("JHN.json")));
+    QVERIFY(book.open(QIODevice::WriteOnly));
+    QVERIFY(book.write(
+        R"JSON({"id":43,"chapters":[{"number":3,"verses":[{"number":16,"text":"Texto de demonstração"}]}]})JSON") > 0);
+    book.close();
+
+    ApplicationController controller;
+    QSignalSpy stateSpy(&controller, &ApplicationController::bibleImportStateChanged);
+    QVERIFY(controller.importBibleFolder(QUrl::fromLocalFile(source.path())));
+    QTRY_VERIFY_WITH_TIMEOUT(!controller.bibleImportRunning(), 3000);
+    QVERIFY(controller.bibleImportRequiresLicenseConfirmation());
+    QVERIFY(controller.bibleTranslations().isEmpty());
+
+    QVERIFY(controller.confirmBibleImportLicenses());
+    QTRY_VERIFY_WITH_TIMEOUT(!controller.bibleImportRunning(), 3000);
+    QVERIFY(!controller.bibleImportRequiresLicenseConfirmation());
+    QCOMPARE(controller.bibleTranslations().size(), 1);
+    QCOMPARE(controller.bibleImportProgress(), 100);
+    QVERIFY(controller.bibleImportMessage().contains(QStringLiteral("1 tradução")));
+    QVERIFY(stateSpy.count() > 2);
 }
 
 int main(int argc, char **argv)
