@@ -22,6 +22,15 @@ Item {
     readonly property color textMain: "#f2f4f5"
     readonly property color textMuted: "#aab2b8"
     readonly property color accent: "#b9c7ff"
+    readonly property var selectedBibleTranslation: {
+        for (let index = 0; index < controller.bibleTranslations.length; ++index) {
+            const translation = controller.bibleTranslations[index]
+            if (translation.id === controller.biblePrimaryTranslationId)
+                return translation
+        }
+        return controller.bibleTranslations.length > 0
+                ? controller.bibleTranslations[0] : null
+    }
 
     component PlayerButton: Button {
         id: playerButton
@@ -615,38 +624,90 @@ Item {
                 }
                 RowLayout {
                     Layout.fillWidth: true; Layout.margins: 8
-                    ComboBox { Layout.fillWidth: true; model: ["1 Pedro", "João", "Salmos"] }
-                    SpinBox { from: 1; to: 150; value: 4 }
-                    ComboBox { Layout.preferredWidth: 82; model: ["ARC", "NVI"] }
+                    TextField {
+                        Layout.fillWidth: true
+                        text: dashboard.controller.bibleReferenceInput
+                        readOnly: true
+                        placeholderText: "Pesquise uma referência em Navegar"
+                    }
+                    ComboBox {
+                        id: bibleTranslationCombo
+                        Layout.preferredWidth: 110
+                        model: dashboard.controller.bibleTranslations
+                        textRole: "abbreviation"
+                        valueRole: "id"
+                        currentIndex: {
+                            for (let index = 0; index < dashboard.controller.bibleTranslations.length; ++index) {
+                                if (dashboard.controller.bibleTranslations[index].id
+                                        === dashboard.controller.biblePrimaryTranslationId)
+                                    return index
+                            }
+                            return dashboard.controller.bibleTranslations.length > 0 ? 0 : -1
+                        }
+                        onActivated: {
+                            dashboard.controller.biblePrimaryTranslationId = currentValue
+                            if (dashboard.controller.bibleReferenceInput.trim().length > 0)
+                                dashboard.controller.searchBibleReference()
+                        }
+                    }
                 }
                 Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dashboard.line }
                 ListView {
                     Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 0
-                    model: [
-                        "Aos presbíteros que estão entre vós, admoesto eu, que sou também presbítero com eles, e testemunha das aflições de Cristo, e participante da glória que se há de revelar:",
-                        "apascentai o rebanho de Deus que está entre vós, tendo cuidado dele, não por força, mas voluntariamente; nem por torpe ganância, mas de ânimo pronto;",
-                        "nem como tendo domínio sobre a herança de Deus, mas servindo de exemplo ao rebanho.",
-                        "E, quando aparecer o Sumo Pastor, alcançareis a incorruptível coroa de glória."
-                    ]
+                    model: dashboard.controller.bibleResults
                     delegate: Rectangle {
-                        required property string modelData
+                        id: bibleVerseDelegate
+                        required property var modelData
                         required property int index
                         width: ListView.view.width
                         height: verseText.implicitHeight + 30
                         color: index % 2 ? dashboard.panelHigh : "transparent"
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10; spacing: 10
-                            Label { text: index + 1; color: dashboard.accent; font.bold: true; Layout.alignment: Qt.AlignTop }
-                            Label { id: verseText; Layout.fillWidth: true; text: modelData; color: dashboard.textMain; wrapMode: Text.WordWrap; lineHeight: 1.25 }
+                            Label { text: bibleVerseDelegate.modelData.verse; color: dashboard.accent; font.bold: true; Layout.alignment: Qt.AlignTop }
+                            Label {
+                                id: verseText
+                                Layout.fillWidth: true
+                                text: bibleVerseDelegate.modelData.versions
+                                      && bibleVerseDelegate.modelData.versions.length > 0
+                                      ? bibleVerseDelegate.modelData.versions[0].text
+                                      : bibleVerseDelegate.modelData.text
+                                color: dashboard.textMain
+                                wrapMode: Text.WordWrap
+                                lineHeight: 1.25
+                            }
                         }
+                    }
+                    Label {
+                        anchors.centerIn: parent
+                        visible: parent.count === 0
+                        text: dashboard.controller.bibleTranslations.length === 0
+                              ? "Importe uma tradução bíblica para visualizar passagens"
+                              : "Nenhum versículo encontrado"
+                        color: dashboard.textMuted
                     }
                 }
                 Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: 48; color: dashboard.panelHigh
                     ColumnLayout {
                         anchors.centerIn: parent; spacing: 1
-                        Label { text: "Almeida Revista e Corrigida (ARC)"; color: dashboard.textMain; font.bold: true; font.pixelSize: 10 }
-                        Label { text: "© 2009 Sociedade Bíblica do Brasil"; color: dashboard.textMuted; font.pixelSize: 9 }
+                        Label {
+                            text: dashboard.selectedBibleTranslation
+                                  ? dashboard.selectedBibleTranslation.displayName
+                                  : "Nenhuma tradução importada"
+                            color: dashboard.textMain
+                            font.bold: true
+                            font.pixelSize: 10
+                        }
+                        Label {
+                            text: dashboard.selectedBibleTranslation
+                                  ? (dashboard.selectedBibleTranslation.license === "public-domain"
+                                     ? "Domínio público"
+                                     : dashboard.selectedBibleTranslation.license)
+                                  : "Use uma origem com licença adequada"
+                            color: dashboard.textMuted
+                            font.pixelSize: 9
+                        }
                     }
                 }
             }
