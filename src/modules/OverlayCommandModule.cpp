@@ -6,27 +6,59 @@
 namespace churchpresenter {
 
 OverlayCommandModule::OverlayCommandModule(CommandBus &commandBus, EventBus &eventBus,
-                                           OverlayController &overlays, QObject *parent)
+                                           OverlayController &overlays, UndoManager *undoManager,
+                                           QObject *parent)
     : QObject(parent)
     , m_commandBus(commandBus)
     , m_eventBus(eventBus)
     , m_overlays(overlays)
+    , m_undoManager(undoManager)
 {
     m_commandBus.registerHandler(QStringLiteral("overlay.audience-message.set"),
                                  [this](const Command &command) {
         if (!command.payload.contains(QStringLiteral("message"))) {
             return invalidPayload(QStringLiteral("O campo message é obrigatório."));
         }
-        m_overlays.setMessage(command.payload.value(QStringLiteral("message")).toString());
-        return complete(command, QStringLiteral("Mensagem da audiência atualizada."));
+        const auto previous = m_overlays.message();
+        const auto next = command.payload.value(QStringLiteral("message")).toString().trimmed();
+        m_overlays.setMessage(next);
+        const auto result = complete(command, QStringLiteral("Mensagem da audiência atualizada."));
+        if (m_undoManager && previous != m_overlays.message()) {
+            m_undoManager->record(
+                QStringLiteral("Alterar mensagem da audiência"),
+                [this, previous] {
+                    m_overlays.setMessage(previous);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                },
+                [this, next] {
+                    m_overlays.setMessage(next);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                });
+        }
+        return result;
     });
     m_commandBus.registerHandler(QStringLiteral("overlay.alert.set"),
                                  [this](const Command &command) {
         if (!command.payload.contains(QStringLiteral("message"))) {
             return invalidPayload(QStringLiteral("O campo message é obrigatório."));
         }
-        m_overlays.setAlert(command.payload.value(QStringLiteral("message")).toString());
-        return complete(command, QStringLiteral("Alerta atualizado."));
+        const auto previous = m_overlays.alert();
+        const auto next = command.payload.value(QStringLiteral("message")).toString().trimmed();
+        m_overlays.setAlert(next);
+        const auto result = complete(command, QStringLiteral("Alerta atualizado."));
+        if (m_undoManager && previous != m_overlays.alert()) {
+            m_undoManager->record(
+                QStringLiteral("Alterar alerta"),
+                [this, previous] {
+                    m_overlays.setAlert(previous);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                },
+                [this, next] {
+                    m_overlays.setAlert(next);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                });
+        }
+        return result;
     });
     m_commandBus.registerHandler(QStringLiteral("overlay.lower-third.set"),
                                  [this](const Command &command) {
@@ -34,9 +66,27 @@ OverlayCommandModule::OverlayCommandModule(CommandBus &commandBus, EventBus &eve
             || !command.payload.contains(QStringLiteral("subtitle"))) {
             return invalidPayload(QStringLiteral("Os campos title e subtitle são obrigatórios."));
         }
-        m_overlays.setLowerThird(command.payload.value(QStringLiteral("title")).toString(),
-                                 command.payload.value(QStringLiteral("subtitle")).toString());
-        return complete(command, QStringLiteral("Lower third atualizado."));
+        const auto previousTitle = m_overlays.lowerThirdTitle();
+        const auto previousSubtitle = m_overlays.lowerThirdSubtitle();
+        const auto title = command.payload.value(QStringLiteral("title")).toString().trimmed();
+        const auto subtitle = command.payload.value(QStringLiteral("subtitle")).toString().trimmed();
+        m_overlays.setLowerThird(title, subtitle);
+        const auto result = complete(command, QStringLiteral("Lower third atualizado."));
+        if (m_undoManager
+            && (previousTitle != m_overlays.lowerThirdTitle()
+                || previousSubtitle != m_overlays.lowerThirdSubtitle())) {
+            m_undoManager->record(
+                QStringLiteral("Alterar lower third"),
+                [this, previousTitle, previousSubtitle] {
+                    m_overlays.setLowerThird(previousTitle, previousSubtitle);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                },
+                [this, title, subtitle] {
+                    m_overlays.setLowerThird(title, subtitle);
+                    return publishState(QUuid::createUuid().toString(QUuid::WithoutBraces));
+                });
+        }
+        return result;
     });
     m_commandBus.registerHandler(QStringLiteral("timer.countdown.start"),
                                  [this](const Command &command) {
@@ -72,7 +122,13 @@ OverlayCommandModule::OverlayCommandModule(CommandBus &commandBus, EventBus &eve
 
 CommandResult OverlayCommandModule::complete(const Command &command, const QString &message)
 {
-    m_eventBus.publish(DomainEvent{
+    publishState(command.id);
+    return {.accepted = true, .message = message};
+}
+
+bool OverlayCommandModule::publishState(const QString &correlationId)
+{
+    return m_eventBus.publish(DomainEvent{
         .type = QStringLiteral("overlay.state.changed"),
         .payload = {
             {QStringLiteral("audienceMessage"), m_overlays.message()},
@@ -85,9 +141,8 @@ CommandResult OverlayCommandModule::complete(const Command &command, const QStri
             {QStringLiteral("stopwatchRunning"), m_overlays.stopwatchRunning()},
         },
         .occurredAt = QDateTime::currentDateTimeUtc(),
-        .correlationId = command.id,
+        .correlationId = correlationId,
     });
-    return {.accepted = true, .message = message};
 }
 
 CommandResult OverlayCommandModule::invalidPayload(const QString &message) const

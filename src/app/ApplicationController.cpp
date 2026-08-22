@@ -156,8 +156,24 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::blackoutChanged);
     connect(&m_undoManager, &UndoManager::stateChanged,
             this, &ApplicationController::undoStateChanged);
+    m_outputRoutingCommands = std::make_unique<OutputRoutingCommandModule>(
+        m_commandBus, m_eventBus,
+        OutputRoutingCommandModule::Actions{
+            .output = [this](const QString &fingerprint) {
+                return outputRoutingState(fingerprint);
+            },
+            .setEnabled = [this](const QString &fingerprint, bool enabled) {
+                return applyToggleScreen(fingerprint, enabled);
+            },
+            .setRole = [this](const QString &fingerprint, const QString &role) {
+                return applyOutputRole(fingerprint, role);
+            },
+            .setMediaEnabled = [this](const QString &fingerprint, bool enabled) {
+                return applyOutputMediaEnabled(fingerprint, enabled);
+            },
+        }, &m_undoManager, this);
     m_overlayCommands = std::make_unique<OverlayCommandModule>(
-        m_commandBus, m_eventBus, m_overlays, this);
+        m_commandBus, m_eventBus, m_overlays, &m_undoManager, this);
     m_mediaCommands = std::make_unique<MediaCommandModule>(
         m_commandBus, m_eventBus,
         MediaCommandModule::Actions{
@@ -167,6 +183,10 @@ ApplicationController::ApplicationController(QObject *parent)
             .seek = [this](int positionMs) { return applySeekMedia(positionMs); },
             .previous = [this] { return applyPreviousMedia(); },
             .next = [this] { return applyNextMedia(); },
+            .setRepeat = [this](const QString &mode) {
+                applyMediaRepeatMode(mode);
+                return true;
+            },
             .stateSnapshot = [this] {
                 return QVariantMap{
                     {QStringLiteral("mediaId"), currentMediaId()},
@@ -175,6 +195,66 @@ ApplicationController::ApplicationController(QObject *parent)
                     {QStringLiteral("positionMs"), mediaPositionMs()},
                     {QStringLiteral("durationMs"), mediaDurationMs()},
                     {QStringLiteral("repeatMode"), mediaRepeatMode()},
+                };
+            },
+        }, &m_undoManager, this);
+    m_presentationCommands = std::make_unique<PresentationCommandModule>(
+        m_commandBus, m_eventBus,
+        PresentationCommandModule::Actions{
+            .show = [this](int index) { return applyShowTextSlide(index); },
+            .next = [this] { m_textPresentation.next(); return true; },
+            .previous = [this] { m_textPresentation.previous(); return true; },
+            .first = [this] { m_textPresentation.first(); return true; },
+            .last = [this] { m_textPresentation.last(); return true; },
+            .stop = [this] { m_textPresentation.stop(); return true; },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("slideIndex"), currentSlideIndex()},
+                    {QStringLiteral("slideId"), currentSlideId()},
+                    {QStringLiteral("visible"), textVisible()},
+                };
+            },
+        }, this);
+    m_stageCommands = std::make_unique<StageCommandModule>(
+        m_commandBus, m_eventBus,
+        StageCommandModule::Actions{
+            .message = [this] { return stageMessage(); },
+            .setMessage = [this](const QString &message) {
+                return applyStageMessage(message);
+            },
+        }, &m_undoManager, this);
+    m_bibleCommands = std::make_unique<BibleCommandModule>(
+        m_commandBus, m_eventBus,
+        BibleCommandModule::Actions{
+            .search = [this](const QString &reference) {
+                return applyBibleSearch(reference);
+            },
+            .present = [this](int bookId, int chapter, int verse) {
+                return applyBiblePresentation(bookId, chapter, verse);
+            },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("reference"), bibleReferenceInput()},
+                    {QStringLiteral("resultCount"), bibleResults().size()},
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("slideIndex"), currentSlideIndex()},
+                };
+            },
+        }, this);
+    m_eventCommands = std::make_unique<EventCommandModule>(
+        m_commandBus, m_eventBus,
+        EventCommandModule::Actions{
+            .select = [this](const QString &id) { return applyEventSelection(id); },
+            .executeItem = [this](const QString &id) {
+                return applyEventItemExecution(id);
+            },
+            .stateSnapshot = [this] {
+                return QVariantMap{
+                    {QStringLiteral("eventId"), currentEventId()},
+                    {QStringLiteral("itemCount"), eventItems().size()},
+                    {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("mediaId"), currentMediaId()},
                 };
             },
         }, this);
@@ -595,6 +675,11 @@ QVariantList ApplicationController::bibleResults() const{return m_bibleResults;}
 
 bool ApplicationController::toggleScreen(const QString &screenFingerprint, bool enabled)
 {
+    return m_outputRoutingCommands->requestEnabled(screenFingerprint, enabled).accepted;
+}
+
+bool ApplicationController::applyToggleScreen(const QString &screenFingerprint, bool enabled)
+{
     const auto found = std::find_if(m_screens.cbegin(), m_screens.cend(), [&](const QVariant &entry) {
         return entry.toMap().value(QStringLiteral("id")).toString() == screenFingerprint;
     });
@@ -667,6 +752,11 @@ bool ApplicationController::setOutputBibleTranslation(
 
 bool ApplicationController::setOutputRole(const QString &screenFingerprint, const QString &role)
 {
+    return m_outputRoutingCommands->requestRole(screenFingerprint, role).accepted;
+}
+
+bool ApplicationController::applyOutputRole(const QString &screenFingerprint, const QString &role)
+{
     const auto normalized = outputRoleFromName(role);
     if (!m_outputs.setRole(screenFingerprint, normalized)) return false;
     saveOutputs();
@@ -676,10 +766,28 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
 
 bool ApplicationController::setOutputMediaEnabled(const QString &screenFingerprint, bool enabled)
 {
+    return m_outputRoutingCommands->requestMediaEnabled(screenFingerprint, enabled).accepted;
+}
+
+bool ApplicationController::applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled)
+{
     if (!m_outputs.setMediaEnabled(screenFingerprint, enabled)) return false;
     saveOutputs();
     refreshScreens();
     return true;
+}
+
+QVariantMap ApplicationController::outputRoutingState(const QString &screenFingerprint) const
+{
+    const auto found = std::find_if(m_screens.cbegin(), m_screens.cend(),
+                                    [&screenFingerprint](const QVariant &entry) {
+        return entry.toMap().value(QStringLiteral("fingerprint")).toString()
+            == screenFingerprint;
+    });
+    if (found == m_screens.cend()) return {};
+    auto state = found->toMap();
+    state.insert(QStringLiteral("enabled"), state.value(QStringLiteral("selected")).toBool());
+    return state;
 }
 
 bool ApplicationController::setOutputDisplayName(
@@ -1376,14 +1484,29 @@ void ApplicationController::moveTextSlide(const QString &id, int newIndex)
 
 void ApplicationController::showTextSlide(int index)
 {
-    stopVideo(); m_images.stop();
-    if(m_textPresentation.show(index)&&index==0){const auto&p=m_textPresentation.presentation();const auto type=p.type==PresentationType::Song?QStringLiteral("song"):p.type==PresentationType::Bible?QStringLiteral("bible"):QStringLiteral("text");recordHistory(type,p.id,p.title);}
+    m_presentationCommands->requestShow(index);
 }
-void ApplicationController::nextTextSlide() { m_textPresentation.next(); }
-void ApplicationController::previousTextSlide() { m_textPresentation.previous(); }
-void ApplicationController::firstTextSlide() { m_textPresentation.first(); }
-void ApplicationController::lastTextSlide() { m_textPresentation.last(); }
-void ApplicationController::stopTextPresentation() { m_textPresentation.stop(); }
+void ApplicationController::nextTextSlide() { m_presentationCommands->requestNext(); }
+void ApplicationController::previousTextSlide() { m_presentationCommands->requestPrevious(); }
+void ApplicationController::firstTextSlide() { m_presentationCommands->requestFirst(); }
+void ApplicationController::lastTextSlide() { m_presentationCommands->requestLast(); }
+void ApplicationController::stopTextPresentation() { m_presentationCommands->requestStop(); }
+
+bool ApplicationController::applyShowTextSlide(int index)
+{
+    applyStopMedia();
+    m_images.stop();
+    if (!m_textPresentation.show(index)) return false;
+    if (index == 0) {
+        const auto &presentation = m_textPresentation.presentation();
+        const auto type = presentation.type == PresentationType::Song
+            ? QStringLiteral("song")
+            : presentation.type == PresentationType::Bible
+                ? QStringLiteral("bible") : QStringLiteral("text");
+        recordHistory(type, presentation.id, presentation.title);
+    }
+    return true;
+}
 
 QString ApplicationController::createTheme(const QString &name)
 {
@@ -1479,7 +1602,9 @@ QString ApplicationController::createEvent(const QString &title,const QString &s
     if(!id.isEmpty()){refreshEvents();selectEvent(id);}return id;
 }
 void ApplicationController::selectEvent(const QString&id)
-{if(!m_eventRepository||m_eventRepository->event(id).id.isEmpty())return;m_currentEventId=id;refreshEventItems();emit currentEventChanged();}
+{ m_eventCommands->requestSelect(id); }
+bool ApplicationController::applyEventSelection(const QString&id)
+{if(!m_eventRepository||m_eventRepository->event(id).id.isEmpty())return false;m_currentEventId=id;refreshEventItems();emit currentEventChanged();return true;}
 void ApplicationController::deleteEvent(const QString&id)
 {if(!m_eventRepository||!m_eventRepository->removeEvent(id))return;if(m_currentEventId==id){m_currentEventId.clear();m_eventItems.clear();emit currentEventChanged();emit eventItemsChanged();}refreshEvents();}
 void ApplicationController::addEventItem(const QString&type,const QString&referenceId,const QString&title,qint64 durationMs)
@@ -1491,10 +1616,12 @@ void ApplicationController::addEventItem(const QString&type,const QString&refere
 void ApplicationController::removeEventItem(const QString&id){if(m_eventRepository&&m_eventRepository->removeItem(id))refreshEventItems();}
 void ApplicationController::moveEventItem(const QString&id,int newIndex){if(m_eventRepository&&m_eventRepository->moveItem(id,newIndex))refreshEventItems();}
 void ApplicationController::executeEventItem(const QString&id)
+{ m_eventCommands->requestExecuteItem(id); }
+bool ApplicationController::applyEventItemExecution(const QString&id)
 {
-    if(!m_eventRepository)return;for(const auto&item:m_eventRepository->items(m_currentEventId))if(item.id==id){
-        switch(item.type){case PlaylistItemType::Song:selectSong(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Text:selectTextPresentation(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Image:showImage(item.referenceId);break;case PlaylistItemType::Video:playVideo(item.referenceId);break;case PlaylistItemType::Audio:playAudio(item.referenceId);break;}return;
-    }
+    if(!m_eventRepository)return false;for(const auto&item:m_eventRepository->items(m_currentEventId))if(item.id==id){
+        switch(item.type){case PlaylistItemType::Song:selectSong(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Text:selectTextPresentation(item.referenceId);showTextSlide(0);break;case PlaylistItemType::Image:showImage(item.referenceId);break;case PlaylistItemType::Video:playVideo(item.referenceId);break;case PlaylistItemType::Audio:playAudio(item.referenceId);break;}return true;
+    }return false;
 }
 void ApplicationController::clearHistory(){if(m_historyRepository&&m_historyRepository->clear())refreshHistory();}
 QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
@@ -1669,6 +1796,12 @@ void ApplicationController::finishBibleImport(const BibleImportResult &result)
 
 bool ApplicationController::searchBibleReference()
 {
+    return m_bibleCommands->requestSearch(m_bibleReferenceInput).accepted;
+}
+
+bool ApplicationController::applyBibleSearch(const QString &referenceInput)
+{
+    setBibleReferenceInput(referenceInput);
     m_bibleResults.clear();
     if (!m_bibleRepository) return false;
     const auto reference = m_bibleReferenceParser.parse(m_bibleReferenceInput);
@@ -1785,14 +1918,19 @@ QVariantList ApplicationController::bibleVerseNumbers(int bookId, int chapter) c
 
 bool ApplicationController::presentBibleReference(int bookId, int chapter, int verse)
 {
+    return m_bibleCommands->requestPresent(bookId, chapter, verse).accepted;
+}
+
+bool ApplicationController::applyBiblePresentation(int bookId, int chapter, int verse)
+{
     if (bookId < static_cast<int>(BibleBook::Genesis)
         || bookId > static_cast<int>(BibleBook::Revelation)
         || chapter <= 0 || verse <= 0) return false;
-    setBibleReferenceInput(QStringLiteral("%1 %2:%3")
+    const auto reference = QStringLiteral("%1 %2:%3")
                                .arg(bibleBookName(static_cast<BibleBook>(bookId)))
                                .arg(chapter)
-                               .arg(verse));
-    if (!searchBibleReference()) return false;
+                               .arg(verse);
+    if (!applyBibleSearch(reference)) return false;
     showBibleVerse(0);
     return true;
 }
@@ -2004,11 +2142,17 @@ void ApplicationController::setImageFileSearch(const QString &search)
 
 void ApplicationController::setStageMessage(const QString &message)
 {
+    m_stageCommands->requestMessage(message);
+}
+
+bool ApplicationController::applyStageMessage(const QString &message)
+{
     const auto normalized = message.trimmed();
-    if (m_stageMessage == normalized) return;
+    if (m_stageMessage == normalized) return true;
     m_stageMessage = normalized;
     saveSetting(QStringLiteral("stageMessage"), normalized);
     emit stageMessageChanged();
+    return true;
 }
 
 void ApplicationController::setAudienceMessage(const QString &message)
@@ -2084,6 +2228,11 @@ void ApplicationController::setMediaVolume(double volume)
 }
 
 void ApplicationController::setMediaRepeatMode(const QString &mode)
+{
+    m_mediaCommands->requestRepeat(mode);
+}
+
+void ApplicationController::applyMediaRepeatMode(const QString &mode)
 {
     const auto normalized = mode == QStringLiteral("one") ? QStringLiteral("one")
                           : mode == QStringLiteral("all") ? QStringLiteral("all")

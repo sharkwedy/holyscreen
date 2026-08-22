@@ -24,8 +24,13 @@
 #include "core/CommandBus.h"
 #include "core/EventBus.h"
 #include "modules/OutputModule.h"
+#include "modules/BibleCommandModule.h"
+#include "modules/EventCommandModule.h"
+#include "modules/OutputRoutingCommandModule.h"
 #include "modules/OverlayCommandModule.h"
 #include "modules/MediaCommandModule.h"
+#include "modules/PresentationCommandModule.h"
+#include "modules/StageCommandModule.h"
 #include "modules/UndoCommandModule.h"
 
 #include <QObject>
@@ -543,6 +548,7 @@ private:
     UndoManager m_undoManager;
     OutputModule m_outputModule;
     UndoCommandModule m_undoCommands;
+    std::unique_ptr<OutputRoutingCommandModule> m_outputRoutingCommands;
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);
@@ -563,6 +569,17 @@ private:
     bool applySeekMedia(int positionMs);
     bool applyPreviousMedia();
     bool applyNextMedia();
+    void applyMediaRepeatMode(const QString &mode);
+    bool applyShowTextSlide(int index);
+    bool applyStageMessage(const QString &message);
+    bool applyToggleScreen(const QString &screenFingerprint, bool enabled);
+    bool applyOutputRole(const QString &screenFingerprint, const QString &role);
+    bool applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
+    [[nodiscard]] QVariantMap outputRoutingState(const QString &screenFingerprint) const;
+    bool applyBibleSearch(const QString &reference);
+    bool applyBiblePresentation(int bookId, int chapter, int verse);
+    bool applyEventSelection(const QString &id);
+    bool applyEventItemExecution(const QString &id);
     void refreshAudioLibrary();
     void updateCurrentAudioMetadata(const MediaItem &metadata);
     void refreshVideoLibrary();
@@ -649,6 +666,10 @@ private:
     bool m_videoVisible = false;
     QVariantList m_imageLibrary;
     TextPresentationController m_textPresentation;
+    std::unique_ptr<PresentationCommandModule> m_presentationCommands;
+    std::unique_ptr<StageCommandModule> m_stageCommands;
+    std::unique_ptr<BibleCommandModule> m_bibleCommands;
+    std::unique_ptr<EventCommandModule> m_eventCommands;
     OverlayController m_overlays;
     std::unique_ptr<OverlayCommandModule> m_overlayCommands;
     QVariantList m_textPresentations;

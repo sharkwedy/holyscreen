@@ -2,6 +2,10 @@ qt_add_executable(test_command_bus unit/core/CommandBusTest.cpp)
 target_link_libraries(test_command_bus PRIVATE Qt6::Test presenter-core)
 add_test(NAME test_command_bus COMMAND test_command_bus)
 
+qt_add_executable(test_command_catalog unit/core/CommandCatalogTest.cpp)
+target_link_libraries(test_command_catalog PRIVATE Qt6::Test presenter-core)
+add_test(NAME test_command_catalog COMMAND test_command_catalog)
+
 qt_add_executable(test_event_bus unit/core/EventBusTest.cpp)
 target_link_libraries(test_event_bus PRIVATE Qt6::Test presenter-core)
 add_test(NAME test_event_bus COMMAND test_event_bus)
@@ -13,6 +17,26 @@ add_test(NAME test_undo_manager COMMAND test_undo_manager)
 qt_add_executable(test_output_module unit/modules/OutputModuleTest.cpp)
 target_link_libraries(test_output_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_module COMMAND test_output_module)
+
+qt_add_executable(test_bible_command_module unit/modules/BibleCommandModuleTest.cpp)
+target_link_libraries(test_bible_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_bible_command_module COMMAND test_bible_command_module)
+
+qt_add_executable(test_event_command_module unit/modules/EventCommandModuleTest.cpp)
+target_link_libraries(test_event_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_event_command_module COMMAND test_event_command_module)
+
+qt_add_executable(test_output_routing_command_module unit/modules/OutputRoutingCommandModuleTest.cpp)
+target_link_libraries(test_output_routing_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_output_routing_command_module COMMAND test_output_routing_command_module)
+
+qt_add_executable(test_presentation_command_module unit/modules/PresentationCommandModuleTest.cpp)
+target_link_libraries(test_presentation_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_presentation_command_module COMMAND test_presentation_command_module)
+
+qt_add_executable(test_stage_command_module unit/modules/StageCommandModuleTest.cpp)
+target_link_libraries(test_stage_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_stage_command_module COMMAND test_stage_command_module)
 
 qt_add_executable(test_overlay_command_module unit/modules/OverlayCommandModuleTest.cpp)
 target_link_libraries(test_overlay_command_module PRIVATE Qt6::Test presenter-modules)

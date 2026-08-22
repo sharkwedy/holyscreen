@@ -18,6 +18,7 @@ private slots:
     void operatorBlackoutUsesCommandAndEventBuses();
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
+    void operatorPresentationNavigationUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
     void autosaveDebouncesPresentationEdits();
     void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
@@ -90,6 +91,31 @@ void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
     const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
     QCOMPARE(command.type, QStringLiteral("media.stop"));
     QCOMPARE(event.type, QStringLiteral("media.state.changed"));
+    QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::operatorPresentationNavigationUsesCommandAndEventBuses()
+{
+    qRegisterMetaType<Command>();
+    qRegisterMetaType<CommandResult>();
+    qRegisterMetaType<DomainEvent>();
+
+    ApplicationController controller;
+    QVERIFY(!controller.createTextPresentation(QStringLiteral("Avisos")).isEmpty());
+    QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    controller.showTextSlide(0);
+
+    QVERIFY(controller.textVisible());
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(eventSpy.count(), 1);
+    const auto command = qvariant_cast<Command>(commandSpy.first().at(0));
+    const auto event = qvariant_cast<DomainEvent>(eventSpy.first().at(0));
+    QCOMPARE(command.type, QStringLiteral("presentation.slide.show"));
+    QCOMPARE(command.payload.value(QStringLiteral("index")).toInt(), 0);
+    QCOMPARE(event.type, QStringLiteral("presentation.state.changed"));
+    QCOMPARE(event.payload.value(QStringLiteral("slideIndex")).toInt(), 0);
     QCOMPARE(event.correlationId, command.id);
 }
 
