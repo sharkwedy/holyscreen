@@ -1,4 +1,5 @@
 #include "bible/CanonicalBibleImporter.h"
+#include "bible/PathContainment.h"
 
 #include <QCryptographicHash>
 #include <QDir>
@@ -14,14 +15,6 @@
 namespace churchpresenter {
 
 namespace {
-
-bool isInside(const QString &root, const QString &candidate)
-{
-    const auto cleanRoot = QDir::cleanPath(root);
-    const auto cleanCandidate = QDir::cleanPath(candidate);
-    return cleanCandidate == cleanRoot
-        || cleanCandidate.startsWith(cleanRoot + QDir::separator());
-}
 
 std::optional<QJsonObject> readObject(const QString &path, QString *error,
                                       QCryptographicHash *hash = nullptr)
@@ -73,7 +66,7 @@ QStringList translationDirectories(const QString &sourcePath, QString *error)
             const QFileInfo parent(info.absolutePath());
             if (parent.fileName() != QStringLiteral("data")) continue;
             const auto candidate = info.canonicalFilePath();
-            if (isInside(sourceCanonical, candidate)) candidates.append(candidate);
+            if (isPathContained(sourceCanonical, candidate)) candidates.append(candidate);
         }
         candidates.removeDuplicates();
         if (candidates.size() > 1) {
@@ -83,7 +76,7 @@ QStringList translationDirectories(const QString &sourcePath, QString *error)
         rootPath = candidates.isEmpty() ? sourceCanonical : candidates.front();
     }
 
-    if (!isInside(sourceCanonical, rootPath)) {
+    if (!isPathContained(sourceCanonical, rootPath)) {
         if (error) *error = QStringLiteral("A raiz canônica sai da pasta selecionada.");
         return {};
     }
@@ -95,7 +88,7 @@ QStringList translationDirectories(const QString &sourcePath, QString *error)
     for (const auto &entry : entries) {
         if (entry.isSymLink()) continue;
         const auto canonical = entry.canonicalFilePath();
-        if (!isInside(rootPath, canonical)) continue;
+        if (!isPathContained(rootPath, canonical)) continue;
         if (QFileInfo(QDir(canonical).filePath(QStringLiteral("meta.json"))).isFile()) {
             result.append(canonical);
         }
@@ -155,7 +148,7 @@ std::optional<PlannedBibleTranslation> parseTranslation(
             return std::nullopt;
         }
         if (file.fileName().compare(QStringLiteral("meta.json"), Qt::CaseInsensitive) == 0) continue;
-        if (file.isSymLink() || !isInside(directoryPath, file.canonicalFilePath())) {
+        if (file.isSymLink() || !isPathContained(directoryPath, file.canonicalFilePath())) {
             if (error) *error = QStringLiteral("Arquivo inseguro: %1.").arg(file.filePath());
             return std::nullopt;
         }

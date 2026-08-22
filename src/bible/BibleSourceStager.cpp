@@ -1,4 +1,5 @@
 #include "bible/BibleSourceStager.h"
+#include "bible/PathContainment.h"
 
 #include <QDir>
 #include <QCryptographicHash>
@@ -144,8 +145,7 @@ bool ZipArchiveExtractor::extract(const QString &archivePath, const QString &des
         auto normalized = entryName;
         normalized.replace(QLatin1Char('\\'), QLatin1Char('/'));
         const auto outputPath = QDir(destinationRoot).absoluteFilePath(QDir::cleanPath(normalized));
-        if (outputPath != destinationRoot
-            && !outputPath.startsWith(destinationRoot + QDir::separator())) {
+        if (!isPathContained(destinationRoot, outputPath)) {
             closeArchive();
             if (error) *error = QStringLiteral("O ZIP tentou escrever fora do staging.");
             return false;

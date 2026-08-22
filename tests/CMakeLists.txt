@@ -162,6 +162,10 @@ qt_add_executable(test_bible_reference_parser unit/bible/BibleReferenceParserTes
 target_link_libraries(test_bible_reference_parser PRIVATE Qt6::Test presenter-bible)
 add_test(NAME test_bible_reference_parser COMMAND test_bible_reference_parser)
 
+qt_add_executable(test_path_containment unit/bible/PathContainmentTest.cpp)
+target_link_libraries(test_path_containment PRIVATE Qt6::Test presenter-bible)
+add_test(NAME test_path_containment COMMAND test_path_containment)
+
 qt_add_executable(test_bible_repository unit/bible/BibleRepositoryTest.cpp)
 target_link_libraries(test_bible_repository PRIVATE Qt6::Test presenter-bible)
 add_test(NAME test_bible_repository COMMAND test_bible_repository)
