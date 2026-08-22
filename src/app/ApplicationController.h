@@ -676,6 +676,7 @@ private:
     QString m_bibleReferenceInput;
     QVariantList m_bibleResults;
     QFutureWatcher<BibleImportResult> m_bibleImportWatcher;
+    bool m_bibleImportActive = false;
     std::shared_ptr<std::atomic_bool> m_bibleImportCancelled;
     BibleSource m_pendingBibleImportSource;
     int m_bibleImportProgressCurrent = 0;
