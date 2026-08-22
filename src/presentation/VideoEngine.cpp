@@ -123,9 +123,12 @@ void VideoEngine::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
     case QMediaPlayer::LoadingMedia: setState(VideoState::Loading); break;
     case QMediaPlayer::LoadedMedia:
     case QMediaPlayer::BufferedMedia:
-        if (m_player->playbackState() == QMediaPlayer::StoppedState) {
+        if (m_player->playbackState() == QMediaPlayer::PlayingState)
+            setState(VideoState::Playing);
+        else if (m_player->playbackState() == QMediaPlayer::PausedState)
+            setState(VideoState::Paused);
+        else
             setState(VideoState::Ready);
-        }
         break;
     case QMediaPlayer::BufferingMedia:
     case QMediaPlayer::StalledMedia:

@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSaveFile>
 #include <QFontDatabase>
 #include <QStandardPaths>
 #include <QTimer>
@@ -17,10 +18,14 @@
 #include <QHash>
 #include <QElapsedTimer>
 #include <QCoreApplication>
+#include <QDesktopServices>
+#include <QGuiApplication>
+#include <QKeyEvent>
 #include <QSysInfo>
 #include <QDateTime>
 #include <QDirIterator>
 #include <QSet>
+#include <QRandomGenerator>
 
 namespace churchpresenter {
 
@@ -56,7 +61,7 @@ QVariantMap mapMedia(const MediaItem &item)
     };
 }
 
-QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist)
+QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist, bool favorite = false)
 {
     const auto type = entry.type == MediaType::Video ? QStringLiteral("video")
                     : entry.type == MediaType::Image ? QStringLiteral("image")
@@ -68,6 +73,7 @@ QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist)
         {QStringLiteral("folderPath"), entry.folderPath},
         {QStringLiteral("type"), type},
         {QStringLiteral("inPlaylist"), inPlaylist},
+        {QStringLiteral("favorite"), favorite},
     };
 }
 
@@ -186,6 +192,9 @@ ApplicationController::ApplicationController(QObject *parent)
         emit autosaveChanged();
         setStatusMessage(message);
     });
+    if (QCoreApplication::instance()) {
+        QCoreApplication::instance()->installEventFilter(this);
+    }
     m_clockFontFamily = QFontDatabase::systemFont(QFontDatabase::GeneralFont).family();
     m_mediaCatalogDebounce.setSingleShot(true);
     m_mediaCatalogDebounce.setInterval(350);
@@ -272,6 +281,40 @@ ApplicationController::~ApplicationController()
     if (m_recovery) m_recovery->endSession();
 }
 
+bool ApplicationController::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() != QEvent::KeyPress) {
+        return QObject::eventFilter(watched, event);
+    }
+    const auto *keyEvent = static_cast<QKeyEvent *>(event);
+    if (keyEvent->modifiers().testAnyFlags(
+            Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier)) {
+        return QObject::eventFilter(watched, event);
+    }
+    const auto text = keyEvent->text();
+    if (text.size() != 1 || !text.front().isLetter()) {
+        return QObject::eventFilter(watched, event);
+    }
+
+    const auto *focusObject = QGuiApplication::focusObject();
+    if (focusObject) {
+        const auto className = QString::fromLatin1(focusObject->metaObject()->className());
+        const bool textEditor = className.contains(QStringLiteral("TextInput"))
+            || className.contains(QStringLiteral("TextEdit"))
+            || className.contains(QStringLiteral("TextField"))
+            || className.contains(QStringLiteral("TextArea"));
+        const bool editableControl = focusObject->property("editable").toBool();
+        const bool textControl = focusObject->property("text").isValid()
+            && focusObject->property("readOnly").isValid();
+        if (textEditor || editableControl || textControl) {
+            return QObject::eventFilter(watched, event);
+        }
+    }
+
+    emit quickBibleSearchRequested(text);
+    return true;
+}
+
 CommandBus &ApplicationController::commandBus() { return m_commandBus; }
 EventBus &ApplicationController::eventBus() { return m_eventBus; }
 
@@ -295,6 +338,7 @@ QVariantList ApplicationController::outputWindows() const
             {QStringLiteral("identifier"), identifier++},
             {QStringLiteral("bibleTranslationId"), placement.bibleTranslationId},
             {QStringLiteral("role"), outputRoleName(placement.role)},
+            {QStringLiteral("mediaEnabled"), placement.mediaEnabled},
         });
     }
     return result;
@@ -310,6 +354,16 @@ QString ApplicationController::clockFormat() const { return m_clock.format(); }
 QString ApplicationController::clockFontFamily() const { return m_clockFontFamily; }
 int ApplicationController::clockFontSize() const { return m_clockFontSize; }
 QString ApplicationController::clockColor() const { return m_clockColor; }
+bool ApplicationController::clockFontBold() const { return m_clockFontBold; }
+bool ApplicationController::clockFontItalic() const { return m_clockFontItalic; }
+QString ApplicationController::clockBackgroundColor() const { return m_clockBackgroundColor; }
+double ApplicationController::clockLineHeight() const { return m_clockLineHeight; }
+int ApplicationController::clockCornerRadius() const { return m_clockCornerRadius; }
+double ApplicationController::clockTextOpacity() const { return m_clockTextOpacity; }
+double ApplicationController::clockBackgroundOpacity() const { return m_clockBackgroundOpacity; }
+int ApplicationController::clockMarginHorizontal() const { return m_clockMarginHorizontal; }
+int ApplicationController::clockMarginVertical() const { return m_clockMarginVertical; }
+QString ApplicationController::clockEffect() const { return m_clockEffect; }
 int ApplicationController::simulatedOutputCount() const { return m_simulatedOutputCount; }
 bool ApplicationController::debugEnabled() const { return m_debugEnabled; }
 bool ApplicationController::debugSimulatedOutputs() const { return m_debugSimulatedOutputs; }
@@ -341,6 +395,7 @@ QVariantList ApplicationController::mediaFolders() const
 QVariantList ApplicationController::folderAudioFiles() const { return m_folderAudioFiles; }
 QVariantList ApplicationController::folderVideoFiles() const { return m_folderVideoFiles; }
 QVariantList ApplicationController::folderImageFiles() const { return m_folderImageFiles; }
+QVariantList ApplicationController::favoriteMedia() const { return m_favoriteMedia; }
 QString ApplicationController::audioFileSearch() const { return m_audioFileSearch; }
 QString ApplicationController::videoFileSearch() const { return m_videoFileSearch; }
 QString ApplicationController::imageFileSearch() const { return m_imageFileSearch; }
@@ -498,6 +553,21 @@ QVariantMap ApplicationController::diagnostics()const{return m_diagnostics;}
 QString ApplicationController::updateStatus()const{return m_updateStatus;}
 QString ApplicationController::updateEndpoint()const{return m_updateEndpoint;}
 QVariantList ApplicationController::bibleTranslations() const{return m_bibleTranslations;}
+QVariantList ApplicationController::bibleBooks() const
+{
+    QVariantList result;
+    const auto lastBook = static_cast<int>(BibleBook::Revelation);
+    const auto lastOldTestamentBook = static_cast<int>(BibleBook::Malachi);
+    for (int bookId = static_cast<int>(BibleBook::Genesis); bookId <= lastBook; ++bookId) {
+        result.append(QVariantMap{
+            {QStringLiteral("id"), bookId},
+            {QStringLiteral("name"), bibleBookName(static_cast<BibleBook>(bookId))},
+            {QStringLiteral("testament"), bookId <= lastOldTestamentBook
+                 ? QStringLiteral("old") : QStringLiteral("new")},
+        });
+    }
+    return result;
+}
 QString ApplicationController::biblePrimaryTranslationId() const{return m_biblePrimaryTranslationId;}
 QString ApplicationController::bibleSecondaryTranslationId() const{return m_bibleSecondaryTranslationId;}
 QString ApplicationController::bibleTertiaryTranslationId() const{return m_bibleTertiaryTranslationId;}
@@ -585,6 +655,23 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
     return true;
 }
 
+bool ApplicationController::setOutputMediaEnabled(const QString &screenFingerprint, bool enabled)
+{
+    if (!m_outputs.setMediaEnabled(screenFingerprint, enabled)) return false;
+    saveOutputs();
+    refreshScreens();
+    return true;
+}
+
+bool ApplicationController::setOutputDisplayName(
+    const QString &screenFingerprint, const QString &displayName)
+{
+    if (!m_outputs.setDisplayName(screenFingerprint, displayName)) return false;
+    saveOutputs();
+    refreshScreens();
+    return true;
+}
+
 void ApplicationController::setBlackout(bool enabled)
 {
     m_outputModule.requestBlackout(enabled);
@@ -647,32 +734,95 @@ void ApplicationController::rescanMediaFolders()
 QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
 {
     if (!m_mediaRepository) return {};
-    const auto catalogEntry = std::find_if(
+    const QFileInfo fileInfo(path);
+    const auto canonicalPath = fileInfo.canonicalFilePath();
+    if (canonicalPath.isEmpty()) {
+        setStatusMessage(QStringLiteral("O arquivo não está mais disponível."));
+        return {};
+    }
+
+    const auto catalogEntryIt = std::find_if(
         m_mediaCatalogEntries.cbegin(), m_mediaCatalogEntries.cend(), [&](const auto &entry) {
-            return entry.path == path;
+            return entry.path == canonicalPath;
         });
-    if (catalogEntry == m_mediaCatalogEntries.cend() || !QFileInfo::exists(path)) {
+    MediaCatalogEntry catalogEntry;
+    if (catalogEntryIt != m_mediaCatalogEntries.cend()) {
+        catalogEntry = *catalogEntryIt;
+    } else {
+        const auto type = MediaFolderScanner::mediaTypeForFile(canonicalPath);
+        if (!type.has_value()) {
+            setStatusMessage(QStringLiteral("Esse formato de arquivo não é compatível."));
+            return {};
+        }
+        catalogEntry = MediaCatalogEntry{
+            .type = type.value(),
+            .fileName = fileInfo.fileName(),
+            .title = fileInfo.completeBaseName(),
+            .path = canonicalPath,
+            .folderPath = fileInfo.absolutePath(),
+        };
+    }
+
+    if (!QFileInfo::exists(catalogEntry.path)) {
         setStatusMessage(QStringLiteral("O arquivo não está mais disponível na biblioteca."));
         return {};
     }
 
     const auto id = m_mediaRepository->add(MediaItem{
-        .type = catalogEntry->type,
-        .title = catalogEntry->title,
-        .path = catalogEntry->path,
-        .durationMs = catalogEntry->type == MediaType::Image ? m_images.autoplayIntervalMs() : 0,
+        .type = catalogEntry.type,
+        .title = catalogEntry.title,
+        .path = catalogEntry.path,
+        .durationMs = catalogEntry.type == MediaType::Image ? m_images.autoplayIntervalMs() : 0,
     });
     if (id.isEmpty()) {
         setStatusMessage(QStringLiteral("Não foi possível adicionar o arquivo à playlist."));
         return {};
     }
 
-    if (catalogEntry->type == MediaType::Audio) refreshAudioLibrary();
-    else if (catalogEntry->type == MediaType::Video) refreshVideoLibrary();
+    if (catalogEntry.type == MediaType::Audio) refreshAudioLibrary();
+    else if (catalogEntry.type == MediaType::Video) refreshVideoLibrary();
     else refreshImageLibrary();
     refreshMediaPlaylist();
-    setStatusMessage(QStringLiteral("%1 adicionado à playlist.").arg(catalogEntry->fileName));
+    setStatusMessage(QStringLiteral("%1 adicionado à playlist.").arg(catalogEntry.fileName));
     return id;
+}
+
+bool ApplicationController::isFavoriteMedia(const QString &path) const
+{
+    const auto canonicalPath = QFileInfo(path).canonicalFilePath();
+    return !canonicalPath.isEmpty() && m_favoriteMediaPaths.contains(canonicalPath);
+}
+
+void ApplicationController::toggleFavoriteMedia(const QString &path)
+{
+    const QFileInfo info(path);
+    const auto canonicalPath = info.canonicalFilePath();
+    if (canonicalPath.isEmpty() || !info.isFile()) {
+        setStatusMessage(QStringLiteral("Não foi possível localizar esse arquivo."));
+        return;
+    }
+
+    if (m_favoriteMediaPaths.removeAll(canonicalPath) > 0) {
+        setStatusMessage(QStringLiteral("%1 removido dos favoritos.").arg(info.fileName()));
+    } else {
+        m_favoriteMediaPaths.append(canonicalPath);
+        setStatusMessage(QStringLiteral("%1 adicionado aos favoritos.").arg(info.fileName()));
+    }
+    saveFavoriteMedia();
+    refreshFavoriteMedia();
+    refreshMediaCatalogViews();
+}
+
+bool ApplicationController::openFileLocation(const QString &path)
+{
+    const QFileInfo info(path);
+    if (!info.exists()) {
+        setStatusMessage(QStringLiteral("Não foi possível localizar esse arquivo."));
+        return false;
+    }
+    const auto opened = QDesktopServices::openUrl(QUrl::fromLocalFile(info.absolutePath()));
+    if (!opened) setStatusMessage(QStringLiteral("Não foi possível abrir a pasta do arquivo."));
+    return opened;
 }
 
 void ApplicationController::removeMedia(const QString &id)
@@ -689,6 +839,72 @@ void ApplicationController::moveMedia(const QString &id, int newIndex)
     if (m_mediaRepository && m_mediaRepository->moveInPlaylist(id, newIndex)) {
         refreshMediaPlaylist();
     }
+}
+
+void ApplicationController::shuffleMediaPlaylist()
+{
+    if (!m_mediaRepository) return;
+    auto items = m_mediaRepository->playlistItems();
+    if (items.size() < 2) {
+        setStatusMessage(QStringLiteral("Adicione pelo menos dois itens para embaralhar a playlist."));
+        return;
+    }
+    for (int index = items.size() - 1; index > 0; --index) {
+        items.swapItemsAt(index, QRandomGenerator::global()->bounded(index + 1));
+    }
+    for (int index = 0; index < items.size(); ++index) {
+        if (!m_mediaRepository->moveInPlaylist(items[index].id, index)) {
+            setStatusMessage(QStringLiteral("Não foi possível embaralhar a playlist."));
+            return;
+        }
+    }
+    refreshMediaPlaylist();
+    setStatusMessage(QStringLiteral("Playlist embaralhada."));
+}
+
+void ApplicationController::clearMediaPlaylist()
+{
+    if (!m_mediaRepository) return;
+    stopMedia();
+    if (!m_mediaRepository->clearPlaylist()) {
+        setStatusMessage(QStringLiteral("Não foi possível limpar a playlist."));
+        return;
+    }
+    refreshMediaPlaylist();
+    setStatusMessage(QStringLiteral("Playlist limpa."));
+}
+
+bool ApplicationController::saveMediaPlaylist(const QUrl &destination)
+{
+    if (!m_mediaRepository || destination.isEmpty()) return false;
+    const auto items = m_mediaRepository->playlistItems();
+    if (items.isEmpty()) {
+        setStatusMessage(QStringLiteral("A playlist está vazia."));
+        return false;
+    }
+    auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
+    if (!path.endsWith(QStringLiteral(".m3u8"), Qt::CaseInsensitive)) path += QStringLiteral(".m3u8");
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        setStatusMessage(QStringLiteral("Não foi possível salvar a playlist."));
+        return false;
+    }
+    QByteArray contents("#EXTM3U\n");
+    for (const auto &item : items) {
+        auto title = item.title;
+        title.replace(QLatin1Char('\n'), QLatin1Char(' '));
+        title.replace(QLatin1Char('\r'), QLatin1Char(' '));
+        contents += QStringLiteral("#EXTINF:%1,%2\n%3\n")
+                        .arg(item.durationMs > 0 ? item.durationMs / 1000 : -1)
+                        .arg(title, QDir::toNativeSeparators(item.path))
+                        .toUtf8();
+    }
+    if (file.write(contents) != contents.size() || !file.commit()) {
+        setStatusMessage(QStringLiteral("Não foi possível concluir o salvamento da playlist."));
+        return false;
+    }
+    setStatusMessage(QStringLiteral("Playlist salva em %1.").arg(QDir::toNativeSeparators(path)));
+    return true;
 }
 
 void ApplicationController::playMedia(const QString &id)
@@ -777,7 +993,7 @@ bool ApplicationController::applyToggleMediaPause()
         else m_stillMedia.resume();
         return true;
     }
-    if (m_video.state() == VideoState::Playing) {
+    if (m_video.state() == VideoState::Playing || m_video.state() == VideoState::Buffering) {
         m_video.pause();
         return true;
     }
@@ -1387,6 +1603,44 @@ void ApplicationController::showBibleVerse(int index)
     showTextSlide(index);
 }
 
+QVariantList ApplicationController::bibleChapterNumbers(int bookId) const
+{
+    QVariantList result;
+    if (!m_bibleRepository || bookId < static_cast<int>(BibleBook::Genesis)
+        || bookId > static_cast<int>(BibleBook::Revelation)) return result;
+    for (const auto chapter : m_bibleRepository->chapters(
+             m_biblePrimaryTranslationId, static_cast<BibleBook>(bookId))) {
+        result.append(chapter);
+    }
+    return result;
+}
+
+QVariantList ApplicationController::bibleVerseNumbers(int bookId, int chapter) const
+{
+    QVariantList result;
+    if (!m_bibleRepository || bookId < static_cast<int>(BibleBook::Genesis)
+        || bookId > static_cast<int>(BibleBook::Revelation)) return result;
+    for (const auto verse : m_bibleRepository->verseNumbers(
+             m_biblePrimaryTranslationId, static_cast<BibleBook>(bookId), chapter)) {
+        result.append(verse);
+    }
+    return result;
+}
+
+bool ApplicationController::presentBibleReference(int bookId, int chapter, int verse)
+{
+    if (bookId < static_cast<int>(BibleBook::Genesis)
+        || bookId > static_cast<int>(BibleBook::Revelation)
+        || chapter <= 0 || verse <= 0) return false;
+    setBibleReferenceInput(QStringLiteral("%1 %2:%3")
+                               .arg(bibleBookName(static_cast<BibleBook>(bookId)))
+                               .arg(chapter)
+                               .arg(verse));
+    if (!searchBibleReference()) return false;
+    showBibleVerse(0);
+    return true;
+}
+
 QString ApplicationController::bibleTextForSlide(
     int slideIndex, const QString &translationId) const
 {
@@ -1449,8 +1703,10 @@ void ApplicationController::setClockVisible(bool visible)
 
 void ApplicationController::setClockPosition(const QString &position)
 {
-    static const QStringList accepted{QStringLiteral("bottomRight"), QStringLiteral("topRight"),
-                                      QStringLiteral("bottomLeft"), QStringLiteral("topLeft")};
+    static const QStringList accepted{
+        QStringLiteral("topLeft"), QStringLiteral("topCenter"), QStringLiteral("topRight"),
+        QStringLiteral("centerLeft"), QStringLiteral("center"), QStringLiteral("centerRight"),
+        QStringLiteral("bottomLeft"), QStringLiteral("bottomCenter"), QStringLiteral("bottomRight")};
     const auto normalized = accepted.contains(position) ? position : QStringLiteral("bottomRight");
     if (m_clockPosition == normalized) return;
     m_clockPosition = normalized;
@@ -1489,6 +1745,75 @@ void ApplicationController::setClockColor(const QString &color)
     m_clockColor = color;
     saveSetting(QStringLiteral("clockColor"), color);
     emit clockColorChanged();
+}
+
+void ApplicationController::setClockFontBold(bool bold)
+{
+    if (m_clockFontBold == bold) return;
+    m_clockFontBold = bold; saveSetting(QStringLiteral("clockFontBold"), bold); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockFontItalic(bool italic)
+{
+    if (m_clockFontItalic == italic) return;
+    m_clockFontItalic = italic; saveSetting(QStringLiteral("clockFontItalic"), italic); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockBackgroundColor(const QString &color)
+{
+    if (m_clockBackgroundColor == color) return;
+    m_clockBackgroundColor = color; saveSetting(QStringLiteral("clockBackgroundColor"), color); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockLineHeight(double height)
+{
+    height = std::clamp(height, 0.5, 3.0);
+    if (qFuzzyCompare(m_clockLineHeight, height)) return;
+    m_clockLineHeight = height; saveSetting(QStringLiteral("clockLineHeight"), height); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockCornerRadius(int radius)
+{
+    radius = std::clamp(radius, 0, 200);
+    if (m_clockCornerRadius == radius) return;
+    m_clockCornerRadius = radius; saveSetting(QStringLiteral("clockCornerRadius"), radius); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockTextOpacity(double opacity)
+{
+    opacity = std::clamp(opacity, 0.0, 1.0);
+    if (qFuzzyCompare(m_clockTextOpacity, opacity)) return;
+    m_clockTextOpacity = opacity; saveSetting(QStringLiteral("clockTextOpacity"), opacity); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockBackgroundOpacity(double opacity)
+{
+    opacity = std::clamp(opacity, 0.0, 1.0);
+    if (qFuzzyCompare(m_clockBackgroundOpacity, opacity)) return;
+    m_clockBackgroundOpacity = opacity; saveSetting(QStringLiteral("clockBackgroundOpacity"), opacity); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockMarginHorizontal(int margin)
+{
+    margin = std::clamp(margin, -100, 100);
+    if (m_clockMarginHorizontal == margin) return;
+    m_clockMarginHorizontal = margin; saveSetting(QStringLiteral("clockMarginHorizontal"), margin); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockMarginVertical(int margin)
+{
+    margin = std::clamp(margin, -100, 100);
+    if (m_clockMarginVertical == margin) return;
+    m_clockMarginVertical = margin; saveSetting(QStringLiteral("clockMarginVertical"), margin); emit clockStyleChanged();
+}
+
+void ApplicationController::setClockEffect(const QString &effect)
+{
+    static const QStringList accepted{QStringLiteral("none"), QStringLiteral("outline"),
+                                      QStringLiteral("raised"), QStringLiteral("sunken")};
+    const auto normalized = accepted.contains(effect) ? effect : QStringLiteral("outline");
+    if (m_clockEffect == normalized) return;
+    m_clockEffect = normalized; saveSetting(QStringLiteral("clockEffect"), normalized); emit clockStyleChanged();
 }
 
 void ApplicationController::setSimulatedOutputCount(int count)
@@ -1706,17 +2031,24 @@ void ApplicationController::refreshScreens()
         bool selected = false;
         QString bibleTranslationId;
         QString role = QStringLiteral("audience");
+        bool mediaEnabled = true;
+        QString configuredDisplayName;
         for (const auto &output : m_outputs.activeOutputs()) {
             if (output.screenFingerprint == screen.fingerprint) {
                 selected = true;
                 bibleTranslationId = output.bibleTranslationId;
                 role = outputRoleName(output.role);
+                mediaEnabled = output.mediaEnabled;
+                configuredDisplayName = output.displayName;
                 break;
             }
         }
         auto item = mapScreen(screen, selected);
+        if (!configuredDisplayName.isEmpty())
+            item.insert(QStringLiteral("name"), configuredDisplayName);
         item.insert(QStringLiteral("bibleTranslationId"), bibleTranslationId);
         item.insert(QStringLiteral("role"), role);
+        item.insert(QStringLiteral("mediaEnabled"), mediaEnabled);
         m_screens.append(item);
     }
     emit screensChanged();
@@ -1770,6 +2102,16 @@ void ApplicationController::loadSettings()
     m_clockFontFamily = m_settings->value(QStringLiteral("presentation/clockFontFamily"), m_clockFontFamily).toString();
     m_clockFontSize = m_settings->value(QStringLiteral("presentation/clockFontSize"), m_clockFontSize).toInt();
     m_clockColor = m_settings->value(QStringLiteral("presentation/clockColor"), m_clockColor).toString();
+    m_clockFontBold = m_settings->value(QStringLiteral("presentation/clockFontBold"), m_clockFontBold).toBool();
+    m_clockFontItalic = m_settings->value(QStringLiteral("presentation/clockFontItalic"), m_clockFontItalic).toBool();
+    m_clockBackgroundColor = m_settings->value(QStringLiteral("presentation/clockBackgroundColor"), m_clockBackgroundColor).toString();
+    m_clockLineHeight = m_settings->value(QStringLiteral("presentation/clockLineHeight"), m_clockLineHeight).toDouble();
+    m_clockCornerRadius = m_settings->value(QStringLiteral("presentation/clockCornerRadius"), m_clockCornerRadius).toInt();
+    m_clockTextOpacity = m_settings->value(QStringLiteral("presentation/clockTextOpacity"), m_clockTextOpacity).toDouble();
+    m_clockBackgroundOpacity = m_settings->value(QStringLiteral("presentation/clockBackgroundOpacity"), m_clockBackgroundOpacity).toDouble();
+    m_clockMarginHorizontal = m_settings->value(QStringLiteral("presentation/clockMarginHorizontal"), m_clockMarginHorizontal).toInt();
+    m_clockMarginVertical = m_settings->value(QStringLiteral("presentation/clockMarginVertical"), m_clockMarginVertical).toInt();
+    m_clockEffect = m_settings->value(QStringLiteral("presentation/clockEffect"), m_clockEffect).toString();
     m_stageMessage = m_settings->value(QStringLiteral("presentation/stageMessage")).toString();
     m_simulatedOutputCount = m_settings->value(QStringLiteral("developer/simulatedOutputCount"), m_simulatedOutputCount).toInt();
     m_debugEnabled = m_settings->value(QStringLiteral("developer/debugEnabled"), false).toBool();
@@ -1777,6 +2119,7 @@ void ApplicationController::loadSettings()
     m_debugDiagnostics = m_settings->value(QStringLiteral("developer/debugDiagnostics"), true).toBool();
     m_debugLogging = m_settings->value(QStringLiteral("developer/debugLogging"), false).toBool();
     m_mediaFolderPaths = m_settings->value(QStringLiteral("library/mediaFolders"), QStringList{}).toStringList();
+    m_favoriteMediaPaths = m_settings->value(QStringLiteral("library/favoriteMedia"), QStringList{}).toStringList();
     m_biblePrimaryTranslationId = m_settings->value(QStringLiteral("bible/primaryTranslationId")).toString();
     m_bibleSecondaryTranslationId = m_settings->value(QStringLiteral("bible/secondaryTranslationId")).toString();
     m_bibleTertiaryTranslationId = m_settings->value(QStringLiteral("bible/tertiaryTranslationId")).toString();
@@ -1841,6 +2184,7 @@ void ApplicationController::loadSettings()
                 .enabled = true,
                 .role = values.size() > 4 ? outputRoleFromName(values[4]) : OutputRole::Audience,
                 .bibleTranslationId = values.size() > 3 ? values[3] : QString{},
+                .mediaEnabled = values.size() <= 5 || values[5] != QStringLiteral("0"),
             });
         }
     }
@@ -1862,7 +2206,8 @@ void ApplicationController::saveOutputs()
     for (const auto &output : m_outputs.activeOutputs()) {
         serialized.append(QStringList{output.screenId, output.screenFingerprint,
                                       output.displayName, output.bibleTranslationId,
-                                      outputRoleName(output.role)}
+                                      outputRoleName(output.role),
+                                      output.mediaEnabled ? QStringLiteral("1") : QStringLiteral("0")}
                               .join(QLatin1Char('\u001F')));
     }
     if (m_settings) {
@@ -1881,6 +2226,13 @@ void ApplicationController::saveMediaFolders()
 {
     if (m_settings) {
         m_settings->setValue(QStringLiteral("library/mediaFolders"), m_mediaFolderPaths);
+    }
+}
+
+void ApplicationController::saveFavoriteMedia()
+{
+    if (m_settings) {
+        m_settings->setValue(QStringLiteral("library/favoriteMedia"), m_favoriteMediaPaths);
     }
 }
 
@@ -1910,6 +2262,7 @@ void ApplicationController::refreshMediaCatalog()
     m_mediaCatalogEntries = m_mediaFolderScanner.scan(m_mediaFolderPaths);
     rebuildMediaFolderWatcher();
     refreshMediaCatalogViews();
+    refreshFavoriteMedia();
 }
 
 void ApplicationController::refreshMediaCatalogViews()
@@ -1922,7 +2275,8 @@ void ApplicationController::refreshMediaCatalogViews()
     const auto mapEntries = [&](MediaType type, const QString &search) {
         QVariantList result;
         for (const auto &entry : MediaFolderScanner::filter(m_mediaCatalogEntries, type, search)) {
-            result.append(mapCatalogEntry(entry, playlistPaths.contains(entry.path)));
+            result.append(mapCatalogEntry(entry, playlistPaths.contains(entry.path),
+                                          m_favoriteMediaPaths.contains(entry.path)));
         }
         return result;
     };
@@ -1930,6 +2284,52 @@ void ApplicationController::refreshMediaCatalogViews()
     m_folderVideoFiles = mapEntries(MediaType::Video, m_videoFileSearch);
     m_folderImageFiles = mapEntries(MediaType::Image, m_imageFileSearch);
     emit mediaCatalogChanged();
+}
+
+void ApplicationController::refreshFavoriteMedia()
+{
+    QVariantList updated;
+    QHash<QString, MediaItem> playlistItems;
+    if (m_mediaRepository) {
+        for (const auto &item : m_mediaRepository->playlistItems()) {
+            playlistItems.insert(item.path, item);
+        }
+    }
+
+    const auto favoritePaths = m_favoriteMediaPaths;
+    for (const auto &path : favoritePaths) {
+        const QFileInfo info(path);
+        if (!info.isFile()) continue;
+
+        if (playlistItems.contains(path)) {
+            auto mapped = mapMedia(playlistItems.value(path));
+            mapped.insert(QStringLiteral("fileName"), info.fileName());
+            mapped.insert(QStringLiteral("favorite"), true);
+            mapped.insert(QStringLiteral("inPlaylist"), true);
+            updated.append(mapped);
+            continue;
+        }
+
+        const auto catalogEntry = std::find_if(
+            m_mediaCatalogEntries.cbegin(), m_mediaCatalogEntries.cend(),
+            [&](const auto &entry) { return entry.path == path; });
+        if (catalogEntry != m_mediaCatalogEntries.cend()) {
+            updated.append(mapCatalogEntry(*catalogEntry, false, true));
+            continue;
+        }
+
+        const auto type = MediaFolderScanner::mediaTypeForFile(path);
+        if (!type.has_value()) continue;
+        updated.append(mapCatalogEntry(MediaCatalogEntry{
+            .type = type.value(),
+            .fileName = info.fileName(),
+            .title = info.completeBaseName(),
+            .path = path,
+            .folderPath = info.absolutePath(),
+        }, false, true));
+    }
+    m_favoriteMedia = updated;
+    emit favoriteMediaChanged();
 }
 
 void ApplicationController::refreshMediaPlaylist()
@@ -1942,6 +2342,7 @@ void ApplicationController::refreshMediaPlaylist()
     emit mediaPlaylistChanged();
     emit currentMediaChanged();
     refreshMediaCatalogViews();
+    refreshFavoriteMedia();
 }
 
 void ApplicationController::updateCurrentMediaMetadata(const MediaItem &metadata)

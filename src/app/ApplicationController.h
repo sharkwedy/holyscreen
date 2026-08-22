@@ -51,6 +51,16 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QString clockFontFamily READ clockFontFamily WRITE setClockFontFamily NOTIFY clockFontFamilyChanged)
     Q_PROPERTY(int clockFontSize READ clockFontSize WRITE setClockFontSize NOTIFY clockFontSizeChanged)
     Q_PROPERTY(QString clockColor READ clockColor WRITE setClockColor NOTIFY clockColorChanged)
+    Q_PROPERTY(bool clockFontBold READ clockFontBold WRITE setClockFontBold NOTIFY clockStyleChanged)
+    Q_PROPERTY(bool clockFontItalic READ clockFontItalic WRITE setClockFontItalic NOTIFY clockStyleChanged)
+    Q_PROPERTY(QString clockBackgroundColor READ clockBackgroundColor WRITE setClockBackgroundColor NOTIFY clockStyleChanged)
+    Q_PROPERTY(double clockLineHeight READ clockLineHeight WRITE setClockLineHeight NOTIFY clockStyleChanged)
+    Q_PROPERTY(int clockCornerRadius READ clockCornerRadius WRITE setClockCornerRadius NOTIFY clockStyleChanged)
+    Q_PROPERTY(double clockTextOpacity READ clockTextOpacity WRITE setClockTextOpacity NOTIFY clockStyleChanged)
+    Q_PROPERTY(double clockBackgroundOpacity READ clockBackgroundOpacity WRITE setClockBackgroundOpacity NOTIFY clockStyleChanged)
+    Q_PROPERTY(int clockMarginHorizontal READ clockMarginHorizontal WRITE setClockMarginHorizontal NOTIFY clockStyleChanged)
+    Q_PROPERTY(int clockMarginVertical READ clockMarginVertical WRITE setClockMarginVertical NOTIFY clockStyleChanged)
+    Q_PROPERTY(QString clockEffect READ clockEffect WRITE setClockEffect NOTIFY clockStyleChanged)
     Q_PROPERTY(int simulatedOutputCount READ simulatedOutputCount WRITE setSimulatedOutputCount NOTIFY simulatedOutputCountChanged)
     Q_PROPERTY(bool debugEnabled READ debugEnabled WRITE setDebugEnabled NOTIFY debugOptionsChanged)
     Q_PROPERTY(bool debugSimulatedOutputs READ debugSimulatedOutputs WRITE setDebugSimulatedOutputs NOTIFY debugOptionsChanged)
@@ -70,6 +80,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QVariantList folderAudioFiles READ folderAudioFiles NOTIFY mediaCatalogChanged)
     Q_PROPERTY(QVariantList folderVideoFiles READ folderVideoFiles NOTIFY mediaCatalogChanged)
     Q_PROPERTY(QVariantList folderImageFiles READ folderImageFiles NOTIFY mediaCatalogChanged)
+    Q_PROPERTY(QVariantList favoriteMedia READ favoriteMedia NOTIFY favoriteMediaChanged)
     Q_PROPERTY(QString audioFileSearch READ audioFileSearch WRITE setAudioFileSearch NOTIFY mediaCatalogChanged)
     Q_PROPERTY(QString videoFileSearch READ videoFileSearch WRITE setVideoFileSearch NOTIFY mediaCatalogChanged)
     Q_PROPERTY(QString imageFileSearch READ imageFileSearch WRITE setImageFileSearch NOTIFY mediaCatalogChanged)
@@ -143,6 +154,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QString updateStatus READ updateStatus NOTIFY updateChanged)
     Q_PROPERTY(QString updateEndpoint READ updateEndpoint WRITE setUpdateEndpoint NOTIFY updateChanged)
     Q_PROPERTY(QVariantList bibleTranslations READ bibleTranslations NOTIFY bibleTranslationsChanged)
+    Q_PROPERTY(QVariantList bibleBooks READ bibleBooks CONSTANT)
     Q_PROPERTY(QString biblePrimaryTranslationId READ biblePrimaryTranslationId WRITE setBiblePrimaryTranslationId NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QString bibleSecondaryTranslationId READ bibleSecondaryTranslationId WRITE setBibleSecondaryTranslationId NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QString bibleTertiaryTranslationId READ bibleTertiaryTranslationId WRITE setBibleTertiaryTranslationId NOTIFY bibleSelectionChanged)
@@ -168,6 +180,16 @@ public:
     [[nodiscard]] QString clockFontFamily() const;
     [[nodiscard]] int clockFontSize() const;
     [[nodiscard]] QString clockColor() const;
+    [[nodiscard]] bool clockFontBold() const;
+    [[nodiscard]] bool clockFontItalic() const;
+    [[nodiscard]] QString clockBackgroundColor() const;
+    [[nodiscard]] double clockLineHeight() const;
+    [[nodiscard]] int clockCornerRadius() const;
+    [[nodiscard]] double clockTextOpacity() const;
+    [[nodiscard]] double clockBackgroundOpacity() const;
+    [[nodiscard]] int clockMarginHorizontal() const;
+    [[nodiscard]] int clockMarginVertical() const;
+    [[nodiscard]] QString clockEffect() const;
     [[nodiscard]] int simulatedOutputCount() const;
     [[nodiscard]] bool debugEnabled() const;
     [[nodiscard]] bool debugSimulatedOutputs() const;
@@ -187,6 +209,7 @@ public:
     [[nodiscard]] QVariantList folderAudioFiles() const;
     [[nodiscard]] QVariantList folderVideoFiles() const;
     [[nodiscard]] QVariantList folderImageFiles() const;
+    [[nodiscard]] QVariantList favoriteMedia() const;
     [[nodiscard]] QString audioFileSearch() const;
     [[nodiscard]] QString videoFileSearch() const;
     [[nodiscard]] QString imageFileSearch() const;
@@ -260,6 +283,7 @@ public:
     [[nodiscard]] QString updateStatus() const;
     [[nodiscard]] QString updateEndpoint() const;
     [[nodiscard]] QVariantList bibleTranslations() const;
+    [[nodiscard]] QVariantList bibleBooks() const;
     [[nodiscard]] QString biblePrimaryTranslationId() const;
     [[nodiscard]] QString bibleSecondaryTranslationId() const;
     [[nodiscard]] QString bibleTertiaryTranslationId() const;
@@ -270,6 +294,8 @@ public:
     Q_INVOKABLE void enableAllScreens();
     Q_INVOKABLE bool setOutputBibleTranslation(const QString &screenFingerprint, const QString &translationId);
     Q_INVOKABLE bool setOutputRole(const QString &screenFingerprint, const QString &role);
+    Q_INVOKABLE bool setOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
+    Q_INVOKABLE bool setOutputDisplayName(const QString &screenFingerprint, const QString &displayName);
     Q_INVOKABLE void setBlackout(bool enabled);
     Q_INVOKABLE void undo();
     Q_INVOKABLE void redo();
@@ -280,6 +306,9 @@ public:
     Q_INVOKABLE void removeMediaFolder(const QString &folderPath);
     Q_INVOKABLE void rescanMediaFolders();
     Q_INVOKABLE QString addCatalogFileToPlaylist(const QString &path);
+    Q_INVOKABLE bool isFavoriteMedia(const QString &path) const;
+    Q_INVOKABLE void toggleFavoriteMedia(const QString &path);
+    Q_INVOKABLE bool openFileLocation(const QString &path);
     Q_INVOKABLE void removeMedia(const QString &id);
     Q_INVOKABLE void playMedia(const QString &id);
     Q_INVOKABLE void toggleMediaPause();
@@ -287,6 +316,9 @@ public:
     Q_INVOKABLE void seekMedia(int positionMs);
     Q_INVOKABLE void previousMedia();
     Q_INVOKABLE void nextMedia();
+    Q_INVOKABLE void shuffleMediaPlaylist();
+    Q_INVOKABLE void clearMediaPlaylist();
+    Q_INVOKABLE bool saveMediaPlaylist(const QUrl &destination);
     Q_INVOKABLE int importAudioFiles(const QVariantList &urls);
     Q_INVOKABLE void removeAudio(const QString &id);
     Q_INVOKABLE void moveAudio(const QString &id, int newIndex);
@@ -348,6 +380,9 @@ public:
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
     Q_INVOKABLE bool searchBibleReference();
     Q_INVOKABLE void showBibleVerse(int index);
+    Q_INVOKABLE QVariantList bibleChapterNumbers(int bookId) const;
+    Q_INVOKABLE QVariantList bibleVerseNumbers(int bookId, int chapter) const;
+    Q_INVOKABLE bool presentBibleReference(int bookId, int chapter, int verse);
     Q_INVOKABLE QString bibleTextForSlide(int slideIndex, const QString &translationId) const;
     Q_INVOKABLE void setAudienceMessage(const QString &message);
     Q_INVOKABLE void setAlertMessage(const QString &message);
@@ -368,6 +403,16 @@ public slots:
     void setClockFontFamily(const QString &family);
     void setClockFontSize(int size);
     void setClockColor(const QString &color);
+    void setClockFontBold(bool bold);
+    void setClockFontItalic(bool italic);
+    void setClockBackgroundColor(const QString &color);
+    void setClockLineHeight(double height);
+    void setClockCornerRadius(int radius);
+    void setClockTextOpacity(double opacity);
+    void setClockBackgroundOpacity(double opacity);
+    void setClockMarginHorizontal(int margin);
+    void setClockMarginVertical(int margin);
+    void setClockEffect(const QString &effect);
     void setSimulatedOutputCount(int count);
     void setAudioFileSearch(const QString &search);
     void setVideoFileSearch(const QString &search);
@@ -394,6 +439,7 @@ public slots:
     void setStageMessage(const QString &message);
 
 signals:
+    void quickBibleSearchRequested(const QString &initialText);
     void screensChanged();
     void outputWindowsChanged();
     void wallpaperColorChanged();
@@ -406,6 +452,7 @@ signals:
     void clockFontFamilyChanged();
     void clockFontSizeChanged();
     void clockColorChanged();
+    void clockStyleChanged();
     void simulatedOutputCountChanged();
     void debugOptionsChanged();
     void blackoutChanged(bool active);
@@ -416,6 +463,7 @@ signals:
     void mediaPlaylistChanged();
     void mediaFoldersChanged();
     void mediaCatalogChanged();
+    void favoriteMediaChanged();
     void currentMediaChanged();
     void mediaStateChanged();
     void mediaPositionChanged();
@@ -466,6 +514,9 @@ signals:
     void stageMessageChanged();
     void overlaysChanged();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     CommandBus m_commandBus;
     EventBus m_eventBus;
@@ -480,6 +531,8 @@ private:
     void refreshMediaPlaylist();
     void refreshMediaCatalog();
     void refreshMediaCatalogViews();
+    void refreshFavoriteMedia();
+    void saveFavoriteMedia();
     void saveMediaFolders();
     void rebuildMediaFolderWatcher();
     void updateCurrentMediaMetadata(const MediaItem &metadata);
@@ -523,6 +576,16 @@ private:
     QString m_clockFontFamily;
     int m_clockFontSize = 64;
     QString m_clockColor = QStringLiteral("#ffffff");
+    bool m_clockFontBold = true;
+    bool m_clockFontItalic = false;
+    QString m_clockBackgroundColor = QStringLiteral("#000000");
+    double m_clockLineHeight = 1.0;
+    int m_clockCornerRadius = 12;
+    double m_clockTextOpacity = 1.0;
+    double m_clockBackgroundOpacity = 0.5;
+    int m_clockMarginHorizontal = 0;
+    int m_clockMarginVertical = 0;
+    QString m_clockEffect = QStringLiteral("outline");
     int m_simulatedOutputCount = 2;
     bool m_debugEnabled = false;
     bool m_debugSimulatedOutputs = true;
@@ -548,6 +611,8 @@ private:
     QVariantList m_folderAudioFiles;
     QVariantList m_folderVideoFiles;
     QVariantList m_folderImageFiles;
+    QStringList m_favoriteMediaPaths;
+    QVariantList m_favoriteMedia;
     QString m_audioFileSearch;
     QString m_videoFileSearch;
     QString m_imageFileSearch;

@@ -111,6 +111,9 @@ void MediaRepositoryTest::preservesMixedAudioVideoImagePlaylist()
     QCOMPARE(remaining[0].id, image);
     QCOMPARE(remaining[1].id, video);
     QCOMPARE(remaining[2].id, outroAudio);
+
+    QVERIFY(repository.clearPlaylist());
+    QVERIFY(repository.playlistItems().isEmpty());
 }
 
 #include <QCoreApplication>

@@ -13,7 +13,18 @@ Rectangle {
     property string clockText: "00:00"
     property string clockPosition: "bottomRight"
     property string clockFamily: ""
+    property int clockFontSize: 64
     property color clockColor: "white"
+    property bool clockFontBold: true
+    property bool clockFontItalic: false
+    property color clockBackgroundColor: "black"
+    property real clockLineHeight: 1.0
+    property int clockCornerRadius: 12
+    property real clockTextOpacity: 1.0
+    property real clockBackgroundOpacity: 0.5
+    property int clockMarginHorizontal: 0
+    property int clockMarginVertical: 0
+    property string clockEffect: "outline"
     property bool isBlackout: false
     property bool identifyVisible: false
     property int identifier: 1
@@ -65,20 +76,45 @@ Rectangle {
         opacity: root.isBlackout ? 0.25 : 0.85
     }
 
-    Text {
-        text: root.clockText
-        color: root.clockColor
-        font.family: root.clockFamily
-        font.pixelSize: Math.max(20, Math.min(root.width, root.height) * 0.15)
-        font.bold: true
+    Item {
+        id: clockPanel
         visible: root.showClock && !root.isBlackout
-        anchors.margins: 18
-        anchors.right: root.clockPosition.endsWith("Right") ? parent.right : undefined
-        anchors.left: root.clockPosition.endsWith("Left") ? parent.left : undefined
-        anchors.bottom: root.clockPosition.startsWith("bottom") ? parent.bottom : undefined
-        anchors.top: root.clockPosition.startsWith("top") ? parent.top : undefined
-        style: Text.Outline
-        styleColor: "#80000000"
+        width: simulatedClockText.implicitWidth + 12
+        height: simulatedClockText.implicitHeight + 8
+        x: root.clockPosition.endsWith("Left")
+           ? 18 + parent.width * root.clockMarginHorizontal / 100
+           : root.clockPosition.endsWith("Right")
+             ? parent.width - width - 18 + parent.width * root.clockMarginHorizontal / 100
+             : (parent.width - width) / 2 + parent.width * root.clockMarginHorizontal / 100
+        y: root.clockPosition.startsWith("top")
+           ? 18 + parent.height * root.clockMarginVertical / 100
+           : root.clockPosition.startsWith("bottom")
+             ? parent.height - height - 18 + parent.height * root.clockMarginVertical / 100
+             : (parent.height - height) / 2 + parent.height * root.clockMarginVertical / 100
+        Rectangle {
+            anchors.fill: parent
+            color: root.clockBackgroundColor
+            opacity: root.clockBackgroundOpacity
+            radius: root.clockCornerRadius * Math.min(root.width / 1920, root.height / 1080)
+        }
+        Text {
+            id: simulatedClockText
+            anchors.centerIn: parent
+            text: root.clockText
+            color: root.clockColor
+            opacity: root.clockTextOpacity
+            font.family: root.clockFamily
+            font.pixelSize: Math.max(20, root.clockFontSize * Math.min(root.width / 1920,
+                                                                       root.height / 1080))
+            font.bold: root.clockFontBold
+            font.italic: root.clockFontItalic
+            lineHeight: root.clockLineHeight
+            lineHeightMode: Text.ProportionalHeight
+            style: root.clockEffect === "outline" ? Text.Outline
+                 : root.clockEffect === "raised" ? Text.Raised
+                 : root.clockEffect === "sunken" ? Text.Sunken : Text.Normal
+            styleColor: "#b0000000"
+        }
     }
 
     Rectangle {

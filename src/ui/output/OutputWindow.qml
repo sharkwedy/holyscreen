@@ -20,6 +20,7 @@ Window {
     property int identifier: 1
     property string bibleTranslationId: ""
     property string outputRole: "audience"
+    property bool mediaEnabled: true
 
     function placeOnTargetScreen() {
         if (targetScreenIndex < 0 || targetScreenIndex >= Application.screens.length)
@@ -57,6 +58,7 @@ Window {
         anchors.fill: parent
         z: 100
         visible: root.outputRole === "stage" && !presentationController.identifyVisible
+                 && !(root.mediaEnabled && presentationController.videoVisible)
         currentText: presentationController.currentPresentationType === "bible"
                      ? presentationController.bibleTextForSlide(
                            presentationController.currentSlideIndex, root.bibleTranslationId)
@@ -93,7 +95,9 @@ Window {
     VideoOutput {
         id: videoOutput
         anchors.fill: parent
-        visible: presentationController.videoVisible && !presentationController.blackout
+        z: root.outputRole === "stage" ? 110 : 60
+        visible: root.mediaEnabled && presentationController.videoVisible
+                 && !presentationController.blackout
         fillMode: VideoOutput.PreserveAspectFit
         Component.onCompleted: presentationController.registerVideoSink(videoSink)
         Component.onDestruction: presentationController.unregisterVideoSink(videoSink)
@@ -108,21 +112,49 @@ Window {
                       : ""
     }
 
-    Text {
-        id: clock
-        text: presentationController.clockText
-        color: presentationController.clockColor
-        font.bold: true
-        font.family: presentationController.clockFontFamily
-        font.pixelSize: presentationController.clockFontSize
+    Item {
+        id: clockPanel
         visible: presentationController.clockVisible && !presentationController.blackout
-        anchors.margins: 40
-        anchors.right: presentationController.clockPosition.endsWith("Right") ? parent.right : undefined
-        anchors.left: presentationController.clockPosition.endsWith("Left") ? parent.left : undefined
-        anchors.bottom: presentationController.clockPosition.startsWith("bottom") ? parent.bottom : undefined
-        anchors.top: presentationController.clockPosition.startsWith("top") ? parent.top : undefined
-        style: Text.Outline
-        styleColor: "#80000000"
+        width: clockText.implicitWidth + 28
+        height: clockText.implicitHeight + 18
+        x: presentationController.clockPosition.endsWith("Left")
+           ? 40 + parent.width * presentationController.clockMarginHorizontal / 100
+           : presentationController.clockPosition.endsWith("Right")
+             ? parent.width - width - 40
+               + parent.width * presentationController.clockMarginHorizontal / 100
+             : (parent.width - width) / 2
+               + parent.width * presentationController.clockMarginHorizontal / 100
+        y: presentationController.clockPosition.startsWith("top")
+           ? 40 + parent.height * presentationController.clockMarginVertical / 100
+           : presentationController.clockPosition.startsWith("bottom")
+             ? parent.height - height - 40
+               + parent.height * presentationController.clockMarginVertical / 100
+             : (parent.height - height) / 2
+               + parent.height * presentationController.clockMarginVertical / 100
+        Rectangle {
+            anchors.fill: parent
+            color: presentationController.clockBackgroundColor
+            opacity: presentationController.clockBackgroundOpacity
+            radius: presentationController.clockCornerRadius
+        }
+        Text {
+            id: clockText
+            anchors.centerIn: parent
+            text: presentationController.clockText
+            color: presentationController.clockColor
+            opacity: presentationController.clockTextOpacity
+            font.bold: presentationController.clockFontBold
+            font.italic: presentationController.clockFontItalic
+            font.family: presentationController.clockFontFamily
+            font.pixelSize: presentationController.clockFontSize
+            lineHeight: presentationController.clockLineHeight
+            lineHeightMode: Text.ProportionalHeight
+            style: presentationController.clockEffect === "outline" ? Text.Outline
+                 : presentationController.clockEffect === "raised" ? Text.Raised
+                 : presentationController.clockEffect === "sunken" ? Text.Sunken
+                 : Text.Normal
+            styleColor: "#b0000000"
+        }
     }
 
     LiveOverlays {

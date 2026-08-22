@@ -17,7 +17,7 @@ EnableOutputResult OutputManager::enable(const ScreenDescriptor &screen)
     if (existing != m_outputs.cend()) {
         auto &output = m_outputs[std::distance(m_outputs.cbegin(), existing)];
         output.screenId = screen.id;
-        output.displayName = screen.displayName;
+        if (output.displayName.isEmpty()) output.displayName = screen.displayName;
         output.connected = true;
         output.state = OutputConnectionState::Connected;
         return {.accepted = true};
@@ -71,6 +71,28 @@ bool OutputManager::setRole(const QString &screenFingerprint, OutputRole role)
     return true;
 }
 
+bool OutputManager::setMediaEnabled(const QString &screenFingerprint, bool enabled)
+{
+    const auto output = std::find_if(m_outputs.begin(), m_outputs.end(), [&](const auto &candidate) {
+        return candidate.screenFingerprint == screenFingerprint;
+    });
+    if (output == m_outputs.end()) return false;
+    output->mediaEnabled = enabled;
+    return true;
+}
+
+bool OutputManager::setDisplayName(const QString &screenFingerprint, const QString &displayName)
+{
+    const auto normalized = displayName.trimmed();
+    if (normalized.isEmpty()) return false;
+    const auto output = std::find_if(m_outputs.begin(), m_outputs.end(), [&](const auto &candidate) {
+        return candidate.screenFingerprint == screenFingerprint;
+    });
+    if (output == m_outputs.end()) return false;
+    output->displayName = normalized;
+    return true;
+}
+
 void OutputManager::applyScreens(const QVector<ScreenDescriptor> &screens)
 {
     for (auto &output : m_outputs) {
@@ -85,7 +107,7 @@ void OutputManager::applyScreens(const QVector<ScreenDescriptor> &screens)
         }
 
         output.screenId = matchingScreen->id;
-        output.displayName = matchingScreen->displayName;
+        if (output.displayName.isEmpty()) output.displayName = matchingScreen->displayName;
         output.connected = true;
         output.state = OutputConnectionState::Connected;
     }

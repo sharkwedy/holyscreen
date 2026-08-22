@@ -23,6 +23,7 @@ QVector<OutputPlacement> routeAudienceOutputs(
             .geometry = screen->geometry,
             .bibleTranslationId = output.bibleTranslationId,
             .role = output.role,
+            .mediaEnabled = output.mediaEnabled,
         });
     }
     return placements;
@@ -47,6 +48,7 @@ QVector<OutputPlacement> routeOutputs(
             .geometry = screen->geometry,
             .bibleTranslationId = output.bibleTranslationId,
             .role = output.role,
+            .mediaEnabled = output.mediaEnabled,
         });
     }
     return placements;

@@ -21,6 +21,10 @@ public:
     bool importVerses(const QString &translationId, const QVector<BibleVerse> &verses);
     [[nodiscard]] QVector<BibleVerse> verses(
         const QString &translationId, const BibleReference &reference) const;
+    [[nodiscard]] QVector<int> chapters(
+        const QString &translationId, BibleBook book) const;
+    [[nodiscard]] QVector<int> verseNumbers(
+        const QString &translationId, BibleBook book, int chapter) const;
     [[nodiscard]] QVector<BibleVerse> search(
         const QString &translationId, const QString &text, int limit = 100) const;
 

@@ -16,6 +16,7 @@ struct OutputPlacement {
     QRect geometry;
     QString bibleTranslationId;
     OutputRole role = OutputRole::Audience;
+    bool mediaEnabled = true;
 };
 
 [[nodiscard]] QVector<OutputPlacement> routeOutputs(

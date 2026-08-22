@@ -8,6 +8,7 @@ import QtQuick.Window
 ApplicationWindow {
     id: root
     visible: true
+    onClosing: Qt.quit()
     color: "#0b1220"
     title: "HolyScreen — Operação"
     width: 1360
@@ -61,6 +62,7 @@ ApplicationWindow {
             identifier: modelData.identifier
             bibleTranslationId: modelData.bibleTranslationId
             outputRole: modelData.role
+            mediaEnabled: modelData.mediaEnabled
         }
     }
 
@@ -104,6 +106,18 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
             }
         }
+    }
+
+    function playFavorite(path) {
+        const mediaId = presentationController.addCatalogFileToPlaylist(path)
+        if (mediaId.length > 0)
+            presentationController.playMedia(mediaId)
+    }
+    SettingsDialog {
+        id: settingsDialog
+        controller: presentationController
+        onOpenLibrary: mediaLibraryDialog.open()
+        onChooseBackground: wallpaperDialog.open()
     }
     Dialog {
         id: liveDialog
@@ -487,27 +501,99 @@ ApplicationWindow {
     }
 
     header: ToolBar {
-        height: 48
+        height: 92
         background: Rectangle { color: "#15191d"; border.color: "#353b40" }
-        RowLayout {
+        ColumnLayout {
             anchors.fill: parent
-            anchors.leftMargin: 18
-            anchors.rightMargin: 14
-            spacing: 12
-            Label {
-                text: "HolyScreen"
-                color: "#f2f4f5"
-                font.bold: true
-                font.pixelSize: 15
+            spacing: 0
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 48
+                Layout.leftMargin: 18
+                Layout.rightMargin: 14
+                spacing: 12
+                Label {
+                    text: "HolyScreen"
+                    color: "#f2f4f5"
+                    font.bold: true
+                    font.pixelSize: 15
+                }
+                ToolButton { text: "Live"; onClicked: liveDialog.open() }
+                ToolButton { text: "Prévia" }
+                ToolButton { text: "Agenda" }
+                ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
+                Item { Layout.fillWidth: true }
+                ToolButton {
+                    text: "⚙"
+                    Accessible.name: "Configurações"
+                    onClicked: settingsDialog.open()
+                }
+                ToolButton { text: "⛶"; onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen }
+                Button { text: presentationController.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: presentationController.setBlackout(false) }
             }
-            ToolButton { text: "Live"; onClicked: liveDialog.open() }
-            ToolButton { text: "Prévia" }
-            ToolButton { text: "Agenda" }
-            ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
-            Item { Layout.fillWidth: true }
-            ToolButton { text: "⚙"; onClicked: stageMessageDialog.open() }
-            ToolButton { text: "⛶"; onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen }
-            Button { text: presentationController.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: presentationController.setBlackout(false) }
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 44
+                color: "#1d2227"
+                border.color: "#353b40"
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 18
+                    anchors.rightMargin: 14
+                    spacing: 10
+                    Label {
+                        text: "★  FAVORITOS"
+                        color: "#c7d2fe"
+                        font.bold: true
+                        font.pixelSize: 11
+                    }
+                    Rectangle { Layout.preferredWidth: 1; Layout.fillHeight: true; Layout.topMargin: 8; Layout.bottomMargin: 8; color: "#41484e" }
+                    ListView {
+                        id: favoriteMediaList
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        orientation: ListView.Horizontal
+                        spacing: 6
+                        clip: true
+                        model: presentationController.favoriteMedia
+                        delegate: Button {
+                            required property var modelData
+                            height: 32
+                            width: Math.min(220, Math.max(110, implicitWidth))
+                            y: (favoriteMediaList.height - height) / 2
+                            text: (modelData.type === "video" ? "▶  "
+                                  : modelData.type === "image" ? "▧  " : "♫  ")
+                                  + (modelData.fileName || modelData.title || "Sem título")
+                            font.pixelSize: 11
+                            onClicked: root.playFavorite(modelData.path)
+                            ToolTip.visible: hovered
+                            ToolTip.text: "Reproduzir " + (modelData.fileName || modelData.title)
+                        }
+                        Label {
+                            anchors.centerIn: parent
+                            visible: favoriteMediaList.count === 0
+                            text: "Clique com o botão direito em uma mídia para adicioná-la"
+                            color: "#8d979f"
+                            font.pixelSize: 11
+                        }
+                    }
+                }
+            }
+        }
+    }
+    BibleBrowser {
+        id: bibleBrowser
+        controller: presentationController
+    }
+    QuickBibleSearch {
+        id: quickBibleSearch
+        controller: presentationController
+    }
+    Connections {
+        target: presentationController
+        function onQuickBibleSearchRequested(initialText) {
+            if (!quickBibleSearch.visible)
+                quickBibleSearch.openWithText(initialText)
         }
     }
 
@@ -516,6 +602,7 @@ ApplicationWindow {
         controller: presentationController
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleDialog.open()
+        onOpenBibleBrowser: bibleBrowser.open()
         onImportAudio: audioDialog.open()
         onImportVideo: videoDialog.open()
         onImportImage: imageDialog.open()
@@ -559,7 +646,7 @@ ApplicationWindow {
                                 required property var modelData
                                 Layout.fillWidth: true
                                 implicitHeight: modelData.selected
-                                                ? (presentationController.bibleTranslations.length > 0 ? 142 : 112)
+                                                ? (presentationController.bibleTranslations.length > 0 ? 176 : 146)
                                                 : 80
                                 radius: 8
                                 color: modelData.selected ? "#18345a" : "#152137"
@@ -600,6 +687,12 @@ ApplicationWindow {
                                             valueRole: "id"
                                             currentIndex: root.valueIndex(model, modelData.role)
                                             onActivated: presentationController.setOutputRole(modelData.id, currentValue)
+                                        }
+                                        CheckBox {
+                                            visible: !modelData.primary && modelData.selected
+                                            text: "Exibir mídia nesta tela"
+                                            checked: modelData.mediaEnabled
+                                            onClicked: presentationController.setOutputMediaEnabled(modelData.id, checked)
                                         }
                                         ComboBox {
                                             visible: !modelData.primary && modelData.selected
@@ -1301,7 +1394,6 @@ ApplicationWindow {
     Shortcut { sequence: "Home"; enabled: presentationController.textVisible; onActivated: presentationController.firstTextSlide() }
     Shortcut { sequence: "End"; enabled: presentationController.textVisible; onActivated: presentationController.lastTextSlide() }
     Shortcut { sequence: "Escape"; enabled: presentationController.textVisible; onActivated: presentationController.stopTextPresentation() }
-    Shortcut { sequence: "B"; onActivated: presentationController.setBlackout(!presentationController.blackout) }
     Shortcut { sequence: StandardKey.Undo; enabled: presentationController.canUndo; onActivated: presentationController.undo() }
     Shortcut { sequence: StandardKey.Redo; enabled: presentationController.canRedo; onActivated: presentationController.redo() }
     Shortcut { sequence: "Ctrl+B"; onActivated: presentationController.createBackup() }

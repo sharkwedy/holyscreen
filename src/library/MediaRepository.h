@@ -24,6 +24,7 @@ public:
     [[nodiscard]] QString add(MediaItem item);
     bool update(const MediaItem &item);
     bool remove(const QString &id);
+    bool clearPlaylist();
     bool move(const QString &id, int newIndex);
     bool moveInPlaylist(const QString &id, int newIndex);
 

@@ -15,6 +15,8 @@ private slots:
     void enablesEveryConnectedNonPrimaryScreenAtOnce();
     void assignsABibleTranslationToOneOutput();
     void assignsAStageRoleToOneOutput();
+    void controlsMediaVisibilityPerOutput();
+    void renamesAnOutputAndPreservesTheCustomName();
 };
 
 void OutputManagerTest::enablesUpToFiveDistinctConnectedOutputs()
@@ -136,6 +138,31 @@ void OutputManagerTest::assignsAStageRoleToOneOutput()
     QVERIFY(manager.setRole(QStringLiteral("lg"), OutputRole::Stage));
     QCOMPARE(manager.activeOutputs().front().role, OutputRole::Stage);
     QVERIFY(!manager.setRole(QStringLiteral("missing"), OutputRole::Audience));
+}
+
+void OutputManagerTest::controlsMediaVisibilityPerOutput()
+{
+    OutputManager manager;
+    QVERIFY(manager.enable({.id = QStringLiteral("projector"), .fingerprint = QStringLiteral("dell"),
+                            .connected = true}).accepted);
+    QVERIFY(manager.activeOutputs().front().mediaEnabled);
+    QVERIFY(manager.setMediaEnabled(QStringLiteral("dell"), false));
+    QVERIFY(!manager.activeOutputs().front().mediaEnabled);
+    QVERIFY(!manager.setMediaEnabled(QStringLiteral("missing"), true));
+}
+
+void OutputManagerTest::renamesAnOutputAndPreservesTheCustomName()
+{
+    OutputManager manager;
+    QVERIFY(manager.enable({.id = QStringLiteral("display-1"), .fingerprint = QStringLiteral("dell"),
+                            .displayName = QStringLiteral("DELL 1920x1080"), .connected = true}).accepted);
+    QVERIFY(manager.setDisplayName(QStringLiteral("dell"), QStringLiteral("  Projetor principal  ")));
+    QCOMPARE(manager.activeOutputs().front().displayName, QStringLiteral("Projetor principal"));
+
+    manager.applyScreens({{.id = QStringLiteral("display-1"), .fingerprint = QStringLiteral("dell"),
+                           .displayName = QStringLiteral("Nome do Windows"), .connected = true}});
+    QCOMPARE(manager.activeOutputs().front().displayName, QStringLiteral("Projetor principal"));
+    QVERIFY(!manager.setDisplayName(QStringLiteral("dell"), QStringLiteral("   ")));
 }
 
 QTEST_APPLESS_MAIN(OutputManagerTest)
