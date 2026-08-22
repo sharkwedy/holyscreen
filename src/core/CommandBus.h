@@ -18,6 +18,8 @@ public:
     explicit CommandBus(QObject *parent = nullptr);
 
     bool registerHandler(const QString &commandType, Handler handler);
+    [[nodiscard]] bool hasHandler(const QString &commandType) const;
+    [[nodiscard]] QStringList registeredCommandTypes() const;
     CommandResult dispatch(const Command &command);
     [[nodiscard]] quint64 stateRevision() const;
 

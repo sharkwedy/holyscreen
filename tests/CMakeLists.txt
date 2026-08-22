@@ -26,6 +26,14 @@ qt_add_executable(test_event_command_module unit/modules/EventCommandModuleTest.
 target_link_libraries(test_event_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_event_command_module COMMAND test_event_command_module)
 
+qt_add_executable(test_theme_command_module unit/modules/ThemeCommandModuleTest.cpp)
+target_link_libraries(test_theme_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_theme_command_module COMMAND test_theme_command_module)
+
+qt_add_executable(test_playlist_command_module unit/modules/PlaylistCommandModuleTest.cpp)
+target_link_libraries(test_playlist_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_playlist_command_module COMMAND test_playlist_command_module)
+
 qt_add_executable(test_output_routing_command_module unit/modules/OutputRoutingCommandModuleTest.cpp)
 target_link_libraries(test_output_routing_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_routing_command_module COMMAND test_output_routing_command_module)
@@ -177,6 +185,10 @@ set_tests_properties(test_application_command_bridge PROPERTIES
 qt_add_executable(test_app_logger unit/app/AppLoggerTest.cpp)
 target_link_libraries(test_app_logger PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_app_logger COMMAND test_app_logger)
+
+qt_add_executable(test_diagnostic_exporter unit/app/DiagnosticExporterTest.cpp)
+target_link_libraries(test_diagnostic_exporter PRIVATE Qt6::Test presenter-app miniz)
+add_test(NAME test_diagnostic_exporter COMMAND test_diagnostic_exporter)
 
 qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)

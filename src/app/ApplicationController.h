@@ -26,6 +26,8 @@
 #include "modules/OutputModule.h"
 #include "modules/BibleCommandModule.h"
 #include "modules/EventCommandModule.h"
+#include "modules/ThemeCommandModule.h"
+#include "modules/PlaylistCommandModule.h"
 #include "modules/OutputRoutingCommandModule.h"
 #include "modules/OverlayCommandModule.h"
 #include "modules/MediaCommandModule.h"
@@ -393,6 +395,7 @@ public:
     Q_INVOKABLE void clearHistory();
     Q_INVOKABLE QString createBackup();
     Q_INVOKABLE bool scheduleRestore(const QUrl &source);
+    Q_INVOKABLE bool exportDiagnostics(const QUrl &destination);
     Q_INVOKABLE void runBenchmark();
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
@@ -580,6 +583,14 @@ private:
     bool applyBiblePresentation(int bookId, int chapter, int verse);
     bool applyEventSelection(const QString &id);
     bool applyEventItemExecution(const QString &id);
+    bool applyThemeSelection(const QString &id);
+    bool applyMoveMedia(const QString &id, int newIndex);
+    bool applyRemoveMedia(const QString &id);
+    bool applyClearMediaPlaylist();
+    bool restoreMediaPlaylist(const QVariantList &snapshot);
+    bool applyPresentationSnapshot(const Presentation &presentation);
+    void recordPresentationEdit(const QString &label, const Presentation &before,
+                                const Presentation &after);
     void refreshAudioLibrary();
     void updateCurrentAudioMetadata(const MediaItem &metadata);
     void refreshVideoLibrary();
@@ -670,6 +681,8 @@ private:
     std::unique_ptr<StageCommandModule> m_stageCommands;
     std::unique_ptr<BibleCommandModule> m_bibleCommands;
     std::unique_ptr<EventCommandModule> m_eventCommands;
+    std::unique_ptr<ThemeCommandModule> m_themeCommands;
+    std::unique_ptr<PlaylistCommandModule> m_playlistCommands;
     OverlayController m_overlays;
     std::unique_ptr<OverlayCommandModule> m_overlayCommands;
     QVariantList m_textPresentations;

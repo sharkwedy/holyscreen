@@ -197,6 +197,14 @@ ApplicationWindow {
         nameFilters:["Banco HolyScreen (*.db)"]
         onAccepted:{root.pendingRestoreSource=selectedFile;restoreConfirmDialog.open()}
     }
+    FileDialog {
+        id: diagnosticExportDialog
+        title: "Exportar diagnóstico do HolyScreen"
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Arquivo ZIP (*.zip)"]
+        defaultSuffix: "zip"
+        onAccepted: presentationController.exportDiagnostics(selectedFile)
+    }
     Dialog {
         id:restoreConfirmDialog;title:"Agendar restauração?";modal:true
         standardButtons:Dialog.Ok|Dialog.Cancel
@@ -1483,6 +1491,7 @@ ApplicationWindow {
                         Layout.fillWidth:true
                         Button {text:"CRIAR BACKUP";Layout.fillWidth:true;onClicked:presentationController.createBackup()}
                         Button {text:"RESTAURAR";Layout.fillWidth:true;onClicked:restoreDialog.open()}
+                        Button {text:"EXPORTAR DIAGNÓSTICO";Layout.fillWidth:true;onClicked:diagnosticExportDialog.open()}
                         Button {visible:presentationController.debugEnabled && presentationController.debugDiagnostics;text:"BENCHMARK";Layout.fillWidth:true;onClicked:presentationController.runBenchmark()}
                     }
                     Label {visible:presentationController.debugEnabled && presentationController.debugDiagnostics;Layout.fillWidth:true;wrapMode:Text.WordWrap;color:"#c8d5e8";text:"Versão "+(presentationController.diagnostics.version||"—")+" • Qt "+(presentationController.diagnostics.qtVersion||"—")+" • "+(presentationController.diagnostics.platform||"—")+" • Telas "+(presentationController.diagnostics.detectedScreens||0)+" • Ops/s "+(presentationController.diagnostics.benchmarkOperationsPerSecond||"—")}

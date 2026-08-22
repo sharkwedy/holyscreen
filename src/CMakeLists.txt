@@ -52,6 +52,10 @@ target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
 add_library(presenter-modules
+    modules/PlaylistCommandModule.cpp
+    modules/PlaylistCommandModule.h
+    modules/ThemeCommandModule.cpp
+    modules/ThemeCommandModule.h
     modules/EventCommandModule.cpp
     modules/EventCommandModule.h
     modules/BibleCommandModule.cpp
@@ -131,6 +135,8 @@ target_link_libraries(presenter-bible PRIVATE libgit2package miniz)
 
 add_library(presenter-app
     app/ApplicationController.cpp
+    app/DiagnosticExporter.cpp
+    app/DiagnosticExporter.h
     app/AutosaveCoordinator.cpp
     app/AutosaveCoordinator.h
     app/DataRecoveryService.cpp
@@ -146,6 +152,7 @@ target_include_directories(presenter-app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-app PUBLIC
     presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
+target_link_libraries(presenter-app PRIVATE miniz)
 
 qt_add_executable(church-presenter
     WIN32

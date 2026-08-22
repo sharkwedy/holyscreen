@@ -3,6 +3,7 @@
 
 #include "app/ApplicationController.h"
 #include "library/PresentationRepository.h"
+#include "core/CommandCatalog.h"
 
 #include <QGuiApplication>
 #include <QDir>
@@ -16,11 +17,13 @@ class ApplicationCommandBridgeTest final : public QObject {
 
 private slots:
     void operatorBlackoutUsesCommandAndEventBuses();
+    void registersEveryCatalogCommand();
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
     void operatorPresentationNavigationUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
     void autosaveDebouncesPresentationEdits();
+    void presentationEditsSupportUndoAndRedo();
     void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
 };
 
@@ -49,6 +52,15 @@ void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
     QVERIFY(result.accepted);
     QCOMPARE(event.type, QStringLiteral("presentation.blackout.changed"));
     QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::registersEveryCatalogCommand()
+{
+    ApplicationController controller;
+    for (const auto &descriptor : CommandCatalog::descriptors()) {
+        QVERIFY2(controller.commandBus().hasHandler(descriptor.type),
+                 qPrintable(QStringLiteral("Handler ausente: %1").arg(descriptor.type)));
+    }
 }
 
 void ApplicationCommandBridgeTest::operatorOverlayUsesCommandAndEventBuses()
@@ -162,6 +174,22 @@ void ApplicationCommandBridgeTest::autosaveDebouncesPresentationEdits()
     const auto reloaded = persisted.presentation(presentationId);
     QCOMPARE(reloaded.slides.size(), 1);
     QCOMPARE(reloaded.slides.front().text, QStringLiteral("Texto final"));
+}
+
+void ApplicationCommandBridgeTest::presentationEditsSupportUndoAndRedo()
+{
+    ApplicationController controller;
+    QVERIFY(!controller.createTextPresentation(QStringLiteral("Avisos")).isEmpty());
+    const auto slideId = controller.currentSlideId();
+    controller.updateTextSlide(slideId, QStringLiteral("1"), QStringLiteral("Texto alterado"));
+    QCOMPARE(controller.currentSlideText(), QStringLiteral("Texto alterado"));
+
+    QVERIFY(controller.canUndo());
+    controller.undo();
+    QCOMPARE(controller.currentSlideText(), QString{});
+    QVERIFY(controller.canRedo());
+    controller.redo();
+    QCOMPARE(controller.currentSlideText(), QStringLiteral("Texto alterado"));
 }
 
 void ApplicationCommandBridgeTest::canonicalBibleImportRequiresLicenseThenCompletesAsynchronously()

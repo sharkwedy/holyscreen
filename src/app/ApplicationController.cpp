@@ -1,5 +1,6 @@
 #include "app/ApplicationController.h"
 #include "app/AppLogger.h"
+#include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
 #include "screens/OutputRouting.h"
 #include "bible/BibleImportService.h"
@@ -258,6 +259,24 @@ ApplicationController::ApplicationController(QObject *parent)
                 };
             },
         }, this);
+    m_themeCommands = std::make_unique<ThemeCommandModule>(
+        m_commandBus, m_eventBus,
+        ThemeCommandModule::Actions{
+            .currentThemeId = [this] { return m_activeTheme.id; },
+            .apply = [this](const QString &id) { return applyThemeSelection(id); },
+            .stateSnapshot = [this] { return activeTheme(); },
+        }, &m_undoManager, this);
+    m_playlistCommands = std::make_unique<PlaylistCommandModule>(
+        m_commandBus, m_eventBus,
+        PlaylistCommandModule::Actions{
+            .snapshot = [this] { return mediaPlaylist(); },
+            .move = [this](const QString &id, int index) { return applyMoveMedia(id, index); },
+            .remove = [this](const QString &id) { return applyRemoveMedia(id); },
+            .clear = [this] { return applyClearMediaPlaylist(); },
+            .restore = [this](const QVariantList &snapshot) {
+                return restoreMediaPlaylist(snapshot);
+            },
+        }, &m_undoManager, this);
     m_autosave = std::make_unique<AutosaveCoordinator>(
         [this] { return persistCurrentPresentation(); }, this);
     connect(m_autosave.get(), &AutosaveCoordinator::dirtyChanged, this, [this](bool dirty) {
@@ -954,18 +973,32 @@ bool ApplicationController::openFileLocation(const QString &path)
 
 void ApplicationController::removeMedia(const QString &id)
 {
-    if (!m_mediaRepository) return;
+    m_playlistCommands->requestRemove(id);
+}
+
+bool ApplicationController::applyRemoveMedia(const QString &id)
+{
+    if (!m_mediaRepository) return false;
     const auto item = m_mediaRepository->item(id);
+    if (item.id.isEmpty()) return false;
     if (item.type == MediaType::Video) removeVideo(id);
     else if (item.type == MediaType::Image) removeImage(id);
     else removeAudio(id);
+    return m_mediaRepository->item(id).id.isEmpty();
 }
 
 void ApplicationController::moveMedia(const QString &id, int newIndex)
 {
+    m_playlistCommands->requestMove(id, newIndex);
+}
+
+bool ApplicationController::applyMoveMedia(const QString &id, int newIndex)
+{
     if (m_mediaRepository && m_mediaRepository->moveInPlaylist(id, newIndex)) {
         refreshMediaPlaylist();
+        return true;
     }
+    return false;
 }
 
 void ApplicationController::shuffleMediaPlaylist()
@@ -991,14 +1024,49 @@ void ApplicationController::shuffleMediaPlaylist()
 
 void ApplicationController::clearMediaPlaylist()
 {
-    if (!m_mediaRepository) return;
-    stopMedia();
+    m_playlistCommands->requestClear();
+}
+
+bool ApplicationController::applyClearMediaPlaylist()
+{
+    if (!m_mediaRepository) return false;
+    applyStopMedia();
     if (!m_mediaRepository->clearPlaylist()) {
         setStatusMessage(QStringLiteral("Não foi possível limpar a playlist."));
-        return;
+        return false;
     }
+    refreshAudioLibrary();
+    refreshVideoLibrary();
+    refreshImageLibrary();
     refreshMediaPlaylist();
     setStatusMessage(QStringLiteral("Playlist limpa."));
+    return true;
+}
+
+bool ApplicationController::restoreMediaPlaylist(const QVariantList &snapshot)
+{
+    if (!m_mediaRepository || !m_mediaRepository->clearPlaylist()) return false;
+    for (const auto &entry : snapshot) {
+        const auto value = entry.toMap();
+        const auto typeName = value.value(QStringLiteral("type")).toString();
+        const auto type = typeName == QStringLiteral("video") ? MediaType::Video
+            : typeName == QStringLiteral("image") ? MediaType::Image : MediaType::Audio;
+        const auto restoredId = m_mediaRepository->add(MediaItem{
+            .id = value.value(QStringLiteral("id")).toString(),
+            .type = type,
+            .title = value.value(QStringLiteral("title")).toString(),
+            .path = value.value(QStringLiteral("path")).toString(),
+            .durationMs = value.value(QStringLiteral("durationMs")).toLongLong(),
+            .artist = value.value(QStringLiteral("artist")).toString(),
+            .album = value.value(QStringLiteral("album")).toString(),
+        });
+        if (restoredId.isEmpty()) return false;
+    }
+    refreshAudioLibrary();
+    refreshVideoLibrary();
+    refreshImageLibrary();
+    refreshMediaPlaylist();
+    return true;
 }
 
 bool ApplicationController::saveMediaPlaylist(const QUrl &destination)
@@ -1470,17 +1538,70 @@ void ApplicationController::selectTextPresentation(const QString &id)
 }
 
 void ApplicationController::addTextSlide(const QString &label, const QString &text)
-{ if (m_textPresentation.addSlide(label, text)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.addSlide(label, text)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Adicionar slide"), before, after);
+    }
+}
 void ApplicationController::updateTextSlide(const QString &id, const QString &label, const QString &text)
-{ if (m_textPresentation.updateSlide(id, label, text)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.updateSlide(id, label, text)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Editar slide"), before, after);
+    }
+}
 void ApplicationController::duplicateTextSlide(const QString &id)
-{ if (m_textPresentation.duplicateSlide(id)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.duplicateSlide(id)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Duplicar slide"), before, after);
+    }
+}
 void ApplicationController::splitTextSlide(const QString &id, int cursorPosition)
-{ if (m_textPresentation.splitSlide(id, cursorPosition)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.splitSlide(id, cursorPosition)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Dividir slide"), before, after);
+    }
+}
 void ApplicationController::removeTextSlide(const QString &id)
-{ if (m_textPresentation.removeSlide(id)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.removeSlide(id)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Remover slide"), before, after);
+    }
+}
 void ApplicationController::moveTextSlide(const QString &id, int newIndex)
-{ if (m_textPresentation.moveSlide(id, newIndex)) saveCurrentPresentation(); }
+{
+    const auto before = m_textPresentation.presentation();
+    if (m_textPresentation.moveSlide(id, newIndex)) {
+        const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
+        recordPresentationEdit(QStringLiteral("Mover slide"), before, after);
+    }
+}
+
+bool ApplicationController::applyPresentationSnapshot(const Presentation &presentation)
+{
+    m_textPresentation.setPresentation(presentation);
+    saveCurrentPresentation();
+    return true;
+}
+
+void ApplicationController::recordPresentationEdit(const QString &label,
+                                                   const Presentation &before,
+                                                   const Presentation &after)
+{
+    m_undoManager.record(
+        label,
+        [this, before] { return applyPresentationSnapshot(before); },
+        [this, after] { return applyPresentationSnapshot(after); });
+}
 
 void ApplicationController::showTextSlide(int index)
 {
@@ -1551,11 +1672,17 @@ void ApplicationController::deleteTheme(const QString &id)
 
 void ApplicationController::applyTheme(const QString &id)
 {
-    if (!m_themeRepository) return;
-    const auto theme=m_themeRepository->theme(id); if(theme.id.isEmpty())return;
+    m_themeCommands->requestApply(id);
+}
+
+bool ApplicationController::applyThemeSelection(const QString &id)
+{
+    if (!m_themeRepository) return false;
+    const auto theme=m_themeRepository->theme(id); if(theme.id.isEmpty())return false;
     m_activeTheme=theme;
     if(!currentPresentationId().isEmpty()){auto p=m_textPresentation.presentation();p.defaultTheme=id;m_textPresentation.setPresentation(p);saveCurrentPresentation();}
     emit activeThemeChanged();
+    return true;
 }
 
 QString ApplicationController::createSong(const QString &title, const QString &author,
@@ -1626,6 +1753,43 @@ bool ApplicationController::applyEventItemExecution(const QString&id)
 void ApplicationController::clearHistory(){if(m_historyRepository&&m_historyRepository->clear())refreshHistory();}
 QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
 bool ApplicationController::scheduleRestore(const QUrl&source){if(!m_recovery)return false;const auto path=source.isLocalFile()?source.toLocalFile():source.toString();const bool ok=m_recovery->scheduleRestore(path);setStatusMessage(ok?QStringLiteral("Restauração agendada. Reinicie o HolyScreen para aplicá-la."):QStringLiteral("O arquivo não é um backup SQLite válido."));emit maintenanceChanged();return ok;}
+bool ApplicationController::exportDiagnostics(const QUrl &destination)
+{
+    if (destination.isEmpty()) return false;
+    auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
+    if (!path.endsWith(QStringLiteral(".zip"), Qt::CaseInsensitive)) path += QStringLiteral(".zip");
+    const QVariantMap application{
+        {QStringLiteral("version"), QCoreApplication::applicationVersion()},
+        {QStringLiteral("qtVersion"), QString::fromLatin1(qVersion())},
+        {QStringLiteral("platform"), QSysInfo::prettyProductName()},
+        {QStringLiteral("cpu"), QSysInfo::currentCpuArchitecture()},
+        {QStringLiteral("schemaVersion"), m_diagnostics.value(QStringLiteral("schemaVersion"))},
+        {QStringLiteral("recoveredFromCrash"), recoveredFromCrash()},
+    };
+    const QVariantMap configuration{
+        {QStringLiteral("wallpaperFit"), wallpaperFit()},
+        {QStringLiteral("clockVisible"), clockVisible()},
+        {QStringLiteral("clockPosition"), clockPosition()},
+        {QStringLiteral("mediaRepeatMode"), mediaRepeatMode()},
+        {QStringLiteral("simulatedOutputCount"), simulatedOutputCount()},
+        {QStringLiteral("debugEnabled"), debugEnabled()},
+        {QStringLiteral("debugSimulatedOutputs"), debugSimulatedOutputs()},
+        {QStringLiteral("debugDiagnostics"), debugDiagnostics()},
+        {QStringLiteral("debugLogging"), debugLogging()},
+    };
+    QString error;
+    const auto exported = DiagnosticExporter::exportZip({
+        .destinationPath = path,
+        .application = application,
+        .screens = screens(),
+        .configuration = configuration,
+        .logPath = AppLogger::logPath(),
+    }, &error);
+    setStatusMessage(exported
+        ? QStringLiteral("Diagnóstico exportado para %1.").arg(QDir::toNativeSeparators(path))
+        : error);
+    return exported;
+}
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
 void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(QUrl(m_updateEndpoint),QCoreApplication::applicationVersion());}
 
