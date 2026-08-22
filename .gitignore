@@ -4,3 +4,34 @@
 /.qt/
 .DS_Store
 *.user
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+.secrets/
+
+# Private keys, certificates, and signing material
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+*.der
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# Local application databases and SQLite sidecars
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal

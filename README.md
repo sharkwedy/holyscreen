@@ -15,6 +15,9 @@ presentation state, persistence, and rendering separate.
 
 ![HolyScreen operator dashboard](.stitch/painel-principal.png)
 
+Real HolyScreen capture using the public-domain Bíblia Livre (BLIVRE)
+translation imported from [`damarals/biblias`](https://github.com/damarals/biblias).
+
 ## What works today
 
 - a dedicated operator screen and up to five persistent external outputs;

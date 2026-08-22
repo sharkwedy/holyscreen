@@ -9,6 +9,9 @@ construído em C++20 e Qt 6/QML para funcionar offline.
 
 ![Painel do operador do HolyScreen](.stitch/painel-principal.png)
 
+Captura real do HolyScreen usando a tradução Bíblia Livre (BLIVRE), marcada
+como domínio público e importada de [`damarals/biblias`](https://github.com/damarals/biblias).
+
 ## Instalar uma prévia
 
 1. Acesse as [releases](https://github.com/sharkwedy/holyscreen/releases).
