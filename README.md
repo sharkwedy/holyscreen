@@ -3,7 +3,7 @@
 [![CI](https://github.com/sharkwedy/holyscreen/actions/workflows/ci.yml/badge.svg)](https://github.com/sharkwedy/holyscreen/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/sharkwedy/holyscreen?include_prereleases)](https://github.com/sharkwedy/holyscreen/releases)
 [![Downloads](https://img.shields.io/github/downloads/sharkwedy/holyscreen/total)](https://github.com/sharkwedy/holyscreen/releases)
-[![License: GPL v3](https://img.shields.io/github/license/sharkwedy/holyscreen)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 [Português do Brasil](README.pt-BR.md)
 
