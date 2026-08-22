@@ -283,14 +283,27 @@ Item {
 
     Rectangle { anchors.fill: parent; color: dashboard.background }
 
-    RowLayout {
+    SplitView {
         anchors.fill: parent
         anchors.margins: 14
-        spacing: 14
+        orientation: Qt.Horizontal
+        handle: Rectangle {
+            implicitWidth: 14
+            color: SplitHandle.pressed ? "#45515c"
+                   : SplitHandle.hovered ? "#303941" : "transparent"
+            Rectangle {
+                anchors.centerIn: parent
+                width: 2
+                height: parent.height
+                color: SplitHandle.pressed || SplitHandle.hovered
+                       ? dashboard.accent : dashboard.line
+            }
+            HoverHandler { cursorShape: Qt.SplitHCursor }
+        }
 
         Rectangle {
-            Layout.preferredWidth: Math.max(280, dashboard.width * 0.25)
-            Layout.fillHeight: true
+            SplitView.preferredWidth: Math.max(280, dashboard.width * 0.25)
+            SplitView.minimumWidth: 220
             color: dashboard.panel
             border.color: dashboard.line
             radius: 6
@@ -400,10 +413,26 @@ Item {
             }
         }
 
-        ColumnLayout {
-            Layout.fillWidth: true; Layout.fillHeight: true; spacing: 14
+        SplitView {
+            SplitView.fillWidth: true
+            SplitView.minimumWidth: 360
+            orientation: Qt.Vertical
+            handle: Rectangle {
+                implicitHeight: 14
+                color: SplitHandle.pressed ? "#45515c"
+                       : SplitHandle.hovered ? "#303941" : "transparent"
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: 2
+                    color: SplitHandle.pressed || SplitHandle.hovered
+                           ? dashboard.accent : dashboard.line
+                }
+                HoverHandler { cursorShape: Qt.SplitVCursor }
+            }
             Rectangle {
-                Layout.fillWidth: true; Layout.preferredHeight: Math.max(350, dashboard.height * 0.53)
+                SplitView.preferredHeight: Math.max(350, dashboard.height * 0.53)
+                SplitView.minimumHeight: 280
                 color: dashboard.panel; border.color: dashboard.line; radius: 6
                 ColumnLayout {
                     anchors.fill: parent; spacing: 0
@@ -589,7 +618,8 @@ Item {
                 }
             }
             Rectangle {
-                Layout.fillWidth: true; Layout.fillHeight: true
+                SplitView.fillHeight: true
+                SplitView.minimumHeight: 120
                 color: dashboard.panel; border.color: dashboard.line; radius: 6
                 ColumnLayout {
                     anchors.fill: parent; spacing: 0
@@ -675,8 +705,8 @@ Item {
         }
 
         Rectangle {
-            Layout.preferredWidth: Math.max(300, dashboard.width * 0.27)
-            Layout.fillHeight: true
+            SplitView.preferredWidth: Math.max(300, dashboard.width * 0.27)
+            SplitView.minimumWidth: 280
             color: dashboard.panel; border.color: dashboard.line; radius: 6
             ColumnLayout {
                 anchors.fill: parent; spacing: 0

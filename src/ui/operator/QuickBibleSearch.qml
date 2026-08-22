@@ -5,6 +5,7 @@ import QtQuick.Layouts
 Dialog {
     id: quickSearch
     required property var controller
+    property int selectedBookId: -1
     modal: true
     closePolicy: Popup.CloseOnEscape
     width: Math.min(parent ? parent.width - 80 : 760, 760)
@@ -13,20 +14,115 @@ Dialog {
     y: parent ? (parent.height - height) / 2 : 0
     padding: 0
 
+    function normalizedBookName(value) {
+        return String(value || "").normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase().trim()
+    }
+
+    function matchingBooks(value) {
+        const prefix = normalizedBookName(value)
+        const matches = []
+        if (prefix.length === 0)
+            return matches
+        for (let index = 0; index < controller.bibleBooks.length; ++index) {
+            const book = controller.bibleBooks[index]
+            if (normalizedBookName(book.name).startsWith(prefix))
+                matches.push(book)
+        }
+        return matches
+    }
+
+    function completeBook(moveToChapter) {
+        const matches = matchingBooks(bookInput.text)
+        if (matches.length !== 1) {
+            selectedBookId = -1
+            return false
+        }
+        const book = matches[0]
+        selectedBookId = Number(book.id)
+        bookInput.text = book.name
+        bookInput.cursorPosition = bookInput.length
+        errorLabel.text = ""
+        if (moveToChapter)
+            Qt.callLater(function() { chapterInput.forceActiveFocus() })
+        return true
+    }
+
+    function chapterAvailable(chapter) {
+        if (selectedBookId < 1 || chapter < 1)
+            return false
+        const chapters = controller.bibleChapterNumbers(selectedBookId)
+        for (let index = 0; index < chapters.length; ++index) {
+            if (Number(chapters[index]) === chapter)
+                return true
+        }
+        return false
+    }
+
+    function acceptChapter() {
+        if (selectedBookId < 1 && !completeBook(false)) {
+            errorLabel.text = "Selecione um livro antes do capítulo."
+            bookInput.forceActiveFocus()
+            return false
+        }
+        const chapter = Number(chapterInput.text)
+        if (!chapterAvailable(chapter)) {
+            errorLabel.text = "Capítulo indisponível para o livro selecionado."
+            chapterInput.forceActiveFocus()
+            chapterInput.selectAll()
+            return false
+        }
+        errorLabel.text = ""
+        Qt.callLater(function() { verseInput.forceActiveFocus() })
+        return true
+    }
+
     function openWithText(initialText) {
-        referenceInput.text = initialText
+        selectedBookId = -1
+        bookInput.text = initialText || ""
+        chapterInput.text = ""
+        verseInput.text = ""
         errorLabel.text = ""
         open()
         Qt.callLater(function() {
-            referenceInput.forceActiveFocus()
-            referenceInput.cursorPosition = referenceInput.length
+            if (!completeBook(true)) {
+                bookInput.forceActiveFocus()
+                bookInput.cursorPosition = bookInput.length
+            }
         })
     }
 
     function presentReference() {
-        quickSearch.controller.bibleReferenceInput = referenceInput.text
+        if (selectedBookId < 1 && !completeBook(false)) {
+            errorLabel.text = "Digite um nome de livro válido."
+            bookInput.forceActiveFocus()
+            return
+        }
+        const chapter = Number(chapterInput.text)
+        const verse = Number(verseInput.text)
+        if (!chapterAvailable(chapter)) {
+            errorLabel.text = "Digite um capítulo válido."
+            chapterInput.forceActiveFocus()
+            return
+        }
+        const verses = quickSearch.controller.bibleVerseNumbers(selectedBookId, chapter)
+        let verseIndex = -1
+        for (let index = 0; index < verses.length; ++index) {
+            if (Number(verses[index]) === verse) {
+                verseIndex = index
+                break
+            }
+        }
+        if (verseIndex < 0) {
+            errorLabel.text = "Digite um versículo válido."
+            verseInput.forceActiveFocus()
+            verseInput.selectAll()
+            return
+        }
+        quickSearch.controller.bibleReferenceInput = bookInput.text + " " + chapter
+                + ":" + verses[0] + "-" + verses[verses.length - 1]
         if (quickSearch.controller.searchBibleReference()) {
-            quickSearch.controller.showBibleVerse(0)
+            quickSearch.controller.showBibleVerse(verseIndex)
             close()
         } else {
             errorLabel.text = quickSearch.controller.statusMessage
@@ -65,29 +161,109 @@ Dialog {
             font.pixelSize: 30
             font.bold: true
         }
-        TextField {
-            id: referenceInput
+        RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 74
-            horizontalAlignment: TextInput.AlignHCenter
-            verticalAlignment: TextInput.AlignVCenter
-            placeholderText: "Ex.: Lucas 1:1"
-            placeholderTextColor: "#98a2aa"
-            color: "#ffffff"
-            font.pixelSize: 28
-            font.bold: true
-            selectByMouse: true
-            background: Rectangle {
-                color: "#20252a"
-                border.color: referenceInput.activeFocus ? "#9fb3ff" : "#59636c"
-                border.width: 2
-                radius: 7
+            spacing: 12
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 5
+                Label { text: "Livro"; color: "#c5cbd0"; font.bold: true }
+                TextField {
+                    id: bookInput
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 70
+                    Accessible.name: "Livro"
+                    placeholderText: "Ex.: luc"
+                    placeholderTextColor: "#98a2aa"
+                    color: "#ffffff"
+                    font.pixelSize: 25
+                    font.bold: true
+                    selectByMouse: true
+                    background: Rectangle {
+                        color: "#20252a"
+                        border.color: bookInput.activeFocus ? "#9fb3ff" : "#59636c"
+                        border.width: 2
+                        radius: 7
+                    }
+                    onTextEdited: {
+                        quickSearch.selectedBookId = -1
+                        chapterInput.text = ""
+                        verseInput.text = ""
+                        errorLabel.text = ""
+                        bookAdvance.restart()
+                    }
+                    onAccepted: {
+                        bookAdvance.stop()
+                        if (!quickSearch.completeBook(true))
+                            errorLabel.text = "Continue digitando até identificar um único livro."
+                    }
+                }
             }
-            onAccepted: quickSearch.presentReference()
+            ColumnLayout {
+                Layout.preferredWidth: 150
+                spacing: 5
+                Label { text: "Capítulo"; color: "#c5cbd0"; font.bold: true }
+                TextField {
+                    id: chapterInput
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 70
+                    Accessible.name: "Capítulo"
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "1"
+                    placeholderTextColor: "#98a2aa"
+                    color: "#ffffff"
+                    font.pixelSize: 25
+                    font.bold: true
+                    selectByMouse: true
+                    validator: IntValidator { bottom: 1; top: 999 }
+                    background: Rectangle {
+                        color: "#20252a"
+                        border.color: chapterInput.activeFocus ? "#9fb3ff" : "#59636c"
+                        border.width: 2
+                        radius: 7
+                    }
+                    onTextEdited: {
+                        verseInput.text = ""
+                        errorLabel.text = ""
+                        chapterAdvance.restart()
+                    }
+                    onAccepted: {
+                        chapterAdvance.stop()
+                        quickSearch.acceptChapter()
+                    }
+                }
+            }
+            ColumnLayout {
+                Layout.preferredWidth: 150
+                spacing: 5
+                Label { text: "Versículo"; color: "#c5cbd0"; font.bold: true }
+                TextField {
+                    id: verseInput
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 70
+                    Accessible.name: "Versículo"
+                    horizontalAlignment: TextInput.AlignHCenter
+                    placeholderText: "1"
+                    placeholderTextColor: "#98a2aa"
+                    color: "#ffffff"
+                    font.pixelSize: 25
+                    font.bold: true
+                    selectByMouse: true
+                    validator: IntValidator { bottom: 1; top: 999 }
+                    background: Rectangle {
+                        color: "#20252a"
+                        border.color: verseInput.activeFocus ? "#9fb3ff" : "#59636c"
+                        border.width: 2
+                        radius: 7
+                    }
+                    onTextEdited: errorLabel.text = ""
+                    onAccepted: quickSearch.presentReference()
+                }
+            }
         }
         Label {
             Layout.alignment: Qt.AlignHCenter
-            text: "Digite, por exemplo, João 3:16 e pressione Enter"
+            text: "Digite o início do livro; ao ficar único, o foco avança automaticamente"
             color: "#c5cbd0"
             font.pixelSize: 13
         }
@@ -100,5 +276,25 @@ Dialog {
             wrapMode: Text.WordWrap
         }
         Item { Layout.fillHeight: true }
+    }
+
+    Timer {
+        id: bookAdvance
+        interval: 250
+        repeat: false
+        onTriggered: {
+            if (bookInput.text.length > 0)
+                quickSearch.completeBook(true)
+        }
+    }
+
+    Timer {
+        id: chapterAdvance
+        interval: 450
+        repeat: false
+        onTriggered: {
+            if (chapterInput.text.length > 0)
+                quickSearch.acceptChapter()
+        }
     }
 }
