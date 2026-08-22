@@ -117,7 +117,25 @@ jobs:
 
       - name: Generate checksums
         shell: bash
-        run: find dist -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+        run: |
+          mkdir release-assets
+          while IFS= read -r -d '' asset; do
+            name="${asset##*/}"
+            if [[ -e "release-assets/$name" ]]; then
+              echo "Duplicate release asset name: $name" >&2
+              exit 1
+            fi
+            cp -- "$asset" "release-assets/$name"
+          done < <(find dist -type f -print0 | sort -z)
+
+          (
+            cd release-assets
+            find . -maxdepth 1 -type f -print0 \
+              | sort -z \
+              | xargs -0 sha256sum \
+              | sed 's#  \./#  #'
+          ) > SHA256SUMS
+          cp SHA256SUMS release-assets/SHA256SUMS
 
       - name: Publish GitHub pre-release
         shell: bash
@@ -125,14 +143,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          mapfile -d '' assets < <(find dist -type f -print0)
+          mapfile -d '' assets < <(find release-assets -maxdepth 1 -type f -print0 | sort -z)
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS --clobber
+            gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
             gh release edit "$GITHUB_REF_NAME" \
               --prerelease \
               --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)"
           else
-            gh release create "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS \
+            gh release create "$GITHUB_REF_NAME" "${assets[@]}" \
               --generate-notes \
               --prerelease \
               --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)" \
