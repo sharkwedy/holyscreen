@@ -17,6 +17,8 @@ Versioning where practical before 1.0.
   editable shortcut preferences.
 - Persisted the operator window and splitter layout and added a Restore layout
   action.
+- Extracted Events/History and Maintenance/Diagnostics from the monolithic
+  operator window into focused QML areas with accessible control names.
 
 - Added the offline automation domain: triggers, declarative conditions with
   `all`/`any` grouping, ordered actions, and runs, with no scripting language.
