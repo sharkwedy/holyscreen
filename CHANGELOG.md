@@ -20,6 +20,14 @@ Versioning where practical before 1.0.
 - Removed every QML lint warning; the context property is now the single
   documented exception in `MainWindow.qml` and `OutputWindow.qml`.
 - Fixed the identify overlay so it stays above video on every output.
+- Added the Broadcast output: transparent or chroma background, 16:9 and 9:16
+  composition presets, independent safe areas, per-overlay switches, and a
+  preview in the operator, all persisted per output by migration 3
+  (`output_broadcast_profiles`).
+- Added the `output.broadcast-profile.set` command with partial updates,
+  validation, and undo/redo.
+- Warned in the settings when the platform cannot guarantee window
+  transparency, instead of silently rendering a black background.
 
 ## [0.11.0] - 2026-08-22
 

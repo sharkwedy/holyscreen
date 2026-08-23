@@ -124,6 +124,37 @@ MigrationResult ApplicationDatabase::migrate(const QString &databasePath)
         if (!ok && error) *error = query.lastError().text();
         return ok;
     });
+    migrator.addMigration(3, QStringLiteral("broadcast output profiles"),
+                          [](QSqlDatabase &database, QString *error) {
+        const QStringList statements{
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS output_broadcast_profiles("
+                "screen_fingerprint TEXT PRIMARY KEY NOT NULL,"
+                "background_mode TEXT NOT NULL DEFAULT 'chroma',"
+                "chroma_color TEXT NOT NULL DEFAULT '#00b140',"
+                "safe_area_left REAL NOT NULL DEFAULT 5,"
+                "safe_area_top REAL NOT NULL DEFAULT 5,"
+                "safe_area_right REAL NOT NULL DEFAULT 5,"
+                "safe_area_bottom REAL NOT NULL DEFAULT 5,"
+                "aspect_preset TEXT NOT NULL DEFAULT '16:9',"
+                "show_clock INTEGER NOT NULL DEFAULT 0,"
+                "show_lower_third INTEGER NOT NULL DEFAULT 1,"
+                "show_alerts INTEGER NOT NULL DEFAULT 1,"
+                "show_audience_message INTEGER NOT NULL DEFAULT 1,"
+                "updated_at TEXT NOT NULL DEFAULT '')"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS output_broadcast_profiles_mode_idx "
+                "ON output_broadcast_profiles(background_mode)"),
+        };
+        QSqlQuery query(database);
+        for (const auto &statement : statements) {
+            if (!query.exec(statement)) {
+                if (error) *error = query.lastError().text();
+                return false;
+            }
+        }
+        return true;
+    });
     return migrator.migrate();
 }
 

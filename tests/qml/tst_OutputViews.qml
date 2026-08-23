@@ -98,10 +98,28 @@ TestCase {
         presentationController.blackout = false
     }
 
-    function test_broadcast_view_paints_its_own_background() {
+    function test_broadcast_view_defaults_to_chroma() {
         const view = createTemporaryObject(broadcastComponent, testCase)
         verify(view, "a saída de transmissão deve ser instanciável")
-        compare(String(view.backgroundColor), "#000000")
+        verify(!view.transparentBackground, "o padrão é chroma, não transparente")
+        compare(String(view.chromaColor), "#00b140")
+        compare(view.aspectRatio, 16 / 9)
+    }
+
+    function test_output_window_only_turns_transparent_for_transparent_broadcast() {
+        const window = createTemporaryObject(windowComponent, testCase)
+        window.outputRole = "audience"
+        window.broadcastProfile = {"backgroundMode": "transparent"}
+        verify(!window.transparentBroadcast, "público nunca fica transparente")
+        compare(String(window.color), "#000000")
+
+        window.outputRole = "broadcast"
+        verify(window.transparentBroadcast, "transmissão transparente pede janela translúcida")
+        compare(window.color.a, 0)
+
+        window.broadcastProfile = {"backgroundMode": "chroma"}
+        verify(!window.transparentBroadcast, "no chroma a janela volta a ser opaca")
+        compare(String(window.color), "#000000")
     }
 
     function test_output_window_routes_each_role_to_its_renderer() {

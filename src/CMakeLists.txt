@@ -22,6 +22,8 @@ add_library(presenter-screens
     screens/OutputRouting.h
     screens/OutputRole.cpp
     screens/OutputRole.h
+    screens/BroadcastProfile.cpp
+    screens/BroadcastProfile.h
 )
 target_include_directories(presenter-screens PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-screens PUBLIC Qt6::Core Qt6::Gui)
@@ -93,6 +95,8 @@ target_include_directories(presenter-persistence PUBLIC ${CMAKE_CURRENT_SOURCE_D
 target_link_libraries(presenter-persistence PUBLIC Qt6::Core Qt6::Sql)
 
 add_library(presenter-library
+    library/BroadcastProfileRepository.cpp
+    library/BroadcastProfileRepository.h
     library/MediaFolderScanner.cpp
     library/MediaFolderScanner.h
     library/MediaRepository.cpp
@@ -107,7 +111,7 @@ add_library(presenter-library
     library/HistoryRepository.h
 )
 target_include_directories(presenter-library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation)
+target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation presenter-screens)
 
 add_library(presenter-bible
     bible/BibleTypes.h
@@ -217,6 +221,8 @@ qt_add_qml_module(presenter-ui
         ui/output/BroadcastView.qml
         ui/output/StageOutputView.qml
         ui/output/OutputClock.qml
+        ui/output/BroadcastPreview.qml
+        ui/operator/BroadcastSettings.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml

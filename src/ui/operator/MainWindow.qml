@@ -29,7 +29,8 @@ ApplicationWindow {
     readonly property var outputBibleTranslations: [{"id":"", "displayName":"Bíblia: composição padrão"}]
                                                    .concat(root.controller.bibleTranslations)
     readonly property var outputRoles: [{"id":"audience", "displayName":"Saída: público"},
-                                        {"id":"stage", "displayName":"Saída: palco"}]
+                                        {"id":"stage", "displayName":"Saída: palco"},
+                                        {"id":"broadcast", "displayName":"Saída: transmissão"}]
     readonly property int previewOutputCount: root.controller.debugEnabled
                                               && root.controller.debugSimulatedOutputs
                                               ? root.controller.simulatedOutputCount : 1
@@ -71,6 +72,7 @@ ApplicationWindow {
             bibleTranslationId: modelData.bibleTranslationId
             outputRole: modelData.role
             mediaEnabled: modelData.mediaEnabled
+            broadcastProfile: modelData.broadcast
         }
     }
 
@@ -866,8 +868,12 @@ ApplicationWindow {
                                         }
                                         Label {
                                             text: screenDelegate.modelData.primary ? "OPERADOR • tela principal"
-                                                  : screenDelegate.modelData.selected && screenDelegate.modelData.role === "stage" ? "PALCO"
-                                                  : "DISPONÍVEL"
+                                                  : !screenDelegate.modelData.selected ? "DISPONÍVEL"
+                                                  : screenDelegate.modelData.role === "stage" ? "PALCO"
+                                                  : screenDelegate.modelData.role === "broadcast" ? "TRANSMISSÃO"
+                                                  : screenDelegate.modelData.role === "confidence" ? "CONFERÊNCIA"
+                                                  : screenDelegate.modelData.role === "custom" ? "PERSONALIZADA"
+                                                  : "PÚBLICO"
                                             color: "#8da0bc"
                                             font.pixelSize: 11
                                         }

@@ -1,9 +1,11 @@
 #pragma once
 
+#include "screens/BroadcastProfile.h"
 #include "screens/OutputManager.h"
 #include "screens/OutputRole.h"
 #include "screens/OutputRouting.h"
 
+#include <QHash>
 #include <QStringList>
 #include <QVariantList>
 #include <QVariantMap>
@@ -38,6 +40,15 @@ public:
     bool setMediaEnabled(const QString &screenFingerprint, bool enabled);
     bool setDisplayName(const QString &screenFingerprint, const QString &displayName);
 
+    //! Substitui o cache de perfis de transmissão carregado do banco.
+    void setBroadcastProfiles(const QVector<BroadcastProfile> &profiles);
+    //! Perfil salvo da saída ou os padrões, sempre com o fingerprint preenchido.
+    [[nodiscard]] BroadcastProfile broadcastProfile(const QString &screenFingerprint) const;
+    //! Aplica uma alteração parcial e devolve o perfil resultante para que a
+    //! camada de aplicação o persista.
+    [[nodiscard]] BroadcastProfile mergeBroadcastProfile(const QString &screenFingerprint,
+                                                         const QVariantMap &changes);
+
     //! View model of every detected screen, including the output settings when
     //! the screen is active.
     [[nodiscard]] QVariantList describeScreens(const QVector<ScreenDescriptor> &screens) const;
@@ -47,6 +58,7 @@ public:
 
 private:
     OutputManager m_outputs;
+    QHash<QString, BroadcastProfile> m_broadcastProfiles;
 };
 
 } // namespace churchpresenter

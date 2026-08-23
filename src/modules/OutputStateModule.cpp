@@ -107,6 +107,33 @@ bool OutputStateModule::setDisplayName(const QString &screenFingerprint,
     return m_outputs.setDisplayName(screenFingerprint, displayName);
 }
 
+void OutputStateModule::setBroadcastProfiles(const QVector<BroadcastProfile> &profiles)
+{
+    m_broadcastProfiles.clear();
+    for (const auto &profile : profiles) {
+        if (profile.screenFingerprint.isEmpty()) continue;
+        m_broadcastProfiles.insert(profile.screenFingerprint, normalizedBroadcastProfile(profile));
+    }
+}
+
+BroadcastProfile OutputStateModule::broadcastProfile(const QString &screenFingerprint) const
+{
+    const auto found = m_broadcastProfiles.constFind(screenFingerprint);
+    if (found != m_broadcastProfiles.cend()) return *found;
+    BroadcastProfile profile;
+    profile.screenFingerprint = screenFingerprint;
+    return profile;
+}
+
+BroadcastProfile OutputStateModule::mergeBroadcastProfile(const QString &screenFingerprint,
+                                                          const QVariantMap &changes)
+{
+    auto merged = broadcastProfileFromMap(changes, broadcastProfile(screenFingerprint));
+    merged.screenFingerprint = screenFingerprint;
+    m_broadcastProfiles.insert(screenFingerprint, merged);
+    return merged;
+}
+
 QVariantList OutputStateModule::describeScreens(const QVector<ScreenDescriptor> &screens) const
 {
     const auto &outputs = m_outputs.activeOutputs();
@@ -134,6 +161,8 @@ QVariantList OutputStateModule::describeScreens(const QVector<ScreenDescriptor> 
         if (selected && !output->displayName.isEmpty()) {
             item.insert(QStringLiteral("name"), output->displayName);
         }
+        item.insert(QStringLiteral("broadcast"),
+                    broadcastProfileToMap(broadcastProfile(screen.fingerprint)));
         result.append(item);
     }
     return result;
@@ -158,6 +187,8 @@ QVariantList OutputStateModule::describeOutputWindows(
             {QStringLiteral("bibleTranslationId"), placement.bibleTranslationId},
             {QStringLiteral("role"), outputRoleName(placement.role)},
             {QStringLiteral("mediaEnabled"), placement.mediaEnabled},
+            {QStringLiteral("broadcast"),
+             broadcastProfileToMap(broadcastProfile(placement.screenFingerprint))},
         });
     }
     return result;

@@ -61,6 +61,7 @@ private slots:
     void presentationEditsSupportUndoAndRedo();
     void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
     void remoteServerRequiresPasswordAndPersistsLocalConfiguration();
+    void broadcastProfilesAreValidatedAndSurviveARestart();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -70,7 +71,7 @@ void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
     qRegisterMetaType<DomainEvent>();
 
     ApplicationController controller;
-    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 2);
+    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 3);
     QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
     QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
 
@@ -302,6 +303,60 @@ void ApplicationCommandBridgeTest::remoteServerRequiresPasswordAndPersistsLocalC
     QCOMPARE(restored.remotePort(), static_cast<int>(port));
     QCOMPARE(restored.remoteInterface(), QStringLiteral("127.0.0.1"));
     QVERIFY2(restored.remoteEnabled(), qPrintable(restored.remoteError()));
+}
+
+void ApplicationCommandBridgeTest::broadcastProfilesAreValidatedAndSurviveARestart()
+{
+    QString fingerprint;
+    {
+        ApplicationController controller;
+        QVERIFY(!controller.screens().isEmpty());
+        fingerprint = controller.screens().first().toMap()
+                          .value(QStringLiteral("fingerprint")).toString();
+        QVERIFY(!fingerprint.isEmpty());
+
+        const auto defaults = controller.outputBroadcastProfile(fingerprint);
+        QCOMPARE(defaults.value(QStringLiteral("backgroundMode")).toString(),
+                 QStringLiteral("chroma"));
+        QCOMPARE(defaults.value(QStringLiteral("chromaColor")).toString(),
+                 QStringLiteral("#00b140"));
+
+        QVERIFY(!controller.setOutputBroadcastProfile(
+            fingerprint, {{QStringLiteral("backgroundMode"), QStringLiteral("alpha")}}));
+        QCOMPARE(controller.outputBroadcastProfile(fingerprint)
+                     .value(QStringLiteral("backgroundMode")).toString(),
+                 QStringLiteral("chroma"));
+
+        QVERIFY(controller.setOutputBroadcastProfile(fingerprint, {
+            {QStringLiteral("backgroundMode"), QStringLiteral("transparent")},
+            {QStringLiteral("aspectPreset"), QStringLiteral("9:16")},
+            {QStringLiteral("safeAreaLeft"), 8.0},
+            {QStringLiteral("showClock"), true},
+            {QStringLiteral("showLowerThird"), false},
+        }));
+        const auto updated = controller.outputBroadcastProfile(fingerprint);
+        QCOMPARE(updated.value(QStringLiteral("backgroundMode")).toString(),
+                 QStringLiteral("transparent"));
+        QCOMPARE(updated.value(QStringLiteral("aspectPreset")).toString(),
+                 QStringLiteral("9:16"));
+        QCOMPARE(updated.value(QStringLiteral("safeAreaLeft")).toDouble(), 8.0);
+        QVERIFY(updated.value(QStringLiteral("showClock")).toBool());
+        QVERIFY(!updated.value(QStringLiteral("showLowerThird")).toBool());
+        QVERIFY(controller.canUndo());
+
+        QVERIFY(controller.screens().first().toMap()
+                    .value(QStringLiteral("broadcast")).toMap()
+                    .value(QStringLiteral("showClock")).toBool());
+    }
+
+    ApplicationController restored;
+    const auto persisted = restored.outputBroadcastProfile(fingerprint);
+    QCOMPARE(persisted.value(QStringLiteral("backgroundMode")).toString(),
+             QStringLiteral("transparent"));
+    QCOMPARE(persisted.value(QStringLiteral("aspectPreset")).toString(), QStringLiteral("9:16"));
+    QCOMPARE(persisted.value(QStringLiteral("safeAreaLeft")).toDouble(), 8.0);
+    QVERIFY(persisted.value(QStringLiteral("showClock")).toBool());
+    QVERIFY(!persisted.value(QStringLiteral("showLowerThird")).toBool());
 }
 
 int main(int argc, char **argv)

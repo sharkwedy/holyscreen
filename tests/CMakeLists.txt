@@ -78,6 +78,10 @@ qt_add_executable(test_output_role unit/screens/OutputRoleTest.cpp)
 target_link_libraries(test_output_role PRIVATE Qt6::Test presenter-screens)
 add_test(NAME test_output_role COMMAND test_output_role)
 
+qt_add_executable(test_broadcast_profile unit/screens/BroadcastProfileTest.cpp)
+target_link_libraries(test_broadcast_profile PRIVATE Qt6::Test presenter-screens)
+add_test(NAME test_broadcast_profile COMMAND test_broadcast_profile)
+
 qt_add_executable(test_output_routing unit/screens/OutputRoutingTest.cpp)
 target_link_libraries(test_output_routing PRIVATE Qt6::Test presenter-screens)
 add_test(NAME test_output_routing COMMAND test_output_routing)
@@ -145,6 +149,10 @@ add_test(NAME test_database_migrator COMMAND test_database_migrator)
 qt_add_executable(test_application_database unit/persistence/ApplicationDatabaseTest.cpp)
 target_link_libraries(test_application_database PRIVATE Qt6::Test presenter-persistence)
 add_test(NAME test_application_database COMMAND test_application_database)
+
+qt_add_executable(test_broadcast_profile_repository unit/library/BroadcastProfileRepositoryTest.cpp)
+target_link_libraries(test_broadcast_profile_repository PRIVATE Qt6::Test presenter-library presenter-persistence)
+add_test(NAME test_broadcast_profile_repository COMMAND test_broadcast_profile_repository)
 
 qt_add_executable(test_media_repository
     unit/library/MediaRepositoryTest.cpp
