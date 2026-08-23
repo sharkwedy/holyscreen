@@ -43,6 +43,15 @@ Versioning where practical before 1.0.
   and body, header secrets resolved from the vault, validated TLS, redirect,
   timeout and response-size limits, an allowlisted response metadata, and a
   `HEAD` connection test that never triggers the webhook.
+- Added the WebSocket client adapter with `ws`/`wss`, templated text or JSON
+  messages, limited backoff reconnection, observable state, and message and
+  queue caps.
+- Added the MIDI adapter over RtMidi 6.0.0 (pinned by checksum) with output
+  port listing, Note On/Off, Control Change and Program Change, validated
+  channel and values, and hot-plug handling without crashing.
+- Added the OSC over UDP adapter with an OSC 1.0 encoder covered by known-byte
+  tests, int32/float32/string/bool arguments, a datagram limit, and no listener
+  opened by default.
 
 ## [0.11.0] - 2026-08-22
 

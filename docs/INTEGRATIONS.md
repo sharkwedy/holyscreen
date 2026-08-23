@@ -81,10 +81,55 @@ A migração 4 cria:
 
 Nenhuma coluna guarda segredo.
 
+## Adapters
+
+### HTTP de saída
+
+Métodos GET, POST, PUT, PATCH e DELETE, apenas `http` e `https`. URL,
+cabeçalhos e corpo aceitam marcadores `{{campo}}` resolvidos com o payload do
+pedido. Um cabeçalho pode apontar para uma referência do cofre em vez de conter
+o valor. TLS usa a validação padrão do Qt, o redirecionamento é restrito à
+mesma origem e a resposta tem limite de tamanho. O resultado traz status,
+duração e apenas os cabeçalhos da allowlist (`content-type`, `content-length`,
+`retry-after`, `location`). O teste de conexão usa `HEAD` sem corpo, então
+testar um webhook nunca o dispara. Só métodos idempotentes podem ser repetidos.
+
+Operação: `request.send`.
+
+### Cliente WebSocket
+
+`ws` e `wss`, com conectar, enviar texto ou JSON e desconectar. A reconexão usa
+backoff limitado a cinco tentativas, o estado é observável
+(`connecting`, `connected`, `disconnected`, `error`, `unavailable`) e há teto
+de mensagem e de fila. Abrir e testar a conexão podem ser repetidos; reenviar
+mensagem não.
+
+Operações: `message.send`, `connection.open`, `connection.close`.
+
+### MIDI
+
+Lista as portas de saída pelo RtMidi, envia Note On/Off, Control Change e
+Program Change. O canal vai de 1 a 16 na configuração e é convertido para 0-15
+no protocolo; notas, velocidades, controladores e valores ficam entre 0 e 127.
+Porta ausente e hot-plug devolvem `port_unavailable` sem derrubar o
+aplicativo. O teste de conexão apenas abre a porta, sem tocar nota.
+
+Operações: `note.on`, `note.off`, `control.change`, `program.change`.
+
+### OSC sobre UDP
+
+Endereço IPv4 ou IPv6, porta e caminho OSC, com argumentos int32, float32,
+texto e booleano. O codificador segue o OSC 1.0, com todo bloco alinhado em
+quatro bytes e limite de datagrama de 8 KiB. Nenhuma porta de escuta é aberta.
+Como o UDP não confirma entrega, o teste de conexão apenas valida a
+configuração.
+
+Operação: `message.send`.
+
 ## Estado atual
 
-O domínio, o motor, a persistência e o cofre estão implementados. Os adapters
-HTTP, WebSocket, OBS v5, MIDI e OSC, os comandos `integration.test` e
-`integration.execute` e a área **Integrações** chegam nos incrementos seguintes
-da onda 4, conforme
+O domínio, o motor, a persistência, o cofre e os adapters HTTP, WebSocket, MIDI
+e OSC estão implementados. O adapter OBS WebSocket v5, os comandos
+`integration.test` e `integration.execute` e a área **Integrações** chegam nos
+incrementos seguintes da onda 4, conforme
 [`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md).

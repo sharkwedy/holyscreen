@@ -144,6 +144,18 @@ qt_add_executable(test_http_integration_adapter unit/integrations/HttpIntegratio
 target_link_libraries(test_http_integration_adapter PRIVATE Qt6::Test Qt6::HttpServer presenter-integrations)
 add_test(NAME test_http_integration_adapter COMMAND test_http_integration_adapter)
 
+qt_add_executable(test_websocket_integration_adapter unit/integrations/WebSocketIntegrationAdapterTest.cpp)
+target_link_libraries(test_websocket_integration_adapter PRIVATE Qt6::Test Qt6::WebSockets presenter-integrations)
+add_test(NAME test_websocket_integration_adapter COMMAND test_websocket_integration_adapter)
+
+qt_add_executable(test_osc_integration_adapter unit/integrations/OscIntegrationAdapterTest.cpp)
+target_link_libraries(test_osc_integration_adapter PRIVATE Qt6::Test Qt6::Network presenter-integrations)
+add_test(NAME test_osc_integration_adapter COMMAND test_osc_integration_adapter)
+
+qt_add_executable(test_midi_integration_adapter unit/integrations/MidiIntegrationAdapterTest.cpp)
+target_link_libraries(test_midi_integration_adapter PRIVATE Qt6::Test presenter-integrations)
+add_test(NAME test_midi_integration_adapter COMMAND test_midi_integration_adapter)
+
 qt_add_executable(test_secret_store unit/integrations/SecretStoreTest.cpp)
 target_link_libraries(test_secret_store PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_secret_store COMMAND test_secret_store)

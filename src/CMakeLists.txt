@@ -97,15 +97,31 @@ add_library(presenter-integrations
     integrations/ports/ITransports.h
     integrations/adapters/HttpIntegrationAdapter.cpp
     integrations/adapters/HttpIntegrationAdapter.h
+    integrations/adapters/WebSocketIntegrationAdapter.cpp
+    integrations/adapters/WebSocketIntegrationAdapter.h
+    integrations/adapters/MidiIntegrationAdapter.cpp
+    integrations/adapters/MidiIntegrationAdapter.h
+    integrations/transports/RtMidiTransport.cpp
+    integrations/transports/RtMidiTransport.h
+    integrations/adapters/OscMessage.cpp
+    integrations/adapters/OscMessage.h
+    integrations/adapters/OscIntegrationAdapter.cpp
+    integrations/adapters/OscIntegrationAdapter.h
+    integrations/transports/QtOscTransport.cpp
+    integrations/transports/QtOscTransport.h
     integrations/transports/QtHttpTransport.cpp
     integrations/transports/QtHttpTransport.h
+    integrations/transports/QtWebSocketTransport.cpp
+    integrations/transports/QtWebSocketTransport.h
     integrations/secrets/InMemorySecretStore.cpp
     integrations/secrets/InMemorySecretStore.h
     integrations/secrets/SecretStoreFactory.cpp
     integrations/secrets/SecretStoreFactory.h
 )
 target_include_directories(presenter-integrations PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-integrations PUBLIC Qt6::Core Qt6::Network)
+target_link_libraries(presenter-integrations PUBLIC Qt6::Core Qt6::Network Qt6::WebSockets)
+target_link_libraries(presenter-integrations PRIVATE rtmidi)
+target_include_directories(presenter-integrations PRIVATE ${rtmidi_SOURCE_DIR})
 
 # Cofre de segredos nativo de cada sistema. Sem cofre disponível o motor usa o
 # armazenamento em memória e a interface avisa o operador.
