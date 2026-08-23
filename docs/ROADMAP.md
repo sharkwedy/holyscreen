@@ -11,7 +11,7 @@ O handoff detalhado das ondas 4 a 8 está em
 | 1 | Command/Event Bus, migrações e confiabilidade | Concluída e validada na v0.11.0 |
 | 2 | Controle remoto autenticado e API v1 | Concluída e validada na v0.11.0 |
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
-| 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Pendente |
+| 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Em andamento: incrementos 4.0 e 4.1 concluídos |
 | 5 | Automações offline | Pendente |
 | 6 | Escalas e relatórios avançados | Pendente |
 | 7 | UX final, onboarding, acessibilidade e documentação | Pendente |

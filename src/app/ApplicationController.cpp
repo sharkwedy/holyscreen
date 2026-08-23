@@ -153,6 +153,14 @@ ApplicationController::ApplicationController(QObject *parent)
             .setMediaEnabled = [this](const QString &fingerprint, bool enabled) {
                 return applyOutputMediaEnabled(fingerprint, enabled);
             },
+            .broadcastProfile = [this](const QString &fingerprint) {
+                return outputRoutingState(fingerprint).isEmpty()
+                    ? QVariantMap{} : outputBroadcastProfile(fingerprint);
+            },
+            .setBroadcastProfile = [this](const QString &fingerprint,
+                                          const QVariantMap &changes) {
+                return applyOutputBroadcastProfile(fingerprint, changes);
+            },
         }, &m_undoManager, this);
     m_overlayCommands = std::make_unique<OverlayCommandModule>(
         m_commandBus, m_eventBus, m_overlays, &m_undoManager, this);
@@ -779,6 +787,47 @@ bool ApplicationController::applyOutputMediaEnabled(const QString &screenFingerp
     saveOutputs();
     refreshScreens();
     return true;
+}
+
+QVariantMap ApplicationController::outputBroadcastProfile(const QString &screenFingerprint) const
+{
+    return broadcastProfileToMap(m_outputs.broadcastProfile(screenFingerprint));
+}
+
+bool ApplicationController::setOutputBroadcastProfile(const QString &screenFingerprint,
+                                                      const QVariantMap &changes)
+{
+    return m_outputRoutingCommands->requestBroadcastProfile(screenFingerprint, changes).accepted;
+}
+
+bool ApplicationController::applyOutputBroadcastProfile(const QString &screenFingerprint,
+                                                        const QVariantMap &changes)
+{
+    const auto merged = m_outputs.mergeBroadcastProfile(screenFingerprint, changes);
+    if (m_broadcastProfiles && !m_broadcastProfiles->save(merged)) {
+        setStatusMessage(QStringLiteral("O perfil de transmissão não pôde ser salvo."));
+        return false;
+    }
+    refreshScreens();
+    return true;
+}
+
+bool ApplicationController::broadcastTransparencySupported() const
+{
+    // Wayland, macOS e Windows compõem janelas translúcidas por padrão. No X11
+    // a transparência depende de um compositor ativo, que não pode ser
+    // detectado com confiança sem APIs privadas.
+    const auto platform = QGuiApplication::platformName();
+    return platform != QStringLiteral("xcb") && platform != QStringLiteral("offscreen")
+        && platform != QStringLiteral("minimal");
+}
+
+QString ApplicationController::broadcastTransparencyWarning() const
+{
+    if (broadcastTransparencySupported()) return {};
+    return QStringLiteral(
+        "Nesta plataforma a transparência depende de um compositor ativo. "
+        "Se a captura mostrar fundo preto, use o modo chroma.");
 }
 
 QVariantMap ApplicationController::outputRoutingState(const QString &screenFingerprint) const
@@ -2744,6 +2793,12 @@ void ApplicationController::loadSettings()
     m_historyRepository=std::make_unique<HistoryRepository>(databasePath);
     if(!m_historyRepository->open())qWarning()<<"Failed to open history database";
     refreshHistory();
+    m_broadcastProfiles=std::make_unique<BroadcastProfileRepository>(databasePath);
+    if(!m_broadcastProfiles->open()) {
+        qWarning()<<"Failed to open broadcast profile database";
+    } else {
+        m_outputs.setBroadcastProfiles(m_broadcastProfiles->all());
+    }
     m_diagnostics={{"version",QCoreApplication::applicationVersion()},{"qtVersion",QString::fromLatin1(qVersion())},{"platform",QSysInfo::prettyProductName()},{"cpu",QSysInfo::currentCpuArchitecture()},{"dataDirectory",m_dataDirectory},{"database",databasePath},{"schemaVersion",migration.currentVersion},{"migrationBackup",migration.backupPath},{"recoveredFromCrash",recoveredFromCrash()}};
 
     m_outputs.restore(m_settings->value(QStringLiteral("outputs/items")).toStringList());

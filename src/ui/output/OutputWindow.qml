@@ -8,7 +8,7 @@ import QtQuick.Window
 Window {
     id: root
     visible: false
-    color: "black"
+    color: root.transparentBroadcast ? "transparent" : "black"
     flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
            | Qt.WindowDoesNotAcceptFocus | Qt.Window
     title: "HolyScreen — " + root.outputDisplayName
@@ -23,6 +23,12 @@ Window {
     property string bibleTranslationId: ""
     property string outputRole: "audience"
     property bool mediaEnabled: true
+    //! Perfil de transmissão da saída, usado apenas no papel broadcast.
+    property var broadcastProfile: ({})
+    //! Verdadeiro quando a saída de transmissão pede fundo transparente.
+    readonly property bool transparentBroadcast:
+        root.outputRole === "broadcast"
+        && (root.broadcastProfile.backgroundMode || "chroma") === "transparent"
     // O ApplicationController chega como propriedade de contexto criada pelo
     // main.cpp; o qmllint não conhece esse tipo, então a exceção fica restrita
     // a esta linha.
@@ -94,6 +100,7 @@ Window {
             controller: root.controller
             bibleTranslationId: root.bibleTranslationId
             mediaEnabled: root.mediaEnabled
+            profile: root.broadcastProfile
         }
     }
 

@@ -1,5 +1,6 @@
 #include "modules/OutputRoutingCommandModule.h"
 
+#include "screens/BroadcastProfile.h"
 #include "screens/OutputRole.h"
 
 #include <QDateTime>
@@ -80,6 +81,62 @@ OutputRoutingCommandModule::OutputRoutingCommandModule(CommandBus &commandBus,
                 });
         }
         return CommandResult{.accepted = true, .message = QStringLiteral("Papel da saída atualizado.")};
+    });
+    m_commandBus.registerHandler(QStringLiteral("output.broadcast-profile.set"),
+                                 [this](const Command &command) {
+        const auto fingerprint = command.payload.value(QStringLiteral("fingerprint"))
+                                     .toString().trimmed();
+        if (fingerprint.isEmpty()) {
+            return invalidPayload(QStringLiteral("fingerprint é obrigatório."));
+        }
+        const auto backgroundMode = command.payload.value(QStringLiteral("backgroundMode"))
+                                        .toString().trimmed();
+        if (!backgroundMode.isEmpty()
+            && !broadcastBackgroundModeFromName(backgroundMode).has_value()) {
+            return invalidPayload(QStringLiteral("backgroundMode deve ser %1.")
+                                      .arg(broadcastBackgroundModeNames().join(QLatin1String(" ou "))));
+        }
+        const auto aspectPreset = command.payload.value(QStringLiteral("aspectPreset"))
+                                      .toString().trimmed();
+        if (!aspectPreset.isEmpty() && !broadcastAspectPresetFromName(aspectPreset).has_value()) {
+            return invalidPayload(QStringLiteral("aspectPreset deve ser %1.")
+                                      .arg(broadcastAspectPresetNames().join(QLatin1String(" ou "))));
+        }
+        const auto chromaColor = command.payload.value(QStringLiteral("chromaColor"))
+                                     .toString().trimmed();
+        if (!chromaColor.isEmpty() && !isValidChromaColor(chromaColor)) {
+            return invalidPayload(QStringLiteral("chromaColor não é uma cor válida."));
+        }
+        const auto previous = m_actions.broadcastProfile
+            ? m_actions.broadcastProfile(fingerprint) : QVariantMap{};
+        if (previous.isEmpty()) return invalidPayload(QStringLiteral("Saída não encontrada."));
+
+        auto changes = command.payload;
+        changes.remove(QStringLiteral("fingerprint"));
+        if (changes.isEmpty()) {
+            return invalidPayload(QStringLiteral("Nenhuma alteração informada."));
+        }
+        if (!applyBroadcastProfile(fingerprint, changes, command.id)) {
+            return CommandResult{.accepted = false,
+                                 .errorCode = QStringLiteral("operation_failed"),
+                                 .message = QStringLiteral("O perfil de transmissão não pôde ser atualizado.")};
+        }
+        const auto current = m_actions.broadcastProfile
+            ? m_actions.broadcastProfile(fingerprint) : QVariantMap{};
+        if (m_undoManager && previous != current) {
+            m_undoManager->record(
+                QStringLiteral("Alterar perfil de transmissão"),
+                [this, fingerprint, previous] {
+                    return applyBroadcastProfile(fingerprint, previous,
+                        QUuid::createUuid().toString(QUuid::WithoutBraces));
+                },
+                [this, fingerprint, current] {
+                    return applyBroadcastProfile(fingerprint, current,
+                        QUuid::createUuid().toString(QUuid::WithoutBraces));
+                });
+        }
+        return CommandResult{.accepted = true,
+                             .message = QStringLiteral("Perfil de transmissão atualizado.")};
     });
     m_commandBus.registerHandler(QStringLiteral("output.media-enabled.set"),
                                  [this](const Command &command) {
@@ -171,6 +228,25 @@ bool OutputRoutingCommandModule::applyMediaEnabled(const QString &fingerprint, b
 {
     if (!m_actions.setMediaEnabled || !m_actions.setMediaEnabled(fingerprint, enabled)) return false;
     return publishState(fingerprint, QStringLiteral("media-enabled.set"), correlationId);
+}
+
+CommandResult OutputRoutingCommandModule::requestBroadcastProfile(const QString &fingerprint,
+                                                                  const QVariantMap &changes,
+                                                                  const QString &source)
+{
+    auto payload = changes;
+    payload.insert(QStringLiteral("fingerprint"), fingerprint);
+    return dispatch(QStringLiteral("output.broadcast-profile.set"), payload, source);
+}
+
+bool OutputRoutingCommandModule::applyBroadcastProfile(const QString &fingerprint,
+                                                       const QVariantMap &profile,
+                                                       const QString &correlationId)
+{
+    if (!m_actions.setBroadcastProfile || !m_actions.setBroadcastProfile(fingerprint, profile)) {
+        return false;
+    }
+    return publishState(fingerprint, QStringLiteral("broadcast-profile.set"), correlationId);
 }
 
 bool OutputRoutingCommandModule::publishState(const QString &fingerprint, const QString &action,

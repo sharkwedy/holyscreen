@@ -40,6 +40,7 @@ QList<CommandDescriptor> CommandCatalog::descriptors()
         {QStringLiteral("output.enabled.set"), false, true},
         {QStringLiteral("output.role.set"), false, true},
         {QStringLiteral("output.media-enabled.set"), false, true},
+        {QStringLiteral("output.broadcast-profile.set"), false, true},
         {QStringLiteral("settings.theme.apply"), false, true},
         {QStringLiteral("system.undo"), false, false},
         {QStringLiteral("system.redo"), false, false},

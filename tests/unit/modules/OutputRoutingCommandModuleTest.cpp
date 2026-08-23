@@ -14,6 +14,8 @@ private slots:
     void routesOutputChangesAndSupportsUndo();
     void rejectsMissingOutputsAndInvalidRoles();
     void acceptsEveryDeclaredOutputRole();
+    void appliesPartialBroadcastProfileChangesWithUndo();
+    void rejectsInvalidBroadcastProfileValues();
 };
 
 void OutputRoutingCommandModuleTest::routesOutputChangesAndSupportsUndo()
@@ -81,6 +83,88 @@ void OutputRoutingCommandModuleTest::acceptsEveryDeclaredOutputRole()
         QVERIFY2(result.accepted, qPrintable(role));
         QCOMPARE(output.value(QStringLiteral("role")).toString(), role);
     }
+}
+
+namespace {
+
+struct BroadcastFixture {
+    QVariantMap profile{{QStringLiteral("backgroundMode"), QStringLiteral("chroma")},
+                        {QStringLiteral("chromaColor"), QStringLiteral("#00b140")},
+                        {QStringLiteral("showLowerThird"), true}};
+
+    OutputRoutingCommandModule::Actions actions()
+    {
+        return {
+            .broadcastProfile = [this](const QString &) { return profile; },
+            .setBroadcastProfile = [this](const QString &, const QVariantMap &changes) {
+                for (auto it = changes.cbegin(); it != changes.cend(); ++it) {
+                    profile.insert(it.key(), it.value());
+                }
+                return true;
+            },
+        };
+    }
+};
+
+} // namespace
+
+void OutputRoutingCommandModuleTest::appliesPartialBroadcastProfileChangesWithUndo()
+{
+    CommandBus commands;
+    EventBus events;
+    UndoManager undo;
+    BroadcastFixture fixture;
+    OutputRoutingCommandModule module(commands, events, fixture.actions(), &undo);
+    QSignalSpy eventSpy(&events, &EventBus::eventPublished);
+
+    const auto result = module.requestBroadcastProfile(
+        QStringLiteral("hdmi-2"),
+        {{QStringLiteral("backgroundMode"), QStringLiteral("transparent")},
+         {QStringLiteral("showLowerThird"), false}});
+    QVERIFY2(result.accepted, qPrintable(result.message));
+    QCOMPARE(fixture.profile.value(QStringLiteral("backgroundMode")).toString(),
+             QStringLiteral("transparent"));
+    QVERIFY(!fixture.profile.value(QStringLiteral("showLowerThird")).toBool());
+    // A cor de chroma não informada permanece intocada.
+    QCOMPARE(fixture.profile.value(QStringLiteral("chromaColor")).toString(),
+             QStringLiteral("#00b140"));
+    QCOMPARE(eventSpy.count(), 1);
+
+    QVERIFY(undo.undo().success);
+    QCOMPARE(fixture.profile.value(QStringLiteral("backgroundMode")).toString(),
+             QStringLiteral("chroma"));
+    QVERIFY(fixture.profile.value(QStringLiteral("showLowerThird")).toBool());
+    QVERIFY(undo.redo().success);
+    QCOMPARE(fixture.profile.value(QStringLiteral("backgroundMode")).toString(),
+             QStringLiteral("transparent"));
+}
+
+void OutputRoutingCommandModuleTest::rejectsInvalidBroadcastProfileValues()
+{
+    CommandBus commands;
+    EventBus events;
+    BroadcastFixture fixture;
+    OutputRoutingCommandModule module(commands, events, fixture.actions());
+
+    QCOMPARE(module.requestBroadcastProfile(QString{}, {{QStringLiteral("showAlerts"), false}})
+                 .errorCode,
+             QStringLiteral("invalid_payload"));
+    QCOMPARE(module.requestBroadcastProfile(
+                 QStringLiteral("hdmi-2"),
+                 {{QStringLiteral("backgroundMode"), QStringLiteral("alpha")}}).errorCode,
+             QStringLiteral("invalid_payload"));
+    QCOMPARE(module.requestBroadcastProfile(
+                 QStringLiteral("hdmi-2"),
+                 {{QStringLiteral("aspectPreset"), QStringLiteral("4:3")}}).errorCode,
+             QStringLiteral("invalid_payload"));
+    QCOMPARE(module.requestBroadcastProfile(
+                 QStringLiteral("hdmi-2"),
+                 {{QStringLiteral("chromaColor"), QStringLiteral("verde")}}).errorCode,
+             QStringLiteral("invalid_payload"));
+    QCOMPARE(module.requestBroadcastProfile(QStringLiteral("hdmi-2"), {}).errorCode,
+             QStringLiteral("invalid_payload"));
+    QCOMPARE(fixture.profile.value(QStringLiteral("backgroundMode")).toString(),
+             QStringLiteral("chroma"));
 }
 
 QTEST_APPLESS_MAIN(OutputRoutingCommandModuleTest)

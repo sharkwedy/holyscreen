@@ -126,7 +126,10 @@ Dialog {
                             id: screenRow
                             required property var modelData
                             Layout.fillWidth: true
-                            implicitHeight: screenRow.modelData.primary ? 64 : 116
+                            implicitHeight: screenRow.modelData.primary ? 64
+                                            : screenRow.modelData.selected
+                                              && screenRow.modelData.role === "broadcast" ? 430
+                                            : 116
                             radius: 6
                             color: settings.panelHigh
                             border.color: screenRow.modelData.selected ? "#7294ff" : settings.line
@@ -165,13 +168,23 @@ Dialog {
                                     ComboBox {
                                         Layout.preferredWidth: 210
                                         model: [{"id":"audience", "name":"Saída para o público"},
-                                                {"id":"stage", "name":"Saída de palco"}]
+                                                {"id":"stage", "name":"Saída de palco"},
+                                                {"id":"broadcast", "name":"Saída de transmissão"}]
                                         textRole: "name"
                                         valueRole: "id"
                                         currentIndex: settings.valueIndex(model, screenRow.modelData.role)
                                         onActivated: settings.controller.setOutputRole(screenRow.modelData.id, currentValue)
                                     }
                                     Item { Layout.fillWidth: true }
+                                }
+                                BroadcastSettings {
+                                    Layout.fillWidth: true
+                                    visible: screenRow.modelData.selected
+                                             && screenRow.modelData.role === "broadcast"
+                                    controller: settings.controller
+                                    screen: screenRow.modelData
+                                    textMain: settings.textMain
+                                    textMuted: settings.textMuted
                                 }
                             }
                         }

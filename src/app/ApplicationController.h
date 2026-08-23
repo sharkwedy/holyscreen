@@ -10,6 +10,7 @@
 #include "library/PresentationRepository.h"
 #include "library/ThemeRepository.h"
 #include "library/EventRepository.h"
+#include "library/BroadcastProfileRepository.h"
 #include "library/HistoryRepository.h"
 #include "library/MediaFolderScanner.h"
 #include "app/DataRecoveryService.h"
@@ -88,6 +89,8 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(int remoteSessions READ remoteSessions NOTIFY remoteChanged)
     Q_PROPERTY(QString remoteError READ remoteError NOTIFY remoteChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
+    Q_PROPERTY(bool broadcastTransparencySupported READ broadcastTransparencySupported CONSTANT)
+    Q_PROPERTY(QString broadcastTransparencyWarning READ broadcastTransparencyWarning CONSTANT)
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY undoStateChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY undoStateChanged)
     Q_PROPERTY(QString undoLabel READ undoLabel NOTIFY undoStateChanged)
@@ -231,6 +234,8 @@ public:
     [[nodiscard]] int remoteSessions() const;
     [[nodiscard]] QString remoteError() const;
     [[nodiscard]] bool blackout() const;
+    [[nodiscard]] bool broadcastTransparencySupported() const;
+    [[nodiscard]] QString broadcastTransparencyWarning() const;
     [[nodiscard]] bool canUndo() const;
     [[nodiscard]] bool canRedo() const;
     [[nodiscard]] QString undoLabel() const;
@@ -335,6 +340,12 @@ public:
     Q_INVOKABLE bool setOutputBibleTranslation(const QString &screenFingerprint, const QString &translationId);
     Q_INVOKABLE bool setOutputRole(const QString &screenFingerprint, const QString &role);
     Q_INVOKABLE bool setOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
+    //! Perfil de transmissão da saída, com os padrões quando ainda não houver
+    //! configuração salva.
+    Q_INVOKABLE QVariantMap outputBroadcastProfile(const QString &screenFingerprint) const;
+    //! Aplica uma alteração parcial no perfil de transmissão pela CommandBus.
+    Q_INVOKABLE bool setOutputBroadcastProfile(const QString &screenFingerprint,
+                                               const QVariantMap &changes);
     Q_INVOKABLE bool setOutputDisplayName(const QString &screenFingerprint, const QString &displayName);
     Q_INVOKABLE void setBlackout(bool enabled);
     Q_INVOKABLE void undo();
@@ -605,6 +616,7 @@ private:
     bool applyToggleScreen(const QString &screenFingerprint, bool enabled);
     bool applyOutputRole(const QString &screenFingerprint, const QString &role);
     bool applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
+    bool applyOutputBroadcastProfile(const QString &screenFingerprint, const QVariantMap &changes);
     [[nodiscard]] QVariantMap outputRoutingState(const QString &screenFingerprint) const;
     [[nodiscard]] QJsonObject remoteState() const;
     bool restartRemoteServer();
@@ -682,6 +694,7 @@ private:
     std::unique_ptr<ThemeRepository> m_themeRepository;
     std::unique_ptr<EventRepository> m_eventRepository;
     std::unique_ptr<HistoryRepository> m_historyRepository;
+    std::unique_ptr<BroadcastProfileRepository> m_broadcastProfiles;
     std::unique_ptr<DataRecoveryService> m_recovery;
     std::unique_ptr<AutosaveCoordinator> m_autosave;
     QString m_autosaveStatus = QStringLiteral("Salvo");

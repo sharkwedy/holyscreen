@@ -5,6 +5,7 @@
 #include "core/UndoManager.h"
 
 #include <QObject>
+#include <QVariantMap>
 
 #include <functional>
 
@@ -19,6 +20,9 @@ public:
         std::function<bool(const QString &fingerprint, bool enabled)> setEnabled;
         std::function<bool(const QString &fingerprint, const QString &role)> setRole;
         std::function<bool(const QString &fingerprint, bool enabled)> setMediaEnabled;
+        std::function<QVariantMap(const QString &fingerprint)> broadcastProfile;
+        std::function<bool(const QString &fingerprint, const QVariantMap &profile)>
+            setBroadcastProfile;
     };
 
     OutputRoutingCommandModule(CommandBus &commandBus, EventBus &eventBus, Actions actions,
@@ -30,6 +34,9 @@ public:
                               const QString &source = QStringLiteral("operator"));
     CommandResult requestMediaEnabled(const QString &fingerprint, bool enabled,
                                       const QString &source = QStringLiteral("operator"));
+    //! Aplica uma alteração parcial no perfil de transmissão da saída.
+    CommandResult requestBroadcastProfile(const QString &fingerprint, const QVariantMap &changes,
+                                          const QString &source = QStringLiteral("operator"));
 
 private:
     CommandResult dispatch(const QString &type, const QVariantMap &payload,
@@ -38,6 +45,8 @@ private:
     bool applyRole(const QString &fingerprint, const QString &role, const QString &correlationId);
     bool applyMediaEnabled(const QString &fingerprint, bool enabled,
                            const QString &correlationId);
+    bool applyBroadcastProfile(const QString &fingerprint, const QVariantMap &profile,
+                               const QString &correlationId);
     bool publishState(const QString &fingerprint, const QString &action,
                       const QString &correlationId);
     [[nodiscard]] CommandResult invalidPayload(const QString &message) const;
