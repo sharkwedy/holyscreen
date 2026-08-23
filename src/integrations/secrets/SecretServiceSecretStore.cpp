@@ -2,7 +2,18 @@
 
 #include <QDebug>
 
+// O GDBus declara um campo chamado `signals`, que a macro de palavra-chave do
+// Qt transformaria em `public`. As macros saem de cena só para este include.
+#pragma push_macro("signals")
+#pragma push_macro("slots")
+#pragma push_macro("emit")
+#undef signals
+#undef slots
+#undef emit
 #include <libsecret/secret.h>
+#pragma pop_macro("emit")
+#pragma pop_macro("slots")
+#pragma pop_macro("signals")
 
 namespace churchpresenter {
 namespace {
