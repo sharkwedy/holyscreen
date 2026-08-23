@@ -144,13 +144,23 @@ qt_add_executable(test_automation_engine unit/automation/AutomationEngineTest.cp
 target_link_libraries(test_automation_engine PRIVATE Qt6::Test presenter-automation)
 add_test(NAME test_automation_engine COMMAND test_automation_engine)
 
+add_executable(test_process_helper helpers/ProcessHelper.cpp)
+
 qt_add_executable(test_authorized_executables unit/automation/AuthorizedExecutablesTest.cpp)
 target_link_libraries(test_authorized_executables PRIVATE Qt6::Test presenter-automation)
+target_compile_definitions(test_authorized_executables PRIVATE
+    TEST_PROCESS_HELPER_PATH="$<TARGET_FILE:test_process_helper>")
+add_dependencies(test_authorized_executables test_process_helper)
 add_test(NAME test_authorized_executables COMMAND test_authorized_executables)
 
 qt_add_executable(test_trigger_translator unit/automation/TriggerTranslatorTest.cpp)
 target_link_libraries(test_trigger_translator PRIVATE Qt6::Test presenter-automation)
 add_test(NAME test_trigger_translator COMMAND test_trigger_translator)
+
+qt_add_executable(test_local_time_trigger_scheduler
+    unit/automation/LocalTimeTriggerSchedulerTest.cpp)
+target_link_libraries(test_local_time_trigger_scheduler PRIVATE Qt6::Test presenter-automation)
+add_test(NAME test_local_time_trigger_scheduler COMMAND test_local_time_trigger_scheduler)
 
 qt_add_executable(test_condition_evaluator unit/automation/ConditionEvaluatorTest.cpp)
 target_link_libraries(test_condition_evaluator PRIVATE Qt6::Test presenter-automation)
@@ -248,6 +258,9 @@ add_test(NAME test_autosave_coordinator COMMAND test_autosave_coordinator)
 
 qt_add_executable(test_application_command_bridge unit/app/ApplicationCommandBridgeTest.cpp)
 target_link_libraries(test_application_command_bridge PRIVATE Qt6::Test Qt6::HttpServer presenter-app)
+target_compile_definitions(test_application_command_bridge PRIVATE
+    TEST_PROCESS_HELPER_PATH="$<TARGET_FILE:test_process_helper>")
+add_dependencies(test_application_command_bridge test_process_helper)
 add_test(NAME test_application_command_bridge COMMAND test_application_command_bridge)
 set_tests_properties(test_application_command_bridge PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"

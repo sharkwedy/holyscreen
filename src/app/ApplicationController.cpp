@@ -35,6 +35,8 @@
 #include <QRandomGenerator>
 #include <QPointer>
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtConcurrentRun>
 
 namespace churchpresenter {
@@ -203,6 +205,7 @@ ApplicationController::ApplicationController(QObject *parent)
             .stateSnapshot = [this] {
                 return QVariantMap{
                     {QStringLiteral("presentationId"), currentPresentationId()},
+                    {QStringLiteral("presentationType"), currentPresentationType()},
                     {QStringLiteral("slideIndex"), currentSlideIndex()},
                     {QStringLiteral("slideId"), currentSlideId()},
                     {QStringLiteral("visible"), textVisible()},
@@ -982,7 +985,73 @@ void ApplicationController::setupAutomations(const QString &databasePath)
         if (!match.has_value()) return;
         m_automationEngine.handleTrigger(match->triggerType, match->payload,
                                          match->correlationId);
+        if (match->triggerType == QLatin1StringView(AutomationTrigger::PresentationStarted)
+            && event.payload.value(QStringLiteral("presentationType")).toString()
+                   == QStringLiteral("song")) {
+            m_automationEngine.handleTrigger(
+                QString::fromLatin1(AutomationTrigger::SongStarted), match->payload,
+                match->correlationId);
+        }
     });
+
+    connect(&m_commandBus, &CommandBus::commandDispatched, this,
+            [this](const Command &command, const CommandResult &result) {
+        if (!result.accepted) return;
+        if (command.source.startsWith(QStringLiteral("remote:"))) {
+            m_eventBus.publish(DomainEvent{
+                .type = QStringLiteral("automation.remote.command"),
+                .payload = {{QStringLiteral("type"), command.type},
+                            {QStringLiteral("payload"), command.payload},
+                            {QStringLiteral("source"), command.source}},
+                .occurredAt = QDateTime::currentDateTimeUtc(),
+                .correlationId = command.id,
+            });
+        }
+
+        QString timerEvent;
+        QString timerType;
+        if (command.type == QStringLiteral("timer.countdown.start")) {
+            timerEvent = QStringLiteral("automation.timer.started");
+            timerType = QStringLiteral("countdown");
+        } else if (command.type == QStringLiteral("timer.stopwatch.start")) {
+            timerEvent = QStringLiteral("automation.timer.started");
+            timerType = QStringLiteral("stopwatch");
+        } else if (command.type == QStringLiteral("timer.countdown.stop")) {
+            timerEvent = QStringLiteral("automation.timer.finished");
+            timerType = QStringLiteral("countdown");
+        } else if (command.type == QStringLiteral("timer.stopwatch.pause")
+                   || command.type == QStringLiteral("timer.stopwatch.reset")) {
+            timerEvent = QStringLiteral("automation.timer.finished");
+            timerType = QStringLiteral("stopwatch");
+        }
+        if (!timerEvent.isEmpty()) {
+            m_eventBus.publish(DomainEvent{
+                .type = timerEvent,
+                .payload = {{QStringLiteral("timerType"), timerType},
+                            {QStringLiteral("commandType"), command.type}},
+                .occurredAt = QDateTime::currentDateTimeUtc(),
+                .correlationId = command.id,
+            });
+        }
+    });
+
+    connect(&m_overlays, &OverlayController::countdownExpired, this, [this] {
+        m_eventBus.publish(DomainEvent{
+            .type = QStringLiteral("automation.timer.finished"),
+            .payload = {{QStringLiteral("timerType"), QStringLiteral("countdown")},
+                        {QStringLiteral("reason"), QStringLiteral("elapsed")}},
+            .occurredAt = QDateTime::currentDateTimeUtc(),
+            .correlationId = QUuid::createUuid().toString(QUuid::WithoutBraces),
+        });
+    });
+
+    connect(&m_localTimeTriggerScheduler,
+            &LocalTimeTriggerScheduler::localTimeOccurred, this,
+            [this](const QVariantMap &payload, const QString &correlationId) {
+        m_automationEngine.handleTrigger(
+            QString::fromLatin1(AutomationTrigger::LocalTime), payload, correlationId);
+    });
+    m_localTimeTriggerScheduler.start();
 
     connect(&m_automationEngine, &AutomationEngine::runFinished, this,
             [this](const AutomationRun &run) {
@@ -1118,6 +1187,18 @@ QStringList ApplicationController::validateAutomation(const Automation &automati
     if (!automationTriggerTypes().contains(automation.trigger.type)) {
         errors.append(QStringLiteral("Escolha um gatilho válido."));
     }
+    if (automation.trigger.type == QLatin1StringView(AutomationTrigger::LocalTime)) {
+        const auto time = QTime::fromString(
+            automation.trigger.parameters.value(QStringLiteral("time")).toString(),
+            QStringLiteral("HH:mm"));
+        const auto days = automation.trigger.parameters.value(QStringLiteral("daysOfWeek")).toList();
+        const auto invalidDay = std::any_of(days.cbegin(), days.cend(), [](const QVariant &day) {
+            return day.toInt() < 1 || day.toInt() > 7;
+        });
+        if (!time.isValid() || days.isEmpty() || invalidDay) {
+            errors.append(QStringLiteral("Informe horário e dias válidos para o gatilho local."));
+        }
+    }
     if (automation.actions.isEmpty()) {
         errors.append(QStringLiteral("Adicione pelo menos uma ação."));
     }
@@ -1178,6 +1259,133 @@ QVariantMap ApplicationController::saveAutomation(const QVariantMap &automation)
     return {{QStringLiteral("accepted"), true},
             {QStringLiteral("errors"), QStringList{}},
             {QStringLiteral("id"), parsed.id}};
+}
+
+QVariantMap ApplicationController::exportAutomations(const QUrl &destination)
+{
+    auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
+    if (path.trimmed().isEmpty()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("error"), QStringLiteral("Escolha o arquivo de destino.")}};
+    }
+    if (!path.endsWith(QStringLiteral(".json"), Qt::CaseInsensitive)) {
+        path.append(QStringLiteral(".json"));
+    }
+
+    QJsonArray definitions;
+    for (const auto &automation : m_automationEngine.automations()) {
+        auto exported = automationToMap(automation);
+        exported.remove(QStringLiteral("consecutiveFailures"));
+        definitions.append(QJsonObject::fromVariantMap(exported));
+    }
+    const QJsonObject document{
+        {QStringLiteral("schemaVersion"), 1},
+        {QStringLiteral("exportedAt"),
+         QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)},
+        {QStringLiteral("automations"), definitions},
+    };
+
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)
+        || file.write(QJsonDocument(document).toJson(QJsonDocument::Indented)) < 0
+        || !file.commit()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("error"), QStringLiteral("Não foi possível exportar o arquivo.")}};
+    }
+    setAutomationStatus(QStringLiteral("%1 automações exportadas.").arg(definitions.size()));
+    return {{QStringLiteral("accepted"), true},
+            {QStringLiteral("count"), definitions.size()},
+            {QStringLiteral("path"), path}};
+}
+
+QVariantMap ApplicationController::importAutomations(const QUrl &source)
+{
+    const auto path = source.isLocalFile() ? source.toLocalFile() : source.toString();
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() > 1024 * 1024) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"),
+                 QStringList{QStringLiteral("O arquivo não pôde ser lido ou excede 1 MiB.")}}};
+    }
+
+    QJsonParseError parseError;
+    const auto document = QJsonDocument::fromJson(file.readAll(), &parseError);
+    const auto root = document.object();
+    if (parseError.error != QJsonParseError::NoError || !document.isObject()
+        || root.value(QStringLiteral("schemaVersion")).toInt() != 1
+        || !root.value(QStringLiteral("automations")).isArray()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"),
+                 QStringList{QStringLiteral("Documento de automações inválido ou incompatível.")}}};
+    }
+
+    const auto array = root.value(QStringLiteral("automations")).toArray();
+    if (array.isEmpty() || array.size() > 500) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"),
+                 QStringList{QStringLiteral("O documento deve conter entre 1 e 500 automações.")}}};
+    }
+
+    QSet<QString> ids;
+    for (const auto &existing : m_automationEngine.automations()) ids.insert(existing.id);
+    QList<Automation> parsed;
+    QStringList warnings;
+    QStringList structuralErrors;
+    int position = 0;
+    for (const auto &value : array) {
+        ++position;
+        if (!value.isObject()) {
+            structuralErrors.append(QStringLiteral("Item %1 não é uma definição.").arg(position));
+            continue;
+        }
+        auto automation = automationFromMap(value.toObject().toVariantMap());
+        if (automation.id.isEmpty() || ids.contains(automation.id)) {
+            automation.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        }
+        ids.insert(automation.id);
+        automation.consecutiveFailures = 0;
+
+        const auto errors = validateAutomation(automation);
+        bool hasMissingReference = false;
+        for (const auto &error : errors) {
+            if (error.startsWith(QStringLiteral("Integração não encontrada:"))
+                || error.startsWith(QStringLiteral("O executável "))) {
+                hasMissingReference = true;
+                warnings.append(QStringLiteral("%1: %2").arg(automation.name, error));
+            } else {
+                structuralErrors.append(QStringLiteral("%1: %2").arg(automation.name, error));
+            }
+        }
+        if (hasMissingReference) automation.enabled = false;
+        parsed.append(automation);
+    }
+    if (!structuralErrors.isEmpty()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"), structuralErrors}};
+    }
+
+    QStringList insertedIds;
+    for (const auto &automation : parsed) {
+        if (!m_automationRepository || !m_automationRepository->save(automation)) {
+            if (m_automationRepository) {
+                for (const auto &id : insertedIds) m_automationRepository->remove(id);
+            }
+            return {{QStringLiteral("accepted"), false},
+                    {QStringLiteral("errors"),
+                     QStringList{QStringLiteral("A importação foi revertida por falha no banco.")}}};
+        }
+        insertedIds.append(automation.id);
+    }
+
+    m_automationEngine.setAutomations(m_automationRepository->automations());
+    setAutomationStatus(warnings.isEmpty()
+        ? QStringLiteral("%1 automações importadas.").arg(parsed.size())
+        : QStringLiteral("%1 automações importadas; %2 desativadas por referências ausentes.")
+              .arg(parsed.size()).arg(warnings.size()));
+    emit automationsChanged();
+    return {{QStringLiteral("accepted"), true},
+            {QStringLiteral("count"), parsed.size()},
+            {QStringLiteral("warnings"), warnings}};
 }
 
 bool ApplicationController::removeAutomation(const QString &automationId)

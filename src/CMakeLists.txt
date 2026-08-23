@@ -171,6 +171,8 @@ add_library(presenter-automation
     automation/ConditionEvaluator.h
     automation/AutomationEngine.cpp
     automation/AutomationEngine.h
+    automation/LocalTimeTriggerScheduler.cpp
+    automation/LocalTimeTriggerScheduler.h
     automation/TriggerTranslator.cpp
     automation/TriggerTranslator.h
     automation/AuthorizedExecutables.cpp

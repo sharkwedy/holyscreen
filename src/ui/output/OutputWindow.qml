@@ -53,7 +53,7 @@ Window {
         root.visible = true
         Qt.callLater(function() {
             console.info("output_placed", root.outputDisplayName,
-                         "screen=" + root.screen.name,
+                         "screenIndex=" + root.targetScreenIndex,
                          "geometry=" + root.x + "," + root.y + ","
                          + root.width + "x" + root.height)
         })

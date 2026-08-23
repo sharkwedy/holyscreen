@@ -56,6 +56,23 @@ Dialog {
         area.draft = Object.assign({}, area.draft, changes)
     }
 
+    function updateTriggerParameter(key, value) {
+        const parameters = Object.assign({}, area.draft.triggerParameters || ({}))
+        parameters[key] = value
+        area.updateDraft("triggerParameters", parameters)
+    }
+
+    function toggleTriggerDay(day, checked) {
+        const days = (((area.draft.triggerParameters || ({})).daysOfWeek) || []).slice()
+        const index = days.indexOf(day)
+        if (checked && index < 0)
+            days.push(day)
+        else if (!checked && index >= 0)
+            days.splice(index, 1)
+        days.sort(function (a, b) { return a - b })
+        area.updateTriggerParameter("daysOfWeek", days)
+    }
+
     function updateList(key, index, changes) {
         const list = (area.draft[key] || []).slice()
         list[index] = Object.assign({}, list[index], changes)
@@ -123,6 +140,8 @@ Dialog {
                 font.pixelSize: 11
             }
             Item { Layout.fillWidth: true }
+            Button { text: "Importar"; onClicked: importDialog.open() }
+            Button { text: "Exportar"; onClicked: exportDialog.open() }
             Button { text: "Processos autorizados"; onClicked: processDialog.open() }
         }
 
@@ -242,7 +261,51 @@ Dialog {
                         Layout.fillWidth: true
                         model: area.controller.automationTriggerTypes
                         currentIndex: Math.max(0, model.indexOf(area.draft.triggerType || ""))
-                        onActivated: area.updateDraft("triggerType", currentText)
+                        onActivated: {
+                            area.updateDraft("triggerType", currentText)
+                            area.updateDraft("triggerParameters",
+                                             currentText === "time.local"
+                                             ? {"time": "09:00",
+                                                "daysOfWeek": [1, 2, 3, 4, 5, 6, 7]}
+                                             : {})
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        visible: area.draft.triggerType === "time.local"
+                        RowLayout {
+                            Label { text: "Horário local"; color: area.textMuted }
+                            TextField {
+                                id: localTimeField
+                                Layout.preferredWidth: 100
+                                text: (area.draft.triggerParameters || ({})).time || "09:00"
+                                placeholderText: "HH:mm"
+                                validator: RegularExpressionValidator {
+                                    regularExpression: /^([01][0-9]|2[0-3]):[0-5][0-9]$/
+                                }
+                                onEditingFinished: if (acceptableInput)
+                                    area.updateTriggerParameter("time", text)
+                            }
+                        }
+                        RowLayout {
+                            Label { text: "Dias"; color: area.textMuted }
+                            Repeater {
+                                model: [{"day": 1, "label": "S"}, {"day": 2, "label": "T"},
+                                        {"day": 3, "label": "Q"}, {"day": 4, "label": "Q"},
+                                        {"day": 5, "label": "S"}, {"day": 6, "label": "S"},
+                                        {"day": 7, "label": "D"}]
+                                delegate: CheckBox {
+                                    id: dayCheck
+                                    required property var modelData
+                                    text: dayCheck.modelData.label
+                                    checked: ((area.draft.triggerParameters || ({})).daysOfWeek
+                                              || []).indexOf(dayCheck.modelData.day) >= 0
+                                    Accessible.name: "Dia " + dayCheck.modelData.day
+                                    onClicked: area.toggleTriggerDay(dayCheck.modelData.day, checked)
+                                }
+                            }
+                        }
                     }
 
                     RowLayout {
@@ -629,5 +692,22 @@ Dialog {
         id: executableDialog
         title: "Escolher executável"
         onAccepted: executablePath.text = selectedFile.toString().replace("file://", "")
+    }
+
+    FileDialog {
+        id: importDialog
+        title: "Importar automações"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["Automações HolyScreen (*.json)"]
+        onAccepted: area.controller.importAutomations(selectedFile)
+    }
+
+    FileDialog {
+        id: exportDialog
+        title: "Exportar automações"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "json"
+        nameFilters: ["Automações HolyScreen (*.json)"]
+        onAccepted: area.controller.exportAutomations(selectedFile)
     }
 }

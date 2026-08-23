@@ -3,6 +3,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QProcess>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -10,13 +11,15 @@ using namespace churchpresenter;
 
 namespace {
 
-QString writeScript(const QTemporaryDir &directory, const QString &name, const QString &body)
+QString helperPath()
+{
+    return QFileInfo(QString::fromUtf8(TEST_PROCESS_HELPER_PATH)).canonicalFilePath();
+}
+
+QString copyHelper(const QTemporaryDir &directory, const QString &name)
 {
     const auto path = directory.filePath(name);
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly)) return {};
-    file.write(body.toUtf8());
-    file.close();
+    if (!QFile::copy(helperPath(), path)) return {};
     QFile::setPermissions(path, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
     return QFileInfo(path).canonicalFilePath();
 }
@@ -33,14 +36,15 @@ private slots:
     void rejectsRelativePathsStringArgumentsAndBadDirectories();
     void normalizesTheRequestWithLimits();
     void runsAnAuthorizedScriptAndCapturesItsOutput();
+    void capsProcessOutput();
     void killsAProcessThatExceedsTheTimeout();
+    void cancelAllStopsRunningProcesses();
 };
 
 void AuthorizedExecutablesTest::refusesEverythingWhileTheFeatureIsOff()
 {
-    QTemporaryDir directory;
-    const auto script = writeScript(directory, QStringLiteral("ok.sh"),
-                                    QStringLiteral("#!/bin/sh\necho ok\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     AuthorizedExecutables allowlist;
     QVERIFY(!allowlist.isEnabled());
     QVERIFY(allowlist.authorize(script, QStringLiteral("Script")));
@@ -74,11 +78,11 @@ void AuthorizedExecutablesTest::authorizesOnlyExistingExecutableFiles()
     QVERIFY(!allowlist.authorize(plain, QStringLiteral("Texto"), &error));
     QVERIFY(error.contains(QStringLiteral("executável")));
 
-    const auto script = writeScript(directory, QStringLiteral("ok.sh"),
-                                    QStringLiteral("#!/bin/sh\nexit 0\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     QVERIFY(allowlist.authorize(script, QString{}, &error));
     QCOMPARE(allowlist.entries().size(), 1);
-    QCOMPARE(allowlist.entries().first().label, QStringLiteral("ok.sh"));
+    QCOMPARE(allowlist.entries().first().label, QFileInfo(script).fileName());
     // Autorizar duas vezes não duplica.
     QVERIFY(allowlist.authorize(script, QStringLiteral("Outra"), &error));
     QCOMPARE(allowlist.entries().size(), 1);
@@ -88,11 +92,12 @@ void AuthorizedExecutablesTest::authorizesOnlyExistingExecutableFiles()
 
 void AuthorizedExecutablesTest::resolvesSymlinksToTheRealTarget()
 {
+#ifdef Q_OS_WIN
+    QSKIP("Windows runners do not permit unprivileged filesystem symlinks.");
+#else
     QTemporaryDir directory;
-    const auto real = writeScript(directory, QStringLiteral("real.sh"),
-                                  QStringLiteral("#!/bin/sh\nexit 0\n"));
-    const auto other = writeScript(directory, QStringLiteral("outro.sh"),
-                                   QStringLiteral("#!/bin/sh\nexit 0\n"));
+    const auto real = copyHelper(directory, QStringLiteral("real-helper"));
+    const auto other = copyHelper(directory, QStringLiteral("other-helper"));
     const auto link = directory.filePath(QStringLiteral("atalho.sh"));
     QVERIFY(QFile::link(real, link));
 
@@ -113,13 +118,14 @@ void AuthorizedExecutablesTest::resolvesSymlinksToTheRealTarget()
     QCOMPARE(allowlist.validate({{QStringLiteral("executable"), link}}, &code, &message),
              std::nullopt);
     QCOMPARE(code, QStringLiteral("process_not_authorized"));
+#endif
 }
 
 void AuthorizedExecutablesTest::rejectsRelativePathsStringArgumentsAndBadDirectories()
 {
     QTemporaryDir directory;
-    const auto script = writeScript(directory, QStringLiteral("ok.sh"),
-                                    QStringLiteral("#!/bin/sh\nexit 0\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     AuthorizedExecutables allowlist;
     allowlist.setEnabled(true);
     QVERIFY(allowlist.authorize(script, QStringLiteral("Script")));
@@ -157,8 +163,8 @@ void AuthorizedExecutablesTest::rejectsRelativePathsStringArgumentsAndBadDirecto
 void AuthorizedExecutablesTest::normalizesTheRequestWithLimits()
 {
     QTemporaryDir directory;
-    const auto script = writeScript(directory, QStringLiteral("ok.sh"),
-                                    QStringLiteral("#!/bin/sh\nexit 0\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     AuthorizedExecutables allowlist;
     allowlist.setEnabled(true);
     QVERIFY(allowlist.authorize(script, QStringLiteral("Script")));
@@ -183,16 +189,16 @@ void AuthorizedExecutablesTest::normalizesTheRequestWithLimits()
 void AuthorizedExecutablesTest::runsAnAuthorizedScriptAndCapturesItsOutput()
 {
     QTemporaryDir directory;
-    const auto script = writeScript(
-        directory, QStringLiteral("saida.sh"),
-        QStringLiteral("#!/bin/sh\necho \"slide $1\"\necho erro >&2\nexit 0\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     AuthorizedExecutables allowlist;
     allowlist.setEnabled(true);
     QVERIFY(allowlist.authorize(script, QStringLiteral("Saída")));
 
     const auto request = allowlist.validate({
         {QStringLiteral("executable"), script},
-        {QStringLiteral("arguments"), QVariantList{QStringLiteral("7")}},
+        {QStringLiteral("arguments"),
+         QVariantList{QStringLiteral("--echo"), QStringLiteral("7")}},
     }, nullptr, nullptr);
     QVERIFY(request.has_value());
 
@@ -214,14 +220,17 @@ void AuthorizedExecutablesTest::runsAnAuthorizedScriptAndCapturesItsOutput()
 void AuthorizedExecutablesTest::killsAProcessThatExceedsTheTimeout()
 {
     QTemporaryDir directory;
-    const auto script = writeScript(directory, QStringLiteral("lento.sh"),
-                                    QStringLiteral("#!/bin/sh\nsleep 30\n"));
+    const auto script = helperPath();
+    QVERIFY(!script.isEmpty());
     AuthorizedExecutables allowlist;
     allowlist.setEnabled(true);
     QVERIFY(allowlist.authorize(script, QStringLiteral("Lento")));
 
-    auto request = allowlist.validate({{QStringLiteral("executable"), script},
-                                       {QStringLiteral("timeoutMs"), 300}}, nullptr, nullptr);
+    auto request = allowlist.validate(
+        {{QStringLiteral("executable"), script},
+         {QStringLiteral("arguments"),
+          QVariantList{QStringLiteral("--sleep"), QStringLiteral("30000")}},
+         {QStringLiteral("timeoutMs"), 300}}, nullptr, nullptr);
     QVERIFY(request.has_value());
 
     QtProcessRunner runner;
@@ -232,6 +241,58 @@ void AuthorizedExecutablesTest::killsAProcessThatExceedsTheTimeout()
         finished = true;
     });
     QTRY_VERIFY_WITH_TIMEOUT(finished, 8000);
+    QVERIFY(!result.finished);
+    QCOMPARE(result.errorCode, QStringLiteral("timeout"));
+}
+
+void AuthorizedExecutablesTest::capsProcessOutput()
+{
+    AuthorizedExecutables allowlist;
+    allowlist.setEnabled(true);
+    const auto executable = helperPath();
+    QVERIFY(allowlist.authorize(executable, QStringLiteral("Saída grande")));
+    const auto request = allowlist.validate({
+        {QStringLiteral("executable"), executable},
+        {QStringLiteral("arguments"),
+         QVariantList{QStringLiteral("--large-output"), QStringLiteral("70000")}},
+    }, nullptr, nullptr);
+    QVERIFY(request.has_value());
+
+    QtProcessRunner runner;
+    ProcessResult result;
+    bool finished = false;
+    runner.run(*request, [&result, &finished](const ProcessResult &value) {
+        result = value;
+        finished = true;
+    });
+    QTRY_VERIFY_WITH_TIMEOUT(finished, 5000);
+    QCOMPARE(result.standardOutput.size(), AuthorizedExecutables::MaximumOutputBytes);
+    QCOMPARE(result.standardError.size(), AuthorizedExecutables::MaximumOutputBytes);
+}
+
+void AuthorizedExecutablesTest::cancelAllStopsRunningProcesses()
+{
+    AuthorizedExecutables allowlist;
+    allowlist.setEnabled(true);
+    const auto executable = helperPath();
+    QVERIFY(allowlist.authorize(executable, QStringLiteral("Cancelável")));
+    const auto request = allowlist.validate({
+        {QStringLiteral("executable"), executable},
+        {QStringLiteral("arguments"),
+         QVariantList{QStringLiteral("--sleep"), QStringLiteral("30000")}},
+    }, nullptr, nullptr);
+    QVERIFY(request.has_value());
+
+    QtProcessRunner runner;
+    ProcessResult result;
+    bool finished = false;
+    runner.run(*request, [&result, &finished](const ProcessResult &value) {
+        result = value;
+        finished = true;
+    });
+    QTRY_VERIFY_WITH_TIMEOUT(!runner.findChildren<QProcess *>().isEmpty(), 1000);
+    runner.cancelAll();
+    QTRY_VERIFY_WITH_TIMEOUT(finished, 5000);
     QVERIFY(!result.finished);
     QCOMPARE(result.errorCode, QStringLiteral("timeout"));
 }

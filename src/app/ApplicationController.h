@@ -2,6 +2,7 @@
 
 #include "automation/AuthorizedExecutables.h"
 #include "automation/AutomationEngine.h"
+#include "automation/LocalTimeTriggerScheduler.h"
 #include "automation/QtProcessRunner.h"
 #include "automation/TriggerTranslator.h"
 #include "integrations/IntegrationEngine.h"
@@ -401,6 +402,9 @@ public:
     //! Ensaia a automação sem nenhum efeito externo.
     Q_INVOKABLE QVariantMap dryRunAutomation(const QString &automationId,
                                              const QVariantMap &payload = {});
+    //! Exporta/importa um documento JSON versionado, sem segredos.
+    Q_INVOKABLE QVariantMap exportAutomations(const QUrl &destination);
+    Q_INVOKABLE QVariantMap importAutomations(const QUrl &source);
     Q_INVOKABLE QVariantMap authorizeExecutable(const QString &path, const QString &label);
     Q_INVOKABLE bool revokeExecutable(const QString &canonicalPath);
 
@@ -803,6 +807,7 @@ private:
     std::unique_ptr<OscIntegrationAdapter> m_oscAdapter;
     IntegrationEngine m_integrations;
     AutomationEngine m_automationEngine;
+    LocalTimeTriggerScheduler m_localTimeTriggerScheduler;
     AuthorizedExecutables m_authorizedExecutables;
     QtProcessRunner m_processRunner;
     std::unique_ptr<AutomationRepository> m_automationRepository;

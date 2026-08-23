@@ -2,7 +2,7 @@
 
 O desenvolvimento é realizado por ondas. Uma onda só termina com build, testes, QML lint e validação proporcional ao risco.
 
-O handoff detalhado das ondas 4 a 8 está em
+O handoff detalhado das ondas 4 a 7 está em
 [`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md).
 
 | Onda | Entrega | Estado |
@@ -12,10 +12,9 @@ O handoff detalhado das ondas 4 a 8 está em
 | 2 | Controle remoto autenticado e API v1 | Concluída e validada na v0.11.0 |
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
-| 5 | Automações offline | Pendente |
-| 6 | Escalas e relatórios avançados | Pendente |
-| 7 | UX final, onboarding, acessibilidade e documentação | Pendente |
-| 8 | Validação multiplataforma, endurance e release 1.0 | Pendente |
+| 5 | Automações offline | Implementada; aguardando checkpoint v0.13.0 |
+| 6 | UX final, onboarding, acessibilidade e documentação | Pendente — v0.14.0 |
+| 7 | Validação multiplataforma, endurance e release 1.0 | Pendente |
 
 ## Critério final
 
@@ -38,6 +37,22 @@ Pendências assumidas para a onda 8, que exigem hardware e sistemas que não
 estavam disponíveis neste checkpoint: captura da saída Broadcast pelo OBS real
 no Windows, no macOS e no Linux, MIDI com porta física ou virtual em cada
 sistema, e golden tests de resolução e DPI.
+
+## Candidata v0.13.0
+
+A Onda 5 completa automações offline: gatilhos de apresentação, música, mídia,
+eventos, slide, horário local, remoto e timers; condições declarativas; ações
+via CommandBus, integrações e processos autorizados; prevenção de loops,
+limites, dry-run, histórico e editor. A candidata passa localmente por build,
+72 testes, Qt Quick Test e QML lint sem avisos. A tag permanece bloqueada até o
+CI verde em Windows, macOS e Linux.
+
+## Depois da 1.0
+
+Escalas, membros, equipes, funções, calendário, conflitos, exportações
+ICS/CSV/PDF, histórico operacional append-only e relatórios avançados foram
+retirados do escopo da 1.0. Eles serão planejados depois da estabilização da
+release, incluindo seus contratos e migrações próprios.
 
 ## Checkpoint v0.11.0
 

@@ -14,7 +14,6 @@ x64 e Linux x64 para operação real em igrejas. A versão 1.0 deve completar:
 - saída Audience, Stage e Broadcast;
 - integrações HTTP, WebSocket, OBS WebSocket v5, MIDI e OSC;
 - automações locais com editor, segurança e histórico;
-- escalas, calendário e relatórios locais;
 - experiência final de produto, acessibilidade, português e inglês;
 - instalação, atualização, migração e endurance validados nos três sistemas.
 
@@ -78,8 +77,6 @@ incremento:
 - `OutputRole` já declara `Broadcast`, `Confidence` e `Custom`, mas a
   serialização atual reduz todo papel diferente de Stage a Audience;
 - `OutputWindow.qml` só possui comportamento especializado para Stage;
-- o histórico atual é uma tabela simples e os relatórios são apenas agregados
-  básicos;
 - os executáveis distribuídos ainda usam nomes internos diferentes entre
   plataformas (`HolyScreen`, `holyscreen` e `church-presenter`);
 - o template de bug ainda usa uma versão antiga como exemplo.
@@ -139,9 +136,8 @@ QML/UI -> Application -> Domain/Ports <- Adapters
 |---|---|---|
 | `0.12.0` | Onda 4: Broadcast e integrações | Saída para OBS e cinco adapters funcionais |
 | `0.13.0` | Onda 5: Automações | Regras locais seguras, editor e histórico |
-| `0.14.0` | Onda 6: Escalas e relatórios | Calendário, conflitos e exports locais |
-| `0.15.0` | Onda 7: Experiência final | UI modular, onboarding, a11y e i18n |
-| `1.0.0-rc.1` | Onda 8: validação | Pacotes candidatos e endurance concluído |
+| `0.14.0` | Onda 6: Experiência final | UI modular, onboarding, a11y e i18n |
+| `1.0.0-rc.1` | Onda 7: validação | Pacotes candidatos e endurance concluído |
 | `1.0.0` | Correções finais | Release estável sem P0/P1 |
 
 Uma versão intermediária só deve ser marcada depois do checkpoint da onda. Não
@@ -504,126 +500,25 @@ Migração 5:
 - restart preserva definições, mas não retoma execução incompleta;
 - nenhum segredo nos logs e exports.
 
-## 7. Onda 6 — Escalas e relatórios (`0.14.0`)
+## 7. Trabalho pós-1.0
 
-### 7.1 Escalas
+Escalas, membros, equipes, funções, calendário, conflitos, exportações
+ICS/CSV/PDF, histórico operacional append-only e relatórios avançados não são
+requisitos da 1.0. Seus contratos, migrações e critérios serão definidos em um
+plano separado depois da estabilização da release.
 
-Entidades independentes do núcleo de apresentação:
-
-```text
-Member
-Team
-Role
-Schedule
-ScheduleAssignment
-```
-
-Campos mínimos:
-
-- Member: id, nome, contato opcional, observações, ativo;
-- Team: id, nome e membros;
-- Role: id, nome, cor e equipe opcional;
-- Schedule: id, título, início, fim, timezone, evento opcional;
-- Assignment: escala, membro, função e observação.
-
-Migração 6:
-
-- tabelas normalizadas com foreign keys e índices por período;
-- soft-disable de membros em vez de apagar histórico;
-- timezone IANA persistido;
-- restrições que evitem atribuição duplicada.
-
-UI:
-
-- área **Escalas** com calendário mensal/semanal e lista;
-- editor de membros, equipes e funções;
-- vínculo opcional a evento do HolyScreen;
-- conflito de horário do mesmo membro;
-- alerta de escala sem responsável;
-- filtros por equipe, função, membro e período;
-- exportação ICS e CSV;
-- impressão/PDF da escala;
-- nenhum envio de e-mail ou sincronização externa na 1.0.
-
-### 7.2 Histórico operacional append-only
-
-O histórico atual não deve ser removido durante a migração. Introduzir:
-
-```cpp
-struct OperationalEvent {
-    QString id;
-    QString type;
-    QVariantMap payload;
-    QString eventId;
-    QString correlationId;
-    QString source;
-    QDateTime occurredAt;
-};
-```
-
-Migração 7:
-
-- `operational_events` append-only;
-- índices por type, event, reference e data;
-- backfill seguro do histórico antigo quando possível;
-- payload versionado e sem conteúdo desnecessário;
-- retenção configurável, com export antes de limpeza.
-
-Eventos mínimos:
-
-- apresentação/música/mídia iniciada e encerrada;
-- slide apresentado;
-- Bíblia apresentada, registrando referência e tradução, não texto completo;
-- evento operacional iniciado/encerrado;
-- blackout, timer e overlay;
-- automação executada;
-- participação em escala vinculada a evento.
-
-### 7.3 Relatórios
-
-Criar `ReportQueryService`, sem consultas SQL no QML.
-
-Relatórios obrigatórios por período:
-
-- músicas mais tocadas, última execução e quantidade;
-- mídias, apresentações e referências bíblicas usadas;
-- eventos realizados e duração planejada/real;
-- frequência operacional;
-- participação de membros e cobertura de funções;
-- execuções/falhas de automações e integrações.
-
-UI:
-
-- área **Relatórios** com filtros e cards;
-- tabelas ordenáveis e paginação;
-- dashboard sem carregar todo o histórico em memória;
-- exportação CSV UTF-8 e PDF local;
-- timezone explícito nos filtros e exports;
-- relatório vazio tratado como estado normal.
-
-### 7.4 Testes e aceite
-
-- conflitos em fronteiras de horário e timezones;
-- ICS validado por parser independente e caracteres escapados;
-- CSV com vírgula, quebra de linha e Unicode;
-- PDF com fonte empacotada e múltiplas páginas;
-- consultas com 100 mil eventos dentro de orçamento definido;
-- migração preserva o histórico 0.11;
-- exclusão/desativação de membro não altera relatório passado;
-- E2E: criar evento e escala, operar apresentação e gerar relatório.
-
-## 8. Onda 7 — Experiência final de produto (`0.15.0`)
+## 8. Onda 6 — Experiência final de produto (`0.14.0`)
 
 ### 8.1 Modularização incremental
 
 Reorganizar sem quebrar os contratos QML existentes:
 
 - extrair de `ApplicationController` fachadas/contextos de Output, Media,
-  Bible, Event, Integration, Automation, Schedule, Report e Maintenance;
+  Bible, Event, Integration, Automation e Maintenance;
 - manter aliases temporários no controlador e removê-los somente depois da
   migração de todos os consumidores;
 - dividir `MainWindow.qml` nas áreas Operação, Biblioteca, Bíblia, Eventos,
-  Escalas, Automações, Integrações, Relatórios e Configurações;
+  Automações, Integrações e Configurações;
 - dividir `Dashboard.qml` em biblioteca, preview, reprodução, Bíblia e playlist;
 - adicionar testes de contrato para propriedades/invokables usados pelo QML;
 - persistir tamanhos dos splitters com limites seguros e ação **Restaurar
@@ -672,7 +567,6 @@ Não realizar uma reescrita completa nem trocar Qt/QML.
 - guia rápido de culto;
 - troubleshooting de telas, codecs, áudio, remoto, OBS e banco;
 - documentação de integrações e automações;
-- exemplos de ICS/CSV e relatórios;
 - referência completa da API/OpenAPI;
 - unificar nome interno do executável e atalhos como HolyScreen;
 - melhorar o update checker para consultar manifesto assinado/checksum, sem
@@ -690,7 +584,7 @@ Não realizar uma reescrita completa nem trocar Qt/QML.
 - onboarding em instalação limpa e em upgrade;
 - sessão operacional simulada do início ao fim sem abrir menus de manutenção.
 
-## 9. Onda 8 — Validação e release 1.0
+## 9. Onda 7 — Validação e release 1.0
 
 ### 9.1 Cobertura automatizada obrigatória
 
@@ -835,8 +729,6 @@ Adicionar contratos de domínio:
 BroadcastProfile
 IntegrationDefinition, IntegrationRequest, IntegrationResult
 Trigger, Condition, Action, Automation, AutomationRun
-Member, Team, Role, Schedule, ScheduleAssignment
-OperationalEvent, ReportQuery, ReportResult
 ```
 
 Mudanças incompatíveis na API exigem `/api/v2`; não alterar silenciosamente a
@@ -853,12 +745,6 @@ Integration domain + secret store
   -> HTTP/WebSocket/OBS/MIDI/OSC
   -> Automation actions
 
-Operational event log
-  -> Reports
-
-Scheduling domain
-  -> Participation reports
-
 Incremental controller/QML extraction
   -> Final navigation, onboarding and i18n
 
@@ -868,8 +754,7 @@ All previous work
 
 Broadcast e o domínio de integrações podem ser desenvolvidos em branches
 separadas depois do incremento 4.0. Automação não deve começar antes do
-`IntegrationEngine` estabilizar. Relatórios não devem consultar diretamente as
-tabelas antigas; devem depender do log operacional versionado.
+`IntegrationEngine` estabilizar.
 
 ## 12. Riscos principais e mitigação
 
@@ -882,7 +767,6 @@ tabelas antigas; devem depender do log operacional versionado.
 | Segredo salvo em plaintext | `ISecretStore`, sem fallback silencioso |
 | Automação entra em loop | correlação, profundidade, limites e kill switch |
 | Processo externo vira shell arbitrário | allowlist, sem shell, timeout e argumentos |
-| Relatórios degradam com histórico | índices, paginação e benchmark com 100 mil eventos |
 | Migração perde dados | backup, transação, rollback e fixtures de versões antigas |
 | Golden varia por fonte/GPU | fonte empacotada e ambiente de render determinístico |
 | PWA diverge do servidor | recursos versionados e E2E contra binário real |
@@ -890,31 +774,25 @@ tabelas antigas; devem depender do log operacional versionado.
 
 ## 13. Primeira sequência de trabalho recomendada
 
-O próximo agente deve iniciar exatamente assim:
+Depois do checkpoint 0.13, o próximo agente deve iniciar exatamente assim:
 
-1. sincronizar `main` e registrar commit/CI/release de base;
-2. criar `codex/wave-4-output-role-foundation`;
-3. escrever testes vermelhos para round-trip dos cinco `OutputRole`;
-4. corrigir serialização e persistência sem alterar o renderer;
-5. extrair componentes Audience/Stage mantendo golden visual atual;
-6. zerar warnings do QML lint;
-7. extrair os arquivos da PWA para resources e manter todos os testes remotos;
-8. integrar o incremento 4.0 após checkpoint;
-9. desenvolver Broadcast em PR independente;
-10. desenvolver domínio/ports de integração antes dos adapters;
-11. entregar um adapter por PR, sempre com fake e teste real local;
-12. só então fechar a 0.12 e iniciar automações.
+1. sincronizar `main` e registrar commit, CI e release de base;
+2. criar `codex/wave-6-application-contexts`;
+3. registrar por teste os contratos QML atuais do `ApplicationController`;
+4. extrair uma fachada por vertical slice, mantendo aliases compatíveis;
+5. migrar os consumidores QML antes de remover qualquer alias;
+6. dividir `MainWindow.qml` e `Dashboard.qml` sem mudar o fluxo operacional;
+7. integrar cada incremento somente com CTest, Qt Quick Test e QML lint verdes.
 
 ## 14. Definition of Done global
 
 O HolyScreen 1.0 estará concluído somente quando:
 
-- todas as ondas 4 a 8 atenderem seus critérios;
+- todas as ondas 4 a 7 atenderem seus critérios;
 - nenhuma regra de negócio nova estiver no QML;
 - banco migrar e reverter com dados reais preservados;
 - Audience, Stage e Broadcast funcionarem simultaneamente;
 - remoto, integrações e automações forem seguros e recuperáveis;
-- escalas e relatórios funcionarem totalmente offline;
 - português e inglês estiverem completos;
 - operação por teclado, foco, contraste e DPI forem validados;
 - pacotes dos três sistemas forem instalados em máquinas limpas;

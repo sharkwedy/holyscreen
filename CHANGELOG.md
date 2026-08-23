@@ -28,6 +28,18 @@ Versioning where practical before 1.0.
   run history, a global pause switch and the authorized executables list.
 - Refused automations that reference commands outside the catalog, unknown
   integrations or unauthorized executables before saving them.
+- Added a local-time scheduler with an injectable clock, one occurrence per
+  local minute and trigger filters for `time` and `daysOfWeek`, including
+  timezone-offset-aware daylight-saving transitions.
+- Connected accepted remote commands and timer start/finish facts to the
+  automation engine, including natural countdown expiration and correlation
+  propagation; starting a song now emits both presentation and song triggers.
+- Added versioned JSON automation import/export. Imports are fully validated,
+  never overwrite existing IDs, contain no secrets and disable definitions
+  that reference missing integrations or unauthorized executables.
+- Added Qt Quick coverage for the automation editor and a cross-platform
+  process helper covering execution, timeout, cancellation and output caps on
+  Windows, macOS and Linux.
 
 ## [0.12.0] - 2026-08-23
 
