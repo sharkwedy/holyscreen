@@ -22,6 +22,13 @@ A validação e extração de arquivos ZIP usa miniz, distribuída sob licença 
 
 O QR de acesso ao controle remoto usa a biblioteca QR Code generator, Copyright © 2025 Project Nayuki, distribuída sob licença MIT. O código-fonte e a licença estão em <https://github.com/nayuki/QR-Code-generator>.
 
+## RtMidi 6.0.0
+
+As integrações MIDI usam RtMidi, Copyright © 2003-2023 Gary P. Scavone,
+distribuída sob licença MIT com cláusula adicional de aviso de alteração. No
+macOS ela usa CoreMIDI, no Windows WinMM e no Linux ALSA. O código-fonte e a
+licença estão em <https://github.com/thestk/rtmidi>.
+
 ## Conteúdo importado
 
 Traduções bíblicas, imagens, músicas, áudios e vídeos importados não são redistribuídos com o HolyScreen. A licença e a autorização de uso desses conteúdos são responsabilidade do usuário.

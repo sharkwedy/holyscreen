@@ -36,12 +36,21 @@ FetchContent_Declare(miniz
     URL_HASH SHA256=98468f8924934b723276680f85238b6c78bf1f8b49b4459cc9b7214a20e2e9fb
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
+set(RTMIDI_BUILD_STATIC_LIBS ON CACHE BOOL "Link RtMidi statically" FORCE)
+set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "Do not build the RtMidi test programs" FORCE)
+set(RTMIDI_TARGETNAME_UNINSTALL "rtmidi_uninstall" CACHE STRING "Avoid clashing uninstall targets" FORCE)
+
+FetchContent_Declare(rtmidi
+    URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.tar.gz
+    URL_HASH SHA256=ef7bcda27fee6936b651c29ebe9544c74959d0b1583b716ce80a1c6fea7617f0
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
 FetchContent_Declare(qrcodegen
     URL https://github.com/nayuki/QR-Code-generator/archive/2c9044de6b049ca25cb3cd1649ed7e27aa055138.tar.gz
     URL_HASH SHA256=fd5b5079196cbe4d733838e784eecc1d854f3772562f166483a9b617844922f5
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
-FetchContent_MakeAvailable(libgit2 miniz qrcodegen)
+FetchContent_MakeAvailable(libgit2 miniz qrcodegen rtmidi)
 
 find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test QuickTest REQUIRED)
 qt_standard_project_setup(REQUIRES 6.8)
