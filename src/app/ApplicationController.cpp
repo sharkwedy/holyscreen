@@ -3,6 +3,7 @@
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
+#include "core/CommandCatalog.h"
 #include "integrations/IntegrationSanitizer.h"
 #include "integrations/secrets/SecretStoreFactory.h"
 #include "screens/OutputRole.h"
@@ -889,6 +890,367 @@ QVariantMap ApplicationController::runIntegration(const QString &integrationId,
         .issuedAt = QDateTime::currentDateTimeUtc(),
     }, completion);
     return acknowledgement;
+}
+
+void ApplicationController::setupAutomations(const QString &databasePath)
+{
+    m_automationRepository = std::make_unique<AutomationRepository>(databasePath);
+    if (!m_automationRepository->open()) {
+        qWarning() << "Failed to open the automation database";
+    } else {
+        m_automationEngine.setAutomations(m_automationRepository->automations());
+        m_authorizedExecutables.restore(m_automationRepository->authorizedExecutables());
+    }
+
+    if (m_settings) {
+        m_automationEngine.setEnabled(
+            m_settings->value(QStringLiteral("automation/enabled"), true).toBool());
+        m_authorizedExecutables.setEnabled(
+            m_settings->value(QStringLiteral("automation/processActions"), false).toBool());
+    }
+
+    m_automationEngine.setPorts(AutomationEngine::Ports{
+        .dispatchCommand = [this](const QString &type, const QVariantMap &payload,
+                                  const QString &correlationId) {
+            if (!CommandCatalog::contains(type)) {
+                return ActionOutcome{.actionType = QStringLiteral("command"),
+                                     .accepted = false,
+                                     .errorCode = QStringLiteral("unknown_command"),
+                                     .message = QStringLiteral("Comando fora do catálogo: %1.")
+                                                    .arg(type)};
+            }
+            const auto result = m_commandBus.dispatch(Command{
+                .id = correlationId,
+                .type = type,
+                .payload = payload,
+                .source = QStringLiteral("automation"),
+                .issuedAt = QDateTime::currentDateTimeUtc(),
+            });
+            return ActionOutcome{.actionType = QStringLiteral("command"),
+                                 .accepted = result.accepted,
+                                 .errorCode = result.errorCode,
+                                 .message = result.message};
+        },
+        .runIntegration = [this](const QString &integrationId, const QString &operation,
+                                 const QVariantMap &payload, const QString &correlationId) {
+            const auto acknowledgement = runIntegration(integrationId, operation, payload,
+                                                        correlationId, false);
+            return ActionOutcome{
+                .actionType = QStringLiteral("integration"),
+                .accepted = acknowledgement.value(QStringLiteral("accepted")).toBool(),
+                .errorCode = acknowledgement.value(QStringLiteral("errorCode")).toString(),
+                .message = acknowledgement.value(QStringLiteral("message")).toString(),
+            };
+        },
+        .runProcess = [this](const QVariantMap &parameters, const QString &) {
+            QString errorCode;
+            QString message;
+            const auto request = m_authorizedExecutables.validate(parameters, &errorCode, &message);
+            if (!request.has_value()) {
+                return ActionOutcome{.actionType = QStringLiteral("process"),
+                                     .accepted = false,
+                                     .errorCode = errorCode,
+                                     .message = message};
+            }
+            m_processRunner.run(*request, [this, executable = request->executable](
+                                              const ProcessResult &result) {
+                setAutomationStatus(result.finished && result.exitCode == 0
+                    ? QStringLiteral("Processo %1 concluído.").arg(QFileInfo(executable).fileName())
+                    : QStringLiteral("Processo %1 falhou: %2")
+                          .arg(QFileInfo(executable).fileName(), result.message));
+            });
+            return ActionOutcome{.actionType = QStringLiteral("process"),
+                                 .accepted = true,
+                                 .message = QStringLiteral("Processo iniciado.")};
+        },
+        .state = [this] {
+            return QVariantMap{
+                {QStringLiteral("blackout"), blackout()},
+                {QStringLiteral("activeOutputs"), m_outputs.activeOutputs().size()},
+                {QStringLiteral("mediaState"), mediaState()},
+                {QStringLiteral("currentMediaTitle"), currentMediaTitle()},
+                {QStringLiteral("eventId"), currentEventId()},
+                {QStringLiteral("presentationTitle"), currentPresentationTitle()},
+            };
+        },
+    });
+
+    // Fatos do domínio viram gatilhos; resultados de integração e de automação
+    // nunca voltam como gatilho, para não realimentar a cadeia.
+    connect(&m_eventBus, &EventBus::eventPublished, this, [this](const DomainEvent &event) {
+        const auto match = TriggerTranslator::translate(event);
+        if (!match.has_value()) return;
+        m_automationEngine.handleTrigger(match->triggerType, match->payload,
+                                         match->correlationId);
+    });
+
+    connect(&m_automationEngine, &AutomationEngine::runFinished, this,
+            [this](const AutomationRun &run) {
+        if (m_automationRepository) {
+            m_automationRepository->recordRun(run);
+            m_automationRepository->pruneRuns(AutomationRepository::DefaultRunRetention);
+        }
+        const auto automation = m_automationEngine.automation(run.automationId);
+        const auto name = automation ? automation->name : run.automationId;
+        if (run.status == QStringLiteral("failed")) {
+            setAutomationStatus(QStringLiteral("%1 falhou: %2")
+                                    .arg(name, run.outcomes.isEmpty()
+                                                   ? run.reason
+                                                   : run.outcomes.last().message));
+        } else if (run.status == QStringLiteral("blocked")) {
+            setAutomationStatus(QStringLiteral("%1 bloqueada: %2").arg(name, run.reason));
+        } else if (run.status == QStringLiteral("completed")) {
+            setAutomationStatus(QStringLiteral("%1 executada.").arg(name));
+        }
+        emit automationRunsChanged();
+    });
+
+    connect(&m_automationEngine, &AutomationEngine::automationDisabled, this,
+            [this](const QString &automationId, const QString &reason) {
+        const auto automation = m_automationEngine.automation(automationId);
+        if (m_automationRepository && automation) {
+            m_automationRepository->updateRuntimeState(automationId, false,
+                                                       automation->consecutiveFailures);
+        }
+        setAutomationStatus(QStringLiteral("%1 %2")
+                                .arg(automation ? automation->name : automationId, reason));
+    });
+
+    connect(&m_automationEngine, &AutomationEngine::automationsChanged, this,
+            &ApplicationController::automationsChanged);
+    emit automationsChanged();
+    emit authorizedExecutablesChanged();
+}
+
+QVariantList ApplicationController::automations() const
+{
+    QVariantList result;
+    for (const auto &automation : m_automationEngine.automations()) {
+        auto item = automationToMap(automation);
+        item.insert(QStringLiteral("actionCount"), static_cast<int>(automation.actions.size()));
+        result.append(item);
+    }
+    return result;
+}
+
+QVariantList ApplicationController::automationRuns() const
+{
+    QVariantList result;
+    if (!m_automationRepository) return result;
+    for (const auto &run : m_automationRepository->runs({}, 100)) {
+        result.append(automationRunToMap(run));
+    }
+    return result;
+}
+
+QString ApplicationController::automationStatus() const { return m_automationStatus; }
+
+void ApplicationController::setAutomationStatus(const QString &message)
+{
+    if (m_automationStatus == message) return;
+    m_automationStatus = message;
+    emit automationStatusChanged();
+}
+
+bool ApplicationController::automationsEnabled() const { return m_automationEngine.isEnabled(); }
+
+void ApplicationController::setAutomationsEnabled(bool enabled)
+{
+    if (m_automationEngine.isEnabled() == enabled) return;
+    m_automationEngine.setEnabled(enabled);
+    if (m_settings) m_settings->setValue(QStringLiteral("automation/enabled"), enabled);
+    setAutomationStatus(enabled ? QStringLiteral("Automações ativas.")
+                                : QStringLiteral("Automações pausadas."));
+    emit automationsChanged();
+}
+
+bool ApplicationController::processActionsEnabled() const
+{
+    return m_authorizedExecutables.isEnabled();
+}
+
+void ApplicationController::setProcessActionsEnabled(bool enabled)
+{
+    if (m_authorizedExecutables.isEnabled() == enabled) return;
+    m_authorizedExecutables.setEnabled(enabled);
+    if (m_settings) m_settings->setValue(QStringLiteral("automation/processActions"), enabled);
+    setAutomationStatus(enabled
+        ? QStringLiteral("Processos externos liberados para a lista autorizada.")
+        : QStringLiteral("Processos externos desativados."));
+    emit authorizedExecutablesChanged();
+}
+
+QVariantList ApplicationController::authorizedExecutables() const
+{
+    QVariantList result;
+    for (const auto &entry : m_authorizedExecutables.entries()) {
+        result.append(QVariantMap{
+            {QStringLiteral("canonicalPath"), entry.canonicalPath},
+            {QStringLiteral("label"), entry.label},
+            {QStringLiteral("authorizedAt"), entry.authorizedAt.toLocalTime()
+                                                 .toString(QStringLiteral("dd/MM/yyyy HH:mm"))},
+        });
+    }
+    return result;
+}
+
+QStringList ApplicationController::automationTriggerTypeList() const
+{
+    return automationTriggerTypes();
+}
+
+QStringList ApplicationController::automationActionTypeList() const
+{
+    return automationActionTypes();
+}
+
+QStringList ApplicationController::automationConditionOperationList() const
+{
+    return automationConditionOperations();
+}
+
+QStringList ApplicationController::validateAutomation(const Automation &automation) const
+{
+    QStringList errors;
+    if (automation.name.trimmed().isEmpty()) {
+        errors.append(QStringLiteral("A automação precisa de um nome."));
+    }
+    if (!automationTriggerTypes().contains(automation.trigger.type)) {
+        errors.append(QStringLiteral("Escolha um gatilho válido."));
+    }
+    if (automation.actions.isEmpty()) {
+        errors.append(QStringLiteral("Adicione pelo menos uma ação."));
+    }
+    if (automation.actions.size() > m_automationEngine.limits().maximumActionsPerRun) {
+        errors.append(QStringLiteral("No máximo %1 ações por automação.")
+                          .arg(m_automationEngine.limits().maximumActionsPerRun));
+    }
+    for (const auto &condition : automation.conditions) {
+        if (condition.field.trimmed().isEmpty()
+            || !automationConditionOperations().contains(condition.operation)) {
+            errors.append(QStringLiteral("Condição incompleta ou com operação inválida."));
+            break;
+        }
+    }
+    for (const auto &action : automation.actions) {
+        if (!automationActionTypes().contains(action.type)) {
+            errors.append(QStringLiteral("Ação não suportada: %1.").arg(action.type));
+            continue;
+        }
+        if (action.type == QLatin1StringView(AutomationAction::Command)) {
+            const auto type = action.parameters.value(QStringLiteral("type")).toString();
+            if (!CommandCatalog::contains(type)) {
+                errors.append(QStringLiteral("Comando fora do catálogo: %1.").arg(type));
+            }
+        } else if (action.type == QLatin1StringView(AutomationAction::Integration)) {
+            const auto id = action.parameters.value(QStringLiteral("integrationId")).toString();
+            if (!m_integrations.definition(id).has_value()) {
+                errors.append(QStringLiteral("Integração não encontrada: %1.").arg(id));
+            }
+        } else if (action.type == QLatin1StringView(AutomationAction::Process)) {
+            const auto executable = action.parameters.value(QStringLiteral("executable"))
+                                        .toString();
+            if (!m_authorizedExecutables.isAuthorized(executable)) {
+                errors.append(QStringLiteral("O executável %1 não está autorizado.")
+                                  .arg(executable));
+            }
+        }
+    }
+    return errors;
+}
+
+QVariantMap ApplicationController::saveAutomation(const QVariantMap &automation)
+{
+    auto parsed = automationFromMap(automation);
+    if (parsed.id.isEmpty()) parsed.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    const auto errors = validateAutomation(parsed);
+    if (!errors.isEmpty()) {
+        return {{QStringLiteral("accepted"), false}, {QStringLiteral("errors"), errors}};
+    }
+    if (!m_automationRepository || !m_automationRepository->save(parsed)) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"),
+                 QStringList{QStringLiteral("A automação não pôde ser salva.")}}};
+    }
+    m_automationEngine.setAutomations(m_automationRepository->automations());
+    setAutomationStatus(QStringLiteral("Automação %1 salva.").arg(parsed.name));
+    emit automationsChanged();
+    return {{QStringLiteral("accepted"), true},
+            {QStringLiteral("errors"), QStringList{}},
+            {QStringLiteral("id"), parsed.id}};
+}
+
+bool ApplicationController::removeAutomation(const QString &automationId)
+{
+    if (!m_automationRepository || !m_automationRepository->remove(automationId)) return false;
+    m_automationEngine.setAutomations(m_automationRepository->automations());
+    setAutomationStatus(QStringLiteral("Automação removida."));
+    emit automationsChanged();
+    emit automationRunsChanged();
+    return true;
+}
+
+bool ApplicationController::setAutomationEnabled(const QString &automationId, bool enabled)
+{
+    auto found = m_automationEngine.automation(automationId);
+    if (!found.has_value() || !m_automationRepository) return false;
+    if (!m_automationRepository->updateRuntimeState(automationId, enabled,
+                                                    enabled ? 0 : found->consecutiveFailures)) {
+        return false;
+    }
+    m_automationEngine.setAutomations(m_automationRepository->automations());
+    emit automationsChanged();
+    return true;
+}
+
+bool ApplicationController::resumeAutomation(const QString &automationId)
+{
+    if (!m_automationEngine.resume(automationId)) return false;
+    if (m_automationRepository) {
+        m_automationRepository->updateRuntimeState(automationId, true, 0);
+    }
+    setAutomationStatus(QStringLiteral("Automação retomada."));
+    emit automationsChanged();
+    return true;
+}
+
+QVariantMap ApplicationController::dryRunAutomation(const QString &automationId,
+                                                    const QVariantMap &payload)
+{
+    const auto run = m_automationEngine.dryRun(automationId, payload);
+    if (m_automationRepository) {
+        m_automationRepository->recordRun(run);
+        emit automationRunsChanged();
+    }
+    setAutomationStatus(run.reason.isEmpty()
+        ? QStringLiteral("Ensaio concluído com %1 ações previstas.").arg(run.outcomes.size())
+        : QStringLiteral("Ensaio: %1").arg(run.reason));
+    return automationRunToMap(run);
+}
+
+QVariantMap ApplicationController::authorizeExecutable(const QString &path, const QString &label)
+{
+    QString error;
+    if (!m_authorizedExecutables.authorize(path, label, &error)) {
+        return {{QStringLiteral("accepted"), false}, {QStringLiteral("message"), error}};
+    }
+    const auto entries = m_authorizedExecutables.entries();
+    if (m_automationRepository && !entries.isEmpty()) {
+        for (const auto &entry : entries) m_automationRepository->authorizeExecutable(entry);
+    }
+    setAutomationStatus(QStringLiteral("Executável autorizado."));
+    emit authorizedExecutablesChanged();
+    return {{QStringLiteral("accepted"), true},
+            {QStringLiteral("canonicalPath"), entries.last().canonicalPath}};
+}
+
+bool ApplicationController::revokeExecutable(const QString &canonicalPath)
+{
+    if (!m_authorizedExecutables.revoke(canonicalPath)) return false;
+    if (m_automationRepository) m_automationRepository->revokeExecutable(canonicalPath);
+    setAutomationStatus(QStringLiteral("Autorização removida."));
+    emit authorizedExecutablesChanged();
+    return true;
 }
 
 QVariantList ApplicationController::integrations() const
@@ -3064,6 +3426,7 @@ void ApplicationController::loadSettings()
     if(!m_historyRepository->open())qWarning()<<"Failed to open history database";
     refreshHistory();
     setupIntegrations(databasePath);
+    setupAutomations(databasePath);
     m_broadcastProfiles=std::make_unique<BroadcastProfileRepository>(databasePath);
     if(!m_broadcastProfiles->open()) {
         qWarning()<<"Failed to open broadcast profile database";

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "automation/AuthorizedExecutables.h"
+#include "automation/AutomationEngine.h"
+#include "automation/QtProcessRunner.h"
+#include "automation/TriggerTranslator.h"
 #include "integrations/IntegrationEngine.h"
 #include "integrations/adapters/HttpIntegrationAdapter.h"
 #include "integrations/adapters/MidiIntegrationAdapter.h"
@@ -11,6 +15,7 @@
 #include "integrations/transports/QtOscTransport.h"
 #include "integrations/transports/QtWebSocketTransport.h"
 #include "integrations/transports/RtMidiTransport.h"
+#include "library/AutomationRepository.h"
 #include "library/IntegrationRepository.h"
 #include "modules/IntegrationCommandModule.h"
 #include "modules/OutputStateModule.h"
@@ -102,6 +107,15 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(int remoteSessions READ remoteSessions NOTIFY remoteChanged)
     Q_PROPERTY(QString remoteError READ remoteError NOTIFY remoteChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
+    Q_PROPERTY(QVariantList automations READ automations NOTIFY automationsChanged)
+    Q_PROPERTY(QVariantList automationRuns READ automationRuns NOTIFY automationRunsChanged)
+    Q_PROPERTY(QString automationStatus READ automationStatus NOTIFY automationStatusChanged)
+    Q_PROPERTY(bool automationsEnabled READ automationsEnabled WRITE setAutomationsEnabled NOTIFY automationsChanged)
+    Q_PROPERTY(bool processActionsEnabled READ processActionsEnabled WRITE setProcessActionsEnabled NOTIFY authorizedExecutablesChanged)
+    Q_PROPERTY(QVariantList authorizedExecutables READ authorizedExecutables NOTIFY authorizedExecutablesChanged)
+    Q_PROPERTY(QStringList automationTriggerTypes READ automationTriggerTypeList CONSTANT)
+    Q_PROPERTY(QStringList automationActionTypes READ automationActionTypeList CONSTANT)
+    Q_PROPERTY(QStringList automationConditionOperations READ automationConditionOperationList CONSTANT)
     Q_PROPERTY(QVariantList integrations READ integrations NOTIFY integrationsChanged)
     Q_PROPERTY(QVariantList integrationHistory READ integrationHistory NOTIFY integrationHistoryChanged)
     Q_PROPERTY(QString integrationStatus READ integrationStatus NOTIFY integrationStatusChanged)
@@ -253,6 +267,17 @@ public:
     [[nodiscard]] int remoteSessions() const;
     [[nodiscard]] QString remoteError() const;
     [[nodiscard]] bool blackout() const;
+    [[nodiscard]] QVariantList automations() const;
+    [[nodiscard]] QVariantList automationRuns() const;
+    [[nodiscard]] QString automationStatus() const;
+    [[nodiscard]] bool automationsEnabled() const;
+    void setAutomationsEnabled(bool enabled);
+    [[nodiscard]] bool processActionsEnabled() const;
+    void setProcessActionsEnabled(bool enabled);
+    [[nodiscard]] QVariantList authorizedExecutables() const;
+    [[nodiscard]] QStringList automationTriggerTypeList() const;
+    [[nodiscard]] QStringList automationActionTypeList() const;
+    [[nodiscard]] QStringList automationConditionOperationList() const;
     [[nodiscard]] QVariantList integrations() const;
     [[nodiscard]] QVariantList integrationHistory() const;
     [[nodiscard]] QString integrationStatus() const;
@@ -367,6 +392,18 @@ public:
     Q_INVOKABLE bool setOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
     //! Perfil de transmissão da saída, com os padrões quando ainda não houver
     //! configuração salva.
+    //! Cria ou atualiza uma automação. Devolve `accepted`, `errors` e `id`.
+    Q_INVOKABLE QVariantMap saveAutomation(const QVariantMap &automation);
+    Q_INVOKABLE bool removeAutomation(const QString &automationId);
+    Q_INVOKABLE bool setAutomationEnabled(const QString &automationId, bool enabled);
+    //! Reabilita uma automação desativada por falhas seguidas.
+    Q_INVOKABLE bool resumeAutomation(const QString &automationId);
+    //! Ensaia a automação sem nenhum efeito externo.
+    Q_INVOKABLE QVariantMap dryRunAutomation(const QString &automationId,
+                                             const QVariantMap &payload = {});
+    Q_INVOKABLE QVariantMap authorizeExecutable(const QString &path, const QString &label);
+    Q_INVOKABLE bool revokeExecutable(const QString &canonicalPath);
+
     //! Cria ou atualiza uma integração. Devolve `accepted` e a lista `errors`.
     Q_INVOKABLE QVariantMap saveIntegration(const QVariantMap &definition);
     Q_INVOKABLE bool removeIntegration(const QString &integrationId);
@@ -564,6 +601,10 @@ signals:
     void integrationsChanged();
     void integrationHistoryChanged();
     void integrationStatusChanged();
+    void automationsChanged();
+    void automationRunsChanged();
+    void automationStatusChanged();
+    void authorizedExecutablesChanged();
     void undoStateChanged();
     void autosaveChanged();
     void identifyVisibleChanged();
@@ -664,6 +705,9 @@ private:
     void setIntegrationStatus(const QString &message);
     void refreshIntegrationDiagnostics();
     void setupIntegrations(const QString &databasePath);
+    void setupAutomations(const QString &databasePath);
+    void setAutomationStatus(const QString &message);
+    [[nodiscard]] QStringList validateAutomation(const Automation &automation) const;
     QVariantMap runIntegration(const QString &integrationId, const QString &operation,
                                const QVariantMap &payload, const QString &correlationId,
                                bool isTest);
@@ -758,6 +802,11 @@ private:
     std::unique_ptr<MidiIntegrationAdapter> m_midiAdapter;
     std::unique_ptr<OscIntegrationAdapter> m_oscAdapter;
     IntegrationEngine m_integrations;
+    AutomationEngine m_automationEngine;
+    AuthorizedExecutables m_authorizedExecutables;
+    QtProcessRunner m_processRunner;
+    std::unique_ptr<AutomationRepository> m_automationRepository;
+    QString m_automationStatus;
     std::unique_ptr<IntegrationCommandModule> m_integrationCommands;
     QString m_integrationStatus;
     std::unique_ptr<DataRecoveryService> m_recovery;

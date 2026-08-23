@@ -19,6 +19,15 @@ Versioning where practical before 1.0.
   `automation_actions`, `automation_runs` and `authorized_executables`, and the
   SQLite repository with ordered conditions and actions and run pruning.
 - Documented the automation model in `docs/AUTOMATIONS.md`.
+- Wired the automation engine into the application: domain events become
+  triggers through `TriggerTranslator`, actions run through the CommandBus, the
+  integration engine and the authorized process runner, and every run is
+  recorded and pruned.
+- Added the **Automações** operator area with the QUANDO → SE → ENTÃO editor,
+  action reordering, inline validation, dry run, resume, confirmed deletion,
+  run history, a global pause switch and the authorized executables list.
+- Refused automations that reference commands outside the catalog, unknown
+  integrations or unauthorized executables before saving them.
 
 ## [0.12.0] - 2026-08-23
 
