@@ -5,7 +5,20 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
-- Nothing yet.
+- Added the offline automation domain: triggers, declarative conditions with
+  `all`/`any` grouping, ordered actions, and runs, with no scripting language.
+- Added AutomationEngine with correlation propagation, reentrancy blocking,
+  chain depth, action, concurrency, debounce and time-budget limits, automatic
+  disabling after consecutive failures, a global switch, and a dry-run that
+  never reaches the network, MIDI, OSC, OBS or a process.
+- Added the authorized executable allowlist: disabled by default, canonical
+  paths that resolve symlinks, absolute paths only, list arguments, validated
+  working directory, minimal environment, timeout and output caps, plus a
+  process runner that never goes through a shell.
+- Added migration 5 with `automations`, `automation_conditions`,
+  `automation_actions`, `automation_runs` and `authorized_executables`, and the
+  SQLite repository with ordered conditions and actions and run pruning.
+- Documented the automation model in `docs/AUTOMATIONS.md`.
 
 ## [0.12.0] - 2026-08-23
 

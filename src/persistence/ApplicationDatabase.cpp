@@ -205,6 +205,80 @@ MigrationResult ApplicationDatabase::migrate(const QString &databasePath)
         }
         return true;
     });
+    migrator.addMigration(5, QStringLiteral("offline automations"),
+                          [](QSqlDatabase &database, QString *error) {
+        const QStringList statements{
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS automations("
+                "id TEXT PRIMARY KEY NOT NULL,"
+                "name TEXT NOT NULL,"
+                "enabled INTEGER NOT NULL DEFAULT 1,"
+                "trigger_type TEXT NOT NULL,"
+                "trigger_parameters TEXT NOT NULL DEFAULT '{}',"
+                "condition_group TEXT NOT NULL DEFAULT 'all',"
+                "debounce_ms INTEGER NOT NULL DEFAULT 0,"
+                "budget_ms INTEGER NOT NULL DEFAULT 15000,"
+                "failure_limit INTEGER NOT NULL DEFAULT 5,"
+                "consecutive_failures INTEGER NOT NULL DEFAULT 0,"
+                "updated_at TEXT NOT NULL DEFAULT '')"),
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS automation_conditions("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "automation_id TEXT NOT NULL,"
+                "position INTEGER NOT NULL,"
+                "field TEXT NOT NULL,"
+                "operation TEXT NOT NULL,"
+                "expected TEXT NOT NULL DEFAULT '',"
+                "FOREIGN KEY(automation_id) REFERENCES automations(id) ON DELETE CASCADE)"),
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS automation_actions("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "automation_id TEXT NOT NULL,"
+                "position INTEGER NOT NULL,"
+                "type TEXT NOT NULL,"
+                "parameters TEXT NOT NULL DEFAULT '{}',"
+                "FOREIGN KEY(automation_id) REFERENCES automations(id) ON DELETE CASCADE)"),
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS automation_runs("
+                "id TEXT PRIMARY KEY NOT NULL,"
+                "automation_id TEXT NOT NULL,"
+                "correlation_id TEXT NOT NULL DEFAULT '',"
+                "status TEXT NOT NULL,"
+                "reason TEXT NOT NULL DEFAULT '',"
+                "dry_run INTEGER NOT NULL DEFAULT 0,"
+                "started_at TEXT NOT NULL,"
+                "finished_at TEXT NOT NULL DEFAULT '',"
+                "outcomes TEXT NOT NULL DEFAULT '[]')"),
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS authorized_executables("
+                "canonical_path TEXT PRIMARY KEY NOT NULL,"
+                "label TEXT NOT NULL DEFAULT '',"
+                "authorized_at TEXT NOT NULL)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS automations_enabled_idx "
+                "ON automations(enabled,trigger_type)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS automation_conditions_automation_idx "
+                "ON automation_conditions(automation_id,position)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS automation_actions_automation_idx "
+                "ON automation_actions(automation_id,position)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS automation_runs_automation_idx "
+                "ON automation_runs(automation_id,started_at)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS automation_runs_date_idx "
+                "ON automation_runs(started_at)"),
+        };
+        QSqlQuery query(database);
+        for (const auto &statement : statements) {
+            if (!query.exec(statement)) {
+                if (error) *error = query.lastError().text();
+                return false;
+            }
+        }
+        return true;
+    });
     return migrator.migrate();
 }
 
