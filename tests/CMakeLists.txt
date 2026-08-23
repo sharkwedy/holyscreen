@@ -34,6 +34,10 @@ qt_add_executable(test_playlist_command_module unit/modules/PlaylistCommandModul
 target_link_libraries(test_playlist_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_playlist_command_module COMMAND test_playlist_command_module)
 
+qt_add_executable(test_output_state_module unit/modules/OutputStateModuleTest.cpp)
+target_link_libraries(test_output_state_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_output_state_module COMMAND test_output_state_module)
+
 qt_add_executable(test_output_routing_command_module unit/modules/OutputRoutingCommandModuleTest.cpp)
 target_link_libraries(test_output_routing_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_routing_command_module COMMAND test_output_routing_command_module)
@@ -69,6 +73,10 @@ qt_add_executable(test_screen_manager
 )
 target_link_libraries(test_screen_manager PRIVATE Qt6::Test presenter-screens)
 add_test(NAME test_screen_manager COMMAND test_screen_manager)
+
+qt_add_executable(test_output_role unit/screens/OutputRoleTest.cpp)
+target_link_libraries(test_output_role PRIVATE Qt6::Test presenter-screens)
+add_test(NAME test_output_role COMMAND test_output_role)
 
 qt_add_executable(test_output_routing unit/screens/OutputRoutingTest.cpp)
 target_link_libraries(test_output_routing PRIVATE Qt6::Test presenter-screens)
@@ -229,6 +237,17 @@ add_test(NAME test_bible_source_stager COMMAND test_bible_source_stager)
 qt_add_executable(test_bible_import_service unit/bible/BibleImportServiceTest.cpp)
 target_link_libraries(test_bible_import_service PRIVATE Qt6::Test presenter-bible)
 add_test(NAME test_bible_import_service COMMAND test_bible_import_service)
+
+qt_add_executable(test_qml_output_views qml/main.cpp qml/FakePresentationController.h)
+target_include_directories(test_qml_output_views PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/qml)
+target_link_libraries(test_qml_output_views PRIVATE
+    Qt6::QuickTest Qt6::Qml Qt6::Quick presenter-ui presenter-uiplugin)
+add_test(NAME test_qml_output_views
+    COMMAND test_qml_output_views -input ${CMAKE_CURRENT_SOURCE_DIR}/qml)
+set_tests_properties(test_qml_output_views PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+    TIMEOUT 60
+)
 
 add_test(NAME test_app_starts COMMAND $<TARGET_FILE:church-presenter> --quit-after-startup)
 set_tests_properties(test_app_starts PROPERTIES

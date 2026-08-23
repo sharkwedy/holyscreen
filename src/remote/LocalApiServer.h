@@ -50,6 +50,9 @@ public:
     [[nodiscard]] static QByteArray remotePage();
     [[nodiscard]] static QByteArray manifest();
     [[nodiscard]] static QByteArray serviceWorker();
+    //! Reads one of the PWA assets embedded in the binary
+    //! (`:/holyscreen/remote/...`). The server never touches the filesystem.
+    [[nodiscard]] static QByteArray webAsset(const QString &fileName);
 
 signals:
     void statusChanged();

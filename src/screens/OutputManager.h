@@ -1,5 +1,6 @@
 #pragma once
 
+#include "screens/OutputRole.h"
 #include "screens/ScreenManager.h"
 
 #include <QString>
@@ -8,14 +9,6 @@
 namespace churchpresenter {
 
 class OutputWindowManager;
-
-enum class OutputRole {
-    Audience,
-    Stage,
-    Broadcast,
-    Confidence,
-    Custom,
-};
 
 enum class OutputConnectionState {
     Connected,

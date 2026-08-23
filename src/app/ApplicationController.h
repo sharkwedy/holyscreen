@@ -1,5 +1,6 @@
 #pragma once
 
+#include "modules/OutputStateModule.h"
 #include "screens/OutputManager.h"
 #include "persistence/SettingsRepository.h"
 #include "presentation/Clock.h"
@@ -641,7 +642,7 @@ private:
 
     std::unique_ptr<QtScreenProvider> m_screenProvider;
     std::unique_ptr<ScreenManager> m_screenManager;
-    OutputManager m_outputs;
+    OutputStateModule m_outputs;
     QVariantList m_screens;
     QString m_wallpaperColor = QStringLiteral("#000000");
     QUrl m_wallpaperSource;

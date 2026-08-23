@@ -1,5 +1,7 @@
 #include "modules/OutputRoutingCommandModule.h"
 
+#include "screens/OutputRole.h"
+
 #include <QDateTime>
 #include <QMetaType>
 #include <QUuid>
@@ -53,9 +55,9 @@ OutputRoutingCommandModule::OutputRoutingCommandModule(CommandBus &commandBus,
         const auto fingerprint = command.payload.value(QStringLiteral("fingerprint"))
                                      .toString().trimmed();
         const auto role = command.payload.value(QStringLiteral("role")).toString().trimmed();
-        if (fingerprint.isEmpty()
-            || (role != QStringLiteral("audience") && role != QStringLiteral("stage"))) {
-            return invalidPayload(QStringLiteral("fingerprint e role audience/stage são obrigatórios."));
+        if (fingerprint.isEmpty() || !isOutputRoleName(role)) {
+            return invalidPayload(QStringLiteral("fingerprint e role %1 são obrigatórios.")
+                                      .arg(outputRoleNames().join(QLatin1Char('/'))));
         }
         const auto previousOutput = m_actions.output ? m_actions.output(fingerprint) : QVariantMap{};
         if (previousOutput.isEmpty()) return invalidPayload(QStringLiteral("Saída não encontrada."));

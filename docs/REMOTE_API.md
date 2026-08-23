@@ -44,7 +44,10 @@ usar **Revogar todas as sessões** invalida os tokens e desconecta clientes.
 
 As rotas experimentais `/api/state`, `/api/command` e `/ws` não existem mais.
 A raiz `/` serve a PWA embutida; `manifest.webmanifest` e `sw.js` também são
-locais e não usam CDN.
+locais e não usam CDN. Os três arquivos vivem versionados em `src/remote/web/`
+e são compilados no binário como recursos Qt (`:/holyscreen/remote/...`), de
+modo que o servidor entrega exatamente os bytes empacotados, sem depender do
+sistema de arquivos.
 
 ## Sessão HTTP
 

@@ -43,7 +43,7 @@ FetchContent_Declare(qrcodegen
 )
 FetchContent_MakeAvailable(libgit2 miniz qrcodegen)
 
-find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test QuickTest REQUIRED)
 qt_standard_project_setup(REQUIRES 6.8)
 
 add_subdirectory(src)

@@ -20,6 +20,8 @@ add_library(presenter-screens
     screens/OutputManager.h
     screens/OutputRouting.cpp
     screens/OutputRouting.h
+    screens/OutputRole.cpp
+    screens/OutputRole.h
 )
 target_include_directories(presenter-screens PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-screens PUBLIC Qt6::Core Qt6::Gui)
@@ -52,6 +54,8 @@ target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
 add_library(presenter-modules
+    modules/OutputStateModule.cpp
+    modules/OutputStateModule.h
     modules/PlaylistCommandModule.cpp
     modules/PlaylistCommandModule.h
     modules/ThemeCommandModule.cpp
@@ -76,7 +80,7 @@ add_library(presenter-modules
     modules/UndoCommandModule.h
 )
 target_include_directories(presenter-modules PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation Qt6::Core)
+target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation presenter-screens Qt6::Core)
 
 add_library(presenter-persistence
     persistence/ApplicationDatabase.cpp
@@ -158,6 +162,14 @@ target_include_directories(presenter-app PRIVATE ${qrcodegen_SOURCE_DIR}/cpp)
 target_link_libraries(presenter-app PUBLIC
     presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
+qt_add_resources(presenter-app "presenter_remote_web"
+    PREFIX "/holyscreen/remote"
+    BASE remote/web
+    FILES
+        remote/web/index.html
+        remote/web/manifest.webmanifest
+        remote/web/sw.js
+)
 target_link_libraries(presenter-app PRIVATE miniz)
 
 qt_add_executable(church-presenter
@@ -190,7 +202,8 @@ if(WIN32)
         ${CMAKE_SOURCE_DIR}/packaging/windows/holyscreen.ico
     )
 endif()
-qt_add_qml_module(church-presenter
+qt_add_library(presenter-ui STATIC)
+qt_add_qml_module(presenter-ui
     URI ChurchPresenter
     VERSION 1.0
     QML_FILES
@@ -200,16 +213,27 @@ qt_add_qml_module(church-presenter
         ui/operator/BibleBrowser.qml
         ui/operator/QuickBibleSearch.qml
         ui/output/OutputWindow.qml
+        ui/output/AudienceView.qml
+        ui/output/BroadcastView.qml
+        ui/output/StageOutputView.qml
+        ui/output/OutputClock.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml
         ui/output/StageView.qml
         ui/output/LiveOverlays.qml
 )
+target_link_libraries(presenter-ui PRIVATE Qt6::Quick Qt6::QuickControls2 Qt6::Multimedia)
+
+# Preserva o nome do alvo de lint usado pela documentação e pela CI depois de
+# mover os arquivos QML para a biblioteca presenter-ui.
+add_custom_target(church-presenter_qmllint)
+add_dependencies(church-presenter_qmllint presenter-ui_qmllint)
+
 target_link_libraries(church-presenter
     PRIVATE
         Qt6::Core Qt6::Gui Qt6::Quick Qt6::QuickControls2 Qt6::Sql Qt6::Multimedia
         Qt6::HttpServer Qt6::WebSockets
         presenter-app presenter-screens presenter-presentation presenter-persistence presenter-library
-        presenter-bible
+        presenter-bible presenter-ui presenter-uiplugin
 )
