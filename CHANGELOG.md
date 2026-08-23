@@ -5,6 +5,10 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Nothing yet.
+
+## [0.12.0] - 2026-08-23
+
 - Added a shared `OutputRole` serialization covering `audience`, `stage`,
   `broadcast`, `confidence`, and `custom`, with a strict parser that no longer
   reduces every non-stage role to audience.

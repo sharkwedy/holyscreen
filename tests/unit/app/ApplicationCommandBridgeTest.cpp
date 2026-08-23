@@ -463,6 +463,8 @@ void ApplicationCommandBridgeTest::integrationsAreValidatedExecutedAndRecordedWi
 int main(int argc, char **argv)
 {
     qputenv("QT_QPA_PLATFORM", QByteArrayLiteral("offscreen"));
+    // O teste nunca pode escrever no cofre real da máquina que roda a suíte.
+    qputenv("HOLYSCREEN_SECRET_STORE", QByteArrayLiteral("memory"));
     QGuiApplication app(argc, argv);
     QTemporaryDir dataDirectory;
     if (!dataDirectory.isValid()) return 2;

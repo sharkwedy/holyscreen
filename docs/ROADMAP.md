@@ -11,7 +11,7 @@ O handoff detalhado das ondas 4 a 8 está em
 | 1 | Command/Event Bus, migrações e confiabilidade | Concluída e validada na v0.11.0 |
 | 2 | Controle remoto autenticado e API v1 | Concluída e validada na v0.11.0 |
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
-| 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Em andamento: incrementos 4.0 e 4.1 concluídos |
+| 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
 | 5 | Automações offline | Pendente |
 | 6 | Escalas e relatórios avançados | Pendente |
 | 7 | UX final, onboarding, acessibilidade e documentação | Pendente |
@@ -25,6 +25,19 @@ O handoff detalhado das ondas 4 a 8 está em
 - operador + duas telas físicas e cinco saídas simuladas validados;
 - endurance de duas horas sem crash, congelamento, dropout ou perda de saída;
 - pacotes reproduzíveis com checksums e changelog.
+
+## Checkpoint v0.12.0
+
+A onda 4 foi publicada na `v0.12.0`, com os incrementos 4.0 a 4.4: papéis de
+saída completos, saída Broadcast com perfil por tela, domínio de integrações
+com motor, cofre de segredos e persistência, os adapters HTTP, WebSocket, OBS
+v5, MIDI e OSC, e a área **Integrações** do operador. O checkpoint passou por
+build, 66 testes, Qt Quick Test, QML lint sem avisos e CI nos três sistemas.
+
+Pendências assumidas para a onda 8, que exigem hardware e sistemas que não
+estavam disponíveis neste checkpoint: captura da saída Broadcast pelo OBS real
+no Windows, no macOS e no Linux, MIDI com porta física ou virtual em cada
+sistema, e golden tests de resolução e DPI.
 
 ## Checkpoint v0.11.0
 
