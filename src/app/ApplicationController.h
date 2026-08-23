@@ -1,5 +1,18 @@
 #pragma once
 
+#include "integrations/IntegrationEngine.h"
+#include "integrations/adapters/HttpIntegrationAdapter.h"
+#include "integrations/adapters/MidiIntegrationAdapter.h"
+#include "integrations/adapters/ObsIntegrationAdapter.h"
+#include "integrations/adapters/OscIntegrationAdapter.h"
+#include "integrations/adapters/WebSocketIntegrationAdapter.h"
+#include "integrations/transports/ObsWebSocketClient.h"
+#include "integrations/transports/QtHttpTransport.h"
+#include "integrations/transports/QtOscTransport.h"
+#include "integrations/transports/QtWebSocketTransport.h"
+#include "integrations/transports/RtMidiTransport.h"
+#include "library/IntegrationRepository.h"
+#include "modules/IntegrationCommandModule.h"
 #include "modules/OutputStateModule.h"
 #include "screens/OutputManager.h"
 #include "persistence/SettingsRepository.h"
@@ -89,6 +102,12 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(int remoteSessions READ remoteSessions NOTIFY remoteChanged)
     Q_PROPERTY(QString remoteError READ remoteError NOTIFY remoteChanged)
     Q_PROPERTY(bool blackout READ blackout NOTIFY blackoutChanged)
+    Q_PROPERTY(QVariantList integrations READ integrations NOTIFY integrationsChanged)
+    Q_PROPERTY(QVariantList integrationHistory READ integrationHistory NOTIFY integrationHistoryChanged)
+    Q_PROPERTY(QString integrationStatus READ integrationStatus NOTIFY integrationStatusChanged)
+    Q_PROPERTY(QStringList integrationTypes READ integrationTypes CONSTANT)
+    Q_PROPERTY(QString integrationSecretBackend READ integrationSecretBackend CONSTANT)
+    Q_PROPERTY(bool integrationSecretsPersistent READ integrationSecretsPersistent CONSTANT)
     Q_PROPERTY(bool broadcastTransparencySupported READ broadcastTransparencySupported CONSTANT)
     Q_PROPERTY(QString broadcastTransparencyWarning READ broadcastTransparencyWarning CONSTANT)
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY undoStateChanged)
@@ -234,6 +253,12 @@ public:
     [[nodiscard]] int remoteSessions() const;
     [[nodiscard]] QString remoteError() const;
     [[nodiscard]] bool blackout() const;
+    [[nodiscard]] QVariantList integrations() const;
+    [[nodiscard]] QVariantList integrationHistory() const;
+    [[nodiscard]] QString integrationStatus() const;
+    [[nodiscard]] QStringList integrationTypes() const;
+    [[nodiscard]] QString integrationSecretBackend() const;
+    [[nodiscard]] bool integrationSecretsPersistent() const;
     [[nodiscard]] bool broadcastTransparencySupported() const;
     [[nodiscard]] QString broadcastTransparencyWarning() const;
     [[nodiscard]] bool canUndo() const;
@@ -342,6 +367,22 @@ public:
     Q_INVOKABLE bool setOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
     //! Perfil de transmissão da saída, com os padrões quando ainda não houver
     //! configuração salva.
+    //! Cria ou atualiza uma integração. Devolve `accepted` e a lista `errors`.
+    Q_INVOKABLE QVariantMap saveIntegration(const QVariantMap &definition);
+    Q_INVOKABLE bool removeIntegration(const QString &integrationId);
+    //! Duplica a definição, sem copiar segredos, e devolve o novo id.
+    Q_INVOKABLE QString duplicateIntegration(const QString &integrationId);
+    Q_INVOKABLE bool setIntegrationEnabled(const QString &integrationId, bool enabled);
+    //! Guarda um segredo no cofre do sistema e devolve a referência criada.
+    Q_INVOKABLE QString setIntegrationSecret(const QString &integrationId, const QString &field,
+                                             const QString &secret);
+    Q_INVOKABLE bool testIntegration(const QString &integrationId);
+    Q_INVOKABLE bool executeIntegration(const QString &integrationId, const QString &operation,
+                                        const QVariantMap &payload = {});
+    Q_INVOKABLE QVariantMap integrationDefinition(const QString &integrationId) const;
+    Q_INVOKABLE QStringList midiOutputPorts() const;
+    Q_INVOKABLE QStringList integrationOperations(const QString &type) const;
+
     Q_INVOKABLE QVariantMap outputBroadcastProfile(const QString &screenFingerprint) const;
     //! Aplica uma alteração parcial no perfil de transmissão pela CommandBus.
     Q_INVOKABLE bool setOutputBroadcastProfile(const QString &screenFingerprint,
@@ -520,6 +561,9 @@ signals:
     void debugOptionsChanged();
     void remoteChanged();
     void blackoutChanged(bool active);
+    void integrationsChanged();
+    void integrationHistoryChanged();
+    void integrationStatusChanged();
     void undoStateChanged();
     void autosaveChanged();
     void identifyVisibleChanged();
@@ -617,6 +661,12 @@ private:
     bool applyOutputRole(const QString &screenFingerprint, const QString &role);
     bool applyOutputMediaEnabled(const QString &screenFingerprint, bool enabled);
     bool applyOutputBroadcastProfile(const QString &screenFingerprint, const QVariantMap &changes);
+    void setIntegrationStatus(const QString &message);
+    void refreshIntegrationDiagnostics();
+    void setupIntegrations(const QString &databasePath);
+    QVariantMap runIntegration(const QString &integrationId, const QString &operation,
+                               const QVariantMap &payload, const QString &correlationId,
+                               bool isTest);
     [[nodiscard]] QVariantMap outputRoutingState(const QString &screenFingerprint) const;
     [[nodiscard]] QJsonObject remoteState() const;
     bool restartRemoteServer();
@@ -695,6 +745,21 @@ private:
     std::unique_ptr<EventRepository> m_eventRepository;
     std::unique_ptr<HistoryRepository> m_historyRepository;
     std::unique_ptr<BroadcastProfileRepository> m_broadcastProfiles;
+    std::unique_ptr<IntegrationRepository> m_integrationRepository;
+    std::unique_ptr<ISecretStore> m_secretStore;
+    QtHttpTransport m_httpTransport;
+    QtWebSocketTransport m_webSocketTransport;
+    QtOscTransport m_oscTransport;
+    RtMidiTransport m_midiTransport;
+    ObsWebSocketClient m_obsClient;
+    std::unique_ptr<HttpIntegrationAdapter> m_httpAdapter;
+    std::unique_ptr<WebSocketIntegrationAdapter> m_webSocketAdapter;
+    std::unique_ptr<ObsIntegrationAdapter> m_obsAdapter;
+    std::unique_ptr<MidiIntegrationAdapter> m_midiAdapter;
+    std::unique_ptr<OscIntegrationAdapter> m_oscAdapter;
+    IntegrationEngine m_integrations;
+    std::unique_ptr<IntegrationCommandModule> m_integrationCommands;
+    QString m_integrationStatus;
     std::unique_ptr<DataRecoveryService> m_recovery;
     std::unique_ptr<AutosaveCoordinator> m_autosave;
     QString m_autosaveStatus = QStringLiteral("Salvo");

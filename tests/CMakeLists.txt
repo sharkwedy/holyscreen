@@ -34,6 +34,10 @@ qt_add_executable(test_playlist_command_module unit/modules/PlaylistCommandModul
 target_link_libraries(test_playlist_command_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_playlist_command_module COMMAND test_playlist_command_module)
 
+qt_add_executable(test_integration_command_module unit/modules/IntegrationCommandModuleTest.cpp)
+target_link_libraries(test_integration_command_module PRIVATE Qt6::Test presenter-modules)
+add_test(NAME test_integration_command_module COMMAND test_integration_command_module)
+
 qt_add_executable(test_output_state_module unit/modules/OutputStateModuleTest.cpp)
 target_link_libraries(test_output_state_module PRIVATE Qt6::Test presenter-modules)
 add_test(NAME test_output_state_module COMMAND test_output_state_module)
@@ -223,7 +227,7 @@ target_link_libraries(test_autosave_coordinator PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_autosave_coordinator COMMAND test_autosave_coordinator)
 
 qt_add_executable(test_application_command_bridge unit/app/ApplicationCommandBridgeTest.cpp)
-target_link_libraries(test_application_command_bridge PRIVATE Qt6::Test presenter-app)
+target_link_libraries(test_application_command_bridge PRIVATE Qt6::Test Qt6::HttpServer presenter-app)
 add_test(NAME test_application_command_bridge COMMAND test_application_command_bridge)
 set_tests_properties(test_application_command_bridge PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"

@@ -84,4 +84,10 @@ struct IntegrationValidation {
     }
 };
 
+//! Conversões usadas pela camada de aplicação e pelo QML. O mapa nunca
+//! carrega segredos: apenas referências do cofre.
+[[nodiscard]] QVariantMap integrationDefinitionToMap(const IntegrationDefinition &definition);
+[[nodiscard]] IntegrationDefinition integrationDefinitionFromMap(const QVariantMap &map);
+[[nodiscard]] QVariantMap integrationCallToMap(const IntegrationCall &call);
+
 } // namespace churchpresenter

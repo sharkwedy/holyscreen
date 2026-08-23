@@ -41,6 +41,10 @@ QList<CommandDescriptor> CommandCatalog::descriptors()
         {QStringLiteral("output.role.set"), false, true},
         {QStringLiteral("output.media-enabled.set"), false, true},
         {QStringLiteral("output.broadcast-profile.set"), false, true},
+        // Integrações são de desktop na 0.12: o remoto não pode executar
+        // chamadas arbitrárias a sistemas externos.
+        {QStringLiteral("integration.test"), false, false},
+        {QStringLiteral("integration.execute"), false, false},
         {QStringLiteral("settings.theme.apply"), false, true},
         {QStringLiteral("system.undo"), false, false},
         {QStringLiteral("system.redo"), false, false},

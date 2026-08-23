@@ -3,6 +3,8 @@
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
+#include "integrations/IntegrationSanitizer.h"
+#include "integrations/secrets/SecretStoreFactory.h"
 #include "screens/OutputRole.h"
 #include "screens/OutputRouting.h"
 #include "bible/BibleImportService.h"
@@ -388,6 +390,8 @@ ApplicationController::ApplicationController(QObject *parent)
 ApplicationController::~ApplicationController()
 {
     m_remoteServer.stop();
+    // Nenhuma chamada externa pode sobreviver ao encerramento do culto.
+    m_integrations.cancelAll();
     if (m_bibleImportCancelled) m_bibleImportCancelled->store(true);
     if (m_bibleImportWatcher.isRunning()) m_bibleImportWatcher.waitForFinished();
     if (m_autosave) m_autosave->flush();
@@ -810,6 +814,271 @@ bool ApplicationController::applyOutputBroadcastProfile(const QString &screenFin
     }
     refreshScreens();
     return true;
+}
+
+void ApplicationController::setupIntegrations(const QString &databasePath)
+{
+    m_secretStore = SecretStoreFactory::create();
+    m_httpAdapter = std::make_unique<HttpIntegrationAdapter>(m_httpTransport, m_secretStore.get());
+    m_webSocketAdapter = std::make_unique<WebSocketIntegrationAdapter>(m_webSocketTransport);
+    m_obsAdapter = std::make_unique<ObsIntegrationAdapter>(m_obsClient, m_secretStore.get());
+    m_midiAdapter = std::make_unique<MidiIntegrationAdapter>(m_midiTransport);
+    m_oscAdapter = std::make_unique<OscIntegrationAdapter>(m_oscTransport);
+    m_integrations.registerAdapter(IntegrationType::Http, m_httpAdapter.get());
+    m_integrations.registerAdapter(IntegrationType::WebSocket, m_webSocketAdapter.get());
+    m_integrations.registerAdapter(IntegrationType::Obs, m_obsAdapter.get());
+    m_integrations.registerAdapter(IntegrationType::Midi, m_midiAdapter.get());
+    m_integrations.registerAdapter(IntegrationType::Osc, m_oscAdapter.get());
+    m_integrations.setSecretStore(m_secretStore.get());
+
+    m_integrationRepository = std::make_unique<IntegrationRepository>(databasePath);
+    if (!m_integrationRepository->open()) {
+        qWarning() << "Failed to open the integration database";
+    } else {
+        m_integrations.setRepository(m_integrationRepository.get());
+    }
+
+    m_integrationCommands = std::make_unique<IntegrationCommandModule>(
+        m_commandBus, m_eventBus,
+        IntegrationCommandModule::Actions{
+            .execute = [this](const QString &integrationId, const QString &operation,
+                              const QVariantMap &payload, const QString &correlationId) {
+                return runIntegration(integrationId, operation, payload, correlationId, false);
+            },
+            .test = [this](const QString &integrationId, const QString &correlationId) {
+                return runIntegration(integrationId, QStringLiteral("connection.test"), {},
+                                      correlationId, true);
+            },
+            .definition = [this](const QString &integrationId) {
+                return integrationDefinition(integrationId);
+            },
+        }, this);
+    refreshIntegrationDiagnostics();
+    emit integrationsChanged();
+}
+
+QVariantMap ApplicationController::runIntegration(const QString &integrationId,
+                                                  const QString &operation,
+                                                  const QVariantMap &payload,
+                                                  const QString &correlationId, bool isTest)
+{
+    // As chamadas são assíncronas; o operador acompanha pelo estado e pelo
+    // histórico, sem diálogo modal travando o culto.
+    QVariantMap acknowledgement{{QStringLiteral("accepted"), true},
+                                {QStringLiteral("message"), QStringLiteral("Chamada enviada.")}};
+    const auto completion = [this, integrationId](const IntegrationResult &result) {
+        const auto name = m_integrations.definition(integrationId)
+                              .value_or(IntegrationDefinition{}).name;
+        setIntegrationStatus(result.accepted
+            ? QStringLiteral("%1: %2 (%3 ms)").arg(name, result.message).arg(result.durationMs)
+            : QStringLiteral("%1 falhou: %2").arg(name,
+                  result.message.isEmpty() ? result.errorCode : result.message));
+        emit integrationHistoryChanged();
+    };
+
+    if (isTest) {
+        m_integrations.test(integrationId, completion);
+        return acknowledgement;
+    }
+    m_integrations.execute(IntegrationRequest{
+        .id = QUuid::createUuid().toString(QUuid::WithoutBraces),
+        .integrationId = integrationId,
+        .operation = operation,
+        .payload = payload,
+        .correlationId = correlationId,
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    }, completion);
+    return acknowledgement;
+}
+
+QVariantList ApplicationController::integrations() const
+{
+    QVariantList result;
+    for (const auto &definition : m_integrations.exportableDefinitions()) {
+        auto item = integrationDefinitionToMap(definition);
+        item.insert(QStringLiteral("typeLabel"), integrationTypeName(definition.type));
+        item.insert(QStringLiteral("operations"),
+                    integrationOperations(integrationTypeName(definition.type)));
+        result.append(item);
+    }
+    return result;
+}
+
+QVariantList ApplicationController::integrationHistory() const
+{
+    QVariantList result;
+    for (const auto &call : m_integrations.history({}, 100)) {
+        result.append(integrationCallToMap(call));
+    }
+    return result;
+}
+
+QString ApplicationController::integrationStatus() const { return m_integrationStatus; }
+
+QStringList ApplicationController::integrationTypes() const { return integrationTypeNames(); }
+
+QString ApplicationController::integrationSecretBackend() const
+{
+    return m_secretStore ? m_secretStore->backendName()
+                         : SecretStoreFactory::platformBackendName();
+}
+
+bool ApplicationController::integrationSecretsPersistent() const
+{
+    return m_secretStore && m_secretStore->isPersistent();
+}
+
+QStringList ApplicationController::integrationOperations(const QString &type) const
+{
+    const auto parsed = integrationTypeFromName(type);
+    if (!parsed.has_value()) return {};
+    switch (*parsed) {
+    case IntegrationType::Http: return {QStringLiteral("request.send")};
+    case IntegrationType::WebSocket: return WebSocketIntegrationAdapter::supportedOperations();
+    case IntegrationType::Obs: return ObsIntegrationAdapter::supportedOperations();
+    case IntegrationType::Midi: return MidiIntegrationAdapter::supportedOperations();
+    case IntegrationType::Osc: return {QStringLiteral("message.send")};
+    }
+    return {};
+}
+
+QStringList ApplicationController::midiOutputPorts() const
+{
+    return m_midiTransport.outputPorts();
+}
+
+QVariantMap ApplicationController::integrationDefinition(const QString &integrationId) const
+{
+    const auto found = m_integrations.definition(integrationId);
+    if (!found.has_value()) return {};
+    // A cópia devolvida ao QML nunca leva segredo.
+    return integrationDefinitionToMap(IntegrationSanitizer::sanitizedDefinition(*found));
+}
+
+QVariantMap ApplicationController::saveIntegration(const QVariantMap &definition)
+{
+    auto parsed = integrationDefinitionFromMap(definition);
+    if (parsed.id.isEmpty()) {
+        parsed.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    }
+    const auto validation = m_integrations.save(parsed);
+    if (validation.valid) {
+        setIntegrationStatus(QStringLiteral("Integração %1 salva.").arg(parsed.name));
+        refreshIntegrationDiagnostics();
+        emit integrationsChanged();
+    }
+    return {{QStringLiteral("accepted"), validation.valid},
+            {QStringLiteral("errors"), validation.errors},
+            {QStringLiteral("id"), parsed.id}};
+}
+
+bool ApplicationController::removeIntegration(const QString &integrationId)
+{
+    const auto found = m_integrations.definition(integrationId);
+    if (!m_integrations.remove(integrationId)) return false;
+    for (const auto &reference : found ? found->secretReferences : QStringList{}) {
+        if (m_secretStore) m_secretStore->remove(reference);
+    }
+    setIntegrationStatus(QStringLiteral("Integração removida."));
+    refreshIntegrationDiagnostics();
+    emit integrationsChanged();
+    emit integrationHistoryChanged();
+    return true;
+}
+
+QString ApplicationController::duplicateIntegration(const QString &integrationId)
+{
+    const auto found = m_integrations.definition(integrationId);
+    if (!found.has_value()) return {};
+    auto copy = *found;
+    copy.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    copy.name = QStringLiteral("%1 (cópia)").arg(found->name);
+    copy.enabled = false;
+    // Segredos não são copiados: a cópia precisa receber os seus.
+    copy.secretReferences.clear();
+    for (auto it = copy.configuration.begin(); it != copy.configuration.end(); ++it) {
+        if (found->secretReferences.contains(it.value().toString())) it.value() = QString{};
+    }
+    if (!m_integrations.save(copy).valid) return {};
+    setIntegrationStatus(QStringLiteral("Integração duplicada. Configure os segredos da cópia."));
+    emit integrationsChanged();
+    return copy.id;
+}
+
+bool ApplicationController::setIntegrationEnabled(const QString &integrationId, bool enabled)
+{
+    auto found = m_integrations.definition(integrationId);
+    if (!found.has_value()) return false;
+    found->enabled = enabled;
+    if (!m_integrations.save(*found).valid) return false;
+    emit integrationsChanged();
+    return true;
+}
+
+QString ApplicationController::setIntegrationSecret(const QString &integrationId,
+                                                    const QString &field, const QString &secret)
+{
+    auto found = m_integrations.definition(integrationId);
+    if (!found.has_value() || field.trimmed().isEmpty() || !m_secretStore) return {};
+    const auto reference = QStringLiteral("%1/%2").arg(integrationId, field.trimmed());
+    if (!m_secretStore->store(reference, secret)) return {};
+    if (!found->secretReferences.contains(reference)) found->secretReferences.append(reference);
+    // Um campo com ponto aponta para uma chave dentro de um mapa da
+    // configuração, como `headers.Authorization`.
+    const auto path = field.trimmed().split(QLatin1Char('.'));
+    if (path.size() == 2) {
+        auto nested = found->configuration.value(path.first()).toMap();
+        nested.insert(path.last(), reference);
+        found->configuration.insert(path.first(), nested);
+    } else {
+        found->configuration.insert(field.trimmed(), reference);
+    }
+    if (!m_integrations.save(*found).valid) return {};
+    setIntegrationStatus(m_secretStore->isPersistent()
+                             ? QStringLiteral("Segredo guardado no %1.")
+                                   .arg(m_secretStore->backendName())
+                             : QStringLiteral("Sem cofre do sistema: o segredo vale só nesta sessão."));
+    emit integrationsChanged();
+    return reference;
+}
+
+bool ApplicationController::testIntegration(const QString &integrationId)
+{
+    if (!m_integrationCommands) return false;
+    return m_integrationCommands->requestTest(integrationId).accepted;
+}
+
+bool ApplicationController::executeIntegration(const QString &integrationId,
+                                               const QString &operation,
+                                               const QVariantMap &payload)
+{
+    if (!m_integrationCommands) return false;
+    return m_integrationCommands->requestExecute(integrationId, operation, payload).accepted;
+}
+
+void ApplicationController::refreshIntegrationDiagnostics()
+{
+    // O diagnóstico lista nome, tipo e estado; nunca a configuração, que pode
+    // conter URLs internas, e nunca as referências de segredo.
+    QStringList summary;
+    for (const auto &definition : m_integrations.definitions()) {
+        summary.append(QStringLiteral("%1 [%2] %3")
+                           .arg(definition.name,
+                                integrationTypeName(definition.type),
+                                definition.enabled ? QStringLiteral("ativa")
+                                                   : QStringLiteral("inativa")));
+    }
+    m_diagnostics[QStringLiteral("integrations")] = summary;
+    m_diagnostics[QStringLiteral("integrationSecretBackend")] = integrationSecretBackend();
+    m_diagnostics[QStringLiteral("integrationSecretsPersistent")] = integrationSecretsPersistent();
+    emit diagnosticsChanged();
+}
+
+void ApplicationController::setIntegrationStatus(const QString &message)
+{
+    if (m_integrationStatus == message) return;
+    m_integrationStatus = message;
+    emit integrationStatusChanged();
 }
 
 bool ApplicationController::broadcastTransparencySupported() const
@@ -2667,6 +2936,7 @@ void ApplicationController::refreshScreens()
     emit outputWindowsChanged();
     m_diagnostics[QStringLiteral("detectedScreens")]=descriptors.size();
     m_diagnostics[QStringLiteral("activeOutputs")]=m_outputs.activeOutputs().size();
+    refreshIntegrationDiagnostics();
     emit diagnosticsChanged();
 }
 
@@ -2793,6 +3063,7 @@ void ApplicationController::loadSettings()
     m_historyRepository=std::make_unique<HistoryRepository>(databasePath);
     if(!m_historyRepository->open())qWarning()<<"Failed to open history database";
     refreshHistory();
+    setupIntegrations(databasePath);
     m_broadcastProfiles=std::make_unique<BroadcastProfileRepository>(databasePath);
     if(!m_broadcastProfiles->open()) {
         qWarning()<<"Failed to open broadcast profile database";

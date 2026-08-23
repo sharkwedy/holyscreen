@@ -52,6 +52,17 @@ Versioning where practical before 1.0.
 - Added the OSC over UDP adapter with an OSC 1.0 encoder covered by known-byte
   tests, int32/float32/string/bool arguments, a datagram limit, and no listener
   opened by default.
+- Added the OBS WebSocket v5 adapter with the challenge-response handshake,
+  correlated request IDs, per-request timeouts, scene, recording, streaming and
+  input operations, and a `GetVersion` connection test, covered by a fake
+  conformance server.
+- Added the **Integrações** operator area outside the settings dialog, with a
+  searchable list, per-adapter editor, enable switch, duplication, confirmed
+  deletion, connection test, non-modal status and sanitized history.
+- Added the desktop-only `integration.test` and `integration.execute` commands;
+  the remote catalog does not expose them.
+- Added the integration summary and the secret store backend to the diagnostic
+  export, without any configuration value.
 
 ## [0.11.0] - 2026-08-22
 
