@@ -99,6 +99,13 @@ add_library(presenter-integrations
     integrations/adapters/HttpIntegrationAdapter.h
     integrations/adapters/WebSocketIntegrationAdapter.cpp
     integrations/adapters/WebSocketIntegrationAdapter.h
+    integrations/adapters/ObsAuthentication.cpp
+    integrations/adapters/ObsAuthentication.h
+    integrations/adapters/ObsIntegrationAdapter.cpp
+    integrations/adapters/ObsIntegrationAdapter.h
+    integrations/ports/IObsClient.h
+    integrations/transports/ObsWebSocketClient.cpp
+    integrations/transports/ObsWebSocketClient.h
     integrations/adapters/MidiIntegrationAdapter.cpp
     integrations/adapters/MidiIntegrationAdapter.h
     integrations/transports/RtMidiTransport.cpp
