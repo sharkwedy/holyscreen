@@ -273,7 +273,7 @@ void IntegrationEngine::attempt(const std::shared_ptr<PendingCall> &call)
         const bool canRetry = !result.accepted && !m_cancelling
             && call->attempts < call->definition.retryPolicy.maximumAttempts
             && isTransientError(result.errorCode) && adapterForRetry
-            && adapterForRetry->isRetriable(call->request.operation);
+            && adapterForRetry->isRetriable(call->definition, call->request.operation);
         if (canRetry) {
             QTimer::singleShot(std::max(0, call->definition.retryPolicy.backoffMs), this,
                                [this, call] {

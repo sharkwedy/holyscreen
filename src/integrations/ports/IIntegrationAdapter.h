@@ -28,8 +28,10 @@ public:
     virtual void cancelAll() = 0;
 
     //! Verdadeiro apenas quando reenviar a operação não causa efeito duplicado.
-    [[nodiscard]] virtual bool isRetriable(const QString &operation) const
+    [[nodiscard]] virtual bool isRetriable(const IntegrationDefinition &definition,
+                                           const QString &operation) const
     {
+        Q_UNUSED(definition);
         Q_UNUSED(operation);
         return false;
     }

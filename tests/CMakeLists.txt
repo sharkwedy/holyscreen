@@ -140,6 +140,10 @@ qt_add_executable(test_integration_engine unit/integrations/IntegrationEngineTes
 target_link_libraries(test_integration_engine PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_integration_engine COMMAND test_integration_engine)
 
+qt_add_executable(test_http_integration_adapter unit/integrations/HttpIntegrationAdapterTest.cpp)
+target_link_libraries(test_http_integration_adapter PRIVATE Qt6::Test Qt6::HttpServer presenter-integrations)
+add_test(NAME test_http_integration_adapter COMMAND test_http_integration_adapter)
+
 qt_add_executable(test_secret_store unit/integrations/SecretStoreTest.cpp)
 target_link_libraries(test_secret_store PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_secret_store COMMAND test_secret_store)

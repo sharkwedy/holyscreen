@@ -39,6 +39,10 @@ Versioning where practical before 1.0.
   and the Linux Secret Service, falling back to an in-memory store that
   declares itself non-persistent instead of writing plaintext.
 - Documented the integration contracts in `docs/INTEGRATIONS.md`.
+- Added the outbound HTTP adapter: `http`/`https` only, templated URL, headers
+  and body, header secrets resolved from the vault, validated TLS, redirect,
+  timeout and response-size limits, an allowlisted response metadata, and a
+  `HEAD` connection test that never triggers the webhook.
 
 ## [0.11.0] - 2026-08-22
 

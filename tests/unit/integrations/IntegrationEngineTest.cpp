@@ -40,7 +40,7 @@ public:
 
     void cancelAll() override { ++cancellations; }
 
-    bool isRetriable(const QString &operation) const override
+    bool isRetriable(const IntegrationDefinition &, const QString &operation) const override
     {
         return retriableOperations.contains(operation);
     }
