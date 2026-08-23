@@ -5,9 +5,10 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
-- Began the 0.14 application-context migration with bounded Automation,
-  Integration and Bible QML facades while preserving the compatible
-  `ApplicationController` aliases.
+- Added bounded Output, Media, Bible, Event, Integration, Automation and
+  Maintenance QML facades while preserving the compatible
+  `ApplicationController` aliases. Event, history, maintenance and primary
+  operator controls now consume the new contexts incrementally.
 - Added versioned operator profiles with full validation before application,
   a recursive secret-field denylist and a 1 MiB limit. Remote credentials,
   tokens and protected media are never exported or imported.

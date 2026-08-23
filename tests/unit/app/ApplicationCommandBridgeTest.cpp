@@ -79,16 +79,28 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     ApplicationController controller;
     auto *automation = controller.automationContext();
     auto *bible = controller.bibleContext();
+    auto *event = controller.eventContext();
     auto *integration = controller.integrationContext();
+    auto *maintenance = controller.maintenanceContext();
+    auto *media = controller.mediaContext();
+    auto *output = controller.outputContext();
 
     QVERIFY(automation);
     QVERIFY(bible);
+    QVERIFY(event);
     QVERIFY(integration);
+    QVERIFY(maintenance);
+    QVERIFY(media);
+    QVERIFY(output);
     QCOMPARE(automation->automations(), controller.automations());
     QCOMPARE(automation->automationTriggerTypes(), controller.automationTriggerTypeList());
     QCOMPARE(integration->integrations(), controller.integrations());
     QCOMPARE(integration->integrationTypes(), controller.integrationTypes());
     QCOMPARE(bible->bibleBooks(), controller.bibleBooks());
+    QCOMPARE(event->events(), controller.events());
+    QCOMPARE(maintenance->updateEndpoint(), controller.updateEndpoint());
+    QCOMPARE(media->mediaPlaylist(), controller.mediaPlaylist());
+    QCOMPARE(output->screens(), controller.screens());
 
     const auto automationMeta = automation->metaObject();
     QVERIFY(automationMeta->indexOfProperty("automations") >= 0);
@@ -101,6 +113,18 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     const auto bibleMeta = bible->metaObject();
     QVERIFY(bibleMeta->indexOfProperty("bibleTranslations") >= 0);
     QVERIFY(bibleMeta->indexOfMethod("presentBibleReference(int,int,int)") >= 0);
+    const auto eventMeta = event->metaObject();
+    QVERIFY(eventMeta->indexOfProperty("eventItems") >= 0);
+    QVERIFY(eventMeta->indexOfMethod("addEventItem(QString,QString,QString,qlonglong)") >= 0);
+    const auto maintenanceMeta = maintenance->metaObject();
+    QVERIFY(maintenanceMeta->indexOfProperty("diagnostics") >= 0);
+    QVERIFY(maintenanceMeta->indexOfMethod("exportDiagnostics(QUrl)") >= 0);
+    const auto mediaMeta = media->metaObject();
+    QVERIFY(mediaMeta->indexOfProperty("mediaPlaylist") >= 0);
+    QVERIFY(mediaMeta->indexOfMethod("playMedia(QString)") >= 0);
+    const auto outputMeta = output->metaObject();
+    QVERIFY(outputMeta->indexOfProperty("screens") >= 0);
+    QVERIFY(outputMeta->indexOfMethod("toggleScreen(QString,bool)") >= 0);
 }
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()

@@ -27,14 +27,14 @@ Dialog {
     ]
 
     function stepComplete(stepId) {
-        if (stepId === "screens") return controller.outputWindows.length > 0
-        if (stepId === "audio") return controller.mediaVolume >= 0
-        if (stepId === "library") return controller.mediaFolders.length > 0
+        if (stepId === "screens") return controller.outputContext.outputWindows.length > 0
+        if (stepId === "audio") return controller.mediaContext.mediaVolume >= 0
+        if (stepId === "library") return controller.mediaContext.mediaFolders.length > 0
         if (stepId === "bible") return controller.bibleTranslations.length > 0
         if (stepId === "remote") return controller.remotePasswordConfigured
         if (stepId === "broadcast") {
-            for (let index = 0; index < controller.screens.length; ++index) {
-                if (controller.screens[index].role === "broadcast") return true
+            for (let index = 0; index < controller.outputContext.screens.length; ++index) {
+                if (controller.outputContext.screens[index].role === "broadcast") return true
             }
         }
         return false

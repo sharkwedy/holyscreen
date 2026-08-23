@@ -1,7 +1,11 @@
 #include "app/ApplicationController.h"
 #include "app/contexts/AutomationContext.h"
 #include "app/contexts/BibleContext.h"
+#include "app/contexts/EventContext.h"
 #include "app/contexts/IntegrationContext.h"
+#include "app/contexts/MaintenanceContext.h"
+#include "app/contexts/MediaContext.h"
+#include "app/contexts/OutputContext.h"
 #include "remote/RemoteQrCode.h"
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
@@ -145,7 +149,11 @@ ApplicationController::ApplicationController(QObject *parent)
 {
     m_automationContext = std::make_unique<AutomationContext>(*this);
     m_bibleContext = std::make_unique<BibleContext>(*this);
+    m_eventContext = std::make_unique<EventContext>(*this);
     m_integrationContext = std::make_unique<IntegrationContext>(*this);
+    m_maintenanceContext = std::make_unique<MaintenanceContext>(*this);
+    m_mediaContext = std::make_unique<MediaContext>(*this);
+    m_outputContext = std::make_unique<OutputContext>(*this);
     connect(&m_outputModule, &OutputModule::blackoutChanged,
             this, &ApplicationController::blackoutChanged);
     connect(&m_undoManager, &UndoManager::stateChanged,
@@ -447,7 +455,11 @@ CommandBus &ApplicationController::commandBus() { return m_commandBus; }
 EventBus &ApplicationController::eventBus() { return m_eventBus; }
 AutomationContext *ApplicationController::automationContext() const { return m_automationContext.get(); }
 BibleContext *ApplicationController::bibleContext() const { return m_bibleContext.get(); }
+EventContext *ApplicationController::eventContext() const { return m_eventContext.get(); }
 IntegrationContext *ApplicationController::integrationContext() const { return m_integrationContext.get(); }
+MaintenanceContext *ApplicationController::maintenanceContext() const { return m_maintenanceContext.get(); }
+MediaContext *ApplicationController::mediaContext() const { return m_mediaContext.get(); }
+OutputContext *ApplicationController::outputContext() const { return m_outputContext.get(); }
 QString ApplicationController::locale() const { return m_locale; }
 bool ApplicationController::demoMode() const { return m_demoMode; }
 bool ApplicationController::onboardingCompleted() const { return m_onboardingCompleted; }

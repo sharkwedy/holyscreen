@@ -252,8 +252,16 @@ add_library(presenter-app
     app/contexts/AutomationContext.h
     app/contexts/BibleContext.cpp
     app/contexts/BibleContext.h
+    app/contexts/EventContext.cpp
+    app/contexts/EventContext.h
     app/contexts/IntegrationContext.cpp
     app/contexts/IntegrationContext.h
+    app/contexts/MaintenanceContext.cpp
+    app/contexts/MaintenanceContext.h
+    app/contexts/MediaContext.cpp
+    app/contexts/MediaContext.h
+    app/contexts/OutputContext.cpp
+    app/contexts/OutputContext.h
     app/DiagnosticExporter.cpp
     app/DiagnosticExporter.h
     app/AutosaveCoordinator.cpp

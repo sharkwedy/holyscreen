@@ -99,18 +99,19 @@ Dialog {
                     Label { text: "Atualizações e manutenção"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
                     TextField {
                         Layout.fillWidth: true
-                        text: settings.controller.updateEndpoint
+                        text: settings.controller.maintenanceContext.updateEndpoint
                         placeholderText: "Endereço de atualização"
-                        onEditingFinished: settings.controller.updateEndpoint = text
+                        onEditingFinished: settings.controller.maintenanceContext.updateEndpoint = text
                     }
                     RowLayout {
-                        Button { text: "Verificar atualizações"; onClicked: settings.controller.checkForUpdates() }
-                        Button { text: "Criar backup"; onClicked: settings.controller.createBackup() }
+                        Button { text: "Verificar atualizações"; onClicked: settings.controller.maintenanceContext.checkForUpdates() }
+                        Button { text: "Criar backup"; onClicked: settings.controller.maintenanceContext.createBackup() }
                     }
                     Label {
                         Layout.fillWidth: true
-                        text: settings.controller.updateStatus.length > 0
-                              ? settings.controller.updateStatus : settings.controller.autosaveStatus
+                        text: settings.controller.maintenanceContext.updateStatus.length > 0
+                              ? settings.controller.maintenanceContext.updateStatus
+                              : settings.controller.maintenanceContext.autosaveStatus
                         color: settings.textMuted
                         wrapMode: Text.WordWrap
                     }
