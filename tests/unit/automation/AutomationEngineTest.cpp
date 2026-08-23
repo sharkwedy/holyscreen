@@ -67,6 +67,7 @@ class AutomationEngineTest final : public QObject {
 
 private slots:
     void runsOnlyTheAutomationsOfTheTrigger();
+    void filtersByTriggerParameters();
     void skipsWhenConditionsDoNotMatch();
     void propagatesCorrelationAndBlocksReentrancy();
     void enforcesChainDepthActionAndConcurrencyLimits();
@@ -75,6 +76,30 @@ private slots:
     void dryRunNeverTouchesTheOutsideWorld();
     void globalSwitchStopsEverything();
 };
+
+void AutomationEngineTest::filtersByTriggerParameters()
+{
+    AutomationEngine engine;
+    Recorder recorder;
+    engine.setPorts(recorder.ports());
+    auto rule = automation(QStringLiteral("hora"),
+                           QString::fromLatin1(AutomationTrigger::LocalTime));
+    rule.trigger.parameters = {
+        {QStringLiteral("time"), QStringLiteral("19:45")},
+        {QStringLiteral("daysOfWeek"), QVariantList{1, 3, 7}},
+    };
+    engine.setAutomations({rule});
+
+    QVERIFY(engine.handleTrigger(QString::fromLatin1(AutomationTrigger::LocalTime),
+                                 {{QStringLiteral("localTime"), QStringLiteral("19:44")},
+                                  {QStringLiteral("dayOfWeek"), 7}}).isEmpty());
+    QVERIFY(engine.handleTrigger(QString::fromLatin1(AutomationTrigger::LocalTime),
+                                 {{QStringLiteral("localTime"), QStringLiteral("19:45")},
+                                  {QStringLiteral("dayOfWeek"), 2}}).isEmpty());
+    QCOMPARE(engine.handleTrigger(QString::fromLatin1(AutomationTrigger::LocalTime),
+                                  {{QStringLiteral("localTime"), QStringLiteral("19:45")},
+                                   {QStringLiteral("dayOfWeek"), 7}}).size(), 1);
+}
 
 void AutomationEngineTest::runsOnlyTheAutomationsOfTheTrigger()
 {

@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QEventLoop>
 #include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -67,6 +69,8 @@ private slots:
     void broadcastProfilesAreValidatedAndSurviveARestart();
     void integrationsAreValidatedExecutedAndRecordedWithoutSecrets();
     void automationsReactToDomainEventsWithoutLooping();
+    void acceptedRemoteAndTimerCommandsBecomeAutomationFacts();
+    void automationDefinitionsRoundTripWithoutOverwritingOrSecrets();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -368,9 +372,11 @@ void ApplicationCommandBridgeTest::integrationsAreValidatedExecutedAndRecordedWi
 {
     QHttpServer server;
     QByteArray receivedAuthorization;
+    int receivedRequests = 0;
     server.route(QStringLiteral("/hook"), QHttpServerRequest::Method::Post,
-                 [&receivedAuthorization](const QHttpServerRequest &request) {
+                 [&receivedAuthorization, &receivedRequests](const QHttpServerRequest &request) {
         receivedAuthorization = request.value(QByteArrayLiteral("Authorization"));
+        ++receivedRequests;
         return QHttpServerResponse(QHttpServerResponse::StatusCode::Ok);
     });
     QTcpServer tcp;
@@ -442,6 +448,33 @@ void ApplicationCommandBridgeTest::integrationsAreValidatedExecutedAndRecordedWi
         QVERIFY(!value.toString().contains(QStringLiteral("super-secreto")));
     }
     QVERIFY(!controller.integrationStatus().contains(QStringLiteral("super-secreto")));
+
+    // E2E da onda: um fato de slide atravessa EventBus, AutomationEngine,
+    // IntegrationEngine e o transporte HTTP real em porta efêmera.
+    const auto automated = controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Webhook ao trocar slide")},
+        {QStringLiteral("triggerType"), QStringLiteral("slide.changed")},
+        {QStringLiteral("actions"), QVariantList{QVariantMap{
+            {QStringLiteral("type"), QStringLiteral("integration")},
+            {QStringLiteral("parameters"), QVariantMap{
+                {QStringLiteral("integrationId"), QStringLiteral("hook")},
+                {QStringLiteral("operation"), QStringLiteral("request.send")},
+                {QStringLiteral("payload"), QVariantMap{{QStringLiteral("source"),
+                                                         QStringLiteral("automation-e2e")}}},
+            }},
+        }}},
+    });
+    QVERIFY(automated.value(QStringLiteral("accepted")).toBool());
+    QVERIFY(controller.eventBus().publish(DomainEvent{
+        .type = QStringLiteral("presentation.state.changed"),
+        .payload = {{QStringLiteral("action"), QStringLiteral("slide.next")},
+                    {QStringLiteral("slideIndex"), 2}},
+        .occurredAt = QDateTime::currentDateTimeUtc(),
+        .correlationId = QStringLiteral("e2e-slide"),
+    }));
+    QTRY_COMPARE_WITH_TIMEOUT(receivedRequests, 2, 3000);
+    QVERIFY(controller.removeAutomation(
+        automated.value(QStringLiteral("id")).toString()));
 
     // O diagnóstico traz nome, tipo e estado, sem configuração.
     const auto diagnostics = controller.diagnostics();
@@ -549,6 +582,9 @@ void ApplicationCommandBridgeTest::automationsReactToDomainEventsWithoutLooping(
     controller.setAutomationsEnabled(true);
 
     // Uma ação de processo só é aceita com o executável autorizado.
+    const auto processHelper =
+        QFileInfo(QString::fromUtf8(TEST_PROCESS_HELPER_PATH)).canonicalFilePath();
+    QVERIFY(!processHelper.isEmpty());
     const auto withProcess = controller.saveAutomation({
         {QStringLiteral("name"), QStringLiteral("Script")},
         {QStringLiteral("triggerType"), QStringLiteral("media.started")},
@@ -556,13 +592,13 @@ void ApplicationCommandBridgeTest::automationsReactToDomainEventsWithoutLooping(
          QVariantList{QVariantMap{{QStringLiteral("type"), QStringLiteral("process")},
                                   {QStringLiteral("parameters"),
                                    QVariantMap{{QStringLiteral("executable"),
-                                                QStringLiteral("/bin/echo")}}}}}},
+                                                processHelper}}}}}},
     });
     QVERIFY(!withProcess.value(QStringLiteral("accepted")).toBool());
     QVERIFY(withProcess.value(QStringLiteral("errors")).toStringList().first()
                 .contains(QStringLiteral("não está autorizado")));
 
-    QVERIFY(controller.authorizeExecutable(QStringLiteral("/bin/echo"), QStringLiteral("Echo"))
+    QVERIFY(controller.authorizeExecutable(processHelper, QStringLiteral("Helper de teste"))
                 .value(QStringLiteral("accepted")).toBool());
     QCOMPARE(controller.authorizedExecutables().size(), 1);
     QVERIFY(controller.saveAutomation({
@@ -572,7 +608,7 @@ void ApplicationCommandBridgeTest::automationsReactToDomainEventsWithoutLooping(
          QVariantList{QVariantMap{{QStringLiteral("type"), QStringLiteral("process")},
                                   {QStringLiteral("parameters"),
                                    QVariantMap{{QStringLiteral("executable"),
-                                                QStringLiteral("/bin/echo")}}}}}},
+                                                processHelper}}}}}},
     }).value(QStringLiteral("accepted")).toBool());
     QVERIFY(controller.revokeExecutable(
         controller.authorizedExecutables().first().toMap()
@@ -582,6 +618,110 @@ void ApplicationCommandBridgeTest::automationsReactToDomainEventsWithoutLooping(
                                   .value(QStringLiteral("id")).toString();
     QVERIFY(controller.setAutomationEnabled(automationId, false));
     QVERIFY(controller.removeAutomation(automationId));
+}
+
+void ApplicationCommandBridgeTest::acceptedRemoteAndTimerCommandsBecomeAutomationFacts()
+{
+    qRegisterMetaType<DomainEvent>();
+    ApplicationController controller;
+    QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
+
+    const auto result = controller.commandBus().dispatch(Command{
+        .id = QStringLiteral("remote-timer-1"),
+        .type = QStringLiteral("timer.countdown.start"),
+        .payload = {{QStringLiteral("seconds"), 1}},
+        .source = QStringLiteral("remote:test"),
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    });
+    QVERIFY(result.accepted);
+
+    const auto countEvents = [&eventSpy](const QString &type) {
+        return std::count_if(eventSpy.cbegin(), eventSpy.cend(), [&type](const QList<QVariant> &row) {
+            return row.first().value<DomainEvent>().type == type;
+        });
+    };
+    QCOMPARE(countEvents(QStringLiteral("automation.remote.command")), 1);
+    QCOMPARE(countEvents(QStringLiteral("automation.timer.started")), 1);
+    QTRY_COMPARE_WITH_TIMEOUT(countEvents(QStringLiteral("automation.timer.finished")), 1, 2500);
+}
+
+void ApplicationCommandBridgeTest::automationDefinitionsRoundTripWithoutOverwritingOrSecrets()
+{
+    ApplicationController controller;
+    const auto leftovers = controller.automations();
+    for (const auto &item : leftovers) {
+        QVERIFY(controller.removeAutomation(item.toMap().value(QStringLiteral("id")).toString()));
+    }
+    QVERIFY(controller.automations().isEmpty());
+    const auto saved = controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Exportável")},
+        {QStringLiteral("triggerType"), QStringLiteral("slide.changed")},
+        {QStringLiteral("actions"),
+         QVariantList{QVariantMap{
+             {QStringLiteral("type"), QStringLiteral("command")},
+             {QStringLiteral("parameters"),
+              QVariantMap{{QStringLiteral("type"),
+                           QStringLiteral("presentation.slide.next")}}}}}},
+    });
+    QVERIFY(saved.value(QStringLiteral("accepted")).toBool());
+
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto exportedPath = directory.filePath(QStringLiteral("automations.json"));
+    const auto exported = controller.exportAutomations(QUrl::fromLocalFile(exportedPath));
+    QVERIFY(exported.value(QStringLiteral("accepted")).toBool());
+    QFile exportedFile(exportedPath);
+    QVERIFY(exportedFile.open(QIODevice::ReadOnly));
+    const auto bytes = exportedFile.readAll();
+    QVERIFY(!bytes.contains("secretReferences"));
+    QCOMPARE(QJsonDocument::fromJson(bytes).object()
+                 .value(QStringLiteral("schemaVersion")).toInt(), 1);
+
+    const auto imported = controller.importAutomations(QUrl::fromLocalFile(exportedPath));
+    QVERIFY2(imported.value(QStringLiteral("accepted")).toBool(),
+             qPrintable(imported.value(QStringLiteral("errors")).toStringList().join('\n')));
+    QCOMPARE(imported.value(QStringLiteral("count")).toInt(), 1);
+    QCOMPARE(controller.automations().size(), 2);
+    const auto firstId = controller.automations().at(0).toMap().value(QStringLiteral("id")).toString();
+    const auto secondId = controller.automations().at(1).toMap().value(QStringLiteral("id")).toString();
+    QVERIFY(firstId != secondId);
+
+    const QJsonObject unresolvedDefinition{
+        {QStringLiteral("name"), QStringLiteral("Integração ausente")},
+        {QStringLiteral("enabled"), true},
+        {QStringLiteral("triggerType"), QStringLiteral("media.started")},
+        {QStringLiteral("conditions"), QJsonArray{}},
+        {QStringLiteral("actions"), QJsonArray{QJsonObject{
+             {QStringLiteral("type"), QStringLiteral("integration")},
+             {QStringLiteral("parameters"),
+              QJsonObject{{QStringLiteral("integrationId"), QStringLiteral("ausente")},
+                          {QStringLiteral("operation"), QStringLiteral("send")}}},
+        }}},
+    };
+    const auto unresolvedPath = directory.filePath(QStringLiteral("unresolved.json"));
+    QFile unresolvedFile(unresolvedPath);
+    QVERIFY(unresolvedFile.open(QIODevice::WriteOnly));
+    unresolvedFile.write(QJsonDocument(QJsonObject{
+        {QStringLiteral("schemaVersion"), 1},
+        {QStringLiteral("automations"), QJsonArray{unresolvedDefinition}},
+    }).toJson());
+    unresolvedFile.close();
+
+    const auto unresolved = controller.importAutomations(QUrl::fromLocalFile(unresolvedPath));
+    QVERIFY(unresolved.value(QStringLiteral("accepted")).toBool());
+    QCOMPARE(unresolved.value(QStringLiteral("warnings")).toStringList().size(), 1);
+    const auto definitions = controller.automations();
+    const auto disabled = std::find_if(definitions.cbegin(), definitions.cend(), [](const QVariant &item) {
+        return item.toMap().value(QStringLiteral("name")).toString()
+            == QStringLiteral("Integração ausente");
+    });
+    QVERIFY(disabled != definitions.cend());
+    QVERIFY(!disabled->toMap().value(QStringLiteral("enabled")).toBool());
+
+    const auto ids = controller.automations();
+    for (const auto &item : ids) {
+        QVERIFY(controller.removeAutomation(item.toMap().value(QStringLiteral("id")).toString()));
+    }
 }
 
 int main(int argc, char **argv)

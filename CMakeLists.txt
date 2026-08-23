@@ -4,7 +4,7 @@ if(POLICY CMP0219)
     cmake_policy(SET CMP0219 OLD)
 endif()
 
-project(holyscreen VERSION 0.12.0 LANGUAGES C CXX)
+project(holyscreen VERSION 0.13.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -74,6 +74,17 @@ O interruptor global no topo pausa todas as automações de uma vez, e o botão
 **Processos autorizados** abre a allowlist de executáveis, com o recurso
 desligado por padrão.
 
+Os botões **Importar** e **Exportar** usam um documento JSON com
+`schemaVersion: 1`. O arquivo nunca leva segredos, uma importação nunca
+sobrescreve IDs existentes e definições com integração ou executável ausente
+entram desativadas, com aviso ao operador.
+
+O gatilho `time.local` exige `time` no formato `HH:mm` e `daysOfWeek` com dias
+de 1 (segunda-feira) a 7 (domingo). O scheduler emite uma vez por ocorrência
+de minuto e diferencia horários repetidos por mudança de fuso ou horário de
+verão. Comandos remotos só geram gatilho depois de aceitos pelo `CommandBus`;
+timers geram fatos ao iniciar, parar/pausar e ao terminar naturalmente.
+
 Os gatilhos vêm dos fatos publicados no `EventBus` e são traduzidos por
 `TriggerTranslator`, que ignora de propósito os resultados de integração e de
 automação — assim uma chamada externa nunca realimenta a cadeia. A validação
@@ -82,12 +93,7 @@ autorizados antes de gravar a automação.
 
 ## Estado atual
 
-O domínio, o avaliador de condições, o motor com todos os limites, a allowlist
-de processos, o executor, a persistência, a tradução dos gatilhos reais e a
-área do operador estão implementados.
-
-Ainda faltam nesta onda, conforme
-[`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md): gatilho
-de horário local com agendamento próprio, gatilhos de timer e de comando
-remoto ligados aos fatos correspondentes, exportação e importação de
-definições, e testes Qt Quick do editor.
+A Onda 5 está implementada: domínio, motor e limites, persistência, processos
+autorizados, todos os gatilhos obrigatórios, importação/exportação e editor com
+Qt Quick Test. O checkpoint 0.13 só pode ser publicado depois do CI verde nos
+três sistemas.

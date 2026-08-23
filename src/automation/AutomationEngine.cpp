@@ -18,6 +18,28 @@ ActionOutcome blocked(const QString &type, const QString &code, const QString &m
     return {.actionType = type, .accepted = false, .errorCode = code, .message = message};
 }
 
+bool triggerParametersMatch(const QVariantMap &expected, const QVariantMap &payload)
+{
+    for (auto it = expected.cbegin(); it != expected.cend(); ++it) {
+        if (it.key() == QStringLiteral("daysOfWeek")) {
+            bool found = false;
+            const auto actual = payload.value(QStringLiteral("dayOfWeek")).toInt();
+            for (const auto &day : it.value().toList()) {
+                if (day.toInt() == actual) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+            continue;
+        }
+        const auto payloadKey = it.key() == QStringLiteral("time")
+            ? QStringLiteral("localTime") : it.key();
+        if (!payload.contains(payloadKey) || payload.value(payloadKey) != it.value()) return false;
+    }
+    return true;
+}
+
 } // namespace
 
 AutomationEngine::AutomationEngine(QObject *parent)
@@ -76,7 +98,8 @@ QList<AutomationRun> AutomationEngine::handleTrigger(const QString &triggerType,
     if (!m_enabled) return runs;
 
     for (auto &automation : m_automations) {
-        if (!automation.enabled || automation.trigger.type != triggerType) continue;
+        if (!automation.enabled || automation.trigger.type != triggerType
+            || !triggerParametersMatch(automation.trigger.parameters, payload)) continue;
 
         AutomationRun run;
         run.id = newId();

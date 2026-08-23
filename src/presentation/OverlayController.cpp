@@ -84,7 +84,10 @@ void OverlayController::advanceOneSecond()
 {
     if (m_countdownRunning && m_countdownSeconds > 0) {
         --m_countdownSeconds;
-        if (m_countdownSeconds == 0) m_countdownRunning = false;
+        if (m_countdownSeconds == 0) {
+            m_countdownRunning = false;
+            emit countdownExpired();
+        }
     }
     if (m_stopwatchRunning) ++m_stopwatchSeconds;
     if (!m_countdownRunning && !m_stopwatchRunning) m_tick.stop();

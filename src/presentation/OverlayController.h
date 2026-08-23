@@ -31,6 +31,7 @@ public:
 
 signals:
     void changed();
+    void countdownExpired();
 
 private:
     QTimer m_tick;
