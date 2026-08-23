@@ -345,6 +345,8 @@ qt_add_qml_module(presenter-ui
         ui/operator/IntegrationsArea.qml
         ui/operator/AutomationsArea.qml
         ui/operator/OnboardingDialog.qml
+        ui/operator/EventsArea.qml
+        ui/operator/MaintenanceArea.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml
