@@ -65,6 +65,9 @@ Sem cofre disponível o HolyScreen usa um armazenamento em memória que se
 declara não persistente, e a interface avisa o operador. Não existe fallback
 silencioso para texto puro.
 
+`HOLYSCREEN_SECRET_STORE=memory` força o armazenamento em memória, útil para
+testes e para sessões descartáveis que não devem tocar no cofre da máquina.
+
 A sanitização remove segredos conhecidos, chaves sensíveis (`password`,
 `token`, `secret`, `apikey`, `authorization`, `credential`, `senha`) e
 credenciais embutidas em URLs de mensagens, metadados, histórico, diagnósticos

@@ -16,6 +16,7 @@ class SecretStoreTest final : public QObject {
 private slots:
     void inMemoryStoreKeepsSecretsOnlyForThisSession();
     void factoryAlwaysReturnsAUsableStore();
+    void forcesTheMemoryStoreWhenTheEnvironmentAsksForIt();
     void systemStoreRoundTripsASecret();
 };
 
@@ -46,6 +47,14 @@ void SecretStoreTest::factoryAlwaysReturnsAUsableStore()
     if (!store->isPersistent()) {
         QCOMPARE(store->backendName(), QStringLiteral("memória (somente nesta sessão)"));
     }
+}
+
+void SecretStoreTest::forcesTheMemoryStoreWhenTheEnvironmentAsksForIt()
+{
+    qputenv("HOLYSCREEN_SECRET_STORE", QByteArrayLiteral("memory"));
+    const auto store = SecretStoreFactory::create();
+    QVERIFY(!store->isPersistent());
+    qunsetenv("HOLYSCREEN_SECRET_STORE");
 }
 
 void SecretStoreTest::systemStoreRoundTripsASecret()

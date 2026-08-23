@@ -16,6 +16,15 @@ namespace churchpresenter {
 
 std::unique_ptr<ISecretStore> SecretStoreFactory::create()
 {
+    // Permite rodar testes e sessões descartáveis sem tocar no cofre real do
+    // usuário. O armazenamento em memória se declara não persistente, então a
+    // interface continua avisando o operador.
+    if (qEnvironmentVariable("HOLYSCREEN_SECRET_STORE").compare(QStringLiteral("memory"),
+                                                                Qt::CaseInsensitive) == 0) {
+        qInfo() << "HOLYSCREEN_SECRET_STORE=memory: secrets will only live in memory.";
+        return std::make_unique<InMemorySecretStore>();
+    }
+
 #if defined(Q_OS_MACOS)
     if (KeychainSecretStore::isAvailable()) return std::make_unique<KeychainSecretStore>();
 #elif defined(Q_OS_WIN)
