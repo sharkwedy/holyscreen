@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev ninja-build
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev libsecret-1-dev ninja-build
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4

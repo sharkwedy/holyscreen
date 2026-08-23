@@ -84,6 +84,57 @@ add_library(presenter-modules
 target_include_directories(presenter-modules PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation presenter-screens Qt6::Core)
 
+add_library(presenter-integrations
+    integrations/IntegrationTypes.cpp
+    integrations/IntegrationTypes.h
+    integrations/IntegrationSanitizer.cpp
+    integrations/IntegrationSanitizer.h
+    integrations/IntegrationEngine.cpp
+    integrations/IntegrationEngine.h
+    integrations/ports/IIntegrationAdapter.h
+    integrations/ports/IIntegrationRepository.h
+    integrations/ports/ISecretStore.h
+    integrations/ports/ITransports.h
+    integrations/secrets/InMemorySecretStore.cpp
+    integrations/secrets/InMemorySecretStore.h
+    integrations/secrets/SecretStoreFactory.cpp
+    integrations/secrets/SecretStoreFactory.h
+)
+target_include_directories(presenter-integrations PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(presenter-integrations PUBLIC Qt6::Core Qt6::Network)
+
+# Cofre de segredos nativo de cada sistema. Sem cofre disponível o motor usa o
+# armazenamento em memória e a interface avisa o operador.
+if(APPLE)
+    target_sources(presenter-integrations PRIVATE
+        integrations/secrets/KeychainSecretStore.cpp
+        integrations/secrets/KeychainSecretStore.h
+    )
+    target_link_libraries(presenter-integrations PRIVATE
+        "-framework Security" "-framework CoreFoundation")
+elseif(WIN32)
+    target_sources(presenter-integrations PRIVATE
+        integrations/secrets/CredentialManagerSecretStore.cpp
+        integrations/secrets/CredentialManagerSecretStore.h
+    )
+    target_link_libraries(presenter-integrations PRIVATE Advapi32)
+else()
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(LIBSECRET IMPORTED_TARGET libsecret-1)
+    endif()
+    if(TARGET PkgConfig::LIBSECRET)
+        target_sources(presenter-integrations PRIVATE
+            integrations/secrets/SecretServiceSecretStore.cpp
+            integrations/secrets/SecretServiceSecretStore.h
+        )
+        target_compile_definitions(presenter-integrations PRIVATE HOLYSCREEN_HAS_LIBSECRET)
+        target_link_libraries(presenter-integrations PRIVATE PkgConfig::LIBSECRET)
+    else()
+        message(STATUS "libsecret-1 não encontrada: os segredos ficarão apenas em memória")
+    endif()
+endif()
+
 add_library(presenter-persistence
     persistence/ApplicationDatabase.cpp
     persistence/ApplicationDatabase.h
@@ -97,6 +148,8 @@ target_link_libraries(presenter-persistence PUBLIC Qt6::Core Qt6::Sql)
 add_library(presenter-library
     library/BroadcastProfileRepository.cpp
     library/BroadcastProfileRepository.h
+    library/IntegrationRepository.cpp
+    library/IntegrationRepository.h
     library/MediaFolderScanner.cpp
     library/MediaFolderScanner.h
     library/MediaRepository.cpp
@@ -111,7 +164,7 @@ add_library(presenter-library
     library/HistoryRepository.h
 )
 target_include_directories(presenter-library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation presenter-screens)
+target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation presenter-screens presenter-integrations)
 
 add_library(presenter-bible
     bible/BibleTypes.h
