@@ -246,6 +246,14 @@ target_link_libraries(presenter-bible PRIVATE libgit2package miniz)
 
 add_library(presenter-app
     app/ApplicationController.cpp
+    app/ConfigurationProfileService.cpp
+    app/ConfigurationProfileService.h
+    app/contexts/AutomationContext.cpp
+    app/contexts/AutomationContext.h
+    app/contexts/BibleContext.cpp
+    app/contexts/BibleContext.h
+    app/contexts/IntegrationContext.cpp
+    app/contexts/IntegrationContext.h
     app/DiagnosticExporter.cpp
     app/DiagnosticExporter.h
     app/AutosaveCoordinator.cpp
@@ -328,6 +336,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/BroadcastSettings.qml
         ui/operator/IntegrationsArea.qml
         ui/operator/AutomationsArea.qml
+        ui/operator/OnboardingDialog.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml

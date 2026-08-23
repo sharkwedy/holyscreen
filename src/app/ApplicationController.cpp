@@ -1,4 +1,7 @@
 #include "app/ApplicationController.h"
+#include "app/contexts/AutomationContext.h"
+#include "app/contexts/BibleContext.h"
+#include "app/contexts/IntegrationContext.h"
 #include "remote/RemoteQrCode.h"
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
@@ -28,6 +31,7 @@
 #include <QDesktopServices>
 #include <QGuiApplication>
 #include <QKeyEvent>
+#include <QKeySequence>
 #include <QSysInfo>
 #include <QDateTime>
 #include <QDirIterator>
@@ -139,6 +143,9 @@ ApplicationController::ApplicationController(QObject *parent)
     , m_screenManager(std::make_unique<ScreenManager>(*m_screenProvider))
     , m_clock(std::make_unique<SystemClock>())
 {
+    m_automationContext = std::make_unique<AutomationContext>(*this);
+    m_bibleContext = std::make_unique<BibleContext>(*this);
+    m_integrationContext = std::make_unique<IntegrationContext>(*this);
     connect(&m_outputModule, &OutputModule::blackoutChanged,
             this, &ApplicationController::blackoutChanged);
     connect(&m_undoManager, &UndoManager::stateChanged,
@@ -438,6 +445,63 @@ bool ApplicationController::eventFilter(QObject *watched, QEvent *event)
 
 CommandBus &ApplicationController::commandBus() { return m_commandBus; }
 EventBus &ApplicationController::eventBus() { return m_eventBus; }
+AutomationContext *ApplicationController::automationContext() const { return m_automationContext.get(); }
+BibleContext *ApplicationController::bibleContext() const { return m_bibleContext.get(); }
+IntegrationContext *ApplicationController::integrationContext() const { return m_integrationContext.get(); }
+QString ApplicationController::locale() const { return m_locale; }
+bool ApplicationController::demoMode() const { return m_demoMode; }
+bool ApplicationController::onboardingCompleted() const { return m_onboardingCompleted; }
+QVariantMap ApplicationController::shortcuts() const { return m_shortcuts; }
+
+void ApplicationController::setLocale(const QString &locale)
+{
+    if (locale != QStringLiteral("pt-BR") && locale != QStringLiteral("en-US")) return;
+    if (m_locale == locale) return;
+    m_locale = locale;
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/locale"), locale);
+    emit preferencesChanged();
+}
+
+void ApplicationController::setDemoMode(bool enabled)
+{
+    if (m_demoMode == enabled) return;
+    m_demoMode = enabled;
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/demoMode"), enabled);
+    emit preferencesChanged();
+}
+
+void ApplicationController::completeOnboarding()
+{
+    if (m_onboardingCompleted) return;
+    m_onboardingCompleted = true;
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/onboardingCompleted"), true);
+    emit onboardingChanged();
+}
+
+void ApplicationController::reopenOnboarding()
+{
+    if (!m_onboardingCompleted) return;
+    m_onboardingCompleted = false;
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/onboardingCompleted"), false);
+    emit onboardingChanged();
+}
+
+bool ApplicationController::setShortcut(const QString &action, const QString &sequence)
+{
+    if (!m_shortcuts.contains(action)) return false;
+    const auto trimmed = sequence.trimmed();
+    if (!trimmed.isEmpty()
+        && QKeySequence::fromString(trimmed, QKeySequence::PortableText).isEmpty()) return false;
+    for (auto it = m_shortcuts.cbegin(); it != m_shortcuts.cend(); ++it) {
+        if (it.key() != action && !trimmed.isEmpty()
+            && it.value().toString().compare(trimmed, Qt::CaseInsensitive) == 0) return false;
+    }
+    if (m_shortcuts.value(action).toString() == trimmed) return true;
+    m_shortcuts.insert(action, trimmed);
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/shortcuts"), m_shortcuts);
+    emit preferencesChanged();
+    return true;
+}
 
 QVariantList ApplicationController::screens() const { return m_screens; }
 
@@ -1515,6 +1579,152 @@ QStringList ApplicationController::integrationOperations(const QString &type) co
 QStringList ApplicationController::midiOutputPorts() const
 {
     return m_midiTransport.outputPorts();
+}
+
+QVariantMap ApplicationController::exportConfiguration(const QUrl &destination) const
+{
+    QVariantMap profile{
+        {QStringLiteral("locale"), m_locale},
+        {QStringLiteral("demoMode"), m_demoMode},
+        {QStringLiteral("presentation"), QVariantMap{
+             {QStringLiteral("wallpaperColor"), wallpaperColor()},
+             {QStringLiteral("wallpaperSource"), wallpaperSource().toString()},
+             {QStringLiteral("wallpaperFit"), wallpaperFit()},
+             {QStringLiteral("clockVisible"), clockVisible()},
+             {QStringLiteral("clockPosition"), clockPosition()},
+             {QStringLiteral("clockFormat"), clockFormat()},
+             {QStringLiteral("clockFontFamily"), clockFontFamily()},
+             {QStringLiteral("clockFontSize"), clockFontSize()},
+             {QStringLiteral("clockColor"), clockColor()},
+         }},
+        {QStringLiteral("media"), QVariantMap{
+             {QStringLiteral("volume"), mediaVolume()},
+             {QStringLiteral("repeatMode"), mediaRepeatMode()},
+             {QStringLiteral("imageFit"), imageFit()},
+             {QStringLiteral("imageTransition"), imageTransition()},
+             {QStringLiteral("imageAutoplay"), imageAutoplay()},
+             {QStringLiteral("imageIntervalMs"), imageIntervalMs()},
+         }},
+        {QStringLiteral("bible"), QVariantMap{
+             {QStringLiteral("primaryTranslationId"), biblePrimaryTranslationId()},
+             {QStringLiteral("secondaryTranslationId"), bibleSecondaryTranslationId()},
+             {QStringLiteral("tertiaryTranslationId"), bibleTertiaryTranslationId()},
+         }},
+        {QStringLiteral("remote"), QVariantMap{
+             {QStringLiteral("interface"), remoteInterface()},
+             {QStringLiteral("port"), remotePort()},
+         }},
+        {QStringLiteral("library"), QVariantMap{
+             {QStringLiteral("mediaFolders"), m_mediaFolderPaths},
+             {QStringLiteral("favorites"), m_favoriteMediaPaths},
+         }},
+        {QStringLiteral("outputs"), m_outputs.serialize()},
+        {QStringLiteral("onboarding"), QVariantMap{
+             {QStringLiteral("completed"), m_onboardingCompleted},
+             {QStringLiteral("skippedSteps"), m_onboardingSkippedSteps},
+         }},
+        {QStringLiteral("shortcuts"), m_shortcuts},
+    };
+    QStringList errors;
+    const auto document = ConfigurationProfileService::serialize(profile, &errors);
+    if (document.isEmpty())
+        return {{QStringLiteral("accepted"), false}, {QStringLiteral("errors"), errors}};
+    const auto path = destination.toLocalFile();
+    if (path.isEmpty()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"), QStringList{QStringLiteral("Selecione um arquivo local.")}}};
+    }
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly) || file.write(document) != document.size()
+        || !file.commit()) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"), QStringList{QStringLiteral("Não foi possível salvar o perfil.")}}};
+    }
+    return {{QStringLiteral("accepted"), true}, {QStringLiteral("path"), path}};
+}
+
+QVariantMap ApplicationController::importConfiguration(const QUrl &source)
+{
+    const auto path = source.toLocalFile();
+    QFile file(path);
+    if (path.isEmpty() || !file.open(QIODevice::ReadOnly)) {
+        return {{QStringLiteral("accepted"), false},
+                {QStringLiteral("errors"), QStringList{QStringLiteral("Não foi possível abrir o perfil.")}}};
+    }
+    const auto parsed = ConfigurationProfileService::parse(
+        file.read(ConfigurationProfileService::MaximumDocumentSize + 1));
+    if (!parsed.accepted)
+        return {{QStringLiteral("accepted"), false}, {QStringLiteral("errors"), parsed.errors}};
+
+    // A partir daqui o documento inteiro já foi validado. Segredos, estado do
+    // servidor remoto e mídia nunca são importados.
+    const auto &profile = parsed.profile;
+    const auto importedShortcuts = profile.value(QStringLiteral("shortcuts")).toMap();
+    auto candidateShortcuts = m_shortcuts;
+    for (auto it = importedShortcuts.cbegin(); it != importedShortcuts.cend(); ++it)
+        candidateShortcuts.insert(it.key(), it.value().toString().trimmed());
+    QSet<QString> shortcutSequences;
+    for (auto it = candidateShortcuts.cbegin(); it != candidateShortcuts.cend(); ++it) {
+        const auto sequence = it.value().toString().trimmed().toCaseFolded();
+        if (sequence.isEmpty()) continue;
+        if (shortcutSequences.contains(sequence)) {
+            return {{QStringLiteral("accepted"), false},
+                    {QStringLiteral("errors"), QStringList{
+                         QStringLiteral("O atalho %1 entra em conflito com a configuração atual.")
+                             .arg(it.value().toString())}}};
+        }
+        shortcutSequences.insert(sequence);
+    }
+    if (profile.contains(QStringLiteral("locale"))) setLocale(profile.value(QStringLiteral("locale")).toString());
+    if (profile.contains(QStringLiteral("demoMode"))) setDemoMode(profile.value(QStringLiteral("demoMode")).toBool());
+    const auto presentation = profile.value(QStringLiteral("presentation")).toMap();
+    if (presentation.contains(QStringLiteral("wallpaperColor"))) setWallpaperColor(presentation.value(QStringLiteral("wallpaperColor")).toString());
+    if (presentation.contains(QStringLiteral("wallpaperSource"))) setWallpaperSource(QUrl(presentation.value(QStringLiteral("wallpaperSource")).toString()));
+    if (presentation.contains(QStringLiteral("wallpaperFit"))) setWallpaperFit(presentation.value(QStringLiteral("wallpaperFit")).toString());
+    if (presentation.contains(QStringLiteral("clockVisible"))) setClockVisible(presentation.value(QStringLiteral("clockVisible")).toBool());
+    if (presentation.contains(QStringLiteral("clockPosition"))) setClockPosition(presentation.value(QStringLiteral("clockPosition")).toString());
+    if (presentation.contains(QStringLiteral("clockFormat"))) setClockFormat(presentation.value(QStringLiteral("clockFormat")).toString());
+    if (presentation.contains(QStringLiteral("clockFontFamily"))) setClockFontFamily(presentation.value(QStringLiteral("clockFontFamily")).toString());
+    if (presentation.contains(QStringLiteral("clockFontSize"))) setClockFontSize(presentation.value(QStringLiteral("clockFontSize")).toInt());
+    if (presentation.contains(QStringLiteral("clockColor"))) setClockColor(presentation.value(QStringLiteral("clockColor")).toString());
+    const auto media = profile.value(QStringLiteral("media")).toMap();
+    if (media.contains(QStringLiteral("volume"))) setMediaVolume(media.value(QStringLiteral("volume")).toDouble());
+    if (media.contains(QStringLiteral("repeatMode"))) setMediaRepeatMode(media.value(QStringLiteral("repeatMode")).toString());
+    if (media.contains(QStringLiteral("imageFit"))) setImageFit(media.value(QStringLiteral("imageFit")).toString());
+    if (media.contains(QStringLiteral("imageTransition"))) setImageTransition(media.value(QStringLiteral("imageTransition")).toString());
+    if (media.contains(QStringLiteral("imageAutoplay"))) setImageAutoplay(media.value(QStringLiteral("imageAutoplay")).toBool());
+    if (media.contains(QStringLiteral("imageIntervalMs"))) setImageIntervalMs(media.value(QStringLiteral("imageIntervalMs")).toInt());
+    const auto bible = profile.value(QStringLiteral("bible")).toMap();
+    if (bible.contains(QStringLiteral("primaryTranslationId"))) setBiblePrimaryTranslationId(bible.value(QStringLiteral("primaryTranslationId")).toString());
+    if (bible.contains(QStringLiteral("secondaryTranslationId"))) setBibleSecondaryTranslationId(bible.value(QStringLiteral("secondaryTranslationId")).toString());
+    if (bible.contains(QStringLiteral("tertiaryTranslationId"))) setBibleTertiaryTranslationId(bible.value(QStringLiteral("tertiaryTranslationId")).toString());
+    const auto remote = profile.value(QStringLiteral("remote")).toMap();
+    if (remote.contains(QStringLiteral("interface"))) setRemoteInterface(remote.value(QStringLiteral("interface")).toString());
+    if (remote.contains(QStringLiteral("port"))) setRemotePort(remote.value(QStringLiteral("port")).toInt());
+    const auto library = profile.value(QStringLiteral("library")).toMap();
+    if (library.contains(QStringLiteral("mediaFolders"))) m_mediaFolderPaths = library.value(QStringLiteral("mediaFolders")).toStringList();
+    if (library.contains(QStringLiteral("favorites"))) m_favoriteMediaPaths = library.value(QStringLiteral("favorites")).toStringList();
+    if (!library.isEmpty()) {
+        saveMediaFolders();
+        saveFavoriteMedia();
+        refreshMediaCatalog();
+    }
+    if (profile.contains(QStringLiteral("outputs"))) {
+        m_outputs.restore(profile.value(QStringLiteral("outputs")).toStringList());
+        saveOutputs();
+        refreshScreens();
+    }
+    const auto onboarding = profile.value(QStringLiteral("onboarding")).toMap();
+    if (onboarding.contains(QStringLiteral("completed"))) m_onboardingCompleted = onboarding.value(QStringLiteral("completed")).toBool();
+    if (onboarding.contains(QStringLiteral("skippedSteps"))) m_onboardingSkippedSteps = onboarding.value(QStringLiteral("skippedSteps")).toStringList();
+    if (!onboarding.isEmpty() && m_settings) {
+        m_settings->setValue(QStringLiteral("operator/onboardingCompleted"), m_onboardingCompleted);
+        m_settings->setValue(QStringLiteral("operator/onboardingSkippedSteps"), m_onboardingSkippedSteps);
+        emit onboardingChanged();
+    }
+    for (auto it = importedShortcuts.cbegin(); it != importedShortcuts.cend(); ++it)
+        setShortcut(it.key(), it.value().toString());
+    return {{QStringLiteral("accepted"), true}, {QStringLiteral("path"), path}};
 }
 
 QVariantMap ApplicationController::integrationDefinition(const QString &integrationId) const
@@ -3570,6 +3780,20 @@ void ApplicationController::loadSettings()
     m_debugSimulatedOutputs = m_settings->value(QStringLiteral("developer/debugSimulatedOutputs"), true).toBool();
     m_debugDiagnostics = m_settings->value(QStringLiteral("developer/debugDiagnostics"), true).toBool();
     m_debugLogging = m_settings->value(QStringLiteral("developer/debugLogging"), false).toBool();
+    m_locale = m_settings->value(QStringLiteral("operator/locale"),
+                                 QStringLiteral("pt-BR")).toString();
+    if (m_locale != QStringLiteral("pt-BR") && m_locale != QStringLiteral("en-US"))
+        m_locale = QStringLiteral("pt-BR");
+    m_demoMode = m_settings->value(QStringLiteral("operator/demoMode"), false).toBool();
+    m_onboardingCompleted = m_settings->value(
+        QStringLiteral("operator/onboardingCompleted"), false).toBool();
+    m_onboardingSkippedSteps = m_settings->value(
+        QStringLiteral("operator/onboardingSkippedSteps"), QStringList{}).toStringList();
+    const auto storedShortcuts = m_settings->value(
+        QStringLiteral("operator/shortcuts"), QVariantMap{}).toMap();
+    for (auto it = storedShortcuts.cbegin(); it != storedShortcuts.cend(); ++it) {
+        if (m_shortcuts.contains(it.key())) m_shortcuts.insert(it.key(), it.value().toString());
+    }
     m_remoteEnabled = m_settings->value(QStringLiteral("remote/enabled"), false).toBool();
     m_remotePort = std::clamp(m_settings->value(QStringLiteral("remote/port"), 43120).toInt(),
                               1024, 65535);

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "automation/AuthorizedExecutables.h"
+#include "app/contexts/AutomationContext.h"
+#include "app/contexts/BibleContext.h"
+#include "app/contexts/IntegrationContext.h"
+#include "app/ConfigurationProfileService.h"
 #include "automation/AutomationEngine.h"
 #include "automation/LocalTimeTriggerScheduler.h"
 #include "automation/QtProcessRunner.h"
@@ -71,6 +75,13 @@ namespace churchpresenter {
 
 class ApplicationController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(AutomationContext *automationContext READ automationContext CONSTANT)
+    Q_PROPERTY(BibleContext *bibleContext READ bibleContext CONSTANT)
+    Q_PROPERTY(IntegrationContext *integrationContext READ integrationContext CONSTANT)
+    Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY preferencesChanged)
+    Q_PROPERTY(bool demoMode READ demoMode WRITE setDemoMode NOTIFY preferencesChanged)
+    Q_PROPERTY(bool onboardingCompleted READ onboardingCompleted NOTIFY onboardingChanged)
+    Q_PROPERTY(QVariantMap shortcuts READ shortcuts NOTIFY preferencesChanged)
     Q_PROPERTY(QVariantList screens READ screens NOTIFY screensChanged)
     Q_PROPERTY(QVariantList outputWindows READ outputWindows NOTIFY outputWindowsChanged)
     Q_PROPERTY(QString wallpaperColor READ wallpaperColor WRITE setWallpaperColor NOTIFY wallpaperColorChanged)
@@ -230,6 +241,15 @@ public:
 
     [[nodiscard]] CommandBus &commandBus();
     [[nodiscard]] EventBus &eventBus();
+    [[nodiscard]] AutomationContext *automationContext() const;
+    [[nodiscard]] BibleContext *bibleContext() const;
+    [[nodiscard]] IntegrationContext *integrationContext() const;
+    [[nodiscard]] QString locale() const;
+    void setLocale(const QString &locale);
+    [[nodiscard]] bool demoMode() const;
+    void setDemoMode(bool enabled);
+    [[nodiscard]] bool onboardingCompleted() const;
+    [[nodiscard]] QVariantMap shortcuts() const;
 
     [[nodiscard]] QVariantList screens() const;
     [[nodiscard]] QVariantList outputWindows() const;
@@ -423,6 +443,11 @@ public:
     Q_INVOKABLE QVariantMap integrationDefinition(const QString &integrationId) const;
     Q_INVOKABLE QStringList midiOutputPorts() const;
     Q_INVOKABLE QStringList integrationOperations(const QString &type) const;
+    Q_INVOKABLE QVariantMap exportConfiguration(const QUrl &destination) const;
+    Q_INVOKABLE QVariantMap importConfiguration(const QUrl &source);
+    Q_INVOKABLE void completeOnboarding();
+    Q_INVOKABLE void reopenOnboarding();
+    Q_INVOKABLE bool setShortcut(const QString &action, const QString &sequence);
 
     Q_INVOKABLE QVariantMap outputBroadcastProfile(const QString &screenFingerprint) const;
     //! Aplica uma alteração parcial no perfil de transmissão pela CommandBus.
@@ -609,6 +634,8 @@ signals:
     void automationRunsChanged();
     void automationStatusChanged();
     void authorizedExecutablesChanged();
+    void preferencesChanged();
+    void onboardingChanged();
     void undoStateChanged();
     void autosaveChanged();
     void identifyVisibleChanged();
@@ -814,6 +841,20 @@ private:
     QString m_automationStatus;
     std::unique_ptr<IntegrationCommandModule> m_integrationCommands;
     QString m_integrationStatus;
+    std::unique_ptr<AutomationContext> m_automationContext;
+    std::unique_ptr<BibleContext> m_bibleContext;
+    std::unique_ptr<IntegrationContext> m_integrationContext;
+    QString m_locale = QStringLiteral("pt-BR");
+    bool m_demoMode = false;
+    bool m_onboardingCompleted = false;
+    QStringList m_onboardingSkippedSteps;
+    QVariantMap m_shortcuts{
+        {QStringLiteral("blackout"), QStringLiteral("Ctrl+B")},
+        {QStringLiteral("next"), QStringLiteral("Right")},
+        {QStringLiteral("previous"), QStringLiteral("Left")},
+        {QStringLiteral("stop"), QStringLiteral("Escape")},
+        {QStringLiteral("quickBible"), QStringLiteral("Ctrl+K")},
+    };
     std::unique_ptr<DataRecoveryService> m_recovery;
     std::unique_ptr<AutosaveCoordinator> m_autosave;
     QString m_autosaveStatus = QStringLiteral("Salvo");

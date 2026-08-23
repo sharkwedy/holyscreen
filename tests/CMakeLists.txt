@@ -275,6 +275,10 @@ qt_add_executable(test_diagnostic_exporter unit/app/DiagnosticExporterTest.cpp)
 target_link_libraries(test_diagnostic_exporter PRIVATE Qt6::Test presenter-app miniz)
 add_test(NAME test_diagnostic_exporter COMMAND test_diagnostic_exporter)
 
+qt_add_executable(test_configuration_profile_service unit/app/ConfigurationProfileServiceTest.cpp)
+target_link_libraries(test_configuration_profile_service PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_configuration_profile_service COMMAND test_configuration_profile_service)
+
 qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_local_api_server COMMAND test_local_api_server)

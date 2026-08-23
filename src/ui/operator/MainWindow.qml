@@ -1,4 +1,5 @@
 import QtQuick
+import QtCore
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
@@ -16,7 +17,12 @@ ApplicationWindow {
     readonly property var controller: presentationController
     // qmllint enable unqualified
     visible: true
-    onClosing: Qt.quit()
+    onClosing: {
+        operatorWindowSettings.savedWidth = width
+        operatorWindowSettings.savedHeight = height
+        operatorDashboard.saveLayout()
+        Qt.quit()
+    }
     color: "#0b1220"
     title: "HolyScreen — Operação"
     width: 1360
@@ -34,6 +40,15 @@ ApplicationWindow {
     readonly property int previewOutputCount: root.controller.debugEnabled
                                               && root.controller.debugSimulatedOutputs
                                               ? root.controller.simulatedOutputCount : 1
+
+    Settings {
+        id: operatorWindowSettings
+        category: "OperatorWindow"
+        property int savedWidth: 1360
+        property int savedHeight: 820
+        property var dashboardHorizontalState
+        property var dashboardVerticalState
+    }
 
     function formatDuration(milliseconds) {
         const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000))
@@ -125,12 +140,12 @@ ApplicationWindow {
     }
     IntegrationsArea {
         id: integrationsArea
-        controller: root.controller
+        controller: root.controller.integrationContext
     }
 
     AutomationsArea {
         id: automationsArea
-        controller: root.controller
+        controller: root.controller.automationContext
     }
 
     SettingsDialog {
@@ -138,6 +153,13 @@ ApplicationWindow {
         controller: root.controller
         onOpenLibrary: mediaLibraryDialog.open()
         onChooseBackground: wallpaperDialog.open()
+        onRestoreLayout: operatorDashboard.resetLayout()
+    }
+    OnboardingDialog {
+        id: onboardingDialog
+        controller: root.controller
+        onOpenSettings: function(tabIndex) { settingsDialog.openTab(tabIndex) }
+        onOpenBible: bibleBrowser.open()
     }
     Dialog {
         id: liveDialog
@@ -793,11 +815,11 @@ ApplicationWindow {
     }
     BibleBrowser {
         id: bibleBrowser
-        controller: root.controller
+        controller: root.controller.bibleContext
     }
     QuickBibleSearch {
         id: quickBibleSearch
-        controller: root.controller
+        controller: root.controller.bibleContext
     }
     Connections {
         target: root.controller
@@ -808,14 +830,21 @@ ApplicationWindow {
     }
 
     Dashboard {
+        id: operatorDashboard
         anchors.fill: parent
         controller: root.controller
+        layoutSettings: operatorWindowSettings
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleDialog.open()
         onOpenBibleBrowser: bibleBrowser.open()
         onImportAudio: audioDialog.open()
         onImportVideo: videoDialog.open()
         onImportImage: imageDialog.open()
+    }
+
+    Component.onCompleted: {
+        width = Math.max(minimumWidth, operatorWindowSettings.savedWidth)
+        height = Math.max(minimumHeight, operatorWindowSettings.savedHeight)
     }
 
     RowLayout {
@@ -1607,15 +1636,17 @@ ApplicationWindow {
         }
     }
 
-    Shortcut { sequence: "Right"; enabled: root.controller.textVisible; onActivated: root.controller.nextTextSlide() }
-    Shortcut { sequence: "Left"; enabled: root.controller.textVisible; onActivated: root.controller.previousTextSlide() }
+    Shortcut { sequence: root.controller.shortcuts.next; enabled: root.controller.textVisible; onActivated: root.controller.nextTextSlide() }
+    Shortcut { sequence: root.controller.shortcuts.previous; enabled: root.controller.textVisible; onActivated: root.controller.previousTextSlide() }
     Shortcut { sequence: "Space"; enabled: root.controller.textVisible && !slideTextEditor.activeFocus; onActivated: root.controller.nextTextSlide() }
     Shortcut { sequence: "Home"; enabled: root.controller.textVisible; onActivated: root.controller.firstTextSlide() }
     Shortcut { sequence: "End"; enabled: root.controller.textVisible; onActivated: root.controller.lastTextSlide() }
-    Shortcut { sequence: "Escape"; enabled: root.controller.textVisible; onActivated: root.controller.stopTextPresentation() }
+    Shortcut { sequence: root.controller.shortcuts.stop; enabled: root.controller.textVisible; onActivated: root.controller.stopTextPresentation() }
     Shortcut { sequence: StandardKey.Undo; enabled: root.controller.canUndo; onActivated: root.controller.undo() }
     Shortcut { sequence: StandardKey.Redo; enabled: root.controller.canRedo; onActivated: root.controller.redo() }
-    Shortcut { sequence: "Ctrl+B"; onActivated: root.controller.createBackup() }
+    Shortcut { sequence: root.controller.shortcuts.blackout; onActivated: root.controller.setBlackout(!root.controller.blackout) }
+    Shortcut { sequence: root.controller.shortcuts.quickBible; onActivated: quickBibleSearch.openWithText("") }
+    Shortcut { sequence: "Ctrl+Shift+B"; onActivated: root.controller.createBackup() }
     Shortcut { sequence: "Ctrl+S"; enabled: root.controller.currentSlideId.length > 0; onActivated: root.controller.updateTextSlide(root.controller.currentSlideId, slideLabelEditor.text, slideTextEditor.text) }
     Shortcut { sequence: "F5"; onActivated: root.controller.checkForUpdates() }
     Shortcut { sequence: "Ctrl+Shift+O"; onActivated: { root.show(); root.raise(); root.requestActivate() } }

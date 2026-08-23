@@ -13,7 +13,7 @@ O handoff detalhado das ondas 4 a 7 está em
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
 | 5 | Automações offline | Implementada; aguardando checkpoint v0.13.0 |
-| 6 | UX final, onboarding, acessibilidade e documentação | Pendente — v0.14.0 |
+| 6 | UX final, onboarding, acessibilidade e documentação | Em implementação — v0.14.0 |
 | 7 | Validação multiplataforma, endurance e release 1.0 | Pendente |
 
 ## Critério final

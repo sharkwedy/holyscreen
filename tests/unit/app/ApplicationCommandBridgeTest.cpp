@@ -71,7 +71,37 @@ private slots:
     void automationsReactToDomainEventsWithoutLooping();
     void acceptedRemoteAndTimerCommandsBecomeAutomationFacts();
     void automationDefinitionsRoundTripWithoutOverwritingOrSecrets();
+    void facadesExposeBoundedQmlContracts();
 };
+
+void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
+{
+    ApplicationController controller;
+    auto *automation = controller.automationContext();
+    auto *bible = controller.bibleContext();
+    auto *integration = controller.integrationContext();
+
+    QVERIFY(automation);
+    QVERIFY(bible);
+    QVERIFY(integration);
+    QCOMPARE(automation->automations(), controller.automations());
+    QCOMPARE(automation->automationTriggerTypes(), controller.automationTriggerTypeList());
+    QCOMPARE(integration->integrations(), controller.integrations());
+    QCOMPARE(integration->integrationTypes(), controller.integrationTypes());
+    QCOMPARE(bible->bibleBooks(), controller.bibleBooks());
+
+    const auto automationMeta = automation->metaObject();
+    QVERIFY(automationMeta->indexOfProperty("automations") >= 0);
+    QVERIFY(automationMeta->indexOfMethod("saveAutomation(QVariantMap)") >= 0);
+    QVERIFY(automationMeta->indexOfMethod("importAutomations(QUrl)") >= 0);
+    const auto integrationMeta = integration->metaObject();
+    QVERIFY(integrationMeta->indexOfProperty("integrations") >= 0);
+    QVERIFY(integrationMeta->indexOfMethod("saveIntegration(QVariantMap)") >= 0);
+    QVERIFY(integrationMeta->indexOfMethod("executeIntegration(QString,QString,QVariantMap)") >= 0);
+    const auto bibleMeta = bible->metaObject();
+    QVERIFY(bibleMeta->indexOfProperty("bibleTranslations") >= 0);
+    QVERIFY(bibleMeta->indexOfMethod("presentBibleReference(int,int,int)") >= 0);
+}
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
 {
