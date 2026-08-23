@@ -230,7 +230,7 @@ ApplicationWindow {
         title: "Limpar histórico?"
         modal: true
         standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: root.controller.clearHistory()
+        onAccepted: root.controller.eventContext.clearHistory()
         Label { text:"Essa ação remove definitivamente os registros de execução.";wrapMode:Text.WordWrap }
     }
     FileDialog {
@@ -245,12 +245,12 @@ ApplicationWindow {
         fileMode: FileDialog.SaveFile
         nameFilters: ["Arquivo ZIP (*.zip)"]
         defaultSuffix: "zip"
-        onAccepted: root.controller.exportDiagnostics(selectedFile)
+        onAccepted: root.controller.maintenanceContext.exportDiagnostics(selectedFile)
     }
     Dialog {
         id:restoreConfirmDialog;title:"Agendar restauração?";modal:true
         standardButtons:Dialog.Ok|Dialog.Cancel
-        onAccepted:root.controller.scheduleRestore(root.pendingRestoreSource)
+        onAccepted:root.controller.maintenanceContext.scheduleRestore(root.pendingRestoreSource)
         Label {text:"O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.";wrapMode:Text.WordWrap;width:420}
     }
 
@@ -761,7 +761,7 @@ ApplicationWindow {
                     onClicked: settingsDialog.open()
                 }
                 ToolButton { text: "⛶"; onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen }
-                Button { text: root.controller.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: root.controller.setBlackout(false) }
+                Button { text: root.controller.outputContext.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: root.controller.outputContext.blackout = false }
             }
             Rectangle {
                 Layout.fillWidth: true
@@ -1020,7 +1020,7 @@ ApplicationWindow {
                             clockPosition: root.controller.clockPosition
                             clockFamily: root.controller.clockFontFamily
                             clockColor: root.controller.clockColor
-                            isBlackout: root.controller.blackout
+                            isBlackout: root.controller.outputContext.blackout
                             identifyVisible: root.controller.identifyVisible
                         }
                     }
@@ -1134,7 +1134,7 @@ ApplicationWindow {
                             }
                             RowLayout {
                                 Layout.fillWidth: true
-                                Button { text: "ANTERIOR"; onClicked: root.controller.previousMedia() }
+                                Button { text: "ANTERIOR"; onClicked: root.controller.mediaContext.previousMedia() }
                                 Button {
                                     text: root.controller.mediaState === "playing" ? "PAUSAR" : "TOCAR"
                                     highlighted: true
@@ -1142,11 +1142,11 @@ ApplicationWindow {
                                         if (root.controller.currentMediaId.length === 0 && mediaList.count > 0)
                                             root.controller.playMedia(root.controller.mediaPlaylist[0].id)
                                         else
-                                            root.controller.toggleMediaPause()
+                                            root.controller.mediaContext.toggleMediaPause()
                                     }
                                 }
-                                Button { text: "PARAR"; onClicked: root.controller.stopMedia() }
-                                Button { text: "PRÓXIMO"; onClicked: root.controller.nextMedia() }
+                                Button { text: "PARAR"; onClicked: root.controller.mediaContext.stopMedia() }
+                                Button { text: "PRÓXIMO"; onClicked: root.controller.mediaContext.nextMedia() }
                             }
                             RowLayout {
                                 Layout.fillWidth: true
@@ -1488,39 +1488,39 @@ ApplicationWindow {
                         Layout.fillWidth:true
                         TextField { id:newEventTitle; Layout.fillWidth:true; placeholderText:"Nome do culto" }
                         TextField { id:newEventDate; Layout.preferredWidth:120; placeholderText:"Data/hora" }
-                        Button { text:"NOVO"; onClicked:{if(newEventTitle.text.trim().length>0){root.controller.createEvent(newEventTitle.text,newEventDate.text);newEventTitle.clear();newEventDate.clear()}} }
+                        Button { text:"NOVO"; onClicked:{if(newEventTitle.text.trim().length>0){root.controller.eventContext.createEvent(newEventTitle.text,newEventDate.text);newEventTitle.clear();newEventDate.clear()}} }
                     }
                     RowLayout {
                         Layout.fillWidth:true
-                        ComboBox { id:eventPicker; Layout.fillWidth:true; model:root.controller.events; textRole:"title";valueRole:"id";onActivated:root.controller.selectEvent(currentValue) }
-                        Button { text:"ABRIR"; enabled:eventPicker.currentValue!==undefined;onClicked:root.controller.selectEvent(eventPicker.currentValue) }
-                        Button { text:"EXCLUIR";enabled:root.controller.currentEventId.length>0;onClicked:root.controller.deleteEvent(root.controller.currentEventId) }
+                        ComboBox { id:eventPicker; Layout.fillWidth:true; model:root.controller.eventContext.events; textRole:"title";valueRole:"id";onActivated:root.controller.eventContext.selectEvent(currentValue) }
+                        Button { text:"ABRIR"; enabled:eventPicker.currentValue!==undefined;onClicked:root.controller.eventContext.selectEvent(eventPicker.currentValue) }
+                        Button { text:"EXCLUIR";enabled:root.controller.eventContext.currentEventId.length>0;onClicked:root.controller.eventContext.deleteEvent(root.controller.eventContext.currentEventId) }
                     }
-                    Label { text:"Duração total: "+root.formatDuration(root.controller.eventDurationMs);color:"#c8d5e8" }
+                    Label { text:"Duração total: "+root.formatDuration(root.controller.eventContext.eventDurationMs);color:"#c8d5e8" }
                     Flow {
                         Layout.fillWidth:true;spacing:5
-                        Button { text:"+ APRESENTAÇÃO";enabled:root.controller.currentEventId.length>0&&root.controller.currentPresentationId.length>0;onClicked:root.controller.addEventItem(root.controller.currentPresentationType,root.controller.currentPresentationId,root.controller.currentPresentationTitle,0) }
-                        Button { text:"+ IMAGEM";enabled:root.controller.currentEventId.length>0&&root.controller.currentImageId.length>0;onClicked:root.controller.addEventItem("image",root.controller.currentImageId,root.controller.currentImageTitle,0) }
-                        Button { text:"+ VÍDEO";enabled:root.controller.currentEventId.length>0&&root.controller.currentVideoId.length>0;onClicked:root.controller.addEventItem("video",root.controller.currentVideoId,root.controller.currentVideoTitle,root.controller.videoDurationMs) }
-                        Button { text:"+ ÁUDIO";enabled:root.controller.currentEventId.length>0&&root.controller.currentAudioId.length>0;onClicked:root.controller.addEventItem("audio",root.controller.currentAudioId,root.controller.currentAudioTitle,root.controller.audioDurationMs) }
+                        Button { text:"+ APRESENTAÇÃO";enabled:root.controller.eventContext.currentEventId.length>0&&root.controller.currentPresentationId.length>0;onClicked:root.controller.eventContext.addEventItem(root.controller.currentPresentationType,root.controller.currentPresentationId,root.controller.currentPresentationTitle,0) }
+                        Button { text:"+ IMAGEM";enabled:root.controller.eventContext.currentEventId.length>0&&root.controller.currentImageId.length>0;onClicked:root.controller.eventContext.addEventItem("image",root.controller.currentImageId,root.controller.currentImageTitle,0) }
+                        Button { text:"+ VÍDEO";enabled:root.controller.eventContext.currentEventId.length>0&&root.controller.currentVideoId.length>0;onClicked:root.controller.eventContext.addEventItem("video",root.controller.currentVideoId,root.controller.currentVideoTitle,root.controller.videoDurationMs) }
+                        Button { text:"+ ÁUDIO";enabled:root.controller.eventContext.currentEventId.length>0&&root.controller.currentAudioId.length>0;onClicked:root.controller.eventContext.addEventItem("audio",root.controller.currentAudioId,root.controller.currentAudioTitle,root.controller.audioDurationMs) }
                     }
                     ListView {
                         id:eventItemsList;Layout.fillWidth:true;Layout.preferredHeight:Math.min(260,Math.max(60,contentHeight));clip:true;spacing:4
-                        model:root.controller.eventItems
+                        model:root.controller.eventContext.eventItems
                         delegate:Rectangle {
                             id:eventItemDelegate;required property var modelData;required property int index
                             width:ListView.view.width;height:46;color:"#142137";radius:6
                             RowLayout { anchors.fill:parent;anchors.margins:5
                                 Label { text:"⋮⋮";color:"#8da0bc"
-                                    DragHandler { target:null;onActiveChanged:{if(!active){const targetIndex=Math.max(0,Math.min(eventItemsList.count-1,eventItemDelegate.index+Math.round(translation.y/eventItemDelegate.height)));if(targetIndex!==eventItemDelegate.index)root.controller.moveEventItem(eventItemDelegate.modelData.id,targetIndex)}} }
+                                    DragHandler { target:null;onActiveChanged:{if(!active){const targetIndex=Math.max(0,Math.min(eventItemsList.count-1,eventItemDelegate.index+Math.round(translation.y/eventItemDelegate.height)));if(targetIndex!==eventItemDelegate.index)root.controller.eventContext.moveEventItem(eventItemDelegate.modelData.id,targetIndex)}} }
                                 }
                                 Label { text:eventItemDelegate.modelData.type.toUpperCase();color:"#70e1a7";font.pixelSize:9 }
                                 Label { Layout.fillWidth:true;text:eventItemDelegate.modelData.title;color:"#eff6ff";elide:Text.ElideRight }
                                 Label { text:root.formatDuration(eventItemDelegate.modelData.durationMs);color:"#8da0bc";font.pixelSize:10 }
-                                ToolButton { text:"↑";enabled:eventItemDelegate.index>0;onClicked:root.controller.moveEventItem(eventItemDelegate.modelData.id,eventItemDelegate.index-1) }
-                                ToolButton { text:"↓";enabled:eventItemDelegate.index+1<eventItemsList.count;onClicked:root.controller.moveEventItem(eventItemDelegate.modelData.id,eventItemDelegate.index+1) }
-                                Button { text:"EXECUTAR";onClicked:root.controller.executeEventItem(eventItemDelegate.modelData.id) }
-                                ToolButton { text:"×";onClicked:root.controller.removeEventItem(eventItemDelegate.modelData.id) }
+                                ToolButton { text:"↑";enabled:eventItemDelegate.index>0;onClicked:root.controller.eventContext.moveEventItem(eventItemDelegate.modelData.id,eventItemDelegate.index-1) }
+                                ToolButton { text:"↓";enabled:eventItemDelegate.index+1<eventItemsList.count;onClicked:root.controller.eventContext.moveEventItem(eventItemDelegate.modelData.id,eventItemDelegate.index+1) }
+                                Button { text:"EXECUTAR";onClicked:root.controller.eventContext.executeEventItem(eventItemDelegate.modelData.id) }
+                                ToolButton { text:"×";onClicked:root.controller.eventContext.removeEventItem(eventItemDelegate.modelData.id) }
                             }
                         }
                     }
@@ -1530,16 +1530,16 @@ ApplicationWindow {
                         Layout.fillWidth:true
                         Label { text:"HISTÓRICO";color:"#8da0bc";font.bold:true;font.pixelSize:11 }
                         Item { Layout.fillWidth:true }
-                        Button { text:"LIMPAR";enabled:root.controller.history.length>0;onClicked:clearHistoryDialog.open() }
+                        Button { text:"LIMPAR";enabled:root.controller.eventContext.history.length>0;onClicked:clearHistoryDialog.open() }
                     }
                     Label {
                         Layout.fillWidth:true
-                        text:"Execuções: "+(root.controller.historyReport.totalExecutions||0)+"  •  Mais executado: "+(root.controller.historyReport.mostExecutedTitle||"—")
+                        text:"Execuções: "+(root.controller.eventContext.historyReport.totalExecutions||0)+"  •  Mais executado: "+(root.controller.eventContext.historyReport.mostExecutedTitle||"—")
                         color:"#c8d5e8";wrapMode:Text.WordWrap
                     }
                     ListView {
                         Layout.fillWidth:true;Layout.preferredHeight:Math.min(220,Math.max(50,contentHeight));clip:true;spacing:3
-                        model:root.controller.history
+                        model:root.controller.eventContext.history
                         delegate:Rectangle {
                             id: historyDelegate
                             required property var modelData;width:ListView.view.width;height:40;color:"#142137";radius:5
@@ -1553,19 +1553,19 @@ ApplicationWindow {
 
                     Rectangle {Layout.fillWidth:true;Layout.preferredHeight:1;color:"#24334b"}
                     Label {text:"MANUTENÇÃO E DIAGNÓSTICOS";color:"#8da0bc";font.bold:true;font.pixelSize:11}
-                    Label {visible:root.controller.recoveredFromCrash;text:"Uma sessão anterior terminou inesperadamente. Um snapshot de recuperação foi criado.";color:"#ffba70";wrapMode:Text.WordWrap;Layout.fillWidth:true}
+                    Label {visible:root.controller.maintenanceContext.recoveredFromCrash;text:"Uma sessão anterior terminou inesperadamente. Um snapshot de recuperação foi criado.";color:"#ffba70";wrapMode:Text.WordWrap;Layout.fillWidth:true}
                     RowLayout {
                         Layout.fillWidth:true
-                        Button {text:"CRIAR BACKUP";Layout.fillWidth:true;onClicked:root.controller.createBackup()}
+                        Button {text:"CRIAR BACKUP";Layout.fillWidth:true;onClicked:root.controller.maintenanceContext.createBackup()}
                         Button {text:"RESTAURAR";Layout.fillWidth:true;onClicked:restoreDialog.open()}
                         Button {text:"EXPORTAR DIAGNÓSTICO";Layout.fillWidth:true;onClicked:diagnosticExportDialog.open()}
-                        Button {visible:root.controller.debugEnabled && root.controller.debugDiagnostics;text:"BENCHMARK";Layout.fillWidth:true;onClicked:root.controller.runBenchmark()}
+                        Button {visible:root.controller.maintenanceContext.debugEnabled && root.controller.maintenanceContext.debugDiagnostics;text:"BENCHMARK";Layout.fillWidth:true;onClicked:root.controller.maintenanceContext.runBenchmark()}
                     }
-                    Label {visible:root.controller.debugEnabled && root.controller.debugDiagnostics;Layout.fillWidth:true;wrapMode:Text.WordWrap;color:"#c8d5e8";text:"Versão "+(root.controller.diagnostics.version||"—")+" • Qt "+(root.controller.diagnostics.qtVersion||"—")+" • "+(root.controller.diagnostics.platform||"—")+" • Telas "+(root.controller.diagnostics.detectedScreens||0)+" • Ops/s "+(root.controller.diagnostics.benchmarkOperationsPerSecond||"—")}
-                    TextField {Layout.fillWidth:true;placeholderText:"URL HTTPS do manifesto de atualização";text:root.controller.updateEndpoint;onEditingFinished:root.controller.updateEndpoint=text}
+                    Label {visible:root.controller.maintenanceContext.debugEnabled && root.controller.maintenanceContext.debugDiagnostics;Layout.fillWidth:true;wrapMode:Text.WordWrap;color:"#c8d5e8";text:"Versão "+(root.controller.maintenanceContext.diagnostics.version||"—")+" • Qt "+(root.controller.maintenanceContext.diagnostics.qtVersion||"—")+" • "+(root.controller.maintenanceContext.diagnostics.platform||"—")+" • Telas "+(root.controller.maintenanceContext.diagnostics.detectedScreens||0)+" • Ops/s "+(root.controller.maintenanceContext.diagnostics.benchmarkOperationsPerSecond||"—")}
+                    TextField {Layout.fillWidth:true;placeholderText:"URL HTTPS do manifesto de atualização";text:root.controller.maintenanceContext.updateEndpoint;onEditingFinished:root.controller.maintenanceContext.updateEndpoint=text}
                     RowLayout {Layout.fillWidth:true
-                        Button {text:"VERIFICAR ATUALIZAÇÕES";onClicked:root.controller.checkForUpdates()}
-                        Label {Layout.fillWidth:true;text:root.controller.updateStatus;color:"#8da0bc";wrapMode:Text.WordWrap}
+                        Button {text:"VERIFICAR ATUALIZAÇÕES";onClicked:root.controller.maintenanceContext.checkForUpdates()}
+                        Label {Layout.fillWidth:true;text:root.controller.maintenanceContext.updateStatus;color:"#8da0bc";wrapMode:Text.WordWrap}
                     }
 
                     Rectangle { visible:root.controller.debugEnabled;Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
@@ -1603,10 +1603,10 @@ ApplicationWindow {
                         }
                     }
                     Button {
-                        text: root.controller.blackout ? "RESTAURAR APRESENTAÇÃO" : "BLACKOUT"
+                        text: root.controller.outputContext.blackout ? "RESTAURAR APRESENTAÇÃO" : "BLACKOUT"
                         Layout.fillWidth: true
                         highlighted: true
-                        onClicked: root.controller.setBlackout(!root.controller.blackout)
+                        onClicked: root.controller.outputContext.blackout = !root.controller.outputContext.blackout
                     }
                 }
             }
@@ -1644,10 +1644,10 @@ ApplicationWindow {
     Shortcut { sequence: root.controller.shortcuts.stop; enabled: root.controller.textVisible; onActivated: root.controller.stopTextPresentation() }
     Shortcut { sequence: StandardKey.Undo; enabled: root.controller.canUndo; onActivated: root.controller.undo() }
     Shortcut { sequence: StandardKey.Redo; enabled: root.controller.canRedo; onActivated: root.controller.redo() }
-    Shortcut { sequence: root.controller.shortcuts.blackout; onActivated: root.controller.setBlackout(!root.controller.blackout) }
+    Shortcut { sequence: root.controller.shortcuts.blackout; onActivated: root.controller.outputContext.blackout = !root.controller.outputContext.blackout }
     Shortcut { sequence: root.controller.shortcuts.quickBible; onActivated: quickBibleSearch.openWithText("") }
-    Shortcut { sequence: "Ctrl+Shift+B"; onActivated: root.controller.createBackup() }
+    Shortcut { sequence: "Ctrl+Shift+B"; onActivated: root.controller.maintenanceContext.createBackup() }
     Shortcut { sequence: "Ctrl+S"; enabled: root.controller.currentSlideId.length > 0; onActivated: root.controller.updateTextSlide(root.controller.currentSlideId, slideLabelEditor.text, slideTextEditor.text) }
-    Shortcut { sequence: "F5"; onActivated: root.controller.checkForUpdates() }
+    Shortcut { sequence: "F5"; onActivated: root.controller.maintenanceContext.checkForUpdates() }
     Shortcut { sequence: "Ctrl+Shift+O"; onActivated: { root.show(); root.raise(); root.requestActivate() } }
 }

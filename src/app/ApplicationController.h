@@ -3,7 +3,11 @@
 #include "automation/AuthorizedExecutables.h"
 #include "app/contexts/AutomationContext.h"
 #include "app/contexts/BibleContext.h"
+#include "app/contexts/EventContext.h"
 #include "app/contexts/IntegrationContext.h"
+#include "app/contexts/MaintenanceContext.h"
+#include "app/contexts/MediaContext.h"
+#include "app/contexts/OutputContext.h"
 #include "app/ConfigurationProfileService.h"
 #include "automation/AutomationEngine.h"
 #include "automation/LocalTimeTriggerScheduler.h"
@@ -77,7 +81,11 @@ class ApplicationController final : public QObject {
     Q_OBJECT
     Q_PROPERTY(AutomationContext *automationContext READ automationContext CONSTANT)
     Q_PROPERTY(BibleContext *bibleContext READ bibleContext CONSTANT)
+    Q_PROPERTY(EventContext *eventContext READ eventContext CONSTANT)
     Q_PROPERTY(IntegrationContext *integrationContext READ integrationContext CONSTANT)
+    Q_PROPERTY(MaintenanceContext *maintenanceContext READ maintenanceContext CONSTANT)
+    Q_PROPERTY(MediaContext *mediaContext READ mediaContext CONSTANT)
+    Q_PROPERTY(OutputContext *outputContext READ outputContext CONSTANT)
     Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY preferencesChanged)
     Q_PROPERTY(bool demoMode READ demoMode WRITE setDemoMode NOTIFY preferencesChanged)
     Q_PROPERTY(bool onboardingCompleted READ onboardingCompleted NOTIFY onboardingChanged)
@@ -243,7 +251,11 @@ public:
     [[nodiscard]] EventBus &eventBus();
     [[nodiscard]] AutomationContext *automationContext() const;
     [[nodiscard]] BibleContext *bibleContext() const;
+    [[nodiscard]] EventContext *eventContext() const;
     [[nodiscard]] IntegrationContext *integrationContext() const;
+    [[nodiscard]] MaintenanceContext *maintenanceContext() const;
+    [[nodiscard]] MediaContext *mediaContext() const;
+    [[nodiscard]] OutputContext *outputContext() const;
     [[nodiscard]] QString locale() const;
     void setLocale(const QString &locale);
     [[nodiscard]] bool demoMode() const;
@@ -843,7 +855,11 @@ private:
     QString m_integrationStatus;
     std::unique_ptr<AutomationContext> m_automationContext;
     std::unique_ptr<BibleContext> m_bibleContext;
+    std::unique_ptr<EventContext> m_eventContext;
     std::unique_ptr<IntegrationContext> m_integrationContext;
+    std::unique_ptr<MaintenanceContext> m_maintenanceContext;
+    std::unique_ptr<MediaContext> m_mediaContext;
+    std::unique_ptr<OutputContext> m_outputContext;
     QString m_locale = QStringLiteral("pt-BR");
     bool m_demoMode = false;
     bool m_onboardingCompleted = false;
