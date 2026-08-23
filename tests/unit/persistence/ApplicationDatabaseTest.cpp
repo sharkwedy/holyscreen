@@ -32,7 +32,7 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
 
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 0);
-    QCOMPARE(result.currentVersion, 4);
+    QCOMPARE(result.currentVersion, 5);
 
     const auto connection = QStringLiteral("schema-check-%1")
                                 .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -61,6 +61,11 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
             QStringLiteral("output_broadcast_profiles"),
             QStringLiteral("integration_definitions"),
             QStringLiteral("integration_call_history"),
+            QStringLiteral("automations"),
+            QStringLiteral("automation_conditions"),
+            QStringLiteral("automation_actions"),
+            QStringLiteral("automation_runs"),
+            QStringLiteral("authorized_executables"),
         };
         for (const auto &table : expected) {
             QVERIFY2(tables.contains(table), qPrintable(QStringLiteral("Tabela ausente: %1").arg(table)));
@@ -93,7 +98,7 @@ void ApplicationDatabaseTest::migratesVersionOneWithBackup()
     const auto result = ApplicationDatabase::migrate(path);
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 1);
-    QCOMPARE(result.currentVersion, 4);
+    QCOMPARE(result.currentVersion, 5);
     QVERIFY(!result.backupPath.isEmpty());
     QVERIFY(QFileInfo::exists(result.backupPath));
 }
@@ -115,6 +120,11 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
         QVERIFY(query.exec(QStringLiteral("DROP TABLE output_broadcast_profiles")));
         QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_call_history")));
         QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_definitions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_runs")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_actions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_conditions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automations")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE authorized_executables")));
         QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version>2")));
         QVERIFY(query.exec(QStringLiteral(
             "INSERT INTO events(id,title,scheduled_at) VALUES('e1','Culto','2026-08-23')")));
@@ -125,7 +135,7 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
     const auto result = ApplicationDatabase::migrate(path);
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 2);
-    QCOMPARE(result.currentVersion, 4);
+    QCOMPARE(result.currentVersion, 5);
 
     const auto check = QStringLiteral("schema-v3-%1")
                            .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -155,8 +165,8 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
     // Reaplicar a migração em um banco já atualizado não muda nada.
     const auto again = ApplicationDatabase::migrate(path);
     QVERIFY(again.success);
-    QCOMPARE(again.previousVersion, 4);
-    QCOMPARE(again.currentVersion, 4);
+    QCOMPARE(again.previousVersion, 5);
+    QCOMPARE(again.currentVersion, 5);
 }
 
 void ApplicationDatabaseTest::keepsTheDatabaseUntouchedWhenTheBroadcastMigrationFails()
@@ -175,6 +185,11 @@ void ApplicationDatabaseTest::keepsTheDatabaseUntouchedWhenTheBroadcastMigration
         QVERIFY(query.exec(QStringLiteral("DROP TABLE output_broadcast_profiles")));
         QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_call_history")));
         QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_definitions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_runs")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_actions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automation_conditions")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE automations")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE authorized_executables")));
         QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version>2")));
         // Um objeto conflitante faz a segunda instrução da migração falhar.
         QVERIFY(query.exec(QStringLiteral(

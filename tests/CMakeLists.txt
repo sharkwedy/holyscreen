@@ -140,6 +140,18 @@ qt_add_executable(test_overlay_controller unit/presentation/OverlayControllerTes
 target_link_libraries(test_overlay_controller PRIVATE Qt6::Test presenter-presentation)
 add_test(NAME test_overlay_controller COMMAND test_overlay_controller)
 
+qt_add_executable(test_automation_engine unit/automation/AutomationEngineTest.cpp)
+target_link_libraries(test_automation_engine PRIVATE Qt6::Test presenter-automation)
+add_test(NAME test_automation_engine COMMAND test_automation_engine)
+
+qt_add_executable(test_authorized_executables unit/automation/AuthorizedExecutablesTest.cpp)
+target_link_libraries(test_authorized_executables PRIVATE Qt6::Test presenter-automation)
+add_test(NAME test_authorized_executables COMMAND test_authorized_executables)
+
+qt_add_executable(test_condition_evaluator unit/automation/ConditionEvaluatorTest.cpp)
+target_link_libraries(test_condition_evaluator PRIVATE Qt6::Test presenter-automation)
+add_test(NAME test_condition_evaluator COMMAND test_condition_evaluator)
+
 qt_add_executable(test_integration_engine unit/integrations/IntegrationEngineTest.cpp)
 target_link_libraries(test_integration_engine PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_integration_engine COMMAND test_integration_engine)
@@ -181,6 +193,10 @@ add_test(NAME test_database_migrator COMMAND test_database_migrator)
 qt_add_executable(test_application_database unit/persistence/ApplicationDatabaseTest.cpp)
 target_link_libraries(test_application_database PRIVATE Qt6::Test presenter-persistence)
 add_test(NAME test_application_database COMMAND test_application_database)
+
+qt_add_executable(test_automation_repository unit/library/AutomationRepositoryTest.cpp)
+target_link_libraries(test_automation_repository PRIVATE Qt6::Test presenter-library presenter-persistence)
+add_test(NAME test_automation_repository COMMAND test_automation_repository)
 
 qt_add_executable(test_broadcast_profile_repository unit/library/BroadcastProfileRepositoryTest.cpp)
 target_link_libraries(test_broadcast_profile_repository PRIVATE Qt6::Test presenter-library presenter-persistence)

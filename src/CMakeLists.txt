@@ -164,6 +164,21 @@ else()
     endif()
 endif()
 
+add_library(presenter-automation
+    automation/AutomationTypes.cpp
+    automation/AutomationTypes.h
+    automation/ConditionEvaluator.cpp
+    automation/ConditionEvaluator.h
+    automation/AutomationEngine.cpp
+    automation/AutomationEngine.h
+    automation/AuthorizedExecutables.cpp
+    automation/AuthorizedExecutables.h
+    automation/QtProcessRunner.cpp
+    automation/QtProcessRunner.h
+)
+target_include_directories(presenter-automation PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(presenter-automation PUBLIC Qt6::Core presenter-core presenter-integrations)
+
 add_library(presenter-persistence
     persistence/ApplicationDatabase.cpp
     persistence/ApplicationDatabase.h
@@ -175,6 +190,8 @@ target_include_directories(presenter-persistence PUBLIC ${CMAKE_CURRENT_SOURCE_D
 target_link_libraries(presenter-persistence PUBLIC Qt6::Core Qt6::Sql)
 
 add_library(presenter-library
+    library/AutomationRepository.cpp
+    library/AutomationRepository.h
     library/BroadcastProfileRepository.cpp
     library/BroadcastProfileRepository.h
     library/IntegrationRepository.cpp
@@ -193,7 +210,7 @@ add_library(presenter-library
     library/HistoryRepository.h
 )
 target_include_directories(presenter-library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation presenter-screens presenter-integrations)
+target_link_libraries(presenter-library PUBLIC Qt6::Core Qt6::Sql presenter-presentation presenter-screens presenter-integrations presenter-automation)
 
 add_library(presenter-bible
     bible/BibleTypes.h
