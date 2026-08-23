@@ -2,12 +2,15 @@
 
 O desenvolvimento é realizado por ondas. Uma onda só termina com build, testes, QML lint e validação proporcional ao risco.
 
+O handoff detalhado das ondas 4 a 8 está em
+[`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md).
+
 | Onda | Entrega | Estado |
 |---|---|---|
-| 0 | Linha de base, GPLv3, documentação e suíte verde | Concluída localmente; validação final no release 0.11.0 |
-| 1 | Command/Event Bus, migrações e confiabilidade | Concluída localmente; validação final no release 0.11.0 |
-| 2 | Controle remoto autenticado e API v1 | Concluída localmente; validação final no release 0.11.0 |
-| 3 | Importação bíblica por pasta, Git e ZIP | Concluída localmente; validação final no release 0.11.0 |
+| 0 | Linha de base, GPLv3, documentação e suíte verde | Concluída e validada na v0.11.0 |
+| 1 | Command/Event Bus, migrações e confiabilidade | Concluída e validada na v0.11.0 |
+| 2 | Controle remoto autenticado e API v1 | Concluída e validada na v0.11.0 |
+| 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Pendente |
 | 5 | Automações offline | Pendente |
 | 6 | Escalas e relatórios avançados | Pendente |
@@ -23,9 +26,9 @@ O desenvolvimento é realizado por ondas. Uma onda só termina com build, testes
 - endurance de duas horas sem crash, congelamento, dropout ou perda de saída;
 - pacotes reproduzíveis com checksums e changelog.
 
-## Checkpoint 0.11.0
+## Checkpoint v0.11.0
 
-O código das ondas 0 a 3 passa atualmente por build local, 52 testes, smoke de
-inicialização, QML lint e validação visual do desktop/remoto no macOS. A
-confirmação em Windows x64, Linux x64 e macOS ARM64 será executada uma única vez
-no checkpoint de publicação da `v0.11.0`, antes da tag ser considerada entregue.
+As ondas 0 a 3 foram publicadas na `v0.11.0`. O checkpoint passou por build,
+52 testes, smoke de inicialização, QML lint, validação visual do desktop/remoto
+e CI em Windows x64, Linux x64 e macOS ARM64. Os pacotes dos três sistemas e o
+arquivo `SHA256SUMS` foram publicados e verificados após download.
