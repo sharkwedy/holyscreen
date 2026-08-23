@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y fakeroot libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev ninja-build patchelf
+        run: sudo apt-get update && sudo apt-get install -y fakeroot libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev libsecret-1-dev libasound2-dev ninja-build patchelf
 
       - name: Install Windows packaging dependencies
         if: runner.os == 'Windows'

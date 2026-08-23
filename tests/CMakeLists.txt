@@ -156,6 +156,10 @@ qt_add_executable(test_midi_integration_adapter unit/integrations/MidiIntegratio
 target_link_libraries(test_midi_integration_adapter PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_midi_integration_adapter COMMAND test_midi_integration_adapter)
 
+qt_add_executable(test_obs_integration_adapter unit/integrations/ObsIntegrationAdapterTest.cpp)
+target_link_libraries(test_obs_integration_adapter PRIVATE Qt6::Test Qt6::WebSockets presenter-integrations)
+add_test(NAME test_obs_integration_adapter COMMAND test_obs_integration_adapter)
+
 qt_add_executable(test_secret_store unit/integrations/SecretStoreTest.cpp)
 target_link_libraries(test_secret_store PRIVATE Qt6::Test presenter-integrations)
 add_test(NAME test_secret_store COMMAND test_secret_store)
