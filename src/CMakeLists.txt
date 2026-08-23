@@ -56,6 +56,8 @@ target_include_directories(presenter-presentation PUBLIC ${CMAKE_CURRENT_SOURCE_
 target_link_libraries(presenter-presentation PUBLIC Qt6::Core Qt6::Gui Qt6::Multimedia)
 
 add_library(presenter-modules
+    modules/IntegrationCommandModule.cpp
+    modules/IntegrationCommandModule.h
     modules/OutputStateModule.cpp
     modules/OutputStateModule.h
     modules/PlaylistCommandModule.cpp
@@ -82,7 +84,7 @@ add_library(presenter-modules
     modules/UndoCommandModule.h
 )
 target_include_directories(presenter-modules PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation presenter-screens Qt6::Core)
+target_link_libraries(presenter-modules PUBLIC presenter-core presenter-presentation presenter-screens presenter-integrations Qt6::Core)
 
 add_library(presenter-integrations
     integrations/IntegrationTypes.cpp
@@ -303,6 +305,7 @@ qt_add_qml_module(presenter-ui
         ui/output/OutputClock.qml
         ui/output/BroadcastPreview.qml
         ui/operator/BroadcastSettings.qml
+        ui/operator/IntegrationsArea.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml

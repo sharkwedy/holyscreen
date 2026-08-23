@@ -13,6 +13,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QHttpServer>
 #include <QTemporaryDir>
 #include <QTcpServer>
 
@@ -62,6 +63,7 @@ private slots:
     void canonicalBibleImportRequiresLicenseThenCompletesAsynchronously();
     void remoteServerRequiresPasswordAndPersistsLocalConfiguration();
     void broadcastProfilesAreValidatedAndSurviveARestart();
+    void integrationsAreValidatedExecutedAndRecordedWithoutSecrets();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -357,6 +359,105 @@ void ApplicationCommandBridgeTest::broadcastProfilesAreValidatedAndSurviveAResta
     QCOMPARE(persisted.value(QStringLiteral("safeAreaLeft")).toDouble(), 8.0);
     QVERIFY(persisted.value(QStringLiteral("showClock")).toBool());
     QVERIFY(!persisted.value(QStringLiteral("showLowerThird")).toBool());
+}
+
+void ApplicationCommandBridgeTest::integrationsAreValidatedExecutedAndRecordedWithoutSecrets()
+{
+    QHttpServer server;
+    QByteArray receivedAuthorization;
+    server.route(QStringLiteral("/hook"), QHttpServerRequest::Method::Post,
+                 [&receivedAuthorization](const QHttpServerRequest &request) {
+        receivedAuthorization = request.value(QByteArrayLiteral("Authorization"));
+        return QHttpServerResponse(QHttpServerResponse::StatusCode::Ok);
+    });
+    QTcpServer tcp;
+    QVERIFY(tcp.listen(QHostAddress::LocalHost, 0));
+    const auto port = tcp.serverPort();
+    QVERIFY(server.bind(&tcp));
+
+    ApplicationController controller;
+    QVERIFY(controller.integrations().isEmpty());
+    QVERIFY(!controller.integrationSecretBackend().isEmpty());
+
+    // Uma definição inválida é recusada antes de ser persistida.
+    const auto invalid = controller.saveIntegration({
+        {QStringLiteral("name"), QStringLiteral("Sem URL")},
+        {QStringLiteral("type"), QStringLiteral("http")},
+    });
+    QVERIFY(!invalid.value(QStringLiteral("accepted")).toBool());
+    QVERIFY(!invalid.value(QStringLiteral("errors")).toStringList().isEmpty());
+    QVERIFY(controller.integrations().isEmpty());
+
+    const auto saved = controller.saveIntegration({
+        {QStringLiteral("id"), QStringLiteral("hook")},
+        {QStringLiteral("name"), QStringLiteral("Webhook do culto")},
+        {QStringLiteral("type"), QStringLiteral("http")},
+        {QStringLiteral("timeoutMs"), 3000},
+        {QStringLiteral("configuration"),
+         QVariantMap{{QStringLiteral("url"),
+                      QStringLiteral("http://127.0.0.1:%1/hook").arg(port)},
+                     {QStringLiteral("method"), QStringLiteral("POST")}}},
+    });
+    QVERIFY2(saved.value(QStringLiteral("accepted")).toBool(),
+             qPrintable(saved.value(QStringLiteral("errors")).toStringList().join(QLatin1Char(' '))));
+    QCOMPARE(controller.integrations().size(), 1);
+
+    // O segredo vai para o cofre e a configuração guarda só a referência.
+    const auto reference = controller.setIntegrationSecret(
+        QStringLiteral("hook"), QStringLiteral("headers.Authorization"),
+        QStringLiteral("Bearer super-secreto"));
+    QVERIFY(!reference.isEmpty());
+    const auto stored = controller.integrationDefinition(QStringLiteral("hook"));
+    const auto configuration = stored.value(QStringLiteral("configuration")).toMap();
+    for (const auto &value : configuration) {
+        QVERIFY(!value.toString().contains(QStringLiteral("super-secreto")));
+    }
+
+    // O campo com ponto virou uma chave dentro do mapa de cabeçalhos, e a
+    // cópia entregue ao QML já vem com o valor mascarado.
+    QVERIFY(configuration.contains(QStringLiteral("headers")));
+    QCOMPARE(configuration.value(QStringLiteral("headers")).toMap()
+                 .value(QStringLiteral("Authorization")).toString(),
+             QStringLiteral("***"));
+    QCOMPARE(stored.value(QStringLiteral("secretReferences")).toStringList(),
+             QStringList{reference});
+
+    QSignalSpy historySpy(&controller, &ApplicationController::integrationHistoryChanged);
+    QVERIFY(controller.executeIntegration(QStringLiteral("hook"),
+                                          QStringLiteral("request.send"),
+                                          {{QStringLiteral("slide"), 3}}));
+    QTRY_VERIFY(historySpy.count() > 0);
+    QTRY_COMPARE(receivedAuthorization, QByteArrayLiteral("Bearer super-secreto"));
+
+    const auto history = controller.integrationHistory();
+    QCOMPARE(history.size(), 1);
+    const auto call = history.first().toMap();
+    QCOMPARE(call.value(QStringLiteral("integrationId")).toString(), QStringLiteral("hook"));
+    QCOMPARE(call.value(QStringLiteral("operation")).toString(), QStringLiteral("request.send"));
+    QVERIFY(call.value(QStringLiteral("accepted")).toBool());
+    for (const auto &value : call) {
+        QVERIFY(!value.toString().contains(QStringLiteral("super-secreto")));
+    }
+    QVERIFY(!controller.integrationStatus().contains(QStringLiteral("super-secreto")));
+
+    // O diagnóstico traz nome, tipo e estado, sem configuração.
+    const auto diagnostics = controller.diagnostics();
+    const auto summary = diagnostics.value(QStringLiteral("integrations")).toStringList();
+    QCOMPARE(summary.size(), 1);
+    QVERIFY(summary.first().contains(QStringLiteral("Webhook do culto")));
+    QVERIFY(summary.first().contains(QStringLiteral("http")));
+    QVERIFY(!summary.first().contains(QStringLiteral("127.0.0.1")));
+
+    // Duplicar não copia segredos e mantém a cópia desativada.
+    const auto copyId = controller.duplicateIntegration(QStringLiteral("hook"));
+    QVERIFY(!copyId.isEmpty());
+    const auto copy = controller.integrationDefinition(copyId);
+    QVERIFY(!copy.value(QStringLiteral("enabled")).toBool());
+    QVERIFY(copy.value(QStringLiteral("secretReferences")).toStringList().isEmpty());
+
+    QVERIFY(controller.removeIntegration(copyId));
+    QVERIFY(controller.removeIntegration(QStringLiteral("hook")));
+    QVERIFY(controller.integrations().isEmpty());
 }
 
 int main(int argc, char **argv)

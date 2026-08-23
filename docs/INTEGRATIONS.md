@@ -116,6 +116,18 @@ aplicativo. O teste de conexão apenas abre a porta, sem tocar nota.
 
 Operações: `note.on`, `note.off`, `control.change`, `program.change`.
 
+### OBS WebSocket v5
+
+Handshake completo do protocolo v5: `Hello`, `Identify` com desafio-resposta
+`base64(sha256(base64(sha256(senha + salt)) + challenge))` e `Identified`. A
+senha vive no cofre e nunca entra na URL nem em log. Cada pedido usa um
+`requestId` correlacionado e tem timeout próprio.
+
+Operações: `scene.set`, `recording.start`, `recording.stop`,
+`streaming.start`, `streaming.stop`, `input.mute.set`, `input.trigger` e
+`version.query`. O teste de conexão usa `GetVersion`, que não altera nada na
+transmissão. Só consultas e troca de cena podem ser repetidas.
+
 ### OSC sobre UDP
 
 Endereço IPv4 ou IPv6, porta e caminho OSC, com argumentos int32, float32,
@@ -126,10 +138,28 @@ configuração.
 
 Operação: `message.send`.
 
+## Operação
+
+A área **Integrações** fica na barra do operador, fora das configurações. Ela
+lista as integrações com um interruptor de ativação, edita a definição por
+tipo, guarda segredos no cofre, permite duplicar e excluir com confirmação, e
+traz o botão **Testar conexão** e o histórico sanitizado.
+
+As chamadas passam pela CommandBus com os comandos `integration.test` e
+`integration.execute`. Ambos são de desktop: o catálogo não os libera para o
+controle remoto na 0.12, então a PWA não pode disparar chamadas a sistemas
+externos.
+
+O retorno é sempre não modal — uma linha de estado com sucesso, timeout ou
+erro, mais o histórico — para que nada bloqueie a operação do culto. O
+diagnóstico exportável traz nome, tipo e estado de cada integração e o backend
+do cofre, nunca a configuração.
+
 ## Estado atual
 
-O domínio, o motor, a persistência, o cofre e os adapters HTTP, WebSocket, MIDI
-e OSC estão implementados. O adapter OBS WebSocket v5, os comandos
-`integration.test` e `integration.execute` e a área **Integrações** chegam nos
-incrementos seguintes da onda 4, conforme
+O domínio, o motor, a persistência, o cofre, os cinco adapters, os comandos e a
+área do operador estão implementados, fechando a onda 4 do
 [`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md).
+
+Fora do escopo da 0.12, conforme o plano: execução de integração pelo controle
+remoto e uso das integrações por automações, que chegam na onda 5.

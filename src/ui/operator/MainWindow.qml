@@ -123,6 +123,11 @@ ApplicationWindow {
         if (mediaId.length > 0)
             root.controller.playMedia(mediaId)
     }
+    IntegrationsArea {
+        id: integrationsArea
+        controller: root.controller
+    }
+
     SettingsDialog {
         id: settingsDialog
         controller: root.controller
@@ -715,6 +720,7 @@ ApplicationWindow {
                 ToolButton { text: "Prévia" }
                 ToolButton { text: "Agenda" }
                 ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
+                ToolButton { text: "Integrações"; onClicked: integrationsArea.open() }
                 Item { Layout.fillWidth: true }
                 ToolButton {
                     text: "⚙"
