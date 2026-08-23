@@ -123,43 +123,44 @@ Dialog {
                     Repeater {
                         model: settings.controller.screens
                         delegate: Rectangle {
+                            id: screenRow
                             required property var modelData
                             Layout.fillWidth: true
-                            implicitHeight: modelData.primary ? 64 : 116
+                            implicitHeight: screenRow.modelData.primary ? 64 : 116
                             radius: 6
                             color: settings.panelHigh
-                            border.color: modelData.selected ? "#7294ff" : settings.line
+                            border.color: screenRow.modelData.selected ? "#7294ff" : settings.line
                             ColumnLayout {
                                 anchors.fill: parent
                                 anchors.margins: 10
                                 RowLayout {
                                     Layout.fillWidth: true
                                     CheckBox {
-                                        checked: modelData.primary || modelData.selected
-                                        enabled: !modelData.primary
-                                        onClicked: settings.controller.toggleScreen(modelData.id, checked)
+                                        checked: screenRow.modelData.primary || screenRow.modelData.selected
+                                        enabled: !screenRow.modelData.primary
+                                        onClicked: settings.controller.toggleScreen(screenRow.modelData.id, checked)
                                     }
                                     TextField {
                                         Layout.fillWidth: true
-                                        text: modelData.name
-                                        readOnly: modelData.primary || !modelData.selected
-                                        onEditingFinished: settings.controller.setOutputDisplayName(modelData.id, text)
+                                        text: screenRow.modelData.name
+                                        readOnly: screenRow.modelData.primary || !screenRow.modelData.selected
+                                        onEditingFinished: settings.controller.setOutputDisplayName(screenRow.modelData.id, text)
                                     }
                                     Label {
-                                        text: modelData.primary ? "OPERADOR" : modelData.selected ? "ATIVA" : "INATIVA"
-                                        color: modelData.selected ? "#9eb5ff" : settings.textMuted
+                                        text: screenRow.modelData.primary ? "OPERADOR" : screenRow.modelData.selected ? "ATIVA" : "INATIVA"
+                                        color: screenRow.modelData.selected ? "#9eb5ff" : settings.textMuted
                                         font.bold: true
                                         font.pixelSize: 10
                                     }
                                 }
                                 RowLayout {
-                                    visible: !modelData.primary && modelData.selected
+                                    visible: !screenRow.modelData.primary && screenRow.modelData.selected
                                     Layout.fillWidth: true
                                     CheckBox {
                                         text: "Exibir vídeo"
-                                        checked: modelData.mediaEnabled
+                                        checked: screenRow.modelData.mediaEnabled
                                         palette.windowText: settings.textMain
-                                        onClicked: settings.controller.setOutputMediaEnabled(modelData.id, checked)
+                                        onClicked: settings.controller.setOutputMediaEnabled(screenRow.modelData.id, checked)
                                     }
                                     ComboBox {
                                         Layout.preferredWidth: 210
@@ -167,8 +168,8 @@ Dialog {
                                                 {"id":"stage", "name":"Saída de palco"}]
                                         textRole: "name"
                                         valueRole: "id"
-                                        currentIndex: settings.valueIndex(model, modelData.role)
-                                        onActivated: settings.controller.setOutputRole(modelData.id, currentValue)
+                                        currentIndex: settings.valueIndex(model, screenRow.modelData.role)
+                                        onActivated: settings.controller.setOutputRole(screenRow.modelData.id, currentValue)
                                     }
                                     Item { Layout.fillWidth: true }
                                 }

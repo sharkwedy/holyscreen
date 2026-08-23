@@ -5,7 +5,21 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
-- Nothing yet.
+- Added a shared `OutputRole` serialization covering `audience`, `stage`,
+  `broadcast`, `confidence`, and `custom`, with a strict parser that no longer
+  reduces every non-stage role to audience.
+- Extracted output state, persistence, and view models from
+  `ApplicationController` into `OutputStateModule`, keeping the controller as a
+  compatible facade for QML.
+- Split the output renderer per role: `OutputWindow.qml` is now only a host and
+  visual router around `AudienceView`, `StageOutputView`, and `BroadcastView`.
+- Moved the remote PWA to versioned resources in `src/remote/web/`, served
+  byte for byte from the binary without touching the filesystem.
+- Moved the QML files to the `presenter-ui` library and added a Qt Quick Test
+  suite covering role routing and offscreen rendering of the output views.
+- Removed every QML lint warning; the context property is now the single
+  documented exception in `MainWindow.qml` and `OutputWindow.qml`.
+- Fixed the identify overlay so it stays above video on every output.
 
 ## [0.11.0] - 2026-08-22
 

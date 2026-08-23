@@ -3,6 +3,7 @@
 #include "core/CommandCatalog.h"
 
 #include <QDateTime>
+#include <QFile>
 #include <QHttpServerRequest>
 #include <QHttpServerResponse>
 #include <QHttpServerWebSocketUpgradeResponse>
@@ -524,44 +525,29 @@ QJsonObject LocalApiServer::openApiDocument()
     };
 }
 
+QByteArray LocalApiServer::webAsset(const QString &fileName)
+{
+    QFile file(QStringLiteral(":/holyscreen/remote/%1").arg(fileName));
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Missing embedded remote asset:" << fileName;
+        return {};
+    }
+    return file.readAll();
+}
+
 QByteArray LocalApiServer::remotePage()
 {
-    return QByteArrayLiteral(R"HTML(<!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111f"><link rel="manifest" href="/manifest.webmanifest"><title>HolyScreen Remoto</title>
-<style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08111f;color:#edf6ff;font:15px system-ui}main{max-width:820px;margin:auto;padding:18px}.top{display:flex;align-items:center;gap:12px;justify-content:space-between}.card{background:#101d31;padding:16px;border:1px solid #243b5c;border-radius:16px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.three{grid-template-columns:repeat(3,minmax(0,1fr))}button,input,select,textarea{font:inherit;border:0;border-radius:10px;padding:13px;background:#152137;color:white;width:100%}button{background:#183b69;font-weight:700;cursor:pointer}button.primary{background:#2563eb}button.danger{background:#a51d2d}button.small{padding:8px;width:auto}textarea{min-height:70px;resize:vertical}label{display:block;color:#9fb0c7;margin-top:10px}.state{padding:12px;background:#091525;border-radius:10px;white-space:pre-wrap}.muted{color:#9fb0c7}.ok{color:#70e1a7}.hidden{display:none}details summary{cursor:pointer;font-weight:800;font-size:17px;padding:5px 0}.list button{margin-top:7px;text-align:left}.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}@media(max-width:520px){.grid,.three{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.row{flex-direction:column}}</style></head>
-<body><main><div class="top"><div><h1>HOLYSCREEN</h1><div id="status" class="muted">Autentique para controlar</div></div><button id="logoutButton" class="small hidden" onclick="logout()">SAIR</button></div>
-<section id="login" class="card"><label for="password">Senha do controle remoto</label><input id="password" type="password" autocomplete="current-password"><button class="primary" onclick="authenticate()">ENTRAR</button></section>
-<div id="controls" class="hidden"><section class="card"><div id="presentationState" class="state">Nenhuma apresentação ativa</div><div class="grid three"><button onclick="send('presentation.slide.first',{})">PRIMEIRO</button><button onclick="send('presentation.slide.previous',{})">◀ ANTERIOR</button><button class="primary" onclick="send('presentation.slide.next',{})">PRÓXIMO ▶</button><button onclick="send('presentation.slide.last',{})">ÚLTIMO</button><button onclick="send('presentation.stop',{})">OCULTAR</button><button id="blackout" class="danger" onclick="toggleBlackout()">BLACKOUT</button></div></section>
-<details class="card" open><summary>Player e playlist</summary><div id="mediaState" class="state">Player parado</div><div class="grid three"><button onclick="send('media.previous',{})">◀ MÍDIA</button><button onclick="send('media.pause.toggle',{})">TOCAR / PAUSAR</button><button onclick="send('media.next',{})">MÍDIA ▶</button></div><button class="danger" onclick="send('media.stop',{})">PARAR</button><label>Repetição</label><select id="repeat" onchange="send('media.repeat.set',{mode:this.value})"><option value="off">Desativada</option><option value="one">Repetir item</option><option value="all">Repetir playlist</option></select><div id="playlist" class="list"></div></details>
-<details class="card"><summary>Bíblia</summary><div class="grid three"><input id="book" inputmode="numeric" placeholder="Livro (1–66)"><input id="chapter" inputmode="numeric" placeholder="Capítulo"><input id="verse" inputmode="numeric" placeholder="Versículo"></div><button class="primary" onclick="presentBible()">APRESENTAR REFERÊNCIA</button><div id="bibleState" class="state"></div></details>
-<details class="card"><summary>Eventos</summary><label>Evento</label><select id="eventPicker" onchange="send('event.select',{eventId:this.value})"></select><div id="eventItems" class="list"></div></details>
-<details class="card"><summary>Palco e overlays</summary><label>Mensagem ao palco</label><textarea id="stage"></textarea><button onclick="send('stage.message.set',{message:byId('stage').value})">ENVIAR AO PALCO</button><label>Mensagem ao público</label><textarea id="audience"></textarea><button onclick="send('overlay.audience-message.set',{message:byId('audience').value})">EXIBIR MENSAGEM</button><label>Alerta</label><textarea id="alert"></textarea><button onclick="send('overlay.alert.set',{message:byId('alert').value})">EXIBIR ALERTA</button><div class="row"><input id="lowerTitle" placeholder="Título"><input id="lowerSubtitle" placeholder="Subtítulo"></div><button onclick="send('overlay.lower-third.set',{title:byId('lowerTitle').value,subtitle:byId('lowerSubtitle').value})">EXIBIR LOWER THIRD</button></details>
-<details class="card"><summary>Timers</summary><div id="timerState" class="state"></div><div class="row"><input id="countdown" type="number" min="1" value="300" placeholder="Segundos"><button onclick="send('timer.countdown.start',{seconds:Number(byId('countdown').value)})">INICIAR CONTAGEM</button><button onclick="send('timer.countdown.stop',{})">PARAR CONTAGEM</button></div><div class="grid three"><button onclick="send('timer.stopwatch.start',{})">INICIAR CRONÔMETRO</button><button onclick="send('timer.stopwatch.pause',{})">PAUSAR</button><button onclick="send('timer.stopwatch.reset',{})">ZERAR</button></div></details></div></main>
-<script>
-let token=sessionStorage.getItem('hs-token')||'',ws=null,state={},reconnectTimer;
-const byId=id=>document.getElementById(id);
-async function authenticate(){const r=await fetch('/api/v1/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:byId('password').value})});const d=await r.json();if(!d.accepted){byId('status').textContent=d.errorCode==='login_blocked'?'Acesso temporariamente bloqueado':'Senha incorreta';return}token=d.token;sessionStorage.setItem('hs-token',token);showControls();connect()}
-function showControls(){byId('login').classList.add('hidden');byId('controls').classList.remove('hidden');byId('logoutButton').classList.remove('hidden')}
-function showLogin(message='Autentique para controlar'){token='';sessionStorage.removeItem('hs-token');byId('login').classList.remove('hidden');byId('controls').classList.add('hidden');byId('logoutButton').classList.add('hidden');byId('status').textContent=message}
-async function logout(){if(token)await fetch('/api/v1/session',{method:'DELETE',headers:{Authorization:'Bearer '+token}});if(ws)ws.close();showLogin()}
-function connect(){clearTimeout(reconnectTimer);ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/api/v1/ws`);ws.onopen=()=>ws.send(JSON.stringify({type:'authenticate',token}));ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.type==='authenticated'){byId('status').textContent='Conectado';byId('status').className='ok'}if(d.type==='state'){state=d.data||{};render()}if(d.type==='commandResult'&&!d.accepted)byId('status').textContent=d.message||d.errorCode};ws.onclose=e=>{if(e.reason==='invalid_session'||e.reason==='sessions_revoked'||e.reason==='authentication_required'){showLogin('Sessão encerrada');return}byId('status').textContent='Reconectando…';reconnectTimer=setTimeout(connect,1200)}}
-function commandId(){return crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random()}
-function send(type,payload){if(!ws||ws.readyState!==1){byId('status').textContent='Sem conexão';return}ws.send(JSON.stringify({type:'command',command:{id:commandId(),type,payload}}))}
-function toggleBlackout(){send('presentation.blackout.set',{enabled:!state.blackout})}
-function presentBible(){send('bible.reference.present',{bookId:Number(byId('book').value),chapter:Number(byId('chapter').value),verse:Number(byId('verse').value)})}
-function render(){const p=state.presentation||{},m=state.media||{},b=state.bible||{},ev=state.event||{},timers=state.timers||{},overlays=state.overlays||{};byId('presentationState').textContent=(p.title||'Sem apresentação')+'\nAtual: '+(p.slideText||'—')+'\nPróximo: '+(p.nextSlideText||'—');byId('mediaState').textContent=(m.title||'Nenhuma mídia')+' • '+(m.state||'stopped');byId('repeat').value=m.repeatMode||'off';byId('blackout').textContent=state.blackout?'DESATIVAR BLACKOUT':'BLACKOUT';byId('playlist').innerHTML='';(m.playlist||[]).forEach(item=>{const button=document.createElement('button');button.textContent='▶ '+item.title;button.onclick=()=>send('media.play',{mediaId:item.id});byId('playlist').appendChild(button)});byId('bibleState').textContent=b.reference||'Nenhuma referência';const selected=ev.id||'';byId('eventPicker').innerHTML='<option value="">Selecione…</option>';(ev.events||[]).forEach(item=>byId('eventPicker').add(new Option(item.title,item.id,item.id===selected,item.id===selected)));byId('eventItems').innerHTML='';(ev.items||[]).forEach(item=>{const button=document.createElement('button');button.textContent='EXECUTAR • '+item.title;button.onclick=()=>send('event.item.execute',{itemId:item.id});byId('eventItems').appendChild(button)});byId('stage').value=(state.stage||{}).message||'';byId('audience').value=overlays.audienceMessage||'';byId('alert').value=overlays.alertMessage||'';byId('lowerTitle').value=overlays.lowerThirdTitle||'';byId('lowerSubtitle').value=overlays.lowerThirdSubtitle||'';byId('timerState').textContent='Contagem: '+(timers.countdownText||'00:00')+' • Cronômetro: '+(timers.stopwatchText||'00:00')}
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');if(token){showControls();connect()}
-</script></body></html>)HTML");
+    return webAsset(QStringLiteral("index.html"));
 }
 
 QByteArray LocalApiServer::manifest()
 {
-    return QByteArrayLiteral(R"JSON({"name":"HolyScreen Remoto","short_name":"HolyScreen","start_url":"/","display":"standalone","background_color":"#08111f","theme_color":"#08111f","lang":"pt-BR"})JSON");
+    return webAsset(QStringLiteral("manifest.webmanifest"));
 }
 
 QByteArray LocalApiServer::serviceWorker()
 {
-    return QByteArrayLiteral(R"JS(const CACHE='holyscreen-remote-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/manifest.webmanifest']))));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.method==='GET')e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})JS");
+    return webAsset(QStringLiteral("sw.js"));
 }
 
 } // namespace churchpresenter

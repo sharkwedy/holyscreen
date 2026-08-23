@@ -1,19 +1,20 @@
-// qmllint disable unqualified
 import QtQuick
 
 Item {
     id: root
+
+    required property var controller
     property int activeLayer: 0
-    property url requestedSource: presentationController.presentationImageSource
+    property url requestedSource: root.controller.presentationImageSource
     property bool isBlackout: false
 
     visible: true
-    opacity: presentationController.imageVisible && !isBlackout ? 1 : 0
+    opacity: root.controller.imageVisible && !isBlackout ? 1 : 0
 
     function fitMode() {
-        return presentationController.imageFit === "cover" ? Image.PreserveAspectCrop
-             : presentationController.imageFit === "stretch" ? Image.Stretch
-             : presentationController.imageFit === "center" ? Image.Pad
+        return root.controller.imageFit === "cover" ? Image.PreserveAspectCrop
+             : root.controller.imageFit === "stretch" ? Image.Stretch
+             : root.controller.imageFit === "center" ? Image.Pad
              : Image.PreserveAspectFit
     }
 
@@ -21,7 +22,7 @@ Item {
         const active = activeLayer === 0 ? layerA : layerB
         if (active.source.toString() === nextSource.toString())
             return
-        if (presentationController.imageTransition !== "fade" || !presentationController.imageVisible) {
+        if (root.controller.imageTransition !== "fade" || !root.controller.imageVisible) {
             active.source = nextSource
             layerA.opacity = activeLayer === 0 ? 1 : 0
             layerB.opacity = activeLayer === 1 ? 1 : 0
@@ -44,7 +45,7 @@ Item {
 
     Behavior on opacity {
         NumberAnimation {
-            duration: presentationController.imageTransition === "fade" ? 350 : 0
+            duration: root.controller.imageTransition === "fade" ? 350 : 0
             easing.type: Easing.InOutQuad
         }
     }

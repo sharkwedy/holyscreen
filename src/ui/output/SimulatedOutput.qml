@@ -1,10 +1,11 @@
-// qmllint disable unqualified
 import QtQuick
 import QtQuick.Controls
 import QtMultimedia
 
 Rectangle {
     id: root
+
+    required property var controller
     property string outputLabel: "SIMULAÇÃO"
     property color wallpaper: "#000000"
     property url wallpaperSource
@@ -48,20 +49,22 @@ Rectangle {
 
     PresentationImageLayer {
         anchors.fill: parent
+        controller: root.controller
         isBlackout: root.isBlackout
     }
 
     VideoOutput {
         id: videoOutput
         anchors.fill: parent
-        visible: presentationController.videoVisible && !root.isBlackout
+        visible: root.controller.videoVisible && !root.isBlackout
         fillMode: VideoOutput.PreserveAspectFit
-        Component.onCompleted: presentationController.registerVideoSink(videoSink)
-        Component.onDestruction: presentationController.unregisterVideoSink(videoSink)
+        Component.onCompleted: root.controller.registerVideoSink(videoSink)
+        Component.onDestruction: root.controller.unregisterVideoSink(videoSink)
     }
 
     PresentationTextLayer {
         anchors.fill: parent
+        controller: root.controller
         isBlackout: root.isBlackout
     }
 

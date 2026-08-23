@@ -59,6 +59,7 @@ private slots:
     void startsOnAnAvailableLocalPortAndServesTheRemotePage();
     void authenticatesWebSocketBeforePublishingStateAndCommands();
     void reportsWhyAPortCannotBeOpened();
+    void servesTheProgressiveWebAppExactlyAsPackagedInTheBinary();
 };
 
 void LocalApiServerTest::servesAuthenticatedVersionedApiAndRejectsLegacyRoutes()
@@ -265,6 +266,31 @@ void LocalApiServerTest::reportsWhyAPortCannotBeOpened()
     QVERIFY(!server.start(occupiedPort.serverPort(), QHostAddress::LocalHost));
     QVERIFY2(!server.lastError().isEmpty(), "A falha de bind deve expor um diagnóstico acionável");
     QVERIFY(server.lastError().contains(QString::number(occupiedPort.serverPort())));
+}
+
+void LocalApiServerTest::servesTheProgressiveWebAppExactlyAsPackagedInTheBinary()
+{
+    LocalApiServer server;
+    QVERIFY(server.start(0, QHostAddress::LocalHost));
+    const auto base = QStringLiteral("http://127.0.0.1:%1").arg(server.port());
+    QNetworkAccessManager network;
+
+    const QVector<std::pair<QString, QString>> assets{
+        {QStringLiteral("/"), QStringLiteral("index.html")},
+        {QStringLiteral("/manifest.webmanifest"), QStringLiteral("manifest.webmanifest")},
+        {QStringLiteral("/sw.js"), QStringLiteral("sw.js")},
+    };
+    for (const auto &[route, fileName] : assets) {
+        const auto packaged = LocalApiServer::webAsset(fileName);
+        QVERIFY2(!packaged.isEmpty(), qPrintable(fileName));
+        const auto served = request(network, QUrl(base + route));
+        QCOMPARE(served.status, 200);
+        QCOMPARE(served.body, packaged);
+    }
+
+    QVERIFY(LocalApiServer::webAsset(QStringLiteral("index.html"))
+                .startsWith("<!doctype html>"));
+    QVERIFY(LocalApiServer::webAsset(QStringLiteral("missing.html")).isEmpty());
 }
 
 QTEST_MAIN(LocalApiServerTest)

@@ -3,6 +3,7 @@
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
 #include "persistence/ApplicationDatabase.h"
+#include "screens/OutputRole.h"
 #include "screens/OutputRouting.h"
 #include "bible/BibleImportService.h"
 
@@ -36,18 +37,6 @@
 namespace churchpresenter {
 
 namespace {
-QVariantMap mapScreen(const ScreenDescriptor &screen, bool selected)
-{
-    return {
-        {QStringLiteral("id"), screen.fingerprint},
-        {QStringLiteral("screenName"), screen.id},
-        {QStringLiteral("name"), screen.displayName},
-        {QStringLiteral("selected"), selected},
-        {QStringLiteral("primary"), screen.primary},
-        {QStringLiteral("fingerprint"), screen.fingerprint},
-    };
-}
-
 QVariantMap mapMedia(const MediaItem &item)
 {
     const auto type = item.type == MediaType::Video ? QStringLiteral("video")
@@ -93,16 +82,6 @@ QVariantMap mapBibleTranslation(const BibleTranslation &translation)
         {QStringLiteral("displayName"), QStringLiteral("%1 — %2")
              .arg(translation.abbreviation, translation.name)},
     };
-}
-
-QString outputRoleName(OutputRole role)
-{
-    return role == OutputRole::Stage ? QStringLiteral("stage") : QStringLiteral("audience");
-}
-
-OutputRole outputRoleFromName(const QString &name)
-{
-    return name == QStringLiteral("stage") ? OutputRole::Stage : OutputRole::Audience;
 }
 
 QString videoStateName(VideoState state)
@@ -448,26 +427,7 @@ QVariantList ApplicationController::screens() const { return m_screens; }
 
 QVariantList ApplicationController::outputWindows() const
 {
-    QVariantList result;
-    int identifier = 1;
-    const auto placements = routeOutputs(m_outputs.activeOutputs(), m_screenManager->screens());
-    for (const auto &placement : placements) {
-        result.append(QVariantMap{
-            {QStringLiteral("id"), placement.screenFingerprint},
-            {QStringLiteral("screenName"), placement.screenId},
-            {QStringLiteral("displayName"), placement.displayName},
-            {QStringLiteral("screenIndex"), placement.screenIndex},
-            {QStringLiteral("screenX"), placement.geometry.x()},
-            {QStringLiteral("screenY"), placement.geometry.y()},
-            {QStringLiteral("screenWidth"), placement.geometry.width()},
-            {QStringLiteral("screenHeight"), placement.geometry.height()},
-            {QStringLiteral("identifier"), identifier++},
-            {QStringLiteral("bibleTranslationId"), placement.bibleTranslationId},
-            {QStringLiteral("role"), outputRoleName(placement.role)},
-            {QStringLiteral("mediaEnabled"), placement.mediaEnabled},
-        });
-    }
-    return result;
+    return m_outputs.describeOutputWindows(m_screenManager->screens());
 }
 
 QString ApplicationController::wallpaperColor() const { return m_wallpaperColor; }
@@ -758,13 +718,7 @@ bool ApplicationController::applyToggleScreen(const QString &screenFingerprint, 
             return false;
         }
     } else {
-        QVector<OutputDescriptor> retained;
-        for (const auto &output : m_outputs.activeOutputs()) {
-            if (output.screenFingerprint != screenFingerprint) {
-                retained.append(output);
-            }
-        }
-        m_outputs.replaceOutputs(retained);
+        m_outputs.disable(screenFingerprint);
     }
 
     m_video.frameBus().clear();
@@ -808,8 +762,7 @@ bool ApplicationController::setOutputRole(const QString &screenFingerprint, cons
 
 bool ApplicationController::applyOutputRole(const QString &screenFingerprint, const QString &role)
 {
-    const auto normalized = outputRoleFromName(role);
-    if (!m_outputs.setRole(screenFingerprint, normalized)) return false;
+    if (!m_outputs.setRole(screenFingerprint, role)) return false;
     saveOutputs();
     refreshScreens();
     return true;
@@ -2660,32 +2613,7 @@ void ApplicationController::refreshScreens()
 {
     const auto &descriptors = m_screenManager->screens();
     m_outputs.applyScreens(descriptors);
-
-    m_screens.clear();
-    for (const auto &screen : descriptors) {
-        bool selected = false;
-        QString bibleTranslationId;
-        QString role = QStringLiteral("audience");
-        bool mediaEnabled = true;
-        QString configuredDisplayName;
-        for (const auto &output : m_outputs.activeOutputs()) {
-            if (output.screenFingerprint == screen.fingerprint) {
-                selected = true;
-                bibleTranslationId = output.bibleTranslationId;
-                role = outputRoleName(output.role);
-                mediaEnabled = output.mediaEnabled;
-                configuredDisplayName = output.displayName;
-                break;
-            }
-        }
-        auto item = mapScreen(screen, selected);
-        if (!configuredDisplayName.isEmpty())
-            item.insert(QStringLiteral("name"), configuredDisplayName);
-        item.insert(QStringLiteral("bibleTranslationId"), bibleTranslationId);
-        item.insert(QStringLiteral("role"), role);
-        item.insert(QStringLiteral("mediaEnabled"), mediaEnabled);
-        m_screens.append(item);
-    }
+    m_screens = m_outputs.describeScreens(descriptors);
     emit screensChanged();
     emit outputWindowsChanged();
     m_diagnostics[QStringLiteral("detectedScreens")]=descriptors.size();
@@ -2818,21 +2746,7 @@ void ApplicationController::loadSettings()
     refreshHistory();
     m_diagnostics={{"version",QCoreApplication::applicationVersion()},{"qtVersion",QString::fromLatin1(qVersion())},{"platform",QSysInfo::prettyProductName()},{"cpu",QSysInfo::currentCpuArchitecture()},{"dataDirectory",m_dataDirectory},{"database",databasePath},{"schemaVersion",migration.currentVersion},{"migrationBackup",migration.backupPath},{"recoveredFromCrash",recoveredFromCrash()}};
 
-    const auto serialized = m_settings->value(QStringLiteral("outputs/items")).toStringList();
-    for (const auto &entry : serialized) {
-        const auto values = entry.split(QLatin1Char('\u001F'));
-        if (values.size() >= 2) {
-            m_outputs.restore(OutputDescriptor{
-                .screenId = values[0],
-                .screenFingerprint = values[1],
-                .displayName = values.size() > 2 ? values[2] : values[0],
-                .enabled = true,
-                .role = values.size() > 4 ? outputRoleFromName(values[4]) : OutputRole::Audience,
-                .bibleTranslationId = values.size() > 3 ? values[3] : QString{},
-                .mediaEnabled = values.size() <= 5 || values[5] != QStringLiteral("0"),
-            });
-        }
-    }
+    m_outputs.restore(m_settings->value(QStringLiteral("outputs/items")).toStringList());
 
 }
 
@@ -2847,17 +2761,8 @@ void ApplicationController::saveSetting(const QString &key, const QVariant &valu
 
 void ApplicationController::saveOutputs()
 {
-    QStringList serialized;
-    for (const auto &output : m_outputs.activeOutputs()) {
-        serialized.append(QStringList{output.screenId, output.screenFingerprint,
-                                      output.displayName, output.bibleTranslationId,
-                                      outputRoleName(output.role),
-                                      output.mediaEnabled ? QStringLiteral("1") : QStringLiteral("0")}
-                              .join(QLatin1Char('\u001F')));
-    }
-    if (m_settings) {
-        m_settings->setValue(QStringLiteral("outputs/items"), serialized);
-    }
+    if (!m_settings) return;
+    m_settings->setValue(QStringLiteral("outputs/items"), m_outputs.serialize());
 }
 
 void ApplicationController::setStatusMessage(const QString &message)

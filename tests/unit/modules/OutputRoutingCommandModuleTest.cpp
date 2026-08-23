@@ -1,5 +1,7 @@
 #include "modules/OutputRoutingCommandModule.h"
 
+#include "screens/OutputRole.h"
+
 #include <QSignalSpy>
 #include <QTest>
 
@@ -11,6 +13,7 @@ class OutputRoutingCommandModuleTest final : public QObject {
 private slots:
     void routesOutputChangesAndSupportsUndo();
     void rejectsMissingOutputsAndInvalidRoles();
+    void acceptsEveryDeclaredOutputRole();
 };
 
 void OutputRoutingCommandModuleTest::routesOutputChangesAndSupportsUndo()
@@ -58,6 +61,26 @@ void OutputRoutingCommandModuleTest::rejectsMissingOutputsAndInvalidRoles()
     QCOMPARE(module.requestRole(QStringLiteral("missing"), QStringLiteral("projector"))
                  .errorCode,
              QStringLiteral("invalid_payload"));
+}
+
+void OutputRoutingCommandModuleTest::acceptsEveryDeclaredOutputRole()
+{
+    CommandBus commands;
+    EventBus events;
+    QVariantMap output{{QStringLiteral("fingerprint"), QStringLiteral("screen-2")},
+                       {QStringLiteral("role"), QStringLiteral("audience")}};
+    OutputRoutingCommandModule module(commands, events, {
+        .output = [&output](const QString &) { return output; },
+        .setRole = [&output](const QString &, const QString &role) {
+            output.insert(QStringLiteral("role"), role); return true;
+        },
+    });
+
+    for (const auto &role : outputRoleNames()) {
+        const auto result = module.requestRole(QStringLiteral("screen-2"), role);
+        QVERIFY2(result.accepted, qPrintable(role));
+        QCOMPARE(output.value(QStringLiteral("role")).toString(), role);
+    }
 }
 
 QTEST_APPLESS_MAIN(OutputRoutingCommandModuleTest)
