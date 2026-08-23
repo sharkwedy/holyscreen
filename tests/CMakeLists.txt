@@ -136,6 +136,14 @@ qt_add_executable(test_overlay_controller unit/presentation/OverlayControllerTes
 target_link_libraries(test_overlay_controller PRIVATE Qt6::Test presenter-presentation)
 add_test(NAME test_overlay_controller COMMAND test_overlay_controller)
 
+qt_add_executable(test_integration_engine unit/integrations/IntegrationEngineTest.cpp)
+target_link_libraries(test_integration_engine PRIVATE Qt6::Test presenter-integrations)
+add_test(NAME test_integration_engine COMMAND test_integration_engine)
+
+qt_add_executable(test_secret_store unit/integrations/SecretStoreTest.cpp)
+target_link_libraries(test_secret_store PRIVATE Qt6::Test presenter-integrations)
+add_test(NAME test_secret_store COMMAND test_secret_store)
+
 qt_add_executable(test_persistence
     unit/persistence/SettingsRepositoryTest.cpp
 )
@@ -153,6 +161,10 @@ add_test(NAME test_application_database COMMAND test_application_database)
 qt_add_executable(test_broadcast_profile_repository unit/library/BroadcastProfileRepositoryTest.cpp)
 target_link_libraries(test_broadcast_profile_repository PRIVATE Qt6::Test presenter-library presenter-persistence)
 add_test(NAME test_broadcast_profile_repository COMMAND test_broadcast_profile_repository)
+
+qt_add_executable(test_integration_repository unit/library/IntegrationRepositoryTest.cpp)
+target_link_libraries(test_integration_repository PRIVATE Qt6::Test presenter-library presenter-persistence)
+add_test(NAME test_integration_repository COMMAND test_integration_repository)
 
 qt_add_executable(test_media_repository
     unit/library/MediaRepositoryTest.cpp

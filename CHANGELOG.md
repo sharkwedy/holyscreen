@@ -28,6 +28,17 @@ Versioning where practical before 1.0.
   validation, and undo/redo.
 - Warned in the settings when the platform cannot guarantee window
   transparency, instead of silently rendering a black background.
+- Added the `presenter-integrations` library with the integration domain,
+  ports, and an engine that selects the adapter by type, validates before
+  persisting, applies timeouts and limited retries, cancels on shutdown, and
+  publishes sanitized results.
+- Added migration 4 with `integration_definitions` and
+  `integration_call_history`, indexed by integration and date and pruned by a
+  configurable retention.
+- Added `ISecretStore` with the macOS Keychain, the Windows Credential Manager,
+  and the Linux Secret Service, falling back to an in-memory store that
+  declares itself non-persistent instead of writing plaintext.
+- Documented the integration contracts in `docs/INTEGRATIONS.md`.
 
 ## [0.11.0] - 2026-08-22
 

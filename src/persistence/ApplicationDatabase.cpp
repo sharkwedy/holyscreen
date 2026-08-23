@@ -155,6 +155,56 @@ MigrationResult ApplicationDatabase::migrate(const QString &databasePath)
         }
         return true;
     });
+    migrator.addMigration(4, QStringLiteral("integration definitions and call history"),
+                          [](QSqlDatabase &database, QString *error) {
+        const QStringList statements{
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS integration_definitions("
+                "id TEXT PRIMARY KEY NOT NULL,"
+                "name TEXT NOT NULL,"
+                "type TEXT NOT NULL,"
+                "enabled INTEGER NOT NULL DEFAULT 1,"
+                // Configuração em JSON. Segredos ficam no cofre do sistema e
+                // aqui só existem as referências.
+                "configuration TEXT NOT NULL DEFAULT '{}',"
+                "secret_references TEXT NOT NULL DEFAULT '[]',"
+                "timeout_ms INTEGER NOT NULL DEFAULT 5000,"
+                "retry_attempts INTEGER NOT NULL DEFAULT 1,"
+                "retry_backoff_ms INTEGER NOT NULL DEFAULT 250,"
+                "updated_at TEXT NOT NULL DEFAULT '')"),
+            QStringLiteral(
+                "CREATE TABLE IF NOT EXISTS integration_call_history("
+                "id TEXT PRIMARY KEY NOT NULL,"
+                "integration_id TEXT NOT NULL,"
+                "operation TEXT NOT NULL,"
+                "correlation_id TEXT NOT NULL DEFAULT '',"
+                "accepted INTEGER NOT NULL DEFAULT 0,"
+                "error_code TEXT NOT NULL DEFAULT '',"
+                "message TEXT NOT NULL DEFAULT '',"
+                "duration_ms INTEGER NOT NULL DEFAULT 0,"
+                "attempts INTEGER NOT NULL DEFAULT 1,"
+                "occurred_at TEXT NOT NULL,"
+                "FOREIGN KEY(integration_id) REFERENCES integration_definitions(id) "
+                "ON DELETE CASCADE)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS integration_call_history_integration_idx "
+                "ON integration_call_history(integration_id,occurred_at)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS integration_call_history_date_idx "
+                "ON integration_call_history(occurred_at)"),
+            QStringLiteral(
+                "CREATE INDEX IF NOT EXISTS integration_definitions_enabled_idx "
+                "ON integration_definitions(enabled,type)"),
+        };
+        QSqlQuery query(database);
+        for (const auto &statement : statements) {
+            if (!query.exec(statement)) {
+                if (error) *error = query.lastError().text();
+                return false;
+            }
+        }
+        return true;
+    });
     return migrator.migrate();
 }
 

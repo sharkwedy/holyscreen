@@ -71,7 +71,7 @@ void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
     qRegisterMetaType<DomainEvent>();
 
     ApplicationController controller;
-    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 3);
+    QCOMPARE(controller.diagnostics().value(QStringLiteral("schemaVersion")).toInt(), 4);
     QSignalSpy commandSpy(&controller.commandBus(), &CommandBus::commandDispatched);
     QSignalSpy eventSpy(&controller.eventBus(), &EventBus::eventPublished);
 

@@ -32,7 +32,7 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
 
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 0);
-    QCOMPARE(result.currentVersion, 3);
+    QCOMPARE(result.currentVersion, 4);
 
     const auto connection = QStringLiteral("schema-check-%1")
                                 .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -59,6 +59,8 @@ void ApplicationDatabaseTest::createsVersionedBaselineSchema()
             QStringLiteral("bible_verses"),
             QStringLiteral("bible_translation_sources"),
             QStringLiteral("output_broadcast_profiles"),
+            QStringLiteral("integration_definitions"),
+            QStringLiteral("integration_call_history"),
         };
         for (const auto &table : expected) {
             QVERIFY2(tables.contains(table), qPrintable(QStringLiteral("Tabela ausente: %1").arg(table)));
@@ -91,7 +93,7 @@ void ApplicationDatabaseTest::migratesVersionOneWithBackup()
     const auto result = ApplicationDatabase::migrate(path);
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 1);
-    QCOMPARE(result.currentVersion, 3);
+    QCOMPARE(result.currentVersion, 4);
     QVERIFY(!result.backupPath.isEmpty());
     QVERIFY(QFileInfo::exists(result.backupPath));
 }
@@ -111,7 +113,9 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
         QSqlQuery query(database);
         // Volta o banco ao estado publicado na 0.11 e grava dados do usuário.
         QVERIFY(query.exec(QStringLiteral("DROP TABLE output_broadcast_profiles")));
-        QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version=3")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_call_history")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_definitions")));
+        QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version>2")));
         QVERIFY(query.exec(QStringLiteral(
             "INSERT INTO events(id,title,scheduled_at) VALUES('e1','Culto','2026-08-23')")));
         database.close();
@@ -121,7 +125,7 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
     const auto result = ApplicationDatabase::migrate(path);
     QVERIFY2(result.success, qPrintable(result.error));
     QCOMPARE(result.previousVersion, 2);
-    QCOMPARE(result.currentVersion, 3);
+    QCOMPARE(result.currentVersion, 4);
 
     const auto check = QStringLiteral("schema-v3-%1")
                            .arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
@@ -151,8 +155,8 @@ void ApplicationDatabaseTest::addsBroadcastProfilesToAnExistingInstallation()
     // Reaplicar a migração em um banco já atualizado não muda nada.
     const auto again = ApplicationDatabase::migrate(path);
     QVERIFY(again.success);
-    QCOMPARE(again.previousVersion, 3);
-    QCOMPARE(again.currentVersion, 3);
+    QCOMPARE(again.previousVersion, 4);
+    QCOMPARE(again.currentVersion, 4);
 }
 
 void ApplicationDatabaseTest::keepsTheDatabaseUntouchedWhenTheBroadcastMigrationFails()
@@ -169,7 +173,9 @@ void ApplicationDatabaseTest::keepsTheDatabaseUntouchedWhenTheBroadcastMigration
         QVERIFY(database.open());
         QSqlQuery query(database);
         QVERIFY(query.exec(QStringLiteral("DROP TABLE output_broadcast_profiles")));
-        QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version=3")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_call_history")));
+        QVERIFY(query.exec(QStringLiteral("DROP TABLE integration_definitions")));
+        QVERIFY(query.exec(QStringLiteral("DELETE FROM schema_version WHERE version>2")));
         // Um objeto conflitante faz a segunda instrução da migração falhar.
         QVERIFY(query.exec(QStringLiteral(
             "CREATE VIEW output_broadcast_profiles_mode_idx AS SELECT 1")));
