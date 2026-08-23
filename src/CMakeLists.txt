@@ -171,6 +171,8 @@ add_library(presenter-automation
     automation/ConditionEvaluator.h
     automation/AutomationEngine.cpp
     automation/AutomationEngine.h
+    automation/TriggerTranslator.cpp
+    automation/TriggerTranslator.h
     automation/AuthorizedExecutables.cpp
     automation/AuthorizedExecutables.h
     automation/QtProcessRunner.cpp
@@ -323,6 +325,7 @@ qt_add_qml_module(presenter-ui
         ui/output/BroadcastPreview.qml
         ui/operator/BroadcastSettings.qml
         ui/operator/IntegrationsArea.qml
+        ui/operator/AutomationsArea.qml
         ui/output/SimulatedOutput.qml
         ui/output/PresentationImageLayer.qml
         ui/output/PresentationTextLayer.qml

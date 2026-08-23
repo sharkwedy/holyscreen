@@ -148,6 +148,10 @@ qt_add_executable(test_authorized_executables unit/automation/AuthorizedExecutab
 target_link_libraries(test_authorized_executables PRIVATE Qt6::Test presenter-automation)
 add_test(NAME test_authorized_executables COMMAND test_authorized_executables)
 
+qt_add_executable(test_trigger_translator unit/automation/TriggerTranslatorTest.cpp)
+target_link_libraries(test_trigger_translator PRIVATE Qt6::Test presenter-automation)
+add_test(NAME test_trigger_translator COMMAND test_trigger_translator)
+
 qt_add_executable(test_condition_evaluator unit/automation/ConditionEvaluatorTest.cpp)
 target_link_libraries(test_condition_evaluator PRIVATE Qt6::Test presenter-automation)
 add_test(NAME test_condition_evaluator COMMAND test_condition_evaluator)

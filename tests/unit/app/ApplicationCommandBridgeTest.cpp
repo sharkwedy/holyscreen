@@ -13,6 +13,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <algorithm>
+
 #include <QHttpServer>
 #include <QTemporaryDir>
 #include <QTcpServer>
@@ -64,6 +66,7 @@ private slots:
     void remoteServerRequiresPasswordAndPersistsLocalConfiguration();
     void broadcastProfilesAreValidatedAndSurviveARestart();
     void integrationsAreValidatedExecutedAndRecordedWithoutSecrets();
+    void automationsReactToDomainEventsWithoutLooping();
 };
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -458,6 +461,127 @@ void ApplicationCommandBridgeTest::integrationsAreValidatedExecutedAndRecordedWi
     QVERIFY(controller.removeIntegration(copyId));
     QVERIFY(controller.removeIntegration(QStringLiteral("hook")));
     QVERIFY(controller.integrations().isEmpty());
+}
+
+void ApplicationCommandBridgeTest::automationsReactToDomainEventsWithoutLooping()
+{
+    ApplicationController controller;
+    QVERIFY(controller.automations().isEmpty());
+    QVERIFY(controller.automationsEnabled());
+    // Processos externos vêm desligados.
+    QVERIFY(!controller.processActionsEnabled());
+
+    // Uma automação inválida é recusada antes de ser salva.
+    const auto invalid = controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Sem gatilho")},
+        {QStringLiteral("triggerType"), QStringLiteral("inexistente")},
+        {QStringLiteral("actions"),
+         QVariantList{QVariantMap{{QStringLiteral("type"), QStringLiteral("command")},
+                                  {QStringLiteral("parameters"),
+                                   QVariantMap{{QStringLiteral("type"),
+                                                QStringLiteral("comando.inexistente")}}}}}},
+    });
+    QVERIFY(!invalid.value(QStringLiteral("accepted")).toBool());
+    QCOMPARE(invalid.value(QStringLiteral("errors")).toStringList().size(), 2);
+    QVERIFY(controller.automations().isEmpty());
+
+    const auto saved = controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Blackout no último slide")},
+        {QStringLiteral("triggerType"), QStringLiteral("slide.changed")},
+        {QStringLiteral("actions"),
+         QVariantList{QVariantMap{
+             {QStringLiteral("type"), QStringLiteral("command")},
+             {QStringLiteral("parameters"),
+              QVariantMap{{QStringLiteral("type"), QStringLiteral("presentation.blackout.set")},
+                          {QStringLiteral("payload"),
+                           QVariantMap{{QStringLiteral("enabled"), true}}}}}}}},
+    });
+    QVERIFY2(saved.value(QStringLiteral("accepted")).toBool(),
+             qPrintable(saved.value(QStringLiteral("errors")).toStringList().join(QLatin1Char(' '))));
+    QCOMPARE(controller.automations().size(), 1);
+
+    QVERIFY(!controller.blackout());
+    QSignalSpy runsSpy(&controller, &ApplicationController::automationRunsChanged);
+
+    // Um fato real do domínio dispara a automação.
+    controller.commandBus().dispatch(Command{
+        .id = QStringLiteral("operador-1"),
+        .type = QStringLiteral("presentation.slide.next"),
+        .payload = {},
+        .source = QStringLiteral("operator"),
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    });
+
+    QVERIFY(controller.blackout());
+    QVERIFY(runsSpy.count() > 0);
+    const auto runs = controller.automationRuns();
+    QVERIFY(!runs.isEmpty());
+    const auto lastRun = runs.first().toMap();
+    QCOMPARE(lastRun.value(QStringLiteral("status")).toString(), QStringLiteral("completed"));
+    QVERIFY(lastRun.value(QStringLiteral("correlationId")).toString()
+                .startsWith(QStringLiteral("operador-1/")));
+
+    // O comando disparado pela automação não pode reentrar na mesma cadeia.
+    const auto completedRuns = std::count_if(
+        runs.cbegin(), runs.cend(), [](const QVariant &entry) {
+            return entry.toMap().value(QStringLiteral("status")).toString()
+                   == QStringLiteral("completed");
+        });
+    QCOMPARE(completedRuns, 1);
+
+    // Ensaio não altera nada e é registrado como dry-run.
+    controller.setBlackout(false);
+    const auto dry = controller.dryRunAutomation(
+        controller.automations().first().toMap().value(QStringLiteral("id")).toString());
+    QCOMPARE(dry.value(QStringLiteral("status")).toString(), QStringLiteral("dry-run"));
+    QVERIFY(!controller.blackout());
+
+    // Interruptor global.
+    controller.setAutomationsEnabled(false);
+    controller.commandBus().dispatch(Command{
+        .id = QStringLiteral("operador-2"),
+        .type = QStringLiteral("presentation.slide.next"),
+        .payload = {},
+        .source = QStringLiteral("operator"),
+        .issuedAt = QDateTime::currentDateTimeUtc(),
+    });
+    QVERIFY(!controller.blackout());
+    controller.setAutomationsEnabled(true);
+
+    // Uma ação de processo só é aceita com o executável autorizado.
+    const auto withProcess = controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Script")},
+        {QStringLiteral("triggerType"), QStringLiteral("media.started")},
+        {QStringLiteral("actions"),
+         QVariantList{QVariantMap{{QStringLiteral("type"), QStringLiteral("process")},
+                                  {QStringLiteral("parameters"),
+                                   QVariantMap{{QStringLiteral("executable"),
+                                                QStringLiteral("/bin/echo")}}}}}},
+    });
+    QVERIFY(!withProcess.value(QStringLiteral("accepted")).toBool());
+    QVERIFY(withProcess.value(QStringLiteral("errors")).toStringList().first()
+                .contains(QStringLiteral("não está autorizado")));
+
+    QVERIFY(controller.authorizeExecutable(QStringLiteral("/bin/echo"), QStringLiteral("Echo"))
+                .value(QStringLiteral("accepted")).toBool());
+    QCOMPARE(controller.authorizedExecutables().size(), 1);
+    QVERIFY(controller.saveAutomation({
+        {QStringLiteral("name"), QStringLiteral("Script")},
+        {QStringLiteral("triggerType"), QStringLiteral("media.started")},
+        {QStringLiteral("actions"),
+         QVariantList{QVariantMap{{QStringLiteral("type"), QStringLiteral("process")},
+                                  {QStringLiteral("parameters"),
+                                   QVariantMap{{QStringLiteral("executable"),
+                                                QStringLiteral("/bin/echo")}}}}}},
+    }).value(QStringLiteral("accepted")).toBool());
+    QVERIFY(controller.revokeExecutable(
+        controller.authorizedExecutables().first().toMap()
+            .value(QStringLiteral("canonicalPath")).toString()));
+
+    const auto automationId = controller.automations().first().toMap()
+                                  .value(QStringLiteral("id")).toString();
+    QVERIFY(controller.setAutomationEnabled(automationId, false));
+    QVERIFY(controller.removeAutomation(automationId));
 }
 
 int main(int argc, char **argv)

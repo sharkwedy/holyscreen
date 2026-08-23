@@ -62,10 +62,32 @@ A migração 5 cria `automations`, `automation_conditions`, `automation_actions`
 data. O histórico tem retenção configurável e a poda mantém as execuções mais
 recentes de cada automação.
 
+## Operação
+
+A área **Automações** fica na barra do operador. Ela lista as automações com um
+interruptor por regra, mostra quantas falhas seguidas cada uma acumulou, e traz
+o editor no formato **QUANDO → SE → ENTÃO**, com reordenação de ações,
+validação inline antes de salvar, botão **Ensaiar**, retomada de uma automação
+pausada, exclusão confirmada e o histórico das execuções.
+
+O interruptor global no topo pausa todas as automações de uma vez, e o botão
+**Processos autorizados** abre a allowlist de executáveis, com o recurso
+desligado por padrão.
+
+Os gatilhos vêm dos fatos publicados no `EventBus` e são traduzidos por
+`TriggerTranslator`, que ignora de propósito os resultados de integração e de
+automação — assim uma chamada externa nunca realimenta a cadeia. A validação
+recusa comandos fora do catálogo, integrações inexistentes e executáveis não
+autorizados antes de gravar a automação.
+
 ## Estado atual
 
 O domínio, o avaliador de condições, o motor com todos os limites, a allowlist
-de processos, o executor e a persistência estão implementados. O editor visual,
-o histórico na interface e a ligação dos gatilhos aos fatos reais do culto
-chegam nos incrementos seguintes da onda 5, conforme
-[`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md).
+de processos, o executor, a persistência, a tradução dos gatilhos reais e a
+área do operador estão implementados.
+
+Ainda faltam nesta onda, conforme
+[`IMPLEMENTATION_PLAN_POST_0.11.md`](IMPLEMENTATION_PLAN_POST_0.11.md): gatilho
+de horário local com agendamento próprio, gatilhos de timer e de comando
+remoto ligados aos fatos correspondentes, exportação e importação de
+definições, e testes Qt Quick do editor.

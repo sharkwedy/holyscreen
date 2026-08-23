@@ -128,6 +128,11 @@ ApplicationWindow {
         controller: root.controller
     }
 
+    AutomationsArea {
+        id: automationsArea
+        controller: root.controller
+    }
+
     SettingsDialog {
         id: settingsDialog
         controller: root.controller
@@ -721,6 +726,12 @@ ApplicationWindow {
                 ToolButton { text: "Agenda" }
                 ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
                 ToolButton { text: "Integrações"; onClicked: integrationsArea.open() }
+                ToolButton {
+                    text: "Automações"
+                    onClicked: automationsArea.open()
+                    ToolTip.visible: hovered && !root.controller.automationsEnabled
+                    ToolTip.text: "Automações pausadas"
+                }
                 Item { Layout.fillWidth: true }
                 ToolButton {
                     text: "⚙"
