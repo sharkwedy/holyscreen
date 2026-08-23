@@ -95,6 +95,10 @@ add_library(presenter-integrations
     integrations/ports/IIntegrationRepository.h
     integrations/ports/ISecretStore.h
     integrations/ports/ITransports.h
+    integrations/adapters/HttpIntegrationAdapter.cpp
+    integrations/adapters/HttpIntegrationAdapter.h
+    integrations/transports/QtHttpTransport.cpp
+    integrations/transports/QtHttpTransport.h
     integrations/secrets/InMemorySecretStore.cpp
     integrations/secrets/InMemorySecretStore.h
     integrations/secrets/SecretStoreFactory.cpp
