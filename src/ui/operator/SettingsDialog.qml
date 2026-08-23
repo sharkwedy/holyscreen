@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 
 Dialog {
@@ -9,6 +10,13 @@ Dialog {
     required property var controller
     signal openLibrary()
     signal chooseBackground()
+    signal restoreLayout()
+    property string profileStatus: ""
+
+    function openTab(index) {
+        settingsTabs.currentIndex = Math.max(0, Math.min(settingsTabs.count - 1, index))
+        open()
+    }
 
     title: "Configurações"
     modal: true
@@ -71,6 +79,7 @@ Dialog {
                     RowLayout {
                         Button { text: "Abrir biblioteca"; onClicked: settings.openLibrary() }
                         Button { text: "Reexaminar pastas"; onClicked: settings.controller.rescanMediaFolders() }
+                        Button { text: "Restaurar layout"; onClicked: settings.restoreLayout() }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
                     Label { text: "Comunicação com o palco"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
@@ -104,6 +113,77 @@ Dialog {
                               ? settings.controller.updateStatus : settings.controller.autosaveStatus
                         color: settings.textMuted
                         wrapMode: Text.WordWrap
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
+                    Label { text: "Perfil do operador"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label {
+                        Layout.fillWidth: true
+                        text: "Importe ou exporte telas, aparência, mídia, biblioteca e preferências. Senhas, tokens e credenciais nunca são incluídos."
+                        color: settings.textMuted
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Button { text: "Importar perfil"; onClicked: importProfileDialog.open() }
+                        Button { text: "Exportar perfil"; onClicked: exportProfileDialog.open() }
+                        Button {
+                            text: "Configuração guiada"
+                            onClicked: settings.controller.reopenOnboarding()
+                        }
+                    }
+                    RowLayout {
+                        Label { text: "Idioma"; color: settings.textMain; Layout.preferredWidth: 120 }
+                        ComboBox {
+                            model: [{"text":"Português (Brasil)", "value":"pt-BR"},
+                                    {"text":"English (United States)", "value":"en-US"}]
+                            textRole: "text"
+                            valueRole: "value"
+                            currentIndex: settings.controller.locale === "en-US" ? 1 : 0
+                            onActivated: settings.controller.locale = currentValue
+                        }
+                        CheckBox {
+                            text: "Modo demonstração"
+                            checked: settings.controller.demoMode
+                            palette.windowText: settings.textMain
+                            onClicked: settings.controller.demoMode = checked
+                        }
+                    }
+                    Label {
+                        visible: settings.profileStatus.length > 0
+                        Layout.fillWidth: true
+                        text: settings.profileStatus
+                        color: settings.textMuted
+                        wrapMode: Text.WordWrap
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
+                    Label { text: "Atalhos de teclado"; color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Repeater {
+                        model: [{"id":"blackout", "label":"Blackout"},
+                                {"id":"next", "label":"Próximo slide"},
+                                {"id":"previous", "label":"Slide anterior"},
+                                {"id":"stop", "label":"Parar apresentação"},
+                                {"id":"quickBible", "label":"Busca bíblica"}]
+                        delegate: RowLayout {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Label {
+                                text: modelData.label
+                                color: settings.textMain
+                                Layout.preferredWidth: 180
+                            }
+                            TextField {
+                                Layout.fillWidth: true
+                                text: settings.controller.shortcuts[modelData.id] || ""
+                                Accessible.name: "Atalho para " + modelData.label
+                                onEditingFinished: {
+                                    if (!settings.controller.setShortcut(modelData.id, text)) {
+                                        settings.profileStatus = "Atalho inválido ou já utilizado."
+                                        text = settings.controller.shortcuts[modelData.id] || ""
+                                    } else {
+                                        settings.profileStatus = "Atalho atualizado."
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -554,6 +634,33 @@ Dialog {
                     }
                 }
             }
+        }
+    }
+
+    FileDialog {
+        id: importProfileDialog
+        title: "Importar perfil do HolyScreen"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["Perfil HolyScreen (*.json)"]
+        onAccepted: {
+            const result = settings.controller.importConfiguration(selectedFile)
+            settings.profileStatus = result.accepted
+                    ? "Perfil importado. Credenciais e servidor remoto foram preservados."
+                    : (result.errors || ["Não foi possível importar o perfil."]).join("\n")
+        }
+    }
+
+    FileDialog {
+        id: exportProfileDialog
+        title: "Exportar perfil do HolyScreen"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "json"
+        nameFilters: ["Perfil HolyScreen (*.json)"]
+        onAccepted: {
+            const result = settings.controller.exportConfiguration(selectedFile)
+            settings.profileStatus = result.accepted
+                    ? "Perfil exportado sem segredos."
+                    : (result.errors || ["Não foi possível exportar o perfil."]).join("\n")
         }
     }
 }

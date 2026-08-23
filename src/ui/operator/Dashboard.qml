@@ -8,12 +8,37 @@ import QtQuick.Layouts
 Item {
     id: dashboard
     required property var controller
+    property var layoutSettings: null
     signal openLibrary()
     signal openBible()
     signal openBibleBrowser()
     signal importAudio()
     signal importVideo()
     signal importImage()
+
+    function saveLayout() {
+        if (!layoutSettings) return
+        layoutSettings.dashboardHorizontalState = horizontalSplit.saveState()
+        layoutSettings.dashboardVerticalState = centerSplit.saveState()
+    }
+
+    function restoreLayout() {
+        if (!layoutSettings) return
+        if (layoutSettings.dashboardHorizontalState)
+            horizontalSplit.restoreState(layoutSettings.dashboardHorizontalState)
+        if (layoutSettings.dashboardVerticalState)
+            centerSplit.restoreState(layoutSettings.dashboardVerticalState)
+    }
+
+    function resetLayout() {
+        if (layoutSettings) {
+            layoutSettings.dashboardHorizontalState = undefined
+            layoutSettings.dashboardVerticalState = undefined
+        }
+        libraryPane.SplitView.preferredWidth = Math.max(280, dashboard.width * 0.25)
+        biblePane.SplitView.preferredWidth = Math.max(300, dashboard.width * 0.27)
+        previewPane.SplitView.preferredHeight = Math.max(350, dashboard.height * 0.53)
+    }
 
     readonly property color background: "#171b1f"
     readonly property color panel: "#20252a"
@@ -164,6 +189,7 @@ Item {
     Component.onCompleted: Qt.callLater(function() {
         ensureExternalOutputs()
         syncBibleSelectors()
+        restoreLayout()
         if (dashboard.controller.bibleResults.length === 0)
             searchSelectedBibleChapter()
     })
@@ -284,6 +310,7 @@ Item {
     Rectangle { anchors.fill: parent; color: dashboard.background }
 
     SplitView {
+        id: horizontalSplit
         anchors.fill: parent
         anchors.margins: 14
         orientation: Qt.Horizontal
@@ -302,6 +329,7 @@ Item {
         }
 
         Rectangle {
+            id: libraryPane
             SplitView.preferredWidth: Math.max(280, dashboard.width * 0.25)
             SplitView.minimumWidth: 220
             color: dashboard.panel
@@ -414,6 +442,7 @@ Item {
         }
 
         SplitView {
+            id: centerSplit
             SplitView.fillWidth: true
             SplitView.minimumWidth: 360
             orientation: Qt.Vertical
@@ -431,6 +460,7 @@ Item {
                 HoverHandler { cursorShape: Qt.SplitVCursor }
             }
             Rectangle {
+                id: previewPane
                 SplitView.preferredHeight: Math.max(350, dashboard.height * 0.53)
                 SplitView.minimumHeight: 280
                 color: dashboard.panel; border.color: dashboard.line; radius: 6
@@ -706,6 +736,7 @@ Item {
         }
 
         Rectangle {
+            id: biblePane
             SplitView.preferredWidth: Math.max(300, dashboard.width * 0.27)
             SplitView.minimumWidth: 280
             color: dashboard.panel; border.color: dashboard.line; radius: 6

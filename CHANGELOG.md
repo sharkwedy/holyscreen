@@ -5,6 +5,18 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Began the 0.14 application-context migration with bounded Automation,
+  Integration and Bible QML facades while preserving the compatible
+  `ApplicationController` aliases.
+- Added versioned operator profiles with full validation before application,
+  a recursive secret-field denylist and a 1 MiB limit. Remote credentials,
+  tokens and protected media are never exported or imported.
+- Added the re-openable guided setup for screens, audio, media library, Bible,
+  remote control and Broadcast, plus persisted operator locale, demo-mode and
+  editable shortcut preferences.
+- Persisted the operator window and splitter layout and added a Restore layout
+  action.
+
 - Added the offline automation domain: triggers, declarative conditions with
   `all`/`any` grouping, ordered actions, and runs, with no scripting language.
 - Added AutomationEngine with correlation propagation, reentrancy blocking,
