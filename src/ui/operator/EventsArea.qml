@@ -22,14 +22,14 @@ ColumnLayout {
     }
 
     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-    Label { text: "PLAYLIST DE CULTO"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+    Label { text: qsTr("PLAYLIST DE CULTO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
     RowLayout {
         Layout.fillWidth: true
-        TextField { id: newEventTitle; Layout.fillWidth: true; placeholderText: "Nome do culto"; Accessible.name: placeholderText }
-        TextField { id: newEventDate; Layout.preferredWidth: 120; placeholderText: "Data/hora"; Accessible.name: placeholderText }
+        TextField { id: newEventTitle; Layout.fillWidth: true; placeholderText: qsTr("Nome do culto"); Accessible.name: placeholderText }
+        TextField { id: newEventDate; Layout.preferredWidth: 120; placeholderText: qsTr("Data/hora"); Accessible.name: placeholderText }
         Button {
-            text: "NOVO"
-            Accessible.name: "Criar playlist de culto"
+            text: qsTr("NOVO")
+            Accessible.name: qsTr("Criar playlist de culto")
             onClicked: {
                 if (newEventTitle.text.trim().length === 0) return
                 area.context.createEvent(newEventTitle.text, newEventDate.text)
@@ -46,38 +46,38 @@ ColumnLayout {
             model: area.context.events
             textRole: "title"
             valueRole: "id"
-            Accessible.name: "Playlist de culto atual"
+            Accessible.name: qsTr("Playlist de culto atual")
             onActivated: area.context.selectEvent(currentValue)
         }
-        Button { text: "ABRIR"; enabled: eventPicker.currentValue !== undefined; onClicked: area.context.selectEvent(eventPicker.currentValue) }
-        Button { text: "EXCLUIR"; enabled: area.context.currentEventId.length > 0; onClicked: area.context.deleteEvent(area.context.currentEventId) }
+        Button { text: qsTr("ABRIR"); enabled: eventPicker.currentValue !== undefined; onClicked: area.context.selectEvent(eventPicker.currentValue) }
+        Button { text: qsTr("EXCLUIR"); enabled: area.context.currentEventId.length > 0; onClicked: area.context.deleteEvent(area.context.currentEventId) }
     }
-    Label { text: "Duração total: " + area.duration(area.context.eventDurationMs); color: "#c8d5e8" }
+    Label { text: qsTr("Duração total: %1").arg(area.duration(area.context.eventDurationMs)); color: "#c8d5e8" }
     Flow {
         Layout.fillWidth: true
         spacing: 5
         Button {
-            text: "+ APRESENTAÇÃO"
+            text: qsTr("+ APRESENTAÇÃO")
             enabled: area.context.currentEventId.length > 0 && area.sourceController.currentPresentationId.length > 0
             onClicked: area.context.addEventItem(area.sourceController.currentPresentationType,
                                                   area.sourceController.currentPresentationId,
                                                   area.sourceController.currentPresentationTitle, 0)
         }
         Button {
-            text: "+ IMAGEM"
+            text: qsTr("+ IMAGEM")
             enabled: area.context.currentEventId.length > 0 && area.sourceController.currentImageId.length > 0
             onClicked: area.context.addEventItem("image", area.sourceController.currentImageId,
                                                   area.sourceController.currentImageTitle, 0)
         }
         Button {
-            text: "+ VÍDEO"
+            text: qsTr("+ VÍDEO")
             enabled: area.context.currentEventId.length > 0 && area.sourceController.currentVideoId.length > 0
             onClicked: area.context.addEventItem("video", area.sourceController.currentVideoId,
                                                   area.sourceController.currentVideoTitle,
                                                   area.sourceController.videoDurationMs)
         }
         Button {
-            text: "+ ÁUDIO"
+            text: qsTr("+ ÁUDIO")
             enabled: area.context.currentEventId.length > 0 && area.sourceController.currentAudioId.length > 0
             onClicked: area.context.addEventItem("audio", area.sourceController.currentAudioId,
                                                   area.sourceController.currentAudioTitle,
@@ -105,7 +105,7 @@ ColumnLayout {
                 Label {
                     text: "⋮⋮"
                     color: "#8da0bc"
-                    Accessible.name: "Arrastar para reordenar " + eventItemDelegate.modelData.title
+                    Accessible.name: qsTr("Arrastar para reordenar %1").arg(eventItemDelegate.modelData.title)
                     DragHandler {
                         target: null
                         onActiveChanged: {
@@ -120,10 +120,10 @@ ColumnLayout {
                 Label { text: eventItemDelegate.modelData.type.toUpperCase(); color: "#70e1a7"; font.pixelSize: 9 }
                 Label { Layout.fillWidth: true; text: eventItemDelegate.modelData.title; color: "#eff6ff"; elide: Text.ElideRight }
                 Label { text: area.duration(eventItemDelegate.modelData.durationMs); color: "#8da0bc"; font.pixelSize: 10 }
-                ToolButton { text: "↑"; Accessible.name: "Mover para cima"; enabled: eventItemDelegate.index > 0; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index - 1) }
-                ToolButton { text: "↓"; Accessible.name: "Mover para baixo"; enabled: eventItemDelegate.index + 1 < eventItemsList.count; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index + 1) }
-                Button { text: "EXECUTAR"; onClicked: area.context.executeEventItem(eventItemDelegate.modelData.id) }
-                ToolButton { text: "×"; Accessible.name: "Remover item"; onClicked: area.context.removeEventItem(eventItemDelegate.modelData.id) }
+                ToolButton { text: "↑"; Accessible.name: qsTr("Mover para cima"); enabled: eventItemDelegate.index > 0; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index - 1) }
+                ToolButton { text: "↓"; Accessible.name: qsTr("Mover para baixo"); enabled: eventItemDelegate.index + 1 < eventItemsList.count; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index + 1) }
+                Button { text: qsTr("EXECUTAR"); onClicked: area.context.executeEventItem(eventItemDelegate.modelData.id) }
+                ToolButton { text: "×"; Accessible.name: qsTr("Remover item"); onClicked: area.context.removeEventItem(eventItemDelegate.modelData.id) }
             }
         }
     }
@@ -131,14 +131,15 @@ ColumnLayout {
     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
     RowLayout {
         Layout.fillWidth: true
-        Label { text: "HISTÓRICO"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
         Item { Layout.fillWidth: true }
-        Button { text: "LIMPAR"; enabled: area.context.history.length > 0; onClicked: area.clearHistoryRequested() }
+        Button { text: qsTr("LIMPAR"); enabled: area.context.history.length > 0; onClicked: area.clearHistoryRequested() }
     }
     Label {
         Layout.fillWidth: true
-        text: "Execuções: " + (area.context.historyReport.totalExecutions || 0)
-              + "  •  Mais executado: " + (area.context.historyReport.mostExecutedTitle || "—")
+        text: qsTr("Execuções: %1  •  Mais executado: %2")
+              .arg(area.context.historyReport.totalExecutions || 0)
+              .arg(area.context.historyReport.mostExecutedTitle || "—")
         color: "#c8d5e8"
         wrapMode: Text.WordWrap
     }

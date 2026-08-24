@@ -52,10 +52,20 @@ FetchContent_Declare(qrcodegen
 )
 FetchContent_MakeAvailable(libgit2 miniz qrcodegen rtmidi)
 
-find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test QuickTest REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test QuickTest LinguistTools REQUIRED)
 qt_standard_project_setup(REQUIRES 6.8)
 
 add_subdirectory(src)
+
+qt_add_translations(
+    TARGETS church-presenter
+    SOURCE_TARGETS presenter-ui
+    TS_FILES
+        translations/holyscreen_pt_BR.ts
+        translations/holyscreen_en_US.ts
+    RESOURCE_PREFIX "/i18n"
+    LUPDATE_OPTIONS -no-obsolete
+)
 
 install(TARGETS church-presenter
     BUNDLE DESTINATION .
