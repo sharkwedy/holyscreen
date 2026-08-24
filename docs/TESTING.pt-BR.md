@@ -30,3 +30,6 @@ A validação de release também cobre pacotes em sistemas limpos, a topologia
 física operador/duas saídas, DPI misto, PWA em celular e endurance de duas
 horas. Registre os resultados no relatório da release; testes automatizados não
 substituem essas verificações físicas.
+
+O relatório de trabalho da próxima candidata está em
+[`releases/1.0.0-rc.1-validation.md`](releases/1.0.0-rc.1-validation.md).
