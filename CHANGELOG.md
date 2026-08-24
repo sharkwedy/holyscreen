@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Connected `MaintenanceArea` to Settings and exposed backup restoration,
+  diagnostic export, update checks and benchmark actions through dedicated
+  `MaintenanceDialogs`.
 - Extracted live messages, alerts, lower thirds and timers into
   `LiveCommunicationDialog`, and removed inaccessible duplicate dialogs from
   `MainWindow`.

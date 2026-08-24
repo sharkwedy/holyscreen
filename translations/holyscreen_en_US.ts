@@ -1175,97 +1175,67 @@
         <translation>HolyScreen — Operation</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="95"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="96"/>
         <source>Selecionar wallpaper</source>
         <translation>Select wallpaper</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="96"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="97"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp)</source>
         <translation>Images (*.jpg *.jpeg *.png *.webp)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="101"/>
-        <source>Selecionar backup do HolyScreen</source>
-        <translation>Select HolyScreen backup</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="102"/>
-        <source>Banco HolyScreen (*.db)</source>
-        <translation>HolyScreen database (*.db)</translation>
-    </message>
-    <message>
         <location filename="../src/ui/operator/MainWindow.qml" line="107"/>
-        <source>Exportar diagnóstico do HolyScreen</source>
-        <translation>Export HolyScreen diagnostics</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="109"/>
-        <source>Arquivo ZIP (*.zip)</source>
-        <translation>ZIP file (*.zip)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="114"/>
-        <source>Agendar restauração?</source>
-        <translation>Schedule restore?</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="117"/>
-        <source>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</source>
-        <translation>The current database will be preserved in a safety backup. The restore will be applied only after restarting the app.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="122"/>
         <source>Importar áudios</source>
         <translation>Import audio</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="124"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="109"/>
         <source>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</source>
         <translation>Audio (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="130"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="115"/>
         <source>Importar vídeos</source>
         <translation>Import videos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="132"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="117"/>
         <source>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</source>
         <translation>Videos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="138"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="123"/>
         <source>Importar imagens</source>
         <translation>Import images</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="140"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="125"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</source>
         <translation>Images (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="158"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="160"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="145"/>
         <source>Ativar modo de debug</source>
         <translation>Enable debug mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="167"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="152"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Multiple simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="174"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="159"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnostics and benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="181"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="166"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Log DEBUG messages</translation>
     </message>
@@ -1316,6 +1286,39 @@
         <location filename="../src/ui/operator/MaintenanceArea.qml" line="54"/>
         <source>VERIFICAR ATUALIZAÇÕES</source>
         <translation>CHECK FOR UPDATES</translation>
+    </message>
+</context>
+<context>
+    <name>MaintenanceDialogs</name>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="23"/>
+        <source>Selecionar backup do HolyScreen</source>
+        <translation>Select HolyScreen backup</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="24"/>
+        <source>Banco HolyScreen (*.db)</source>
+        <translation>HolyScreen database (*.db)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="33"/>
+        <source>Exportar diagnóstico do HolyScreen</source>
+        <translation>Export HolyScreen diagnostics</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="35"/>
+        <source>Arquivo ZIP (*.zip)</source>
+        <translation>ZIP file (*.zip)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="42"/>
+        <source>Agendar restauração?</source>
+        <translation>Schedule restore?</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="49"/>
+        <source>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</source>
+        <translation>The current database will be preserved in a safety backup. The restore will be applied only after restarting the app.</translation>
     </message>
 </context>
 <context>
@@ -1871,677 +1874,657 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="21"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="23"/>
         <source>Configurações</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="54"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="56"/>
         <source>Geral</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="55"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="57"/>
         <source>Telas</source>
         <translation>Displays</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="56"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="58"/>
         <source>Mídia</source>
         <translation>Media</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="57"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="59"/>
         <source>Aparência</source>
         <translation>Appearance</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="58"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="60"/>
         <source>Remoto</source>
         <translation>Remote</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="59"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="61"/>
         <source>Avançado</source>
         <translation>Advanced</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="72"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="74"/>
         <source>Biblioteca</source>
         <translation>Library</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="75"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="77"/>
         <source>Gerencie as pastas usadas pelo catálogo de áudio, vídeo e imagens.</source>
         <translation>Manage the folders used by the audio, video, and image catalog.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="80"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="82"/>
         <source>Abrir biblioteca</source>
         <translation>Open library</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="81"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="83"/>
         <source>Reexaminar pastas</source>
         <translation>Rescan folders</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="82"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="84"/>
         <source>Restaurar layout</source>
         <translation>Restore layout</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="85"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="87"/>
         <source>Comunicação com o palco</source>
         <translation>Stage communication</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="91"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="93"/>
         <source>Mensagem para as telas configuradas como palco</source>
         <translation>Message for displays configured as Stage</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="95"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="97"/>
         <source>Salvar mensagem</source>
         <translation>Save message</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="99"/>
-        <source>Atualizações e manutenção</source>
-        <translation>Updates and maintenance</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="103"/>
-        <source>API oficial de Releases do GitHub</source>
-        <translation>Official GitHub Releases API</translation>
-    </message>
-    <message>
         <location filename="../src/ui/operator/SettingsDialog.qml" line="107"/>
-        <source>Verificar atualizações</source>
-        <translation>Check for updates</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="108"/>
-        <source>Criar backup</source>
-        <translation>Create backup</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="119"/>
         <source>Perfil do operador</source>
         <translation>Operator profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="122"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="110"/>
         <source>Importe ou exporte telas, aparência, mídia, biblioteca e preferências. Senhas, tokens e credenciais nunca são incluídos.</source>
         <translation>Import or export displays, appearance, media, library, and preferences. Passwords, tokens, and credentials are never included.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="127"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="115"/>
         <source>Importar perfil</source>
         <translation>Import profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="128"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="116"/>
         <source>Exportar perfil</source>
         <translation>Export profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="130"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="118"/>
         <source>Configuração guiada</source>
         <translation>Guided setup</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="135"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="123"/>
         <source>Idioma</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="137"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="125"/>
         <source>Português (Brasil)</source>
         <translation>Portuguese (Brazil)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="138"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="126"/>
         <source>English (United States)</source>
         <translation>English (United States)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="145"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="133"/>
         <source>Modo demonstração</source>
         <translation>Demo mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="142"/>
         <source>Reinicie o HolyScreen para aplicar o novo idioma.</source>
         <translation>Restart HolyScreen to apply the new language.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="166"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>
         <source>Atalhos de teclado</source>
         <translation>Keyboard shortcuts</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="168"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="156"/>
         <source>Blackout</source>
         <translation>Blackout</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="169"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="157"/>
         <source>Próximo slide</source>
         <translation>Next slide</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="170"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="158"/>
         <source>Slide anterior</source>
         <translation>Previous slide</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="171"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="159"/>
         <source>Parar apresentação</source>
         <translation>Stop presentation</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="172"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="160"/>
         <source>Busca bíblica</source>
         <translation>Bible search</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="185"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="173"/>
         <source>Atalho para %1</source>
         <translation>Shortcut for %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="188"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="176"/>
         <source>Atalho inválido ou já utilizado.</source>
         <translation>Invalid shortcut or already in use.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="191"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="179"/>
         <source>Atalho atualizado.</source>
         <translation>Shortcut updated.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="207"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="195"/>
         <source>Monitores detectados</source>
         <translation>Detected displays</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="209"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="197"/>
         <source>Identificar</source>
         <translation>Identify</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="210"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="198"/>
         <source>Ativar todas</source>
         <translation>Enable all</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="242"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="230"/>
         <source>OPERADOR</source>
         <translation>OPERATOR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="243"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="231"/>
         <source>ATIVA</source>
         <translation>ACTIVE</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="243"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="231"/>
         <source>INATIVA</source>
         <translation>INACTIVE</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="253"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="241"/>
         <source>Exibir vídeo</source>
         <translation>Show video</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="260"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="248"/>
         <source>Saída para o público</source>
         <translation>Audience output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="261"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="249"/>
         <source>Saída de palco</source>
         <translation>Stage output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="262"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="250"/>
         <source>Saída de transmissão</source>
         <translation>Broadcast output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="290"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="278"/>
         <source>Reprodução</source>
         <translation>Playback</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="292"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="280"/>
         <source>Volume</source>
         <translation>Volume</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="296"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="284"/>
         <source>Saída de áudio</source>
         <translation>Audio output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="299"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="287"/>
         <source>Selecione um dispositivo</source>
         <translation>Select a device</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="305"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="293"/>
         <source>Dispositivo de saída de áudio</source>
         <translation>Audio output device</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="315"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="303"/>
         <source>Nenhum dispositivo de áudio foi detectado. Verifique a conexão e tente novamente.</source>
         <translation>No audio device was detected. Check the connection and try again.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="320"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="308"/>
         <source>Repetição</source>
         <translation>Repeat</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="323"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="311"/>
         <source>Sem repetição</source>
         <translation>No repeat</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="324"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="312"/>
         <source>Repetir item</source>
         <translation>Repeat item</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="325"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="313"/>
         <source>Repetir playlist</source>
         <translation>Repeat playlist</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="332"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="320"/>
         <source>Imagens</source>
         <translation>Images</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="334"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="322"/>
         <source>Ajuste</source>
         <translation>Fit</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="337"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="418"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="325"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="406"/>
         <source>Conter</source>
         <translation>Contain</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="338"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="417"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="326"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="405"/>
         <source>Preencher</source>
         <translation>Cover</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="339"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="419"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="327"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="407"/>
         <source>Esticar</source>
         <translation>Stretch</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="340"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="420"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="328"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="408"/>
         <source>Centralizar</source>
         <translation>Center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="347"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="335"/>
         <source>Avançar imagens automaticamente</source>
         <translation>Advance images automatically</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="354"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="342"/>
         <source>Intervalo (segundos)</source>
         <translation>Interval (seconds)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="365"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="353"/>
         <source>Fundo da apresentação</source>
         <translation>Presentation background</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="386"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="374"/>
         <source>Fundo de cor sólida</source>
         <translation>Solid color background</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="394"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="382"/>
         <source>Escolher imagem…</source>
         <translation>Choose image…</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="396"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="384"/>
         <source>Remover imagem</source>
         <translation>Remove image</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="404"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="392"/>
         <source>Nenhuma imagem selecionada</source>
         <translation>No image selected</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="410"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="398"/>
         <source>Cor</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="414"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="402"/>
         <source>Ajuste do fundo</source>
         <translation>Background fit</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="427"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="415"/>
         <source>Relógio</source>
         <translation>Clock</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="429"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="417"/>
         <source>Exibir relógio nas saídas</source>
         <translation>Show clock on outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="435"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="423"/>
         <source>Formato</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="439"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="427"/>
         <source>Tamanho</source>
         <translation>Size</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="443"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="431"/>
         <source>Nome da fonte</source>
         <translation>Font family</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="451"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="439"/>
         <source>N</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="452"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="440"/>
         <source>Negrito</source>
         <translation>Bold</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="459"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="447"/>
         <source>I</source>
         <translation>I</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="460"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="448"/>
         <source>Itálico</source>
         <translation>Italic</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="468"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="456"/>
         <source>Cor da fonte</source>
         <translation>Font color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="472"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="460"/>
         <source>Cor de fundo</source>
         <translation>Background color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="476"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="464"/>
         <source>Altura da linha</source>
         <translation>Line height</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="486"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="474"/>
         <source>Efeito</source>
         <translation>Effect</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="489"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="477"/>
         <source>Nenhum</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="490"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="478"/>
         <source>Contorno</source>
         <translation>Outline</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="491"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="479"/>
         <source>Elevado</source>
         <translation>Raised</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="492"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="480"/>
         <source>Baixo relevo</source>
         <translation>Sunken</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="497"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="485"/>
         <source>Canto</source>
         <translation>Corner</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="501"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="489"/>
         <source>Opacidade da fonte</source>
         <translation>Font opacity</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="504"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="492"/>
         <source>Opacidade do fundo</source>
         <translation>Background opacity</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="509"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="497"/>
         <source>Localização</source>
         <translation>Position</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="512"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="500"/>
         <source>Superior esquerda</source>
         <translation>Top left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="513"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="501"/>
         <source>Superior centro</source>
         <translation>Top center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="514"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="502"/>
         <source>Superior direita</source>
         <translation>Top right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="515"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="503"/>
         <source>Centro esquerda</source>
         <translation>Center left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="516"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="504"/>
         <source>Centro</source>
         <translation>Center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="517"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="505"/>
         <source>Centro direita</source>
         <translation>Center right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="518"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="506"/>
         <source>Inferior esquerda</source>
         <translation>Bottom left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="519"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="507"/>
         <source>Inferior centro</source>
         <translation>Bottom center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="520"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="508"/>
         <source>Inferior direita</source>
         <translation>Bottom right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="527"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="515"/>
         <source>Margem horizontal (%)</source>
         <translation>Horizontal margin (%)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="529"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="517"/>
         <source>Margem vertical (%)</source>
         <translation>Vertical margin (%)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="540"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="528"/>
         <source>Controle remoto local</source>
         <translation>Local remote control</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="543"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="531"/>
         <source>O servidor fica desligado por padrão e deve ser usado somente na rede local confiável.</source>
         <translation>The server is disabled by default and should only be used on a trusted local network.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="548"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="536"/>
         <source>Habilitar controle remoto</source>
         <translation>Enable remote control</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="556"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="544"/>
         <source>Interface IPv4</source>
         <translation>IPv4 interface</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="568"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="556"/>
         <source>Porta</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="576"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="564"/>
         <source>Senha fixa</source>
         <translation>Fixed password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="584"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="572"/>
         <source>Nova senha (mínimo 8 caracteres)</source>
         <translation>New password (minimum 8 characters)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="585"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="573"/>
         <source>Defina uma senha (mínimo 8 caracteres)</source>
         <translation>Set a password (minimum 8 characters)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="591"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="579"/>
         <source>Trocar senha</source>
         <translation>Change password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="591"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="579"/>
         <source>Definir senha</source>
         <translation>Set password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="600"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="588"/>
         <source>Acesso</source>
         <translation>Access</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="604"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="592"/>
         <source>Servidor remoto desabilitado</source>
         <translation>Remote server disabled</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="623"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="611"/>
         <source>Leia o QR na mesma rede local para abrir o controle.</source>
         <translation>Scan the QR code on the same local network to open the remote.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="628"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="616"/>
         <source>Clientes conectados: %1  •  Sessões ativas: %2</source>
         <translation>Connected clients: %1  •  Active sessions: %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="634"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="622"/>
         <source>Revogar todas as sessões</source>
         <translation>Revoke all sessions</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="653"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="641"/>
         <source>Opções de desenvolvimento</source>
         <translation>Development options</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="655"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="643"/>
         <source>Ativar modo de debug</source>
         <translation>Enable debug mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="661"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="649"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Multiple simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="668"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="656"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnostics and benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="675"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="663"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Log DEBUG messages</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="683"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="671"/>
         <source>Saídas simuladas</source>
         <translation>Simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="689"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="677"/>
         <source>Os registros continuam sendo gravados no diretório de dados do HolyScreen, mesmo sem a janela de terminal.</source>
         <translation>Logs continue to be written to the HolyScreen data directory even without a terminal window.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="700"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="688"/>
         <source>Importar perfil do HolyScreen</source>
         <translation>Import HolyScreen profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="702"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="716"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="690"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="704"/>
         <source>Perfil HolyScreen (*.json)</source>
         <translation>HolyScreen profile (*.json)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="706"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="694"/>
         <source>Perfil importado. Credenciais e servidor remoto foram preservados.</source>
         <translation>Profile imported. Credentials and remote server settings were preserved.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="707"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="695"/>
         <source>Não foi possível importar o perfil.</source>
         <translation>Could not import the profile.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="713"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="701"/>
         <source>Exportar perfil do HolyScreen</source>
         <translation>Export HolyScreen profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="720"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="708"/>
         <source>Perfil exportado sem segredos.</source>
         <translation>Profile exported without secrets.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="721"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="709"/>
         <source>Não foi possível exportar o perfil.</source>
         <translation>Could not export the profile.</translation>
     </message>

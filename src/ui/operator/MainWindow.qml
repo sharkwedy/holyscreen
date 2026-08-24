@@ -28,7 +28,6 @@ ApplicationWindow {
     height: 820
     minimumWidth: 1100
     minimumHeight: 680
-    property url pendingRestoreSource
 
     Settings {
         id: operatorWindowSettings
@@ -78,6 +77,8 @@ ApplicationWindow {
         onOpenLibrary: mediaLibraryDialog.open()
         onChooseBackground: wallpaperDialog.open()
         onRestoreLayout: operatorDashboard.resetLayout()
+        onRestoreBackup: maintenanceDialogs.openRestore()
+        onExportDiagnostics: maintenanceDialogs.openDiagnosticsExport()
     }
     OnboardingDialog {
         id: onboardingDialog
@@ -96,25 +97,9 @@ ApplicationWindow {
         nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp)")]
         onAccepted: root.controller.wallpaperSource = selectedFile
     }
-    FileDialog {
-        id: restoreDialog
-        title:qsTr("Selecionar backup do HolyScreen")
-        nameFilters:[qsTr("Banco HolyScreen (*.db)")]
-        onAccepted:{root.pendingRestoreSource=selectedFile;restoreConfirmDialog.open()}
-    }
-    FileDialog {
-        id: diagnosticExportDialog
-        title: qsTr("Exportar diagnóstico do HolyScreen")
-        fileMode: FileDialog.SaveFile
-        nameFilters: [qsTr("Arquivo ZIP (*.zip)")]
-        defaultSuffix: "zip"
-        onAccepted: root.controller.maintenanceContext.exportDiagnostics(selectedFile)
-    }
-    Dialog {
-        id:restoreConfirmDialog;title:qsTr("Agendar restauração?");modal:true
-        standardButtons:Dialog.Ok|Dialog.Cancel
-        onAccepted:root.controller.maintenanceContext.scheduleRestore(root.pendingRestoreSource)
-        Label {text:qsTr("O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.");wrapMode:Text.WordWrap;width:420}
+    MaintenanceDialogs {
+        id: maintenanceDialogs
+        controller: root.controller.maintenanceContext
     }
 
     FileDialog {
