@@ -31,6 +31,11 @@ public:
     explicit IntegrationEngine(QObject *parent = nullptr);
     ~IntegrationEngine() override;
 
+    //! O motor não assume a posse do adapter nem do repositório, e chama os
+    //! dois durante a própria destruição para cancelar chamadas pendentes e
+    //! registrar o cancelamento. Ambos precisam sobreviver ao motor: quem os
+    //! mantém como membros deve declarar o motor **depois** deles, já que os
+    //! membros são destruídos na ordem inversa da declaração.
     void registerAdapter(IntegrationType type, IIntegrationAdapter *adapter);
     void setRepository(IIntegrationRepository *repository);
     void setSecretStore(ISecretStore *secretStore);

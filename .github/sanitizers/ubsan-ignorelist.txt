@@ -1,0 +1,12 @@
+# Lista de exceções do UndefinedBehaviorSanitizer no fluxo de release.
+#
+# Regra: só entram aqui caminhos de dependências de terceiros, e só para a
+# verificação específica que elas violam por escolha de projeto. Qualquer outro
+# comportamento indefinido, inclusive em terceiros, continua reprovando a
+# release.
+#
+# O sha1dc embutido no libgit2 lê blocos de 32 bits a partir de buffers de
+# bytes sem garantir alinhamento de quatro bytes. É intencional no algoritmo de
+# detecção de colisão e não é código do HolyScreen.
+[alignment]
+src:*/_deps/*

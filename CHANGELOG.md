@@ -19,6 +19,16 @@ controlled operation in a real service — was deliberately deferred past this
 release. The procedure and evidence form for every deferred gate is in
 [`docs/POST_1.0_VALIDATION.md`](docs/POST_1.0_VALIDATION.md).
 
+- Fixed a destruction-order defect surfaced by the first sanitizer run of the
+  release flow: the integration engine cancels pending calls through its
+  adapters and repository while being destroyed, so both must outlive it. The
+  engine tests declared it first and read destroyed objects; the lifetime
+  contract is now documented on `registerAdapter` and on the member ordering
+  that enforces it.
+- Scoped a UndefinedBehaviorSanitizer ignore entry to the misaligned loads in
+  libgit2's bundled sha1dc, so third-party design choices no longer fail the
+  release while every other undefined behaviour, including in dependencies,
+  still does.
 - Documented the field validation deferred past 1.0, with a procedure and an
   evidence form for each gate, plus the open macOS Metal texture warning
   observed under aggressive output reconfiguration during playback.
