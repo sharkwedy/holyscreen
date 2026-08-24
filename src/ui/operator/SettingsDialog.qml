@@ -206,11 +206,11 @@ Dialog {
                         Layout.fillWidth: true
                         Label { text: qsTr("Monitores detectados"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
                         Item { Layout.fillWidth: true }
-                        Button { text: qsTr("Identificar"); onClicked: settings.controller.identifyScreens() }
-                        Button { text: qsTr("Ativar todas"); onClicked: settings.controller.enableAllScreens() }
+                        Button { text: qsTr("Identificar"); onClicked: settings.controller.outputContext.identifyScreens() }
+                        Button { text: qsTr("Ativar todas"); onClicked: settings.controller.outputContext.enableAllScreens() }
                     }
                     Repeater {
-                        model: settings.controller.screens
+                        model: settings.controller.outputContext.screens
                         delegate: Rectangle {
                             id: screenRow
                             required property var modelData
@@ -230,13 +230,13 @@ Dialog {
                                     CheckBox {
                                         checked: screenRow.modelData.primary || screenRow.modelData.selected
                                         enabled: !screenRow.modelData.primary
-                                        onClicked: settings.controller.toggleScreen(screenRow.modelData.id, checked)
+                                        onClicked: settings.controller.outputContext.toggleScreen(screenRow.modelData.id, checked)
                                     }
                                     TextField {
                                         Layout.fillWidth: true
                                         text: screenRow.modelData.name
                                         readOnly: screenRow.modelData.primary || !screenRow.modelData.selected
-                                        onEditingFinished: settings.controller.setOutputDisplayName(screenRow.modelData.id, text)
+                                        onEditingFinished: settings.controller.outputContext.setOutputDisplayName(screenRow.modelData.id, text)
                                     }
                                     Label {
                                         text: screenRow.modelData.primary ? qsTr("OPERADOR")
@@ -253,7 +253,7 @@ Dialog {
                                         text: qsTr("Exibir vídeo")
                                         checked: screenRow.modelData.mediaEnabled
                                         palette.windowText: settings.textMain
-                                        onClicked: settings.controller.setOutputMediaEnabled(screenRow.modelData.id, checked)
+                                        onClicked: settings.controller.outputContext.setOutputMediaEnabled(screenRow.modelData.id, checked)
                                     }
                                     ComboBox {
                                         Layout.preferredWidth: 210
@@ -263,7 +263,7 @@ Dialog {
                                         textRole: "name"
                                         valueRole: "id"
                                         currentIndex: settings.valueIndex(model, screenRow.modelData.role)
-                                        onActivated: settings.controller.setOutputRole(screenRow.modelData.id, currentValue)
+                                        onActivated: settings.controller.outputContext.setOutputRole(screenRow.modelData.id, currentValue)
                                     }
                                     Item { Layout.fillWidth: true }
                                 }

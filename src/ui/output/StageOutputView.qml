@@ -12,13 +12,13 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: root.controller.blackout ? "#000000" : root.controller.wallpaperColor
+        color: root.controller.outputContext.blackout ? "#000000" : root.controller.wallpaperColor
     }
 
     StageView {
         anchors.fill: parent
         z: 100
-        visible: !root.controller.identifyVisible
+        visible: !root.controller.outputContext.identifyVisible
                  && !(root.mediaEnabled && root.controller.videoVisible)
         currentText: root.controller.currentPresentationType === "bible"
                      ? root.controller.bibleTextForSlide(
@@ -41,7 +41,7 @@ Item {
         anchors.fill: parent
         z: 110
         visible: root.mediaEnabled && root.controller.videoVisible
-                 && !root.controller.blackout
+                 && !root.controller.outputContext.blackout
         fillMode: VideoOutput.PreserveAspectFit
         Component.onCompleted: root.controller.registerVideoSink(videoOutput.videoSink)
         Component.onDestruction: root.controller.unregisterVideoSink(videoOutput.videoSink)

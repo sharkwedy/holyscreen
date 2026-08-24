@@ -107,7 +107,7 @@ Window {
     Rectangle {
         anchors.fill: parent
         z: 1000
-        visible: root.controller.identifyVisible
+        visible: root.controller.outputContext.identifyVisible
         color: "#0f172a"
         opacity: 0.92
         Text {

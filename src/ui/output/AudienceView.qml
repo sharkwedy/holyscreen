@@ -12,12 +12,12 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: root.controller.blackout ? "#000000" : root.controller.wallpaperColor
+        color: root.controller.outputContext.blackout ? "#000000" : root.controller.wallpaperColor
     }
 
     Image {
         anchors.fill: parent
-        visible: !root.controller.blackout && source.toString().length > 0
+        visible: !root.controller.outputContext.blackout && source.toString().length > 0
         source: root.controller.wallpaperSource
         asynchronous: true
         cache: true
@@ -30,7 +30,7 @@ Item {
     PresentationImageLayer {
         anchors.fill: parent
         controller: root.controller
-        isBlackout: root.controller.blackout
+        isBlackout: root.controller.outputContext.blackout
     }
 
     VideoOutput {
@@ -38,7 +38,7 @@ Item {
         anchors.fill: parent
         z: 60
         visible: root.mediaEnabled && root.controller.videoVisible
-                 && !root.controller.blackout
+                 && !root.controller.outputContext.blackout
         fillMode: VideoOutput.PreserveAspectFit
         Component.onCompleted: root.controller.registerVideoSink(videoOutput.videoSink)
         Component.onDestruction: root.controller.unregisterVideoSink(videoOutput.videoSink)
@@ -47,7 +47,7 @@ Item {
     PresentationTextLayer {
         anchors.fill: parent
         controller: root.controller
-        isBlackout: root.controller.blackout
+        isBlackout: root.controller.outputContext.blackout
         textOverride: root.controller.currentPresentationType === "bible"
                       ? root.controller.bibleTextForSlide(
                             root.controller.currentSlideIndex, root.bibleTranslationId)
@@ -56,13 +56,13 @@ Item {
 
     OutputClock {
         controller: root.controller
-        isBlackout: root.controller.blackout
+        isBlackout: root.controller.outputContext.blackout
     }
 
     LiveOverlays {
         anchors.fill: parent
         z: 80
-        visible: !root.controller.blackout
+        visible: !root.controller.outputContext.blackout
         message: root.controller.audienceMessage
         alertMessage: root.controller.alertMessage
         lowerThirdTitle: root.controller.lowerThirdTitle

@@ -22,7 +22,7 @@ ColumnLayout {
     spacing: 8
 
     function apply(changes) {
-        root.controller.setOutputBroadcastProfile(root.screen.id, changes)
+        root.controller.outputContext.setOutputBroadcastProfile(root.screen.id, changes)
     }
 
     RowLayout {
