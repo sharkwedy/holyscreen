@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized every Settings tab in pt-BR/en-US, including profiles, shortcuts,
+  displays, media, background, clock, remote control, and development options;
+  also removed the Settings shortcut delegate's QML lint warnings.
 - Localized Dashboard library, player, display selection, playlist, Bible, and
   media context actions in pt-BR/en-US, with accessible transport names.
 - Localized the complete Automations editor and authorized-process dialogs in
