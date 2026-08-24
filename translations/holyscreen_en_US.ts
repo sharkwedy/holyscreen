@@ -1006,57 +1006,62 @@
         <translation>Search media...</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="116"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="93"/>
+        <source>Pesquisar mídia</source>
+        <translation>Search media</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="119"/>
         <source>Letras</source>
         <translation>Lyrics</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="116"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="119"/>
         <source>Áudio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="117"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="120"/>
         <source>Vídeo</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="117"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="120"/>
         <source>Imagem</source>
         <translation>Image</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="170"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="173"/>
         <source>Sem título</source>
         <translation>Untitled</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="177"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="180"/>
         <source>Letra</source>
         <translation>Lyrics</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="186"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="189"/>
         <source>ABRIR</source>
         <translation>OPEN</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="208"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="211"/>
         <source>Adicione pastas na Biblioteca para ver suas mídias</source>
         <translation>Add folders to the Library to see your media</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="209"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="212"/>
         <source>Nenhum arquivo encontrado</source>
         <translation>No files found</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="222"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="225"/>
         <source>%1 itens</source>
         <translation>%1 items</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/LibraryPanel.qml" line="228"/>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="231"/>
         <source>Biblioteca</source>
         <translation>Library</translation>
     </message>

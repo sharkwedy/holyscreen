@@ -290,6 +290,14 @@ target_compile_definitions(test_translation_catalog PRIVATE
 )
 add_test(NAME test_translation_catalog COMMAND test_translation_catalog)
 
+qt_add_executable(test_qml_accessibility_contract
+    unit/app/QmlAccessibilityContractTest.cpp)
+target_link_libraries(test_qml_accessibility_contract PRIVATE Qt6::Test Qt6::Core)
+target_compile_definitions(test_qml_accessibility_contract PRIVATE
+    HOLYSCREEN_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+add_test(NAME test_qml_accessibility_contract COMMAND test_qml_accessibility_contract)
+
 qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_local_api_server COMMAND test_local_api_server)

@@ -22,6 +22,8 @@ Button {
         radius: 6
         color: playerButton.down ? "#526173"
               : playerButton.hovered ? "#3c4650" : "transparent"
-        border.color: playerButton.highlighted ? "#9fb3ff" : "transparent"
+        border.color: playerButton.activeFocus || playerButton.highlighted
+                      ? "#9fb3ff" : "transparent"
+        border.width: playerButton.activeFocus ? 2 : 1
     }
 }

@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added visible keyboard focus to custom playback and media search controls,
+  plus a source contract that rejects icon-only buttons without accessible
+  names.
 - Moved presentation, undo/redo, blackout, Bible, backup, update and window
   activation shortcuts into the reusable `OperatorShortcuts` component.
 - Unified audio, video and image pickers with drag-and-drop classification in
