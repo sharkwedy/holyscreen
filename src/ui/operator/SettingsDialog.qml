@@ -293,6 +293,30 @@ Dialog {
                         Slider { Layout.fillWidth: true; from: 0; to: 1; value: settings.controller.mediaVolume; onMoved: settings.controller.mediaVolume = value }
                     }
                     RowLayout {
+                        Label { text: qsTr("Saída de áudio"); color: settings.textMain; Layout.preferredWidth: 160 }
+                        ComboBox {
+                            Layout.fillWidth: true
+                            model: [{"id":"", "displayName":qsTr("Selecione um dispositivo")}]
+                                   .concat(settings.controller.mediaContext.audioOutputs)
+                            textRole: "displayName"
+                            valueRole: "id"
+                            currentIndex: settings.valueIndex(
+                                              model, settings.controller.mediaContext.audioOutputId)
+                            Accessible.name: qsTr("Dispositivo de saída de áudio")
+                            onActivated: {
+                                if (currentValue.length > 0)
+                                    settings.controller.mediaContext.audioOutputId = currentValue
+                            }
+                        }
+                    }
+                    Label {
+                        visible: settings.controller.mediaContext.audioOutputs.length === 0
+                        Layout.fillWidth: true
+                        text: qsTr("Nenhum dispositivo de áudio foi detectado. Verifique a conexão e tente novamente.")
+                        color: "#f0c36a"
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
                         Label { text: qsTr("Repetição"); color: settings.textMain; Layout.preferredWidth: 160 }
                         ComboBox {
                             Layout.fillWidth: true

@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added persistent audio-output selection with hot-plug fallback to the system
+  default, profile import/export support and a truthful onboarding audio gate.
 - Extracted the operator header and favorites into a dedicated component, and
   connected the previously inert Agenda action to the service-playlist editor
   with destructive-history confirmation.

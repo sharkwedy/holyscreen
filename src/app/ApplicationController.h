@@ -75,6 +75,8 @@
 #include <atomic>
 #include <memory>
 
+QT_FORWARD_DECLARE_CLASS(QMediaDevices)
+
 namespace churchpresenter {
 
 class ApplicationController final : public QObject {
@@ -170,6 +172,9 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(int mediaDurationMs READ mediaDurationMs NOTIFY mediaDurationChanged)
     Q_PROPERTY(double mediaVolume READ mediaVolume WRITE setMediaVolume NOTIFY mediaVolumeChanged)
     Q_PROPERTY(QString mediaRepeatMode READ mediaRepeatMode WRITE setMediaRepeatMode NOTIFY mediaRepeatModeChanged)
+    Q_PROPERTY(QVariantList audioOutputs READ audioOutputs NOTIFY audioOutputsChanged)
+    Q_PROPERTY(QString audioOutputId READ audioOutputId WRITE setAudioOutputId NOTIFY audioOutputsChanged)
+    Q_PROPERTY(bool audioOutputConfigured READ audioOutputConfigured NOTIFY audioOutputsChanged)
     Q_PROPERTY(QVariantList audioLibrary READ audioLibrary NOTIFY audioLibraryChanged)
     Q_PROPERTY(QString currentAudioId READ currentAudioId NOTIFY currentAudioChanged)
     Q_PROPERTY(QString currentAudioTitle READ currentAudioTitle NOTIFY currentAudioChanged)
@@ -346,6 +351,9 @@ public:
     [[nodiscard]] int mediaDurationMs() const;
     [[nodiscard]] double mediaVolume() const;
     [[nodiscard]] QString mediaRepeatMode() const;
+    [[nodiscard]] QVariantList audioOutputs() const;
+    [[nodiscard]] QString audioOutputId() const;
+    [[nodiscard]] bool audioOutputConfigured() const;
     [[nodiscard]] QVariantList audioLibrary() const;
     [[nodiscard]] QString currentAudioId() const;
     [[nodiscard]] QString currentAudioTitle() const;
@@ -607,6 +615,7 @@ public slots:
     void setRemoteInterface(const QString &interfaceAddress);
     void setMediaVolume(double volume);
     void setMediaRepeatMode(const QString &mode);
+    void setAudioOutputId(const QString &id);
     void setAudioVolume(double volume);
     void setVideoVolume(double volume);
     void setVideoLoop(bool loop);
@@ -664,6 +673,7 @@ signals:
     void mediaDurationChanged();
     void mediaVolumeChanged();
     void mediaRepeatModeChanged();
+    void audioOutputsChanged();
     void audioLibraryChanged();
     void currentAudioChanged();
     void audioStateChanged();
@@ -723,6 +733,7 @@ private:
     void refreshScreens();
     void loadSettings();
     void saveSetting(const QString &key, const QVariant &value);
+    void applyAudioOutputSelection();
     void saveOutputs();
     void setStatusMessage(const QString &message);
     void refreshMediaPlaylist();
@@ -802,6 +813,8 @@ private:
     QString m_clockPosition = QStringLiteral("bottomRight");
     ClockController m_clock;
     VideoEngine m_video;
+    std::unique_ptr<QMediaDevices> m_mediaDevices;
+    QString m_audioOutputId;
     TimedMediaPlayback m_stillMedia;
     ImagePresentationController m_images;
     QString m_clockFontFamily;

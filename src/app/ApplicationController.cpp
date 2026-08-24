@@ -37,6 +37,7 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QLocale>
+#include <QMediaDevices>
 #include <QSysInfo>
 #include <QDateTime>
 #include <QDirIterator>
@@ -319,6 +320,16 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    m_mediaDevices = std::make_unique<QMediaDevices>();
+    connect(m_mediaDevices.get(), &QMediaDevices::audioOutputsChanged, this, [this] {
+        const bool selectedDeviceWasActive = !m_audioOutputId.isEmpty()
+            && QString::fromLatin1(m_video.audioDevice().id().toHex()) == m_audioOutputId;
+        applyAudioOutputSelection();
+        emit audioOutputsChanged();
+        if (selectedDeviceWasActive && !audioOutputConfigured()) {
+            setStatusMessage(tr("A saída de áudio selecionada foi desconectada; usando a saída padrão."));
+        }
+    });
     m_remoteServer.setStateProvider([this] { return remoteState(); });
     m_remoteServer.setCommandDispatcher([this](const Command &command) {
         return m_commandBus.dispatch(command);
@@ -645,6 +656,27 @@ int ApplicationController::mediaDurationMs() const
 }
 double ApplicationController::mediaVolume() const { return m_video.volume(); }
 QString ApplicationController::mediaRepeatMode() const { return m_mediaRepeatMode; }
+QVariantList ApplicationController::audioOutputs() const
+{
+    QVariantList outputs;
+    const auto defaultDevice = QMediaDevices::defaultAudioOutput();
+    for (const auto &device : QMediaDevices::audioOutputs()) {
+        outputs.append(QVariantMap{
+            {QStringLiteral("id"), QString::fromLatin1(device.id().toHex())},
+            {QStringLiteral("displayName"), device.description()},
+            {QStringLiteral("isDefault"), device == defaultDevice},
+        });
+    }
+    return outputs;
+}
+QString ApplicationController::audioOutputId() const { return m_audioOutputId; }
+bool ApplicationController::audioOutputConfigured() const
+{
+    if (m_audioOutputId.isEmpty()) return false;
+    return std::ranges::any_of(QMediaDevices::audioOutputs(), [this](const QAudioDevice &device) {
+        return QString::fromLatin1(device.id().toHex()) == m_audioOutputId;
+    });
+}
 QVariantList ApplicationController::audioLibrary() const { return m_audioLibrary; }
 QString ApplicationController::currentAudioId() const { return m_currentAudioId; }
 
@@ -1623,6 +1655,7 @@ QVariantMap ApplicationController::exportConfiguration(const QUrl &destination) 
          }},
         {QStringLiteral("media"), QVariantMap{
              {QStringLiteral("volume"), mediaVolume()},
+             {QStringLiteral("audioOutputId"), audioOutputId()},
              {QStringLiteral("repeatMode"), mediaRepeatMode()},
              {QStringLiteral("imageFit"), imageFit()},
              {QStringLiteral("imageTransition"), imageTransition()},
@@ -1713,6 +1746,7 @@ QVariantMap ApplicationController::importConfiguration(const QUrl &source)
     if (presentation.contains(QStringLiteral("clockColor"))) setClockColor(presentation.value(QStringLiteral("clockColor")).toString());
     const auto media = profile.value(QStringLiteral("media")).toMap();
     if (media.contains(QStringLiteral("volume"))) setMediaVolume(media.value(QStringLiteral("volume")).toDouble());
+    if (media.contains(QStringLiteral("audioOutputId"))) setAudioOutputId(media.value(QStringLiteral("audioOutputId")).toString());
     if (media.contains(QStringLiteral("repeatMode"))) setMediaRepeatMode(media.value(QStringLiteral("repeatMode")).toString());
     if (media.contains(QStringLiteral("imageFit"))) setImageFit(media.value(QStringLiteral("imageFit")).toString());
     if (media.contains(QStringLiteral("imageTransition"))) setImageTransition(media.value(QStringLiteral("imageTransition")).toString());
@@ -3637,6 +3671,43 @@ void ApplicationController::setMediaRepeatMode(const QString &mode)
     m_mediaCommands->requestRepeat(mode);
 }
 
+void ApplicationController::setAudioOutputId(const QString &id)
+{
+    const auto normalized = id.trimmed();
+    if (normalized.isEmpty()) {
+        if (m_audioOutputId.isEmpty()) return;
+        m_audioOutputId.clear();
+        m_video.setAudioDevice(QMediaDevices::defaultAudioOutput());
+        saveSetting(QStringLiteral("audioOutputId"), m_audioOutputId);
+        emit audioOutputsChanged();
+        return;
+    }
+    const auto devices = QMediaDevices::audioOutputs();
+    const auto found = std::ranges::find_if(devices, [&normalized](const QAudioDevice &device) {
+        return QString::fromLatin1(device.id().toHex()) == normalized;
+    });
+    if (found == devices.cend()) {
+        setStatusMessage(tr("A saída de áudio selecionada não está disponível."));
+        return;
+    }
+    if (m_audioOutputId == normalized && m_video.audioDevice() == *found) return;
+    m_audioOutputId = normalized;
+    m_video.setAudioDevice(*found);
+    saveSetting(QStringLiteral("audioOutputId"), m_audioOutputId);
+    emit audioOutputsChanged();
+    setStatusMessage(tr("Saída de áudio alterada para %1.").arg(found->description()));
+}
+
+void ApplicationController::applyAudioOutputSelection()
+{
+    const auto devices = QMediaDevices::audioOutputs();
+    const auto found = std::ranges::find_if(devices, [this](const QAudioDevice &device) {
+        return QString::fromLatin1(device.id().toHex()) == m_audioOutputId;
+    });
+    m_video.setAudioDevice(found != devices.cend() ? *found
+                                                   : QMediaDevices::defaultAudioOutput());
+}
+
 void ApplicationController::applyMediaRepeatMode(const QString &mode)
 {
     const auto normalized = mode == QStringLiteral("one") ? QStringLiteral("one")
@@ -3837,6 +3908,9 @@ void ApplicationController::loadSettings()
     const auto legacyVolume = m_settings->value(QStringLiteral("presentation/videoVolume"),
         m_settings->value(QStringLiteral("presentation/audioVolume"), 0.8)).toDouble();
     m_video.setVolume(m_settings->value(QStringLiteral("presentation/mediaVolume"), legacyVolume).toDouble());
+    m_audioOutputId = m_settings->value(
+        QStringLiteral("presentation/audioOutputId"), QString{}).toString();
+    applyAudioOutputSelection();
     m_mediaRepeatMode = m_settings->value(QStringLiteral("presentation/mediaRepeatMode"),
         m_settings->value(QStringLiteral("presentation/videoLoop"), false).toBool()
             ? QStringLiteral("one") : QStringLiteral("off")).toString();

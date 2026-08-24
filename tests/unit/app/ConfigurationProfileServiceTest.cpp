@@ -26,6 +26,7 @@ void ConfigurationProfileServiceTest::roundTripsACompleteSecretFreeProfile()
          }},
         {QStringLiteral("media"), QVariantMap{
              {QStringLiteral("volume"), 0.75},
+             {QStringLiteral("audioOutputId"), QStringLiteral("device-123")},
              {QStringLiteral("repeatMode"), QStringLiteral("all")},
              {QStringLiteral("imageIntervalMs"), 5000},
          }},
@@ -59,6 +60,9 @@ void ConfigurationProfileServiceTest::roundTripsACompleteSecretFreeProfile()
     QCOMPARE(parsed.profile.value(QStringLiteral("locale")).toString(), QStringLiteral("pt-BR"));
     QCOMPARE(parsed.profile.value(QStringLiteral("media")).toMap()
                  .value(QStringLiteral("volume")).toDouble(), 0.75);
+    QCOMPARE(parsed.profile.value(QStringLiteral("media")).toMap()
+                 .value(QStringLiteral("audioOutputId")).toString(),
+             QStringLiteral("device-123"));
     QCOMPARE(parsed.profile.value(QStringLiteral("library")).toMap()
                  .value(QStringLiteral("mediaFolders")).toStringList(),
              QStringList{QStringLiteral("D:/media")});

@@ -17,6 +17,7 @@ MediaContext::MediaContext(ApplicationController &controller, QObject *parent)
     connect(&controller, &ApplicationController::mediaDurationChanged, this, &MediaContext::mediaDurationChanged);
     connect(&controller, &ApplicationController::mediaVolumeChanged, this, &MediaContext::mediaVolumeChanged);
     connect(&controller, &ApplicationController::mediaRepeatModeChanged, this, &MediaContext::mediaRepeatModeChanged);
+    connect(&controller, &ApplicationController::audioOutputsChanged, this, &MediaContext::audioOutputsChanged);
 }
 
 QVariantList MediaContext::mediaPlaylist() const { return m_controller.mediaPlaylist(); }
@@ -41,6 +42,10 @@ double MediaContext::mediaVolume() const { return m_controller.mediaVolume(); }
 void MediaContext::setMediaVolume(double value) { m_controller.setMediaVolume(value); }
 QString MediaContext::mediaRepeatMode() const { return m_controller.mediaRepeatMode(); }
 void MediaContext::setMediaRepeatMode(const QString &value) { m_controller.setMediaRepeatMode(value); }
+QVariantList MediaContext::audioOutputs() const { return m_controller.audioOutputs(); }
+QString MediaContext::audioOutputId() const { return m_controller.audioOutputId(); }
+void MediaContext::setAudioOutputId(const QString &id) { m_controller.setAudioOutputId(id); }
+bool MediaContext::audioOutputConfigured() const { return m_controller.audioOutputConfigured(); }
 bool MediaContext::addMediaFolder(const QUrl &folder) { return m_controller.addMediaFolder(folder); }
 void MediaContext::removeMediaFolder(const QString &path) { m_controller.removeMediaFolder(path); }
 void MediaContext::rescanMediaFolders() { m_controller.rescanMediaFolders(); }
