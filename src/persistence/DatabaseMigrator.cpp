@@ -21,8 +21,9 @@ QString uniqueConnectionName(const QString &prefix)
 
 } // namespace
 
-DatabaseMigrator::DatabaseMigrator(QString databasePath)
+DatabaseMigrator::DatabaseMigrator(QString databasePath, BackupCopier backupCopier)
     : m_databasePath(std::move(databasePath))
+    , m_backupCopier(std::move(backupCopier))
 {
 }
 
@@ -96,7 +97,10 @@ MigrationResult DatabaseMigrator::migrate() const
             .arg(m_databasePath,
                  QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyyMMdd-HHmmsszzz")),
                  QUuid::createUuid().toString(QUuid::WithoutBraces));
-        if (!QFile::copy(m_databasePath, result.backupPath)) {
+        const auto copied = m_backupCopier
+            ? m_backupCopier(m_databasePath, result.backupPath)
+            : QFile::copy(m_databasePath, result.backupPath);
+        if (!copied) {
             result.error = QStringLiteral("Não foi possível criar o backup pré-migração.");
             result.backupPath.clear();
             return result;

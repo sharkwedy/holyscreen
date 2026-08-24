@@ -101,7 +101,7 @@ incremento:
 cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-cmake --build build --target church-presenter_qmllint
+cmake --build build --target presenter-ui_qmllint
 git diff --check
 ```
 

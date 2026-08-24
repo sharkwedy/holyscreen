@@ -60,6 +60,11 @@ void VideoEngine::loadFromPath(const QString &path)
 
 void VideoEngine::play()
 {
+    if (!m_currentMedia.path.isEmpty() && !QFile::exists(m_currentMedia.path)) {
+        m_frameBus.clear();
+        setError(VideoError::FileNotFound);
+        return;
+    }
     if (m_error == VideoError::None && m_state != VideoState::Playing) m_player->play();
 }
 
@@ -149,11 +154,18 @@ void VideoEngine::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
     }
 }
 
-void VideoEngine::onErrorOccurred(QMediaPlayer::Error, const QString &message)
+void VideoEngine::onErrorOccurred(QMediaPlayer::Error playerError, const QString &message)
 {
     auto error = VideoError::DecodeError;
-    if (message.contains(QStringLiteral("not found"), Qt::CaseInsensitive)) error = VideoError::FileNotFound;
-    else if (message.contains(QStringLiteral("read"), Qt::CaseInsensitive)) error = VideoError::ReadError;
+    if (message.contains(QStringLiteral("not found"), Qt::CaseInsensitive)) {
+        error = VideoError::FileNotFound;
+    } else if (playerError == QMediaPlayer::FormatError) {
+        error = VideoError::UnsupportedFormat;
+    } else if (playerError == QMediaPlayer::AccessDeniedError
+               || playerError == QMediaPlayer::ResourceError
+               || message.contains(QStringLiteral("read"), Qt::CaseInsensitive)) {
+        error = VideoError::ReadError;
+    }
     setError(error);
 }
 

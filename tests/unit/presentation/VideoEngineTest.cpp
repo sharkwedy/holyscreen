@@ -3,6 +3,9 @@
 
 #include "presentation/VideoEngine.h"
 
+#include <QFile>
+#include <QTemporaryDir>
+
 using namespace churchpresenter;
 
 class VideoEngineTest final : public QObject {
@@ -10,6 +13,8 @@ class VideoEngineTest final : public QObject {
 
 private slots:
     void reportsMissingFiles();
+    void reportsFilesRemovedBeforePlayback();
+    void mapsMissingCodecsToUnsupportedFormat();
     void clampsVolumeAndConfiguresLoop();
 };
 
@@ -21,6 +26,38 @@ void VideoEngineTest::reportsMissingFiles()
     QCOMPARE(engine.error(), VideoError::FileNotFound);
     QCOMPARE(engine.state(), VideoState::Error);
     QCOMPARE(errors.size(), 1);
+}
+
+void VideoEngineTest::reportsFilesRemovedBeforePlayback()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto path = directory.filePath(QStringLiteral("removed.mp4"));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    QVERIFY(file.write("placeholder") > 0);
+    file.close();
+
+    VideoEngine engine;
+    engine.loadFromPath(path);
+    QVERIFY(QFile::remove(path));
+    QSignalSpy errors(&engine, &VideoEngine::errorOccurred);
+
+    engine.play();
+
+    QCOMPARE(engine.error(), VideoError::FileNotFound);
+    QCOMPARE(engine.state(), VideoState::Error);
+    QCOMPARE(errors.size(), 1);
+}
+
+void VideoEngineTest::mapsMissingCodecsToUnsupportedFormat()
+{
+    VideoEngine engine;
+    QVERIFY(QMetaObject::invokeMethod(&engine, "onErrorOccurred", Qt::DirectConnection,
+                                      Q_ARG(QMediaPlayer::Error, QMediaPlayer::FormatError),
+                                      Q_ARG(QString, QStringLiteral("codec unavailable"))));
+    QCOMPARE(engine.error(), VideoError::UnsupportedFormat);
+    QCOMPARE(engine.state(), VideoState::Error);
 }
 
 void VideoEngineTest::clampsVolumeAndConfiguresLoop()

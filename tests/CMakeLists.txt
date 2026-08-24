@@ -208,6 +208,11 @@ qt_add_executable(test_application_database unit/persistence/ApplicationDatabase
 target_link_libraries(test_application_database PRIVATE Qt6::Test presenter-persistence)
 add_test(NAME test_application_database COMMAND test_application_database)
 
+qt_add_executable(test_upgrade_compatibility
+    integration/persistence/UpgradeCompatibilityTest.cpp)
+target_link_libraries(test_upgrade_compatibility PRIVATE Qt6::Test presenter-persistence)
+add_test(NAME test_upgrade_compatibility COMMAND test_upgrade_compatibility)
+
 qt_add_executable(test_automation_repository unit/library/AutomationRepositoryTest.cpp)
 target_link_libraries(test_automation_repository PRIVATE Qt6::Test presenter-library presenter-persistence)
 add_test(NAME test_automation_repository COMMAND test_automation_repository)
@@ -360,3 +365,30 @@ set_tests_properties(test_app_starts PROPERTIES
     FAIL_REGULAR_EXPRESSION "QQmlApplicationEngine failed;does not support customization;Binding loop detected"
     TIMEOUT 15
 )
+
+qt_add_executable(test_performance_budgets performance/PerformanceBudgetTest.cpp)
+target_link_libraries(test_performance_budgets PRIVATE
+    Qt6::Test Qt6::Gui presenter-core presenter-presentation)
+add_test(NAME test_performance_budgets COMMAND test_performance_budgets)
+set_tests_properties(test_performance_budgets PROPERTIES TIMEOUT 20)
+
+# Every test belongs to one primary suite so CTest can run and report the RC
+# layers independently (`ctest -L unit`, `-L integration`, `-L qml`, `-L e2e`
+# and `-L performance`). Pixel contracts in the QML suite also form the golden
+# suite used for deterministic output colors and safe areas.
+get_property(HOLYSCREEN_REGISTERED_TESTS DIRECTORY PROPERTY TESTS)
+set_tests_properties(${HOLYSCREEN_REGISTERED_TESTS} PROPERTIES LABELS "unit")
+set_tests_properties(
+    test_http_integration_adapter
+    test_websocket_integration_adapter
+    test_obs_integration_adapter
+    test_local_api_server
+    test_database_migrator
+    test_application_database
+    test_upgrade_compatibility
+    PROPERTIES LABELS "integration"
+)
+set_tests_properties(test_qml_output_views PROPERTIES LABELS "qml;golden")
+set_tests_properties(test_application_command_bridge test_app_starts
+    PROPERTIES LABELS "e2e")
+set_tests_properties(test_performance_budgets PROPERTIES LABELS "performance")
