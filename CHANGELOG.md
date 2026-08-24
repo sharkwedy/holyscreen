@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Removed the hidden legacy operator workspace that was still instantiated
+  behind the active modular dashboard, together with its stale shortcuts and
+  duplicate bindings.
 - Localized operator-facing C++ status, validation, automation, integration,
   media, Bible, backup and remote-control messages, and formatted authorized
   executable timestamps using the selected locale.
