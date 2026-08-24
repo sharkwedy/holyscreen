@@ -205,7 +205,7 @@ Item {
 
     Dialog {
         id: screenRenameDialog
-        title: "Renomear monitor"
+        title: qsTr("Renomear monitor")
         modal: true
         anchors.centerIn: parent
         width: 430
@@ -218,17 +218,17 @@ Item {
         contentItem: ColumnLayout {
             spacing: 10
             Label {
-                text: "Nome que será exibido no HolyScreen:"
+                text: qsTr("Nome que será exibido no HolyScreen:")
                 color: dashboard.textMain
             }
             TextField {
                 id: screenNameField
                 Layout.fillWidth: true
-                placeholderText: "Ex.: Projetor principal"
+                placeholderText: qsTr("Ex.: Projetor principal")
                 onAccepted: screenRenameDialog.accept()
             }
             Label {
-                text: "O nome técnico do monitor no Windows não será alterado."
+                text: qsTr("O nome técnico do monitor no Windows não será alterado.")
                 color: dashboard.textMuted
                 font.pixelSize: 11
             }
@@ -238,7 +238,7 @@ Item {
     Menu {
         id: mediaContextMenu
         MenuItem {
-            text: "Abrir local do arquivo"
+            text: qsTr("Abrir local do arquivo")
             enabled: dashboard.contextMediaItem !== null
                      && (dashboard.contextMediaItem.path || "").length > 0
             onTriggered: dashboard.controller.openFileLocation(
@@ -252,9 +252,9 @@ Item {
                 const favorites = dashboard.controller.favoriteMedia
                 for (let index = 0; index < favorites.length; ++index) {
                     if (favorites[index].path === path)
-                        return "★ Remover dos favoritos"
+                        return qsTr("★ Remover dos favoritos")
                 }
-                return "☆ Adicionar aos favoritos"
+                return qsTr("☆ Adicionar aos favoritos")
             }
             enabled: dashboard.contextMediaItem !== null
                      && (dashboard.contextMediaItem.path || "").length > 0
@@ -347,7 +347,7 @@ Item {
                         TextField {
                             id: mediaSearch
                             Layout.fillWidth: true
-                            placeholderText: "Pesquisar mídia..."
+                            placeholderText: qsTr("Pesquisar mídia...")
                             placeholderTextColor: "#9ca6ad"
                             color: dashboard.textMain
                             selectionColor: dashboard.accent
@@ -364,7 +364,8 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true; spacing: 5
                             Repeater {
-                                model: ["Letras", "Áudio", "Vídeo", "Imagem"]
+                                model: [qsTr("Letras"), qsTr("Áudio"),
+                                        qsTr("Vídeo"), qsTr("Imagem")]
                                 Button {
                                     required property string modelData
                                     required property int index
@@ -399,15 +400,19 @@ Item {
                             }
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 1
-                                Label { Layout.fillWidth: true; text: catalogDelegate.modelData.fileName || catalogDelegate.modelData.title || "Sem título"; color: dashboard.textMain; elide: Text.ElideRight }
+                                Label { Layout.fillWidth: true; text: catalogDelegate.modelData.fileName || catalogDelegate.modelData.title || qsTr("Sem título"); color: dashboard.textMain; elide: Text.ElideRight }
                                 Label {
                                     Layout.fillWidth: true
-                                    text: dashboard.selectedLibraryTab === 0 ? (catalogDelegate.modelData.author || "Letra") : (catalogDelegate.modelData.folderPath || "")
+                                    text: dashboard.selectedLibraryTab === 0
+                                          ? (catalogDelegate.modelData.author || qsTr("Letra"))
+                                          : (catalogDelegate.modelData.folderPath || "")
                                     color: dashboard.textMuted; font.pixelSize: 11; elide: Text.ElideMiddle
                                 }
                             }
                             Button {
-                                text: dashboard.selectedLibraryTab === 0 ? "ABRIR" : (catalogDelegate.modelData.inPlaylist ? "✓" : "+")
+                                text: dashboard.selectedLibraryTab === 0
+                                      ? qsTr("ABRIR")
+                                      : (catalogDelegate.modelData.inPlaylist ? "✓" : "+")
                                 flat: true
                                 enabled: dashboard.selectedLibraryTab === 0 || !catalogDelegate.modelData.inPlaylist
                                 onClicked: dashboard.activateLibraryItem(catalogDelegate.modelData)
@@ -424,8 +429,8 @@ Item {
                         anchors.centerIn: parent
                         visible: libraryList.count === 0
                         text: dashboard.controller.mediaFolders.length === 0 && dashboard.selectedLibraryTab > 0
-                              ? "Adicione pastas na Biblioteca para ver suas mídias"
-                              : "Nenhum arquivo encontrado"
+                              ? qsTr("Adicione pastas na Biblioteca para ver suas mídias")
+                              : qsTr("Nenhum arquivo encontrado")
                         color: dashboard.textMuted
                     }
                 }
@@ -433,9 +438,9 @@ Item {
                     Layout.fillWidth: true; Layout.preferredHeight: 42; color: dashboard.panelHigh
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10
-                        Label { text: libraryList.count + " itens"; color: dashboard.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("%1 itens").arg(libraryList.count); color: dashboard.textMuted; font.pixelSize: 11 }
                         Item { Layout.fillWidth: true }
-                        Button { text: "Biblioteca"; flat: true; onClicked: dashboard.openLibrary() }
+                        Button { text: qsTr("Biblioteca"); flat: true; onClicked: dashboard.openLibrary() }
                     }
                 }
             }
@@ -472,7 +477,7 @@ Item {
                         SimulatedOutput {
                             anchors.fill: parent
                             controller: dashboard.controller
-                            outputLabel: "PRÉVIA"
+                            outputLabel: qsTr("PRÉVIA")
                             identifier: 1
                             wallpaper: dashboard.controller.wallpaperColor
                             wallpaperSource: dashboard.controller.wallpaperSource
@@ -512,7 +517,7 @@ Item {
                             Layout.fillWidth: true
                             PlayerButton {
                                 text: "⇄"
-                                Accessible.name: "Embaralhar playlist"
+                                Accessible.name: qsTr("Embaralhar playlist")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
                                 onClicked: dashboard.controller.shuffleMediaPlaylist()
@@ -521,10 +526,10 @@ Item {
                                 text: dashboard.controller.mediaRepeatMode === "one" ? "↻¹" : "↻"
                                 highlighted: dashboard.controller.mediaRepeatMode !== "off"
                                 Accessible.name: dashboard.controller.mediaRepeatMode === "off"
-                                                 ? "Ativar repetição de toda a playlist"
+                                                 ? qsTr("Ativar repetição de toda a playlist")
                                                  : dashboard.controller.mediaRepeatMode === "all"
-                                                   ? "Repetir somente o item atual"
-                                                   : "Desativar repetição"
+                                                   ? qsTr("Repetir somente o item atual")
+                                                   : qsTr("Desativar repetição")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
                                 onClicked: dashboard.controller.mediaRepeatMode =
@@ -532,20 +537,36 @@ Item {
                                              : dashboard.controller.mediaRepeatMode === "all" ? "one" : "off"
                             }
                             Item { Layout.fillWidth: true }
-                            PlayerButton { text: "⏮"; onClicked: dashboard.controller.previousMedia() }
+                            PlayerButton {
+                                text: "⏮"
+                                Accessible.name: qsTr("Mídia anterior")
+                                onClicked: dashboard.controller.previousMedia()
+                            }
                             PlayerButton {
                                 text: dashboard.controller.mediaState === "playing"
                                       || dashboard.controller.mediaState === "buffering" ? "⏸" : "▶"
                                 highlighted: true
+                                Accessible.name: dashboard.controller.mediaState === "playing"
+                                                 || dashboard.controller.mediaState === "buffering"
+                                                 ? qsTr("Pausar") : qsTr("Reproduzir")
                                 onClicked: dashboard.controller.toggleMediaPause()
                             }
-                            PlayerButton { text: "■"; onClicked: dashboard.controller.stopMedia() }
-                            PlayerButton { text: "⏭"; onClicked: dashboard.controller.nextMedia() }
+                            PlayerButton {
+                                text: "■"
+                                Accessible.name: qsTr("Parar")
+                                onClicked: dashboard.controller.stopMedia()
+                            }
+                            PlayerButton {
+                                text: "⏭"
+                                Accessible.name: qsTr("Próxima mídia")
+                                onClicked: dashboard.controller.nextMedia()
+                            }
                             Item { Layout.fillWidth: true }
                             PlayerButton {
                                 implicitWidth: 42
                                 text: dashboard.controller.mediaVolume > 0.001 ? "🔊" : "🔇"
-                                Accessible.name: dashboard.controller.mediaVolume > 0.001 ? "Mutar" : "Desmutar"
+                                Accessible.name: dashboard.controller.mediaVolume > 0.001
+                                                 ? qsTr("Mutar") : qsTr("Desmutar")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
                                 onClicked: {
@@ -563,8 +584,8 @@ Item {
                                 implicitWidth: 42
                                 text: dashboard.screenControlsExpanded ? "▾" : "▸"
                                 Accessible.name: dashboard.screenControlsExpanded
-                                                 ? "Ocultar seleção de telas"
-                                                 : "Mostrar seleção de telas"
+                                                 ? qsTr("Ocultar seleção de telas")
+                                                 : qsTr("Mostrar seleção de telas")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
                                 onClicked: dashboard.screenControlsExpanded = !dashboard.screenControlsExpanded
@@ -583,7 +604,7 @@ Item {
                                 anchors.rightMargin: 8
                                 spacing: 12
                                 Label {
-                                    text: "Exibir vídeo em:"
+                                    text: qsTr("Exibir vídeo em:")
                                     color: dashboard.textMain
                                     font.bold: true
                                     font.pixelSize: 12
@@ -623,7 +644,7 @@ Item {
                                             elide: Text.ElideRight
                                         }
                                         ToolTip.visible: hovered
-                                        ToolTip.text: "Clique com o botão direito para renomear"
+                                        ToolTip.text: qsTr("Clique com o botão direito para renomear")
                                         onClicked: dashboard.setScreenMediaEnabled(screenCheckBox.modelData, checked)
                                         TapHandler {
                                             acceptedButtons: Qt.RightButton
@@ -633,13 +654,13 @@ Item {
                                 }
                                 Label {
                                     visible: dashboard.externalScreenCount() === 0
-                                    text: "nenhuma tela externa detectada"
+                                    text: qsTr("nenhuma tela externa detectada")
                                     color: dashboard.textMuted
                                     font.pixelSize: 12
                                 }
                                 Button {
                                     visible: dashboard.externalScreenCount() > dashboard.controller.outputWindows.length
-                                    text: "Ativar todas"
+                                    text: qsTr("Ativar todas")
                                     onClicked: dashboard.controller.enableAllScreens()
                                 }
                                 Item { Layout.fillWidth: true }
@@ -658,10 +679,10 @@ Item {
                         Layout.fillWidth: true; Layout.preferredHeight: 42; color: dashboard.panelHigh
                         RowLayout {
                             anchors.fill: parent; anchors.margins: 10
-                            Label { text: "▾  Reprodução"; color: dashboard.textMain; font.bold: true; font.pixelSize: 12 }
+                            Label { text: qsTr("▾  Reprodução"); color: dashboard.textMain; font.bold: true; font.pixelSize: 12 }
                             Item { Layout.fillWidth: true }
-                            Button { text: "Salvar"; flat: true; onClicked: savePlaylistDialog.open() }
-                            Button { text: "Limpar"; flat: true; onClicked: dashboard.controller.clearMediaPlaylist() }
+                            Button { text: qsTr("Salvar"); flat: true; onClicked: savePlaylistDialog.open() }
+                            Button { text: qsTr("Limpar"); flat: true; onClicked: dashboard.controller.clearMediaPlaylist() }
                         }
                     }
                     ListView {
@@ -694,6 +715,7 @@ Item {
                                     implicitHeight: 36
                                     font.pixelSize: 18
                                     text: "▶"
+                                    Accessible.name: qsTr("Reproduzir %1").arg(playlistDelegate.modelData.title)
                                     onClicked: dashboard.controller.playMedia(playlistDelegate.modelData.id)
                                 }
                             }
@@ -746,9 +768,9 @@ Item {
                     Layout.fillWidth: true; Layout.preferredHeight: 48; color: dashboard.panelHigh
                     RowLayout {
                         anchors.fill: parent; anchors.margins: 10
-                        Label { text: "▣  Bíblia Sagrada"; color: dashboard.textMain; font.bold: true }
+                        Label { text: qsTr("▣  Bíblia Sagrada"); color: dashboard.textMain; font.bold: true }
                         Item { Layout.fillWidth: true }
-                        Button { text: "NAVEGAR"; flat: true; onClicked: dashboard.openBibleBrowser() }
+                        Button { text: qsTr("NAVEGAR"); flat: true; onClicked: dashboard.openBibleBrowser() }
                         Button { text: "☰"; flat: true; onClicked: dashboard.openBible() }
                     }
                 }
@@ -856,8 +878,8 @@ Item {
                         anchors.centerIn: parent
                         visible: parent.count === 0
                         text: dashboard.controller.bibleTranslations.length === 0
-                              ? "Importe uma tradução bíblica para visualizar passagens"
-                              : "Nenhum versículo encontrado"
+                              ? qsTr("Importe uma tradução bíblica para visualizar passagens")
+                              : qsTr("Nenhum versículo encontrado")
                         color: dashboard.textMuted
                     }
                 }
@@ -868,7 +890,7 @@ Item {
                         Label {
                             text: dashboard.selectedBibleTranslation
                                   ? dashboard.selectedBibleTranslation.displayName
-                                  : "Nenhuma tradução importada"
+                                  : qsTr("Nenhuma tradução importada")
                             color: dashboard.textMain
                             font.bold: true
                             font.pixelSize: 10
@@ -876,9 +898,9 @@ Item {
                         Label {
                             text: dashboard.selectedBibleTranslation
                                   ? (dashboard.selectedBibleTranslation.license === "public-domain"
-                                     ? "Domínio público"
+                                     ? qsTr("Domínio público")
                                      : dashboard.selectedBibleTranslation.license)
-                                  : "Use uma origem com licença adequada"
+                                  : qsTr("Use uma origem com licença adequada")
                             color: dashboard.textMuted
                             font.pixelSize: 9
                         }
@@ -890,7 +912,7 @@ Item {
 
     FileDialog {
         id: savePlaylistDialog
-        title: "Salvar playlist"
+        title: qsTr("Salvar playlist")
         fileMode: FileDialog.SaveFile
         nameFilters: ["Playlist M3U8 (*.m3u8)"]
         defaultSuffix: "m3u8"
