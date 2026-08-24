@@ -2,7 +2,7 @@
 Type=Application
 Name=HolyScreen
 Comment=Motor de apresentação para igrejas
-Exec=church-presenter
+Exec=holyscreen
 Icon=holyscreen
 Terminal=false
 Categories=AudioVideo;Presentation;

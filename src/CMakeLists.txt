@@ -302,6 +302,7 @@ qt_add_executable(church-presenter
 )
 target_compile_definitions(church-presenter PRIVATE HOLYSCREEN_VERSION="${PROJECT_VERSION}")
 set_target_properties(church-presenter PROPERTIES
+    OUTPUT_NAME "holyscreen"
     MACOSX_BUNDLE_BUNDLE_NAME "HolyScreen"
     MACOSX_BUNDLE_GUI_IDENTIFIER "app.holyscreen.presenter"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
@@ -319,7 +320,6 @@ if(APPLE)
     )
 endif()
 if(WIN32)
-    set_target_properties(church-presenter PROPERTIES OUTPUT_NAME "holyscreen")
     target_sources(church-presenter PRIVATE
         ${CMAKE_SOURCE_DIR}/packaging/windows/holyscreen.rc
         ${CMAKE_SOURCE_DIR}/packaging/windows/holyscreen.ico
