@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized Stage output labels, output-window titles, and Broadcast profile
+  controls in pt-BR/en-US with translation-contract coverage.
 - Localized Bible navigation and the keyboard-driven quick reference search in
   pt-BR/en-US, including validation feedback and accessible field names.
 - Localized the guided onboarding checklist, status messages, and actions in

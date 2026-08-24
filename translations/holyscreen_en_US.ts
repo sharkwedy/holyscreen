@@ -90,6 +90,74 @@
     </message>
 </context>
 <context>
+    <name>BroadcastSettings</name>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="31"/>
+        <source>Fundo</source>
+        <translation>Background</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="34"/>
+        <source>Chroma key</source>
+        <translation>Chroma key</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="35"/>
+        <source>Transparente</source>
+        <translation>Transparent</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="41"/>
+        <source>Proporção</source>
+        <translation>Aspect ratio</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="55"/>
+        <source>Cor do chroma</source>
+        <translation>Chroma color</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="96"/>
+        <source>Zona segura ←</source>
+        <translation>Safe area ←</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="97"/>
+        <source>Zona segura →</source>
+        <translation>Safe area →</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="98"/>
+        <source>Zona segura ↑</source>
+        <translation>Safe area ↑</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="99"/>
+        <source>Zona segura ↓</source>
+        <translation>Safe area ↓</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="129"/>
+        <source>Relógio</source>
+        <translation>Clock</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="130"/>
+        <source>Lower third</source>
+        <translation>Lower third</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="131"/>
+        <source>Alertas</source>
+        <translation>Alerts</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BroadcastSettings.qml" line="132"/>
+        <source>Mensagens</source>
+        <translation>Messages</translation>
+    </message>
+</context>
+<context>
     <name>EventsArea</name>
     <message>
         <location filename="../src/ui/operator/EventsArea.qml" line="25"/>
@@ -359,6 +427,14 @@
     </message>
 </context>
 <context>
+    <name>OutputWindow</name>
+    <message>
+        <location filename="../src/ui/output/OutputWindow.qml" line="14"/>
+        <source>HolyScreen — %1</source>
+        <translation>HolyScreen — %1</translation>
+    </message>
+</context>
+<context>
     <name>QuickBibleSearch</name>
     <message>
         <location filename="../src/ui/operator/QuickBibleSearch.qml" line="64"/>
@@ -440,6 +516,24 @@
         <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>
         <source>Reinicie o HolyScreen para aplicar o novo idioma.</source>
         <translation>Restart HolyScreen to apply the new language.</translation>
+    </message>
+</context>
+<context>
+    <name>StageView</name>
+    <message>
+        <location filename="../src/ui/output/StageView.qml" line="34"/>
+        <source>ATUAL</source>
+        <translation>CURRENT</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/output/StageView.qml" line="56"/>
+        <source>PRÓXIMO</source>
+        <translation>NEXT</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/output/StageView.qml" line="66"/>
+        <source>Fim da apresentação</source>
+        <translation>End of presentation</translation>
     </message>
 </context>
 </TS>

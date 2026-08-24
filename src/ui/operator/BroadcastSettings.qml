@@ -28,17 +28,17 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 8
-        Label { text: "Fundo"; color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Fundo"); color: root.textMuted; font.pixelSize: 12 }
         ComboBox {
             Layout.preferredWidth: 190
-            model: [{"id": "chroma", "name": "Chroma key"},
-                    {"id": "transparent", "name": "Transparente"}]
+            model: [{"id": "chroma", "name": qsTr("Chroma key")},
+                    {"id": "transparent", "name": qsTr("Transparente")}]
             textRole: "name"
             valueRole: "id"
             currentIndex: root.transparent ? 1 : 0
             onActivated: root.apply({"backgroundMode": currentValue})
         }
-        Label { text: "Proporção"; color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Proporção"); color: root.textMuted; font.pixelSize: 12 }
         ComboBox {
             Layout.preferredWidth: 110
             model: ["16:9", "9:16"]
@@ -52,7 +52,7 @@ ColumnLayout {
         Layout.fillWidth: true
         visible: !root.transparent
         spacing: 8
-        Label { text: "Cor do chroma"; color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Cor do chroma"); color: root.textMuted; font.pixelSize: 12 }
         Repeater {
             model: ["#00b140", "#0047bb", "#ff00ff", "#000000"]
             delegate: Rectangle {
@@ -93,10 +93,10 @@ ColumnLayout {
         columns: 4
         columnSpacing: 8
         Repeater {
-            model: [{"edge": "Left", "label": "Zona segura ←"},
-                    {"edge": "Right", "label": "Zona segura →"},
-                    {"edge": "Top", "label": "Zona segura ↑"},
-                    {"edge": "Bottom", "label": "Zona segura ↓"}]
+            model: [{"edge": "Left", "label": qsTr("Zona segura ←")},
+                    {"edge": "Right", "label": qsTr("Zona segura →")},
+                    {"edge": "Top", "label": qsTr("Zona segura ↑")},
+                    {"edge": "Bottom", "label": qsTr("Zona segura ↓")}]
             delegate: RowLayout {
                 id: safeAreaRow
                 required property var modelData
@@ -126,10 +126,10 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: 10
         Repeater {
-            model: [{"key": "showClock", "label": "Relógio", "fallback": false},
-                    {"key": "showLowerThird", "label": "Lower third", "fallback": true},
-                    {"key": "showAlerts", "label": "Alertas", "fallback": true},
-                    {"key": "showAudienceMessage", "label": "Mensagens", "fallback": true}]
+            model: [{"key": "showClock", "label": qsTr("Relógio"), "fallback": false},
+                    {"key": "showLowerThird", "label": qsTr("Lower third"), "fallback": true},
+                    {"key": "showAlerts", "label": qsTr("Alertas"), "fallback": true},
+                    {"key": "showAudienceMessage", "label": qsTr("Mensagens"), "fallback": true}]
             delegate: CheckBox {
                 id: overlayToggle
                 required property var modelData
