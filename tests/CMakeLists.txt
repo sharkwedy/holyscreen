@@ -294,6 +294,11 @@ qt_add_executable(test_local_api_server unit/remote/LocalApiServerTest.cpp)
 target_link_libraries(test_local_api_server PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_local_api_server COMMAND test_local_api_server)
 
+qt_add_executable(test_pwa_translation unit/remote/PwaTranslationTest.cpp)
+target_link_libraries(test_pwa_translation PRIVATE Qt6::Test)
+target_compile_definitions(test_pwa_translation PRIVATE HOLYSCREEN_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+add_test(NAME test_pwa_translation COMMAND test_pwa_translation)
+
 qt_add_executable(test_remote_auth_manager unit/remote/RemoteAuthManagerTest.cpp)
 target_link_libraries(test_remote_auth_manager PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_remote_auth_manager COMMAND test_remote_auth_manager)
