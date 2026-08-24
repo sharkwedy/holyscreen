@@ -83,6 +83,15 @@ void TranslationCatalogTest::migratedQmlUsesCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/Dashboard.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
         QStringLiteral("src/ui/operator/MainWindow.qml"),
+        QStringLiteral("src/ui/output/AudienceView.qml"),
+        QStringLiteral("src/ui/output/BroadcastPreview.qml"),
+        QStringLiteral("src/ui/output/BroadcastView.qml"),
+        QStringLiteral("src/ui/output/LiveOverlays.qml"),
+        QStringLiteral("src/ui/output/OutputClock.qml"),
+        QStringLiteral("src/ui/output/PresentationImageLayer.qml"),
+        QStringLiteral("src/ui/output/PresentationTextLayer.qml"),
+        QStringLiteral("src/ui/output/SimulatedOutput.qml"),
+        QStringLiteral("src/ui/output/StageOutputView.qml"),
     };
     QSet<QString> sources;
     static const QRegularExpression translated(

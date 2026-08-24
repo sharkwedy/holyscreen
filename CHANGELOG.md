@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extended the translation contract to every operator and external-output QML
+  surface, including Audience, Stage, Broadcast, previews, overlays, clocks and
+  presentation layers.
 - Localized the main operator window in pt-BR/en-US, including dialogs, media
   library, live controls, legacy panels, dynamic player states and accessible
   names for icon-only actions; expanded the translation contract to titles and
