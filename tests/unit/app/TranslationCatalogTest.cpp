@@ -64,10 +64,10 @@ class TranslationCatalogTest final : public QObject {
     Q_OBJECT
 
 private slots:
-    void migratedQmlUsesCataloguedVisibleStrings();
+    void migratedSurfacesUseCataloguedVisibleStrings();
 };
 
-void TranslationCatalogTest::migratedQmlUsesCataloguedVisibleStrings()
+void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
 {
     const QStringList qmlFiles{
         QStringLiteral("src/ui/operator/EventsArea.qml"),
@@ -106,6 +106,24 @@ void TranslationCatalogTest::migratedQmlUsesCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
         auto matches = translated.globalMatch(contents);
         while (matches.hasNext()) sources.insert(qmlStringValue(matches.next().captured(1)));
+    }
+
+    const auto controller = QString::fromUtf8(
+        readFile(QStringLiteral("src/app/ApplicationController.cpp")));
+    QVERIFY(!controller.isEmpty());
+    static const QRegularExpression translatedController(
+        QStringLiteral("(?:\\btr\\(\\\"([^\\\"]+)\\\"\\)"
+                       "|QCoreApplication::translate\\(\\\"ApplicationController\\\","
+                       "\\s*\\\"([^\\\"]+)\\\"\\))"));
+    static const QRegularExpression rawController(
+        QStringLiteral("QStringLiteral\\(\\\"[^\\\"\\r\\n]*[\\x{00C0}-\\x{017F}]"));
+    QVERIFY2(!rawController.match(controller).hasMatch(),
+             "String C++ visível sem tr() em ApplicationController.cpp");
+    auto controllerMatches = translatedController.globalMatch(controller);
+    while (controllerMatches.hasNext()) {
+        const auto match = controllerMatches.next();
+        sources.insert(qmlStringValue(match.captured(1).isEmpty()
+                                          ? match.captured(2) : match.captured(1)));
     }
     QVERIFY(!sources.isEmpty());
 

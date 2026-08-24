@@ -36,6 +36,7 @@
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QLocale>
 #include <QSysInfo>
 #include <QDateTime>
 #include <QDirIterator>
@@ -64,8 +65,10 @@ QVariantMap mapMedia(const MediaItem &item)
         {QStringLiteral("album"), item.album},
         {QStringLiteral("type"), type},
         {QStringLiteral("typeLabel"), type == QStringLiteral("video")
-             ? QStringLiteral("VÍDEO") : type == QStringLiteral("audio")
-             ? QStringLiteral("ÁUDIO") : QStringLiteral("IMAGEM")},
+             ? QCoreApplication::translate("ApplicationController", "VÍDEO")
+             : type == QStringLiteral("audio")
+             ? QCoreApplication::translate("ApplicationController", "ÁUDIO")
+             : QCoreApplication::translate("ApplicationController", "IMAGEM")},
     };
 }
 
@@ -147,6 +150,8 @@ ApplicationController::ApplicationController(QObject *parent)
     , m_screenManager(std::make_unique<ScreenManager>(*m_screenProvider))
     , m_clock(std::make_unique<SystemClock>())
 {
+    m_autosaveStatus = tr("Salvo");
+    m_updateStatus = tr("Não verificado");
     m_automationContext = std::make_unique<AutomationContext>(*this);
     m_bibleContext = std::make_unique<BibleContext>(*this);
     m_eventContext = std::make_unique<EventContext>(*this);
@@ -290,17 +295,17 @@ ApplicationController::ApplicationController(QObject *parent)
     m_autosave = std::make_unique<AutosaveCoordinator>(
         [this] { return persistCurrentPresentation(); }, this);
     connect(m_autosave.get(), &AutosaveCoordinator::dirtyChanged, this, [this](bool dirty) {
-        m_autosaveStatus = dirty ? QStringLiteral("Alterações pendentes…")
-                                 : QStringLiteral("Salvo");
+        m_autosaveStatus = dirty ? tr("Alterações pendentes…")
+                                 : tr("Salvo");
         emit autosaveChanged();
     });
     connect(m_autosave.get(), &AutosaveCoordinator::saved, this, [this] {
-        m_autosaveStatus = QStringLiteral("Salvo automaticamente");
+        m_autosaveStatus = tr("Salvo automaticamente");
         emit autosaveChanged();
     });
     connect(m_autosave.get(), &AutosaveCoordinator::saveFailed,
             this, [this](const QString &message) {
-        m_autosaveStatus = QStringLiteral("Falha ao salvar");
+        m_autosaveStatus = tr("Falha ao salvar");
         emit autosaveChanged();
         setStatusMessage(message);
     });
@@ -377,8 +382,8 @@ ApplicationController::ApplicationController(QObject *parent)
         m_videoVisible = false;
         emit videoVisibleChanged();
         setStatusMessage(error == VideoError::FileNotFound
-                             ? QStringLiteral("O arquivo de mídia não foi encontrado.")
-                             : QStringLiteral("Não foi possível reproduzir a mídia selecionada."));
+                             ? tr("O arquivo de mídia não foi encontrado.")
+                             : tr("Não foi possível reproduzir a mídia selecionada."));
     });
     connect(&m_images, &ImagePresentationController::currentChanged, this, [this] {
         emit currentImageChanged();
@@ -397,9 +402,9 @@ ApplicationController::ApplicationController(QObject *parent)
     });
     connect(&m_overlays, &OverlayController::changed, this, &ApplicationController::overlaysChanged);
     connect(&m_updateChecker,&UpdateChecker::completed,this,[this](const QString&latest,const QUrl&url,bool available,const QString&error){
-        if(!error.isEmpty())m_updateStatus=QStringLiteral("Falha ao verificar: %1").arg(error);
-        else if(available)m_updateStatus=QStringLiteral("Versão %1 disponível: %2").arg(latest,url.toString());
-        else m_updateStatus=QStringLiteral("HolyScreen está atualizado (%1).").arg(QCoreApplication::applicationVersion());
+        if(!error.isEmpty())m_updateStatus=tr("Falha ao verificar: %1").arg(error);
+        else if(available)m_updateStatus=tr("Versão %1 disponível: %2").arg(latest,url.toString());
+        else m_updateStatus=tr("HolyScreen está atualizado (%1).").arg(QCoreApplication::applicationVersion());
         emit updateChanged();
     });
     connect(&m_bibleImportWatcher, &QFutureWatcher<BibleImportResult>::finished,
@@ -799,7 +804,7 @@ bool ApplicationController::applyToggleScreen(const QString &screenFingerprint, 
 
     const auto item = found->toMap();
     if (item.value(QStringLiteral("primary")).toBool()) {
-        setStatusMessage(QStringLiteral("A tela principal é reservada para o operador."));
+        setStatusMessage(tr("A tela principal é reservada para o operador."));
         return false;
     }
 
@@ -812,8 +817,8 @@ bool ApplicationController::applyToggleScreen(const QString &screenFingerprint, 
         });
         if (!result.accepted) {
             setStatusMessage(result.reason == EnableOutputResult::LimitReached
-                                 ? QStringLiteral("O limite de cinco saídas foi atingido.")
-                                 : QStringLiteral("A tela não está mais conectada."));
+                                 ? tr("O limite de cinco saídas foi atingido.")
+                                 : tr("A tela não está mais conectada."));
             return false;
         }
     } else {
@@ -834,8 +839,8 @@ void ApplicationController::enableAllScreens()
     refreshScreens();
     saveOutputs();
     setStatusMessage(enabledCount > 0
-                         ? QStringLiteral("Todas as telas externas conectadas estão ativas.")
-                         : QStringLiteral("Nenhuma tela externa conectada foi encontrada."));
+                         ? tr("Todas as telas externas conectadas estão ativas.")
+                         : tr("Nenhuma tela externa conectada foi encontrada."));
 }
 
 bool ApplicationController::setOutputBibleTranslation(
@@ -896,7 +901,7 @@ bool ApplicationController::applyOutputBroadcastProfile(const QString &screenFin
 {
     const auto merged = m_outputs.mergeBroadcastProfile(screenFingerprint, changes);
     if (m_broadcastProfiles && !m_broadcastProfiles->save(merged)) {
-        setStatusMessage(QStringLiteral("O perfil de transmissão não pôde ser salvo."));
+        setStatusMessage(tr("O perfil de transmissão não pôde ser salvo."));
         return false;
     }
     refreshScreens();
@@ -952,13 +957,13 @@ QVariantMap ApplicationController::runIntegration(const QString &integrationId,
     // As chamadas são assíncronas; o operador acompanha pelo estado e pelo
     // histórico, sem diálogo modal travando o culto.
     QVariantMap acknowledgement{{QStringLiteral("accepted"), true},
-                                {QStringLiteral("message"), QStringLiteral("Chamada enviada.")}};
+                                {QStringLiteral("message"), tr("Chamada enviada.")}};
     const auto completion = [this, integrationId](const IntegrationResult &result) {
         const auto name = m_integrations.definition(integrationId)
                               .value_or(IntegrationDefinition{}).name;
         setIntegrationStatus(result.accepted
-            ? QStringLiteral("%1: %2 (%3 ms)").arg(name, result.message).arg(result.durationMs)
-            : QStringLiteral("%1 falhou: %2").arg(name,
+            ? tr("%1: %2 (%3 ms)").arg(name, result.message).arg(result.durationMs)
+            : tr("%1 falhou: %2").arg(name,
                   result.message.isEmpty() ? result.errorCode : result.message));
         emit integrationHistoryChanged();
     };
@@ -1002,7 +1007,7 @@ void ApplicationController::setupAutomations(const QString &databasePath)
                 return ActionOutcome{.actionType = QStringLiteral("command"),
                                      .accepted = false,
                                      .errorCode = QStringLiteral("unknown_command"),
-                                     .message = QStringLiteral("Comando fora do catálogo: %1.")
+                                     .message = tr("Comando fora do catálogo: %1.")
                                                     .arg(type)};
             }
             const auto result = m_commandBus.dispatch(Command{
@@ -1041,13 +1046,13 @@ void ApplicationController::setupAutomations(const QString &databasePath)
             m_processRunner.run(*request, [this, executable = request->executable](
                                               const ProcessResult &result) {
                 setAutomationStatus(result.finished && result.exitCode == 0
-                    ? QStringLiteral("Processo %1 concluído.").arg(QFileInfo(executable).fileName())
-                    : QStringLiteral("Processo %1 falhou: %2")
+                    ? tr("Processo %1 concluído.").arg(QFileInfo(executable).fileName())
+                    : tr("Processo %1 falhou: %2")
                           .arg(QFileInfo(executable).fileName(), result.message));
             });
             return ActionOutcome{.actionType = QStringLiteral("process"),
                                  .accepted = true,
-                                 .message = QStringLiteral("Processo iniciado.")};
+                                 .message = tr("Processo iniciado.")};
         },
         .state = [this] {
             return QVariantMap{
@@ -1145,14 +1150,14 @@ void ApplicationController::setupAutomations(const QString &databasePath)
         const auto automation = m_automationEngine.automation(run.automationId);
         const auto name = automation ? automation->name : run.automationId;
         if (run.status == QStringLiteral("failed")) {
-            setAutomationStatus(QStringLiteral("%1 falhou: %2")
+            setAutomationStatus(tr("%1 falhou: %2")
                                     .arg(name, run.outcomes.isEmpty()
                                                    ? run.reason
                                                    : run.outcomes.last().message));
         } else if (run.status == QStringLiteral("blocked")) {
-            setAutomationStatus(QStringLiteral("%1 bloqueada: %2").arg(name, run.reason));
+            setAutomationStatus(tr("%1 bloqueada: %2").arg(name, run.reason));
         } else if (run.status == QStringLiteral("completed")) {
-            setAutomationStatus(QStringLiteral("%1 executada.").arg(name));
+            setAutomationStatus(tr("%1 executada.").arg(name));
         }
         emit automationRunsChanged();
     });
@@ -1164,7 +1169,7 @@ void ApplicationController::setupAutomations(const QString &databasePath)
             m_automationRepository->updateRuntimeState(automationId, false,
                                                        automation->consecutiveFailures);
         }
-        setAutomationStatus(QStringLiteral("%1 %2")
+        setAutomationStatus(tr("%1 %2")
                                 .arg(automation ? automation->name : automationId, reason));
     });
 
@@ -1211,8 +1216,8 @@ void ApplicationController::setAutomationsEnabled(bool enabled)
     if (m_automationEngine.isEnabled() == enabled) return;
     m_automationEngine.setEnabled(enabled);
     if (m_settings) m_settings->setValue(QStringLiteral("automation/enabled"), enabled);
-    setAutomationStatus(enabled ? QStringLiteral("Automações ativas.")
-                                : QStringLiteral("Automações pausadas."));
+    setAutomationStatus(enabled ? tr("Automações ativas.")
+                                : tr("Automações pausadas."));
     emit automationsChanged();
 }
 
@@ -1227,8 +1232,8 @@ void ApplicationController::setProcessActionsEnabled(bool enabled)
     m_authorizedExecutables.setEnabled(enabled);
     if (m_settings) m_settings->setValue(QStringLiteral("automation/processActions"), enabled);
     setAutomationStatus(enabled
-        ? QStringLiteral("Processos externos liberados para a lista autorizada.")
-        : QStringLiteral("Processos externos desativados."));
+        ? tr("Processos externos liberados para a lista autorizada.")
+        : tr("Processos externos desativados."));
     emit authorizedExecutablesChanged();
 }
 
@@ -1239,8 +1244,8 @@ QVariantList ApplicationController::authorizedExecutables() const
         result.append(QVariantMap{
             {QStringLiteral("canonicalPath"), entry.canonicalPath},
             {QStringLiteral("label"), entry.label},
-            {QStringLiteral("authorizedAt"), entry.authorizedAt.toLocalTime()
-                                                 .toString(QStringLiteral("dd/MM/yyyy HH:mm"))},
+            {QStringLiteral("authorizedAt"), QLocale().toString(
+                 entry.authorizedAt.toLocalTime(), QLocale::ShortFormat)},
         });
     }
     return result;
@@ -1265,10 +1270,10 @@ QStringList ApplicationController::validateAutomation(const Automation &automati
 {
     QStringList errors;
     if (automation.name.trimmed().isEmpty()) {
-        errors.append(QStringLiteral("A automação precisa de um nome."));
+        errors.append(tr("A automação precisa de um nome."));
     }
     if (!automationTriggerTypes().contains(automation.trigger.type)) {
-        errors.append(QStringLiteral("Escolha um gatilho válido."));
+        errors.append(tr("Escolha um gatilho válido."));
     }
     if (automation.trigger.type == QLatin1StringView(AutomationTrigger::LocalTime)) {
         const auto time = QTime::fromString(
@@ -1279,43 +1284,43 @@ QStringList ApplicationController::validateAutomation(const Automation &automati
             return day.toInt() < 1 || day.toInt() > 7;
         });
         if (!time.isValid() || days.isEmpty() || invalidDay) {
-            errors.append(QStringLiteral("Informe horário e dias válidos para o gatilho local."));
+            errors.append(tr("Informe horário e dias válidos para o gatilho local."));
         }
     }
     if (automation.actions.isEmpty()) {
-        errors.append(QStringLiteral("Adicione pelo menos uma ação."));
+        errors.append(tr("Adicione pelo menos uma ação."));
     }
     if (automation.actions.size() > m_automationEngine.limits().maximumActionsPerRun) {
-        errors.append(QStringLiteral("No máximo %1 ações por automação.")
+        errors.append(tr("No máximo %1 ações por automação.")
                           .arg(m_automationEngine.limits().maximumActionsPerRun));
     }
     for (const auto &condition : automation.conditions) {
         if (condition.field.trimmed().isEmpty()
             || !automationConditionOperations().contains(condition.operation)) {
-            errors.append(QStringLiteral("Condição incompleta ou com operação inválida."));
+            errors.append(tr("Condição incompleta ou com operação inválida."));
             break;
         }
     }
     for (const auto &action : automation.actions) {
         if (!automationActionTypes().contains(action.type)) {
-            errors.append(QStringLiteral("Ação não suportada: %1.").arg(action.type));
+            errors.append(tr("Ação não suportada: %1.").arg(action.type));
             continue;
         }
         if (action.type == QLatin1StringView(AutomationAction::Command)) {
             const auto type = action.parameters.value(QStringLiteral("type")).toString();
             if (!CommandCatalog::contains(type)) {
-                errors.append(QStringLiteral("Comando fora do catálogo: %1.").arg(type));
+                errors.append(tr("Comando fora do catálogo: %1.").arg(type));
             }
         } else if (action.type == QLatin1StringView(AutomationAction::Integration)) {
             const auto id = action.parameters.value(QStringLiteral("integrationId")).toString();
             if (!m_integrations.definition(id).has_value()) {
-                errors.append(QStringLiteral("Integração não encontrada: %1.").arg(id));
+                errors.append(tr("Integração não encontrada: %1.").arg(id));
             }
         } else if (action.type == QLatin1StringView(AutomationAction::Process)) {
             const auto executable = action.parameters.value(QStringLiteral("executable"))
                                         .toString();
             if (!m_authorizedExecutables.isAuthorized(executable)) {
-                errors.append(QStringLiteral("O executável %1 não está autorizado.")
+                errors.append(tr("O executável %1 não está autorizado.")
                                   .arg(executable));
             }
         }
@@ -1334,10 +1339,10 @@ QVariantMap ApplicationController::saveAutomation(const QVariantMap &automation)
     if (!m_automationRepository || !m_automationRepository->save(parsed)) {
         return {{QStringLiteral("accepted"), false},
                 {QStringLiteral("errors"),
-                 QStringList{QStringLiteral("A automação não pôde ser salva.")}}};
+                 QStringList{tr("A automação não pôde ser salva.")}}};
     }
     m_automationEngine.setAutomations(m_automationRepository->automations());
-    setAutomationStatus(QStringLiteral("Automação %1 salva.").arg(parsed.name));
+    setAutomationStatus(tr("Automação %1 salva.").arg(parsed.name));
     emit automationsChanged();
     return {{QStringLiteral("accepted"), true},
             {QStringLiteral("errors"), QStringList{}},
@@ -1349,7 +1354,7 @@ QVariantMap ApplicationController::exportAutomations(const QUrl &destination)
     auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
     if (path.trimmed().isEmpty()) {
         return {{QStringLiteral("accepted"), false},
-                {QStringLiteral("error"), QStringLiteral("Escolha o arquivo de destino.")}};
+                {QStringLiteral("error"), tr("Escolha o arquivo de destino.")}};
     }
     if (!path.endsWith(QStringLiteral(".json"), Qt::CaseInsensitive)) {
         path.append(QStringLiteral(".json"));
@@ -1373,9 +1378,9 @@ QVariantMap ApplicationController::exportAutomations(const QUrl &destination)
         || file.write(QJsonDocument(document).toJson(QJsonDocument::Indented)) < 0
         || !file.commit()) {
         return {{QStringLiteral("accepted"), false},
-                {QStringLiteral("error"), QStringLiteral("Não foi possível exportar o arquivo.")}};
+                {QStringLiteral("error"), tr("Não foi possível exportar o arquivo.")}};
     }
-    setAutomationStatus(QStringLiteral("%1 automações exportadas.").arg(definitions.size()));
+    setAutomationStatus(tr("%1 automações exportadas.").arg(definitions.size()));
     return {{QStringLiteral("accepted"), true},
             {QStringLiteral("count"), definitions.size()},
             {QStringLiteral("path"), path}};
@@ -1388,7 +1393,7 @@ QVariantMap ApplicationController::importAutomations(const QUrl &source)
     if (!file.open(QIODevice::ReadOnly) || file.size() > 1024 * 1024) {
         return {{QStringLiteral("accepted"), false},
                 {QStringLiteral("errors"),
-                 QStringList{QStringLiteral("O arquivo não pôde ser lido ou excede 1 MiB.")}}};
+                 QStringList{tr("O arquivo não pôde ser lido ou excede 1 MiB.")}}};
     }
 
     QJsonParseError parseError;
@@ -1399,14 +1404,14 @@ QVariantMap ApplicationController::importAutomations(const QUrl &source)
         || !root.value(QStringLiteral("automations")).isArray()) {
         return {{QStringLiteral("accepted"), false},
                 {QStringLiteral("errors"),
-                 QStringList{QStringLiteral("Documento de automações inválido ou incompatível.")}}};
+                 QStringList{tr("Documento de automações inválido ou incompatível.")}}};
     }
 
     const auto array = root.value(QStringLiteral("automations")).toArray();
     if (array.isEmpty() || array.size() > 500) {
         return {{QStringLiteral("accepted"), false},
                 {QStringLiteral("errors"),
-                 QStringList{QStringLiteral("O documento deve conter entre 1 e 500 automações.")}}};
+                 QStringList{tr("O documento deve conter entre 1 e 500 automações.")}}};
     }
 
     QSet<QString> ids;
@@ -1418,7 +1423,7 @@ QVariantMap ApplicationController::importAutomations(const QUrl &source)
     for (const auto &value : array) {
         ++position;
         if (!value.isObject()) {
-            structuralErrors.append(QStringLiteral("Item %1 não é uma definição.").arg(position));
+            structuralErrors.append(tr("Item %1 não é uma definição.").arg(position));
             continue;
         }
         auto automation = automationFromMap(value.toObject().toVariantMap());
@@ -1431,8 +1436,8 @@ QVariantMap ApplicationController::importAutomations(const QUrl &source)
         const auto errors = validateAutomation(automation);
         bool hasMissingReference = false;
         for (const auto &error : errors) {
-            if (error.startsWith(QStringLiteral("Integração não encontrada:"))
-                || error.startsWith(QStringLiteral("O executável "))) {
+            if (error.startsWith(tr("Integração não encontrada:"))
+                || error.startsWith(tr("O executável "))) {
                 hasMissingReference = true;
                 warnings.append(QStringLiteral("%1: %2").arg(automation.name, error));
             } else {
@@ -1455,15 +1460,15 @@ QVariantMap ApplicationController::importAutomations(const QUrl &source)
             }
             return {{QStringLiteral("accepted"), false},
                     {QStringLiteral("errors"),
-                     QStringList{QStringLiteral("A importação foi revertida por falha no banco.")}}};
+                     QStringList{tr("A importação foi revertida por falha no banco.")}}};
         }
         insertedIds.append(automation.id);
     }
 
     m_automationEngine.setAutomations(m_automationRepository->automations());
     setAutomationStatus(warnings.isEmpty()
-        ? QStringLiteral("%1 automações importadas.").arg(parsed.size())
-        : QStringLiteral("%1 automações importadas; %2 desativadas por referências ausentes.")
+        ? tr("%1 automações importadas.").arg(parsed.size())
+        : tr("%1 automações importadas; %2 desativadas por referências ausentes.")
               .arg(parsed.size()).arg(warnings.size()));
     emit automationsChanged();
     return {{QStringLiteral("accepted"), true},
@@ -1475,7 +1480,7 @@ bool ApplicationController::removeAutomation(const QString &automationId)
 {
     if (!m_automationRepository || !m_automationRepository->remove(automationId)) return false;
     m_automationEngine.setAutomations(m_automationRepository->automations());
-    setAutomationStatus(QStringLiteral("Automação removida."));
+    setAutomationStatus(tr("Automação removida."));
     emit automationsChanged();
     emit automationRunsChanged();
     return true;
@@ -1500,7 +1505,7 @@ bool ApplicationController::resumeAutomation(const QString &automationId)
     if (m_automationRepository) {
         m_automationRepository->updateRuntimeState(automationId, true, 0);
     }
-    setAutomationStatus(QStringLiteral("Automação retomada."));
+    setAutomationStatus(tr("Automação retomada."));
     emit automationsChanged();
     return true;
 }
@@ -1514,8 +1519,8 @@ QVariantMap ApplicationController::dryRunAutomation(const QString &automationId,
         emit automationRunsChanged();
     }
     setAutomationStatus(run.reason.isEmpty()
-        ? QStringLiteral("Ensaio concluído com %1 ações previstas.").arg(run.outcomes.size())
-        : QStringLiteral("Ensaio: %1").arg(run.reason));
+        ? tr("Ensaio concluído com %1 ações previstas.").arg(run.outcomes.size())
+        : tr("Ensaio: %1").arg(run.reason));
     return automationRunToMap(run);
 }
 
@@ -1529,7 +1534,7 @@ QVariantMap ApplicationController::authorizeExecutable(const QString &path, cons
     if (m_automationRepository && !entries.isEmpty()) {
         for (const auto &entry : entries) m_automationRepository->authorizeExecutable(entry);
     }
-    setAutomationStatus(QStringLiteral("Executável autorizado."));
+    setAutomationStatus(tr("Executável autorizado."));
     emit authorizedExecutablesChanged();
     return {{QStringLiteral("accepted"), true},
             {QStringLiteral("canonicalPath"), entries.last().canonicalPath}};
@@ -1539,7 +1544,7 @@ bool ApplicationController::revokeExecutable(const QString &canonicalPath)
 {
     if (!m_authorizedExecutables.revoke(canonicalPath)) return false;
     if (m_automationRepository) m_automationRepository->revokeExecutable(canonicalPath);
-    setAutomationStatus(QStringLiteral("Autorização removida."));
+    setAutomationStatus(tr("Autorização removida."));
     emit authorizedExecutablesChanged();
     return true;
 }
@@ -1651,13 +1656,13 @@ QVariantMap ApplicationController::exportConfiguration(const QUrl &destination) 
     const auto path = destination.toLocalFile();
     if (path.isEmpty()) {
         return {{QStringLiteral("accepted"), false},
-                {QStringLiteral("errors"), QStringList{QStringLiteral("Selecione um arquivo local.")}}};
+                {QStringLiteral("errors"), QStringList{tr("Selecione um arquivo local.")}}};
     }
     QSaveFile file(path);
     if (!file.open(QIODevice::WriteOnly) || file.write(document) != document.size()
         || !file.commit()) {
         return {{QStringLiteral("accepted"), false},
-                {QStringLiteral("errors"), QStringList{QStringLiteral("Não foi possível salvar o perfil.")}}};
+                {QStringLiteral("errors"), QStringList{tr("Não foi possível salvar o perfil.")}}};
     }
     return {{QStringLiteral("accepted"), true}, {QStringLiteral("path"), path}};
 }
@@ -1668,7 +1673,7 @@ QVariantMap ApplicationController::importConfiguration(const QUrl &source)
     QFile file(path);
     if (path.isEmpty() || !file.open(QIODevice::ReadOnly)) {
         return {{QStringLiteral("accepted"), false},
-                {QStringLiteral("errors"), QStringList{QStringLiteral("Não foi possível abrir o perfil.")}}};
+                {QStringLiteral("errors"), QStringList{tr("Não foi possível abrir o perfil.")}}};
     }
     const auto parsed = ConfigurationProfileService::parse(
         file.read(ConfigurationProfileService::MaximumDocumentSize + 1));
@@ -1689,7 +1694,7 @@ QVariantMap ApplicationController::importConfiguration(const QUrl &source)
         if (shortcutSequences.contains(sequence)) {
             return {{QStringLiteral("accepted"), false},
                     {QStringLiteral("errors"), QStringList{
-                         QStringLiteral("O atalho %1 entra em conflito com a configuração atual.")
+                         tr("O atalho %1 entra em conflito com a configuração atual.")
                              .arg(it.value().toString())}}};
         }
         shortcutSequences.insert(sequence);
@@ -1762,7 +1767,7 @@ QVariantMap ApplicationController::saveIntegration(const QVariantMap &definition
     }
     const auto validation = m_integrations.save(parsed);
     if (validation.valid) {
-        setIntegrationStatus(QStringLiteral("Integração %1 salva.").arg(parsed.name));
+        setIntegrationStatus(tr("Integração %1 salva.").arg(parsed.name));
         refreshIntegrationDiagnostics();
         emit integrationsChanged();
     }
@@ -1778,7 +1783,7 @@ bool ApplicationController::removeIntegration(const QString &integrationId)
     for (const auto &reference : found ? found->secretReferences : QStringList{}) {
         if (m_secretStore) m_secretStore->remove(reference);
     }
-    setIntegrationStatus(QStringLiteral("Integração removida."));
+    setIntegrationStatus(tr("Integração removida."));
     refreshIntegrationDiagnostics();
     emit integrationsChanged();
     emit integrationHistoryChanged();
@@ -1791,7 +1796,7 @@ QString ApplicationController::duplicateIntegration(const QString &integrationId
     if (!found.has_value()) return {};
     auto copy = *found;
     copy.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    copy.name = QStringLiteral("%1 (cópia)").arg(found->name);
+    copy.name = tr("%1 (cópia)").arg(found->name);
     copy.enabled = false;
     // Segredos não são copiados: a cópia precisa receber os seus.
     copy.secretReferences.clear();
@@ -1799,7 +1804,7 @@ QString ApplicationController::duplicateIntegration(const QString &integrationId
         if (found->secretReferences.contains(it.value().toString())) it.value() = QString{};
     }
     if (!m_integrations.save(copy).valid) return {};
-    setIntegrationStatus(QStringLiteral("Integração duplicada. Configure os segredos da cópia."));
+    setIntegrationStatus(tr("Integração duplicada. Configure os segredos da cópia."));
     emit integrationsChanged();
     return copy.id;
 }
@@ -1834,9 +1839,9 @@ QString ApplicationController::setIntegrationSecret(const QString &integrationId
     }
     if (!m_integrations.save(*found).valid) return {};
     setIntegrationStatus(m_secretStore->isPersistent()
-                             ? QStringLiteral("Segredo guardado no %1.")
+                             ? tr("Segredo guardado no %1.")
                                    .arg(m_secretStore->backendName())
-                             : QStringLiteral("Sem cofre do sistema: o segredo vale só nesta sessão."));
+                             : tr("Sem cofre do sistema: o segredo vale só nesta sessão."));
     emit integrationsChanged();
     return reference;
 }
@@ -1864,8 +1869,8 @@ void ApplicationController::refreshIntegrationDiagnostics()
         summary.append(QStringLiteral("%1 [%2] %3")
                            .arg(definition.name,
                                 integrationTypeName(definition.type),
-                                definition.enabled ? QStringLiteral("ativa")
-                                                   : QStringLiteral("inativa")));
+                                definition.enabled ? tr("ativa")
+                                                   : tr("inativa")));
     }
     m_diagnostics[QStringLiteral("integrations")] = summary;
     m_diagnostics[QStringLiteral("integrationSecretBackend")] = integrationSecretBackend();
@@ -1947,18 +1952,18 @@ bool ApplicationController::addMediaFolder(const QUrl &folder)
     const QFileInfo info(requestedPath);
     const auto canonicalPath = info.canonicalFilePath();
     if (!info.isDir() || canonicalPath.isEmpty()) {
-        setStatusMessage(QStringLiteral("A pasta selecionada não está disponível."));
+        setStatusMessage(tr("A pasta selecionada não está disponível."));
         return false;
     }
     if (m_mediaFolderPaths.contains(canonicalPath)) {
-        setStatusMessage(QStringLiteral("Essa pasta já faz parte da biblioteca."));
+        setStatusMessage(tr("Essa pasta já faz parte da biblioteca."));
         return true;
     }
     m_mediaFolderPaths.append(canonicalPath);
     saveMediaFolders();
     emit mediaFoldersChanged();
     refreshMediaCatalog();
-    setStatusMessage(QStringLiteral("Pasta adicionada à biblioteca."));
+    setStatusMessage(tr("Pasta adicionada à biblioteca."));
     return true;
 }
 
@@ -1970,13 +1975,13 @@ void ApplicationController::removeMediaFolder(const QString &folderPath)
     saveMediaFolders();
     emit mediaFoldersChanged();
     refreshMediaCatalog();
-    setStatusMessage(QStringLiteral("Pasta removida da biblioteca. Os itens já adicionados à playlist foram mantidos."));
+    setStatusMessage(tr("Pasta removida da biblioteca. Os itens já adicionados à playlist foram mantidos."));
 }
 
 void ApplicationController::rescanMediaFolders()
 {
     refreshMediaCatalog();
-    setStatusMessage(QStringLiteral("Biblioteca de pastas atualizada."));
+    setStatusMessage(tr("Biblioteca de pastas atualizada."));
 }
 
 QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
@@ -1985,7 +1990,7 @@ QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
     const QFileInfo fileInfo(path);
     const auto canonicalPath = fileInfo.canonicalFilePath();
     if (canonicalPath.isEmpty()) {
-        setStatusMessage(QStringLiteral("O arquivo não está mais disponível."));
+        setStatusMessage(tr("O arquivo não está mais disponível."));
         return {};
     }
 
@@ -1999,7 +2004,7 @@ QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
     } else {
         const auto type = MediaFolderScanner::mediaTypeForFile(canonicalPath);
         if (!type.has_value()) {
-            setStatusMessage(QStringLiteral("Esse formato de arquivo não é compatível."));
+            setStatusMessage(tr("Esse formato de arquivo não é compatível."));
             return {};
         }
         catalogEntry = MediaCatalogEntry{
@@ -2012,7 +2017,7 @@ QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
     }
 
     if (!QFileInfo::exists(catalogEntry.path)) {
-        setStatusMessage(QStringLiteral("O arquivo não está mais disponível na biblioteca."));
+        setStatusMessage(tr("O arquivo não está mais disponível na biblioteca."));
         return {};
     }
 
@@ -2023,7 +2028,7 @@ QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
         .durationMs = catalogEntry.type == MediaType::Image ? m_images.autoplayIntervalMs() : 0,
     });
     if (id.isEmpty()) {
-        setStatusMessage(QStringLiteral("Não foi possível adicionar o arquivo à playlist."));
+        setStatusMessage(tr("Não foi possível adicionar o arquivo à playlist."));
         return {};
     }
 
@@ -2031,7 +2036,7 @@ QString ApplicationController::addCatalogFileToPlaylist(const QString &path)
     else if (catalogEntry.type == MediaType::Video) refreshVideoLibrary();
     else refreshImageLibrary();
     refreshMediaPlaylist();
-    setStatusMessage(QStringLiteral("%1 adicionado à playlist.").arg(catalogEntry.fileName));
+    setStatusMessage(tr("%1 adicionado à playlist.").arg(catalogEntry.fileName));
     return id;
 }
 
@@ -2046,15 +2051,15 @@ void ApplicationController::toggleFavoriteMedia(const QString &path)
     const QFileInfo info(path);
     const auto canonicalPath = info.canonicalFilePath();
     if (canonicalPath.isEmpty() || !info.isFile()) {
-        setStatusMessage(QStringLiteral("Não foi possível localizar esse arquivo."));
+        setStatusMessage(tr("Não foi possível localizar esse arquivo."));
         return;
     }
 
     if (m_favoriteMediaPaths.removeAll(canonicalPath) > 0) {
-        setStatusMessage(QStringLiteral("%1 removido dos favoritos.").arg(info.fileName()));
+        setStatusMessage(tr("%1 removido dos favoritos.").arg(info.fileName()));
     } else {
         m_favoriteMediaPaths.append(canonicalPath);
-        setStatusMessage(QStringLiteral("%1 adicionado aos favoritos.").arg(info.fileName()));
+        setStatusMessage(tr("%1 adicionado aos favoritos.").arg(info.fileName()));
     }
     saveFavoriteMedia();
     refreshFavoriteMedia();
@@ -2065,11 +2070,11 @@ bool ApplicationController::openFileLocation(const QString &path)
 {
     const QFileInfo info(path);
     if (!info.exists()) {
-        setStatusMessage(QStringLiteral("Não foi possível localizar esse arquivo."));
+        setStatusMessage(tr("Não foi possível localizar esse arquivo."));
         return false;
     }
     const auto opened = QDesktopServices::openUrl(QUrl::fromLocalFile(info.absolutePath()));
-    if (!opened) setStatusMessage(QStringLiteral("Não foi possível abrir a pasta do arquivo."));
+    if (!opened) setStatusMessage(tr("Não foi possível abrir a pasta do arquivo."));
     return opened;
 }
 
@@ -2108,7 +2113,7 @@ void ApplicationController::shuffleMediaPlaylist()
     if (!m_mediaRepository) return;
     auto items = m_mediaRepository->playlistItems();
     if (items.size() < 2) {
-        setStatusMessage(QStringLiteral("Adicione pelo menos dois itens para embaralhar a playlist."));
+        setStatusMessage(tr("Adicione pelo menos dois itens para embaralhar a playlist."));
         return;
     }
     for (int index = items.size() - 1; index > 0; --index) {
@@ -2116,12 +2121,12 @@ void ApplicationController::shuffleMediaPlaylist()
     }
     for (int index = 0; index < items.size(); ++index) {
         if (!m_mediaRepository->moveInPlaylist(items[index].id, index)) {
-            setStatusMessage(QStringLiteral("Não foi possível embaralhar a playlist."));
+            setStatusMessage(tr("Não foi possível embaralhar a playlist."));
             return;
         }
     }
     refreshMediaPlaylist();
-    setStatusMessage(QStringLiteral("Playlist embaralhada."));
+    setStatusMessage(tr("Playlist embaralhada."));
 }
 
 void ApplicationController::clearMediaPlaylist()
@@ -2134,14 +2139,14 @@ bool ApplicationController::applyClearMediaPlaylist()
     if (!m_mediaRepository) return false;
     applyStopMedia();
     if (!m_mediaRepository->clearPlaylist()) {
-        setStatusMessage(QStringLiteral("Não foi possível limpar a playlist."));
+        setStatusMessage(tr("Não foi possível limpar a playlist."));
         return false;
     }
     refreshAudioLibrary();
     refreshVideoLibrary();
     refreshImageLibrary();
     refreshMediaPlaylist();
-    setStatusMessage(QStringLiteral("Playlist limpa."));
+    setStatusMessage(tr("Playlist limpa."));
     return true;
 }
 
@@ -2176,14 +2181,14 @@ bool ApplicationController::saveMediaPlaylist(const QUrl &destination)
     if (!m_mediaRepository || destination.isEmpty()) return false;
     const auto items = m_mediaRepository->playlistItems();
     if (items.isEmpty()) {
-        setStatusMessage(QStringLiteral("A playlist está vazia."));
+        setStatusMessage(tr("A playlist está vazia."));
         return false;
     }
     auto path = destination.isLocalFile() ? destination.toLocalFile() : destination.toString();
     if (!path.endsWith(QStringLiteral(".m3u8"), Qt::CaseInsensitive)) path += QStringLiteral(".m3u8");
     QSaveFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        setStatusMessage(QStringLiteral("Não foi possível salvar a playlist."));
+        setStatusMessage(tr("Não foi possível salvar a playlist."));
         return false;
     }
     QByteArray contents("#EXTM3U\n");
@@ -2197,10 +2202,10 @@ bool ApplicationController::saveMediaPlaylist(const QUrl &destination)
                         .toUtf8();
     }
     if (file.write(contents) != contents.size() || !file.commit()) {
-        setStatusMessage(QStringLiteral("Não foi possível concluir o salvamento da playlist."));
+        setStatusMessage(tr("Não foi possível concluir o salvamento da playlist."));
         return false;
     }
-    setStatusMessage(QStringLiteral("Playlist salva em %1.").arg(QDir::toNativeSeparators(path)));
+    setStatusMessage(tr("Playlist salva em %1.").arg(QDir::toNativeSeparators(path)));
     return true;
 }
 
@@ -2215,7 +2220,7 @@ bool ApplicationController::applyPlayMedia(const QString &id)
     const auto item = m_mediaRepository->item(id);
     if (item.id.isEmpty()) return false;
     if (!QFileInfo::exists(item.path)) {
-        setStatusMessage(QStringLiteral("O arquivo não existe mais: %1").arg(item.title));
+        setStatusMessage(tr("O arquivo não existe mais: %1").arg(item.title));
         return false;
     }
 
@@ -2237,7 +2242,7 @@ bool ApplicationController::applyPlayMedia(const QString &id)
             emit videoVisibleChanged();
         }
         if (!m_images.show(id)) {
-            setStatusMessage(QStringLiteral("Não foi possível exibir a imagem selecionada."));
+            setStatusMessage(tr("Não foi possível exibir a imagem selecionada."));
             return false;
         }
         m_stillMedia.start(item.durationMs > 0 ? static_cast<int>(item.durationMs)
@@ -2428,8 +2433,8 @@ int ApplicationController::importAudioFiles(const QVariantList &urls)
     refreshAudioLibrary();
     refreshMediaPlaylist();
     setStatusMessage(imported > 0
-                         ? QStringLiteral("%1 áudio(s) importado(s).").arg(imported)
-                         : QStringLiteral("Nenhum áudio novo foi importado."));
+                         ? tr("%1 áudio(s) importado(s).").arg(imported)
+                         : tr("Nenhum áudio novo foi importado."));
     return imported;
 }
 
@@ -2502,8 +2507,8 @@ int ApplicationController::importVideoFiles(const QVariantList &urls)
     refreshVideoLibrary();
     refreshMediaPlaylist();
     setStatusMessage(imported > 0
-                         ? QStringLiteral("%1 vídeo(s) importado(s).").arg(imported)
-                         : QStringLiteral("Nenhum vídeo novo foi importado."));
+                         ? tr("%1 vídeo(s) importado(s).").arg(imported)
+                         : tr("Nenhum vídeo novo foi importado."));
     return imported;
 }
 
@@ -2567,8 +2572,8 @@ int ApplicationController::importImageFiles(const QVariantList &urls)
     refreshImageLibrary();
     refreshMediaPlaylist();
     setStatusMessage(imported > 0
-                         ? QStringLiteral("%1 imagem(ns) importada(s).").arg(imported)
-                         : QStringLiteral("Nenhuma imagem nova foi importada."));
+                         ? tr("%1 imagem(ns) importada(s).").arg(imported)
+                         : tr("Nenhuma imagem nova foi importada."));
     return imported;
 }
 
@@ -2597,7 +2602,7 @@ void ApplicationController::showImage(const QString &id)
     if (!m_mediaRepository) return;
     const auto item = m_mediaRepository->item(id);
     if (item.id.isEmpty() || !QFileInfo::exists(item.path)) {
-        setStatusMessage(QStringLiteral("O arquivo de imagem não existe mais."));
+        setStatusMessage(tr("O arquivo de imagem não existe mais."));
         return;
     }
     stopVideo();
@@ -2644,7 +2649,7 @@ void ApplicationController::addTextSlide(const QString &label, const QString &te
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.addSlide(label, text)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Adicionar slide"), before, after);
+        recordPresentationEdit(tr("Adicionar slide"), before, after);
     }
 }
 void ApplicationController::updateTextSlide(const QString &id, const QString &label, const QString &text)
@@ -2652,7 +2657,7 @@ void ApplicationController::updateTextSlide(const QString &id, const QString &la
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.updateSlide(id, label, text)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Editar slide"), before, after);
+        recordPresentationEdit(tr("Editar slide"), before, after);
     }
 }
 void ApplicationController::duplicateTextSlide(const QString &id)
@@ -2660,7 +2665,7 @@ void ApplicationController::duplicateTextSlide(const QString &id)
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.duplicateSlide(id)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Duplicar slide"), before, after);
+        recordPresentationEdit(tr("Duplicar slide"), before, after);
     }
 }
 void ApplicationController::splitTextSlide(const QString &id, int cursorPosition)
@@ -2668,7 +2673,7 @@ void ApplicationController::splitTextSlide(const QString &id, int cursorPosition
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.splitSlide(id, cursorPosition)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Dividir slide"), before, after);
+        recordPresentationEdit(tr("Dividir slide"), before, after);
     }
 }
 void ApplicationController::removeTextSlide(const QString &id)
@@ -2676,7 +2681,7 @@ void ApplicationController::removeTextSlide(const QString &id)
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.removeSlide(id)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Remover slide"), before, after);
+        recordPresentationEdit(tr("Remover slide"), before, after);
     }
 }
 void ApplicationController::moveTextSlide(const QString &id, int newIndex)
@@ -2684,7 +2689,7 @@ void ApplicationController::moveTextSlide(const QString &id, int newIndex)
     const auto before = m_textPresentation.presentation();
     if (m_textPresentation.moveSlide(id, newIndex)) {
         const auto after = m_textPresentation.presentation(); saveCurrentPresentation();
-        recordPresentationEdit(QStringLiteral("Mover slide"), before, after);
+        recordPresentationEdit(tr("Mover slide"), before, after);
     }
 }
 
@@ -2853,8 +2858,8 @@ bool ApplicationController::applyEventItemExecution(const QString&id)
     }return false;
 }
 void ApplicationController::clearHistory(){if(m_historyRepository&&m_historyRepository->clear())refreshHistory();}
-QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?QStringLiteral("Não foi possível criar o backup."):QStringLiteral("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
-bool ApplicationController::scheduleRestore(const QUrl&source){if(!m_recovery)return false;const auto path=source.isLocalFile()?source.toLocalFile():source.toString();const bool ok=m_recovery->scheduleRestore(path);setStatusMessage(ok?QStringLiteral("Restauração agendada. Reinicie o HolyScreen para aplicá-la."):QStringLiteral("O arquivo não é um backup SQLite válido."));emit maintenanceChanged();return ok;}
+QString ApplicationController::createBackup(){if(!m_recovery||(m_autosave&&!m_autosave->flush()))return{};m_lastBackupPath=m_recovery->createBackup();setStatusMessage(m_lastBackupPath.isEmpty()?tr("Não foi possível criar o backup."):tr("Backup criado em %1").arg(m_lastBackupPath));emit maintenanceChanged();return m_lastBackupPath;}
+bool ApplicationController::scheduleRestore(const QUrl&source){if(!m_recovery)return false;const auto path=source.isLocalFile()?source.toLocalFile():source.toString();const bool ok=m_recovery->scheduleRestore(path);setStatusMessage(ok?tr("Restauração agendada. Reinicie o HolyScreen para aplicá-la."):tr("O arquivo não é um backup SQLite válido."));emit maintenanceChanged();return ok;}
 bool ApplicationController::exportDiagnostics(const QUrl &destination)
 {
     if (destination.isEmpty()) return false;
@@ -2888,12 +2893,12 @@ bool ApplicationController::exportDiagnostics(const QUrl &destination)
         .logPath = AppLogger::logPath(),
     }, &error);
     setStatusMessage(exported
-        ? QStringLiteral("Diagnóstico exportado para %1.").arg(QDir::toNativeSeparators(path))
+        ? tr("Diagnóstico exportado para %1.").arg(QDir::toNativeSeparators(path))
         : error);
     return exported;
 }
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
-void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(UpdateChecker::defaultEndpoint(),QCoreApplication::applicationVersion());}
+void ApplicationController::checkForUpdates(){m_updateStatus=tr("Verificando...");emit updateChanged();m_updateChecker.check(UpdateChecker::defaultEndpoint(),QCoreApplication::applicationVersion());}
 
 int ApplicationController::importBibleTranslation(const QUrl &source)
 {
@@ -2901,7 +2906,7 @@ int ApplicationController::importBibleTranslation(const QUrl &source)
     const auto path = source.isLocalFile() ? source.toLocalFile() : source.toString();
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
-        setStatusMessage(QStringLiteral("Não foi possível abrir o arquivo da Bíblia."));
+        setStatusMessage(tr("Não foi possível abrir o arquivo da Bíblia."));
         return 0;
     }
     auto imported = m_bibleJsonImporter.parse(file.readAll());
@@ -2912,12 +2917,12 @@ int ApplicationController::importBibleTranslation(const QUrl &source)
     const auto translationId = m_bibleRepository->saveTranslation(imported.translation);
     if (translationId.isEmpty()
         || !m_bibleRepository->importVerses(translationId, imported.verses)) {
-        setStatusMessage(QStringLiteral("Não foi possível salvar a tradução importada."));
+        setStatusMessage(tr("Não foi possível salvar a tradução importada."));
         return 0;
     }
     refreshBibleTranslations();
     if (m_biblePrimaryTranslationId.isEmpty()) setBiblePrimaryTranslationId(translationId);
-    setStatusMessage(QStringLiteral("Tradução %1 importada com %2 versículo(s).")
+    setStatusMessage(tr("Tradução %1 importada com %2 versículo(s).")
                          .arg(imported.translation.abbreviation)
                          .arg(imported.verses.size()));
     return imported.verses.size();
@@ -2952,7 +2957,7 @@ void ApplicationController::cancelBibleImport()
 {
     if (!m_bibleImportActive || !m_bibleImportCancelled) return;
     m_bibleImportCancelled->store(true);
-    m_bibleImportMessage = QStringLiteral("Cancelando importação...");
+    m_bibleImportMessage = tr("Cancelando importação...");
     emit bibleImportStateChanged();
 }
 
@@ -2961,7 +2966,7 @@ bool ApplicationController::updateBibleTranslationFromSource(const QString &tran
     if (!m_bibleRepository || m_bibleImportActive) return false;
     const auto metadata = m_bibleRepository->translationSource(translationId);
     if (!metadata.has_value() || metadata->location.trimmed().isEmpty()) {
-        setStatusMessage(QStringLiteral("Essa tradução não possui uma origem atualizável registrada."));
+        setStatusMessage(tr("Essa tradução não possui uma origem atualizável registrada."));
         return false;
     }
     return startBibleImport({.kind = metadata->kind,
@@ -2974,11 +2979,11 @@ bool ApplicationController::startBibleImport(
     const BibleSource &source, bool confirmRestrictedLicenses)
 {
     if (m_bibleImportActive) {
-        setStatusMessage(QStringLiteral("Já existe uma importação bíblica em andamento."));
+        setStatusMessage(tr("Já existe uma importação bíblica em andamento."));
         return false;
     }
     if (source.location.trimmed().isEmpty()) {
-        setStatusMessage(QStringLiteral("Informe a pasta ou URL da origem bíblica."));
+        setStatusMessage(tr("Informe a pasta ou URL da origem bíblica."));
         return false;
     }
     m_pendingBibleImportSource = source;
@@ -2986,7 +2991,7 @@ bool ApplicationController::startBibleImport(
     m_bibleImportRestrictedTranslations.clear();
     m_bibleImportProgressCurrent = 0;
     m_bibleImportProgressTotal = 0;
-    m_bibleImportMessage = QStringLiteral("Preparando importação...");
+    m_bibleImportMessage = tr("Preparando importação...");
     m_bibleImportCancelled = std::make_shared<std::atomic_bool>(false);
     m_bibleImportActive = true;
     emit bibleImportStateChanged();
@@ -3031,25 +3036,25 @@ void ApplicationController::finishBibleImport(const BibleImportResult &result)
     m_bibleImportRequiresLicenseConfirmation = result.requiresLicenseConfirmation;
     m_bibleImportRestrictedTranslations = result.restrictedTranslations;
     if (result.requiresLicenseConfirmation) {
-        m_bibleImportMessage = QStringLiteral("Confirmação de licença necessária.");
+        m_bibleImportMessage = tr("Confirmação de licença necessária.");
         setStatusMessage(QStringLiteral(
             "A origem contém traduções não marcadas como domínio público. Confirme a licença antes de importar."));
     } else if (result.cancelled) {
-        m_bibleImportMessage = QStringLiteral("Importação cancelada.");
+        m_bibleImportMessage = tr("Importação cancelada.");
         setStatusMessage(m_bibleImportMessage);
         m_pendingBibleImportSource = {};
     } else if (!result.success) {
         m_bibleImportMessage = result.errorSummary().isEmpty()
-            ? QStringLiteral("A importação falhou.") : result.errorSummary();
+            ? tr("A importação falhou.") : result.errorSummary();
         setStatusMessage(m_bibleImportMessage);
         m_pendingBibleImportSource = {};
     } else {
         refreshBibleTranslations();
-        m_bibleImportMessage = QStringLiteral("%1 tradução(ões) e %2 versículo(s) importados.")
+        m_bibleImportMessage = tr("%1 tradução(ões) e %2 versículo(s) importados.")
                                    .arg(result.importedTranslations)
                                    .arg(result.importedVerses);
         if (result.failedTranslations > 0) {
-            m_bibleImportMessage += QStringLiteral(" %1 tradução(ões) ignoradas por erro: %2")
+            m_bibleImportMessage += tr(" %1 tradução(ões) ignoradas por erro: %2")
                                         .arg(result.failedTranslations)
                                         .arg(result.errorSummary());
         }
@@ -3073,7 +3078,7 @@ bool ApplicationController::applyBibleSearch(const QString &referenceInput)
     const auto reference = m_bibleReferenceParser.parse(m_bibleReferenceInput);
     if (!reference.has_value()) {
         emit bibleResultsChanged();
-        setStatusMessage(QStringLiteral("Referência bíblica inválida. Exemplo: João 3:16-18."));
+        setStatusMessage(tr("Referência bíblica inválida. Exemplo: João 3:16-18."));
         return false;
     }
 
@@ -3085,7 +3090,7 @@ bool ApplicationController::applyBibleSearch(const QString &referenceInput)
     }
     if (selectedIds.isEmpty()) {
         emit bibleResultsChanged();
-        setStatusMessage(QStringLiteral("Importe e selecione ao menos uma tradução bíblica."));
+        setStatusMessage(tr("Importe e selecione ao menos uma tradução bíblica."));
         return false;
     }
 
@@ -3128,10 +3133,10 @@ bool ApplicationController::applyBibleSearch(const QString &referenceInput)
     m_currentBibleReference = reference.value();
     emit bibleResultsChanged();
     if (m_bibleResults.isEmpty()) {
-        setStatusMessage(QStringLiteral("Nenhum versículo foi encontrado nas traduções selecionadas."));
+        setStatusMessage(tr("Nenhum versículo foi encontrado nas traduções selecionadas."));
         return false;
     }
-    setStatusMessage(QStringLiteral("%1 versículo(s) encontrado(s).").arg(m_bibleResults.size()));
+    setStatusMessage(tr("%1 versículo(s) encontrado(s).").arg(m_bibleResults.size()));
     return true;
 }
 
@@ -3231,7 +3236,7 @@ void ApplicationController::setWallpaperSource(const QUrl &source)
     QUrl normalized = source;
     if (!normalized.isEmpty()) {
         if (!normalized.isLocalFile() || !QFileInfo::exists(normalized.toLocalFile())) {
-            setStatusMessage(QStringLiteral("Não foi possível abrir o wallpaper selecionado."));
+            setStatusMessage(tr("Não foi possível abrir o wallpaper selecionado."));
             return;
         }
     }
@@ -3476,18 +3481,18 @@ void ApplicationController::setRemoteEnabled(bool enabled)
 {
     if (enabled == m_remoteEnabled && enabled == m_remoteServer.running()) return;
     if (enabled && !remotePasswordConfigured()) {
-        setStatusMessage(QStringLiteral("Defina uma senha antes de habilitar o controle remoto."));
+        setStatusMessage(tr("Defina uma senha antes de habilitar o controle remoto."));
         emit remoteChanged();
         return;
     }
     if (enabled) {
         m_remoteEnabled = restartRemoteServer();
-        setStatusMessage(m_remoteEnabled ? QStringLiteral("Controle remoto habilitado.")
+        setStatusMessage(m_remoteEnabled ? tr("Controle remoto habilitado.")
                                          : m_remoteServer.lastError());
     } else {
         m_remoteServer.stop();
         m_remoteEnabled = false;
-        setStatusMessage(QStringLiteral("Controle remoto desabilitado."));
+        setStatusMessage(tr("Controle remoto desabilitado."));
     }
     if (m_settings) m_settings->setValue(QStringLiteral("remote/enabled"), m_remoteEnabled);
     emit remoteChanged();
@@ -3510,7 +3515,7 @@ void ApplicationController::setRemoteInterface(const QString &interfaceAddress)
 {
     const QHostAddress address(interfaceAddress.trimmed());
     if (address.isNull() || address.protocol() != QAbstractSocket::IPv4Protocol) {
-        setStatusMessage(QStringLiteral("Informe um endereço IPv4 válido para o remoto."));
+        setStatusMessage(tr("Informe um endereço IPv4 válido para o remoto."));
         return;
     }
     const auto normalized = address.toString();
@@ -3527,16 +3532,16 @@ void ApplicationController::setRemoteInterface(const QString &interfaceAddress)
 bool ApplicationController::setRemotePassword(const QString &password)
 {
     if (password.size() < 8) {
-        setStatusMessage(QStringLiteral("A senha do remoto deve ter pelo menos 8 caracteres."));
+        setStatusMessage(tr("A senha do remoto deve ter pelo menos 8 caracteres."));
         return false;
     }
     const auto credentials = m_remoteServer.setPassword(password);
     if (credentials.isEmpty() || !m_settings
         || !m_settings->setValue(QStringLiteral("remote/credentials"), credentials)) {
-        setStatusMessage(QStringLiteral("Não foi possível salvar a senha do remoto."));
+        setStatusMessage(tr("Não foi possível salvar a senha do remoto."));
         return false;
     }
-    setStatusMessage(QStringLiteral("Senha do controle remoto atualizada. Sessões antigas foram revogadas."));
+    setStatusMessage(tr("Senha do controle remoto atualizada. Sessões antigas foram revogadas."));
     emit remoteChanged();
     return true;
 }
@@ -3544,7 +3549,7 @@ bool ApplicationController::setRemotePassword(const QString &password)
 void ApplicationController::revokeRemoteSessions()
 {
     m_remoteServer.revokeAllSessions();
-    setStatusMessage(QStringLiteral("Todas as sessões remotas foram revogadas."));
+    setStatusMessage(tr("Todas as sessões remotas foram revogadas."));
     emit remoteChanged();
 }
 
@@ -3758,7 +3763,7 @@ void ApplicationController::loadSettings()
             {QStringLiteral("schemaVersion"), migration.currentVersion},
             {QStringLiteral("migrationError"), migration.error},
         };
-        setStatusMessage(QStringLiteral("Não foi possível atualizar o banco local: %1")
+        setStatusMessage(tr("Não foi possível atualizar o banco local: %1")
                              .arg(migration.error));
         return;
     }
@@ -3865,7 +3870,7 @@ void ApplicationController::loadSettings()
     m_themeRepository = std::make_unique<ThemeRepository>(databasePath);
     if (!m_themeRepository->open()) qWarning() << "Failed to open theme database";
     if (m_themeRepository->themes().isEmpty()) {
-        Theme standard; standard.name=QStringLiteral("Padrão"); standard.fontFamily=m_clockFontFamily;
+        Theme standard; standard.name=tr("Padrão"); standard.fontFamily=m_clockFontFamily;
         m_themeRepository->save(standard);
     }
     refreshThemes(); loadActiveTheme();

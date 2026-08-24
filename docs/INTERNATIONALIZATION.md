@@ -27,7 +27,10 @@ The contract covers every operator and output QML file. It rejects raw labels,
 titles, placeholders, accessible names and tooltips while leaving technical
 example URLs untranslated. Any new QML surface must be added to the `qmlFiles`
 list in `TranslationCatalogTest.cpp` together with complete entries in both
-catalogs. The embedded PWA has its own equivalent contract.
+catalogs. It also covers operator-facing statuses and validation returned by
+`ApplicationController`, including locale-aware timestamps; lower-level C++
+services are migrated incrementally through the same catalog. The embedded PWA
+has its own equivalent contract.
 
 The embedded PWA chooses pt-BR by default, follows an English browser locale
 on first use and persists an explicit pt-BR/en-US selection in local storage.

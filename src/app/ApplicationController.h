@@ -875,7 +875,7 @@ private:
     };
     std::unique_ptr<DataRecoveryService> m_recovery;
     std::unique_ptr<AutosaveCoordinator> m_autosave;
-    QString m_autosaveStatus = QStringLiteral("Salvo");
+    QString m_autosaveStatus;
     QVariantList m_mediaPlaylist;
     MediaFolderScanner m_mediaFolderScanner;
     QFileSystemWatcher m_mediaFolderWatcher;
@@ -921,7 +921,7 @@ private:
     QString m_lastBackupPath;
     QVariantMap m_diagnostics;
     UpdateChecker m_updateChecker;
-    QString m_updateStatus=QStringLiteral("Não verificado");
+    QString m_updateStatus;
     QString m_updateEndpoint;
     std::unique_ptr<BibleRepository> m_bibleRepository;
     BibleReferenceParser m_bibleReferenceParser;
