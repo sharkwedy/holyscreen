@@ -6,9 +6,68 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag and successful main CI
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$GITHUB_REF_NAME"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+            echo "Unsupported release tag: $tag" >&2
+            exit 1
+          fi
+
+          release_commit="$(git rev-list -n 1 "$tag")"
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$release_commit" origin/main; then
+            echo "Release commit $release_commit is not contained in origin/main." >&2
+            exit 1
+          fi
+
+          for attempt in $(seq 1 60); do
+            successful_runs="$(gh api --method GET \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" \
+              -f head_sha="$release_commit" \
+              -f event=push \
+              -f per_page=100 \
+              --jq '[.workflow_runs[] | select(.status == "completed" and .conclusion == "success")] | length')"
+            if [[ "$successful_runs" -gt 0 ]]; then
+              echo "Found a successful CI run for $release_commit."
+              exit 0
+            fi
+
+            failed_runs="$(gh api --method GET \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" \
+              -f head_sha="$release_commit" \
+              -f event=push \
+              -f status=completed \
+              -f per_page=100 \
+              --jq '[.workflow_runs[] | select(.conclusion != "success")] | length')"
+            if [[ "$failed_runs" -gt 0 ]]; then
+              echo "CI completed without success for $release_commit." >&2
+              exit 1
+            fi
+
+            echo "Waiting for CI on $release_commit ($attempt/60)..."
+            sleep 30
+          done
+
+          echo "No successful CI run found for $release_commit after 30 minutes." >&2
+          exit 1
+
   package:
+    needs: validate-release
     strategy:
       fail-fast: false
       matrix:
@@ -16,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -27,7 +86,7 @@ jobs:
         run: choco install nsis -y --no-progress
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
         with:
           version: "6.10.3"
           modules: "qthttpserver qtmultimedia qtwebsockets"
@@ -94,7 +153,7 @@ jobs:
             --output appimage
 
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: HolyScreen-${{ runner.os }}-${{ runner.arch }}
           path: |
@@ -111,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           path: dist
 
@@ -137,22 +196,71 @@ jobs:
           ) > SHA256SUMS
           cp SHA256SUMS release-assets/SHA256SUMS
 
-      - name: Publish GitHub pre-release
+      - name: Validate package inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          dmg=(release-assets/*.dmg)
+          zip=(release-assets/*.zip)
+          installer=(release-assets/*.exe)
+          deb=(release-assets/*.deb)
+          tgz=(release-assets/*.tar.gz)
+          appimage=(release-assets/*.AppImage)
+          for entry in \
+            "DMG:${#dmg[@]}" \
+            "ZIP:${#zip[@]}" \
+            "NSIS:${#installer[@]}" \
+            "DEB:${#deb[@]}" \
+            "TGZ:${#tgz[@]}" \
+            "AppImage:${#appimage[@]}"; do
+            kind="${entry%%:*}"
+            count="${entry##*:}"
+            if [[ "$count" -lt 1 ]]; then
+              echo "Missing required $kind package." >&2
+              exit 1
+            fi
+          done
+
+      - name: Publish GitHub release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
           mapfile -d '' assets < <(find release-assets -maxdepth 1 -type f -print0 | sort -z)
+          if [[ "$GITHUB_REF_NAME" == "v1.0.0" ]]; then
+            title="HolyScreen $GITHUB_REF_NAME"
+            release_flags=(--latest)
+            edit_flags=(--prerelease=false --latest)
+          else
+            title="HolyScreen $GITHUB_REF_NAME (prévia de desenvolvimento)"
+            release_flags=(--prerelease)
+            edit_flags=(--prerelease)
+          fi
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
             gh release edit "$GITHUB_REF_NAME" \
-              --prerelease \
-              --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)"
+              "${edit_flags[@]}" \
+              --title "$title"
           else
             gh release create "$GITHUB_REF_NAME" "${assets[@]}" \
               --generate-notes \
-              --prerelease \
-              --title "HolyScreen ${GITHUB_REF_NAME} (prévia de desenvolvimento)" \
+              "${release_flags[@]}" \
+              --title "$title" \
               --verify-tag
           fi
+
+      - name: Download stable assets and verify checksums
+        if: github.ref_name == 'v1.0.0'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir verified-release
+          gh release download "$GITHUB_REF_NAME" --dir verified-release
+          cd verified-release
+          sha256sum --check SHA256SUMS

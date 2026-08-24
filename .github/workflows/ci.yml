@@ -27,7 +27,7 @@ jobs:
       SCCACHE_GHA_ENABLED: "true"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/merge', github.event.issue.number) || github.sha }}
 
@@ -36,7 +36,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev libsecret-1-dev libasound2-dev ninja-build
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
         with:
           version: "6.10.3"
           modules: "qthttpserver qtmultimedia qtwebsockets"
@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload CTest diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ctest-diagnostics-${{ runner.os }}-${{ runner.arch }}
           path: |
@@ -85,7 +85,7 @@ jobs:
           if-no-files-found: warn
 
       - name: QML lint
-        run: cmake --build build --config Release --target church-presenter_qmllint
+        run: cmake --build build --config Release --target presenter-ui_qmllint
 
       - name: Compiler cache statistics
         if: always()

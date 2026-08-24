@@ -5,6 +5,10 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Hardened the release workflow so supported tags must resolve to `main` with a
+  successful CI run, all six package formats are required, action revisions are
+  pinned, and only `v1.0.0` is published as stable and verified after download.
+
 ## [0.14.0] - 2026-08-24
 
 - Unified the distributed executable name as `holyscreen` on Windows and Linux
