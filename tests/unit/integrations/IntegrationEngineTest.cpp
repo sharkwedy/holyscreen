@@ -124,7 +124,7 @@ public:
         if (found == secrets.cend()) return std::nullopt;
         return *found;
     }
-    bool remove(const QString &reference) override { return secrets.remove(reference) > 0; }
+    bool remove(const QString &reference) override { return secrets.remove(reference); }
     QStringList references() const override { return secrets.keys(); }
     bool isPersistent() const override { return false; }
     QString backendName() const override { return QStringLiteral("memória"); }

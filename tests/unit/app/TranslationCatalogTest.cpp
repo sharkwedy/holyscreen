@@ -111,7 +111,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("qsTr\\(\\\"([^\\\"]+)\\\"\\)"));
     static const QRegularExpression rawVisible(
         QStringLiteral("(?:text|title|placeholderText|Accessible\\.name|ToolTip\\.text)"
-                       "\\s*:\\s*\\\"(?!https?://)[^\\\";\\r\\n]*\\p{L}"));
+                       "\\s*:\\s*\\\"(?!https?://|#[0-9A-Fa-f]{3,8}\\\")"
+                       "[^\\\";\\r\\n]*\\p{L}"));
     static const QRegularExpression legacyMediaAlias(
         QStringLiteral("controller\\.(?:songs|songSearch|importAudioFiles|importVideoFiles|"
                        "importImageFiles|selectSong|mediaPlaylist|mediaFolders|folderAudioFiles|"

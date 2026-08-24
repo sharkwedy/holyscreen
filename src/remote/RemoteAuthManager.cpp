@@ -164,7 +164,7 @@ bool RemoteAuthManager::authorizeSession(const QByteArray &sessionHash)
 
 bool RemoteAuthManager::logout(const QString &token)
 {
-    return !token.isEmpty() && m_sessions.remove(tokenHash(token)) > 0;
+    return !token.isEmpty() && m_sessions.remove(tokenHash(token));
 }
 
 void RemoteAuthManager::revokeAll()

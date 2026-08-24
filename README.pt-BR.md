@@ -5,7 +5,7 @@
 HolyScreen é um motor desktop open source de apresentação para igrejas,
 construído em C++20 e Qt 6/QML para funcionar offline.
 
-> Estado: pré-release de desenvolvimento `0.13.0`. Ainda não é o release estável `1.0.0`.
+> Estado: pré-release de desenvolvimento `0.14.0`. Ainda não é o release estável `1.0.0`.
 
 ![Painel do operador do HolyScreen](.stitch/painel-principal.png)
 
@@ -39,7 +39,8 @@ manualmente com o arquivo `SHA256SUMS` da release.
 
 ## Recursos disponíveis
 
-- tela do operador e até cinco saídas persistentes com papéis Público e Palco;
+- tela do operador e até cinco saídas persistentes com papéis Público, Palco e
+  Broadcast, incluindo área segura, chroma/transparência e simulações;
 - texto, letras, Bíblia, imagens, áudio e vídeo, com player unificado, playlist,
   busca por nome, volume, seek e repetição;
 - pastas de mídia recursivas e listas separadas de áudio, vídeo e imagem;
@@ -47,7 +48,13 @@ manualmente com o arquivo `SHA256SUMS` da release.
 - importação bíblica por pasta, Git HTTPS público, ZIP público e JSON legado;
 - migrações transacionais, backup, recuperação, autosave, undo/redo e exportação
   sanitizada de diagnóstico;
-- controle remoto web local protegido por senha, responsivo e totalmente offline.
+- controle remoto web local protegido por senha, responsivo e totalmente offline;
+- integrações HTTP, WebSocket, OBS v5, MIDI e OSC com histórico sanitizado e
+  armazenamento seguro do sistema quando disponível;
+- automações offline com limites contra loops, dry-run, histórico e allowlist
+  de executáveis autorizados;
+- configuração guiada, perfis sem segredos, atalhos editáveis, interface e
+  remoto em pt-BR/en-US e escala visual de 100%, 150% ou 200%.
 
 ## Controle remoto local
 

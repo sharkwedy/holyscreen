@@ -635,7 +635,7 @@ Em máquinas limpas:
 - macOS ARM64: DMG, nome/ícone, Gatekeeper esperado e remoção;
 - Linux: AppImage, DEB e TGZ em distribuição suportada;
 - instalação nova;
-- upgrade de 0.11, 0.12, 0.13, 0.14 e 0.15;
+- upgrade de 0.11, 0.12, 0.13 e 0.14;
 - migrações e rollback;
 - desinstalação sem apagar dados do usuário silenciosamente;
 - checksums, arquitetura e executável de todos os assets.
