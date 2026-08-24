@@ -178,6 +178,8 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    env:
+      SCCACHE_GHA_ENABLED: "true"
 
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -197,14 +199,36 @@ jobs:
           modules: "qthttpserver qtmultimedia qtwebsockets"
           cache: true
 
+      - name: Configure MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+        with:
+          arch: x64
+
+      - name: Install compiler cache
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
+
       - name: Configure
-        run: cmake -S . -B build -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DBUILD_TESTING=OFF
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_POLICY_DEFAULT_CMP0141=NEW
+          -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded
+          -DCMAKE_C_COMPILER_LAUNCHER=sccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Build
         run: cmake --build build --config Release --parallel
 
       - name: Package
         run: cmake --build build --config Release --target package
+
+      - name: Compiler cache statistics
+        if: always()
+        shell: bash
+        run: |
+          "${SCCACHE_PATH}" --show-stats
 
       - name: Build self-contained Linux AppImage
         if: runner.os == 'Linux'
@@ -336,7 +360,7 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -d '' assets < <(find release-assets -maxdepth 1 -type f -print0 | sort -z)
-          if [[ "$GITHUB_REF_NAME" == "v1.0.0" ]]; then
+          if [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             title="HolyScreen $GITHUB_REF_NAME"
             release_flags=(--latest)
             edit_flags=(--prerelease=false --latest)
@@ -358,8 +382,7 @@ jobs:
               --verify-tag
           fi
 
-      - name: Download stable assets and verify checksums
-        if: github.ref_name == 'v1.0.0'
+      - name: Download published assets and verify checksums
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

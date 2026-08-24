@@ -5,7 +5,7 @@
 HolyScreen é um motor desktop open source de apresentação para igrejas,
 construído em C++20 e Qt 6/QML para funcionar offline.
 
-> Estado: pré-release de desenvolvimento `0.14.0`. Ainda não é o release estável `1.0.0`.
+> Estado: release estável `1.0.1`.
 
 ![Painel do operador do HolyScreen](.stitch/painel-principal.png)
 
@@ -16,7 +16,7 @@ Documentação do operador: [manual completo](docs/OPERATOR_MANUAL.pt-BR.md),
 [guia rápido de culto](docs/QUICK_SERVICE_GUIDE.pt-BR.md) e
 [solução de problemas](docs/TROUBLESHOOTING.pt-BR.md).
 
-## Instalar uma prévia
+## Instalar o HolyScreen
 
 1. Acesse as [releases](https://github.com/sharkwedy/holyscreen/releases).
 2. Baixe `.exe`/`.zip` no Windows, `.dmg` no macOS ou
@@ -24,8 +24,8 @@ Documentação do operador: [manual completo](docs/OPERATOR_MANUAL.pt-BR.md),
 3. Confira o arquivo com o `SHA256SUMS` da release.
 4. Instale ou extraia o pacote e inicie o HolyScreen.
 
-As prévias podem não ter assinatura digital. Faça backup dos dados importantes
-antes de atualizar entre versões de desenvolvimento.
+Os pacotes podem não ter assinatura digital. Faça backup dos dados importantes
+antes de atualizar.
 
 O verificador de atualizações consulta diretamente a API oficial de Releases
 do GitHub, incluindo pré-releases publicadas, e apenas avisa o operador. Ele não

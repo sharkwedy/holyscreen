@@ -5,6 +5,14 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-24
+
+- Reduced release packaging time by using Ninja and the GitHub Actions-backed
+  sccache configuration already used by the main CI build on every platform.
+- Published stable semantic-version tags as stable GitHub releases instead of
+  restricting stable release handling to `v1.0.0`, and verified checksums for
+  every published release.
+
 ## [1.0.0] - 2026-08-24
 
 First stable release. HolyScreen presents text, Bible passages, images, audio
