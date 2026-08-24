@@ -477,6 +477,164 @@
     </message>
 </context>
 <context>
+    <name>BibleSettingsFlow</name>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="15"/>
+        <source>Nenhuma</source>
+        <translation>Nenhuma</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="31"/>
+        <source>Importar JSON HolyScreen legado</source>
+        <translation>Importar JSON HolyScreen legado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="32"/>
+        <source>HolyScreen Bíblia JSON (*.json)</source>
+        <translation>HolyScreen Bíblia JSON (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="37"/>
+        <source>Selecionar repositório, data/canonical ou pasta da tradução</source>
+        <translation>Selecionar repositório, data/canonical ou pasta da tradução</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="42"/>
+        <source>Importar Bíblia de origem pública</source>
+        <translation>Importar Bíblia de origem pública</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="50"/>
+        <source>Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário.</source>
+        <translation>Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="54"/>
+        <source>REPOSITÓRIO GIT HTTPS</source>
+        <translation>REPOSITÓRIO GIT HTTPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="63"/>
+        <source>IMPORTAR GIT</source>
+        <translation>IMPORTAR GIT</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="71"/>
+        <source>ARQUIVO ZIP HTTPS</source>
+        <translation>ARQUIVO ZIP HTTPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="80"/>
+        <source>IMPORTAR ZIP</source>
+        <translation>IMPORTAR ZIP</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="92"/>
+        <source>Confirmar licenças das traduções</source>
+        <translation>Confirmar licenças das traduções</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="101"/>
+        <source>As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:</source>
+        <translation>As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="125"/>
+        <source>Bíblia</source>
+        <translation>Bíblia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="137"/>
+        <source>TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)</source>
+        <translation>TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="140"/>
+        <source>IMPORTAR PASTA</source>
+        <translation>IMPORTAR PASTA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="145"/>
+        <source>GIT / ZIP</source>
+        <translation>GIT / ZIP</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="150"/>
+        <source>JSON LEGADO</source>
+        <translation>JSON LEGADO</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="168"/>
+        <source>CANCELAR</source>
+        <translation>CANCELAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="185"/>
+        <source>PRINCIPAL</source>
+        <translation>PRINCIPAL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="186"/>
+        <source>SECUNDÁRIA</source>
+        <translation>SECUNDÁRIA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="187"/>
+        <source>TERCEIRA</source>
+        <translation>TERCEIRA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="213"/>
+        <source>ORIGEM:</source>
+        <translation>ORIGEM:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="223"/>
+        <source>origem legada</source>
+        <translation>origem legada</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="228"/>
+        <source>ATUALIZAR DA ORIGEM</source>
+        <translation>ATUALIZAR DA ORIGEM</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="245"/>
+        <source> • revisão %1</source>
+        <translation> • revisão %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="247"/>
+        <source>Origem: %1%2%3</source>
+        <translation>Origem: %1%2%3</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="257"/>
+        <source>João 3:16, Jo 3 16 ou João 3.16</source>
+        <translation>João 3:16, Jo 3 16 ou João 3.16</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="262"/>
+        <source>BUSCAR</source>
+        <translation>BUSCAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="267"/>
+        <source>Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.</source>
+        <translation>Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="300"/>
+        <source>APRESENTAR</source>
+        <translation>APRESENTAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleSettingsFlow.qml" line="306"/>
+        <source>Digite uma referência para localizar os versículos</source>
+        <translation>Digite uma referência para localizar os versículos</translation>
+    </message>
+</context>
+<context>
     <name>BroadcastSettings</name>
     <message>
         <location filename="../src/ui/operator/BroadcastSettings.qml" line="31"/>
@@ -911,386 +1069,231 @@
         <translation>HolyScreen — Operação</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="33"/>
-        <source>Nenhuma</source>
-        <translation>Nenhuma</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="73"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="63"/>
         <source>Comunicação com o palco</source>
         <translation>Comunicação com o palco</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="81"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="71"/>
         <source>A mensagem aparece somente nas telas configuradas como palco.</source>
         <translation>A mensagem aparece somente nas telas configuradas como palco.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="90"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="80"/>
         <source>Ex.: Pastor, faltam 5 minutos</source>
         <translation>Ex.: Pastor, faltam 5 minutos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="96"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="86"/>
         <source>ENVIAR AO PALCO</source>
         <translation>ENVIAR AO PALCO</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="101"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="157"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="163"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="170"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="91"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="147"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="153"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="160"/>
         <source>LIMPAR</source>
         <translation>LIMPAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="133"/>
         <source>Comunicação ao vivo</source>
         <translation>Comunicação ao vivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="153"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
         <source>MENSAGEM NO TOPO</source>
         <translation>MENSAGEM NO TOPO</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="154"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="144"/>
         <source>Mensagem para o público</source>
         <translation>Mensagem para o público</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="156"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="146"/>
         <source>EXIBIR</source>
         <translation>EXIBIR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="159"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="149"/>
         <source>ALERTA CENTRAL</source>
         <translation>ALERTA CENTRAL</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="160"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="150"/>
         <source>Aviso importante</source>
         <translation>Aviso importante</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="162"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="152"/>
         <source>EXIBIR ALERTA</source>
         <translation>EXIBIR ALERTA</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="165"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="155"/>
         <source>LOWER THIRD</source>
         <translation>LOWER THIRD</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="166"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="156"/>
         <source>Nome / título</source>
         <translation>Nome / título</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="167"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="157"/>
         <source>Descrição / igreja</source>
         <translation>Descrição / igreja</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="169"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="159"/>
         <source>EXIBIR LOWER THIRD</source>
         <translation>EXIBIR LOWER THIRD</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="172"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="162"/>
         <source>CONTAGEM REGRESSIVA</source>
         <translation>CONTAGEM REGRESSIVA</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="174"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="164"/>
         <source>Minutos</source>
         <translation>Minutos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="176"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="166"/>
         <source>Segundos</source>
         <translation>Segundos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="179"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="188"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="169"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="178"/>
         <source>INICIAR</source>
         <translation>INICIAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="182"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="172"/>
         <source>PARAR</source>
         <translation>PARAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="184"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="174"/>
         <source>CRONÔMETRO</source>
         <translation>CRONÔMETRO</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="188"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="178"/>
         <source>PAUSAR</source>
         <translation>PAUSAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="193"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="183"/>
         <source>ZERAR</source>
         <translation>ZERAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="201"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="191"/>
         <source>Selecionar wallpaper</source>
         <translation>Selecionar wallpaper</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="202"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="192"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp)</source>
         <translation>Imagens (*.jpg *.jpeg *.png *.webp)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="207"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="197"/>
         <source>Limpar histórico?</source>
         <translation>Limpar histórico?</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="211"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="201"/>
         <source>Essa ação remove definitivamente os registros de execução.</source>
         <translation>Essa ação remove definitivamente os registros de execução.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="215"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="205"/>
         <source>Selecionar backup do HolyScreen</source>
         <translation>Selecionar backup do HolyScreen</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="216"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="206"/>
         <source>Banco HolyScreen (*.db)</source>
         <translation>Banco HolyScreen (*.db)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="221"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="211"/>
         <source>Exportar diagnóstico do HolyScreen</source>
         <translation>Exportar diagnóstico do HolyScreen</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="223"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="213"/>
         <source>Arquivo ZIP (*.zip)</source>
         <translation>Arquivo ZIP (*.zip)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="228"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="218"/>
         <source>Agendar restauração?</source>
         <translation>Agendar restauração?</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="231"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="221"/>
         <source>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</source>
         <translation>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="236"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="226"/>
         <source>Importar áudios</source>
         <translation>Importar áudios</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="238"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="228"/>
         <source>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</source>
         <translation>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="244"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="234"/>
         <source>Importar vídeos</source>
         <translation>Importar vídeos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="246"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="236"/>
         <source>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</source>
         <translation>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="252"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="242"/>
         <source>Importar imagens</source>
         <translation>Importar imagens</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="254"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="244"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</source>
         <translation>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="259"/>
-        <source>Importar JSON HolyScreen legado</source>
-        <translation>Importar JSON HolyScreen legado</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="260"/>
-        <source>HolyScreen Bíblia JSON (*.json)</source>
-        <translation>HolyScreen Bíblia JSON (*.json)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="265"/>
-        <source>Selecionar repositório, data/canonical ou pasta da tradução</source>
-        <translation>Selecionar repositório, data/canonical ou pasta da tradução</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="270"/>
-        <source>Importar Bíblia de origem pública</source>
-        <translation>Importar Bíblia de origem pública</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="278"/>
-        <source>Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário.</source>
-        <translation>Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="282"/>
-        <source>REPOSITÓRIO GIT HTTPS</source>
-        <translation>REPOSITÓRIO GIT HTTPS</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="291"/>
-        <source>IMPORTAR GIT</source>
-        <translation>IMPORTAR GIT</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="299"/>
-        <source>ARQUIVO ZIP HTTPS</source>
-        <translation>ARQUIVO ZIP HTTPS</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="308"/>
-        <source>IMPORTAR ZIP</source>
-        <translation>IMPORTAR ZIP</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="320"/>
-        <source>Confirmar licenças das traduções</source>
-        <translation>Confirmar licenças das traduções</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="329"/>
-        <source>As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:</source>
-        <translation>As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="353"/>
-        <source>Bíblia</source>
-        <translation>Bíblia</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="365"/>
-        <source>TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)</source>
-        <translation>TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="368"/>
-        <source>IMPORTAR PASTA</source>
-        <translation>IMPORTAR PASTA</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="373"/>
-        <source>GIT / ZIP</source>
-        <translation>GIT / ZIP</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="378"/>
-        <source>JSON LEGADO</source>
-        <translation>JSON LEGADO</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="396"/>
-        <source>CANCELAR</source>
-        <translation>CANCELAR</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="413"/>
-        <source>PRINCIPAL</source>
-        <translation>PRINCIPAL</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="414"/>
-        <source>SECUNDÁRIA</source>
-        <translation>SECUNDÁRIA</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="415"/>
-        <source>TERCEIRA</source>
-        <translation>TERCEIRA</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="441"/>
-        <source>ORIGEM:</source>
-        <translation>ORIGEM:</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="451"/>
-        <source>origem legada</source>
-        <translation>origem legada</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="456"/>
-        <source>ATUALIZAR DA ORIGEM</source>
-        <translation>ATUALIZAR DA ORIGEM</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="473"/>
-        <source> • revisão %1</source>
-        <translation> • revisão %1</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="475"/>
-        <source>Origem: %1%2%3</source>
-        <translation>Origem: %1%2%3</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="485"/>
-        <source>João 3:16, Jo 3 16 ou João 3.16</source>
-        <translation>João 3:16, Jo 3 16 ou João 3.16</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="490"/>
-        <source>BUSCAR</source>
-        <translation>BUSCAR</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="495"/>
-        <source>Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.</source>
-        <translation>Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="528"/>
-        <source>APRESENTAR</source>
-        <translation>APRESENTAR</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="534"/>
-        <source>Digite uma referência para localizar os versículos</source>
-        <translation>Digite uma referência para localizar os versículos</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="549"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="262"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="551"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="264"/>
         <source>Ativar modo de debug</source>
         <translation>Ativar modo de debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="558"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="271"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Múltiplas saídas simuladas</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="565"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="278"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnósticos e benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="572"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="285"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Registrar mensagens DEBUG</translation>
     </message>
