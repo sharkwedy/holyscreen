@@ -5,6 +5,18 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-08-24
+
+- Removed the development artifacts that the bundled dependencies were shipping
+  inside every package. libgit2 and RtMidi declare unconditional install rules,
+  so their headers, static libraries and CMake package files were landing next
+  to the application: the macOS disk image opened onto `include`, `lib` and
+  `share` folders alongside the app. The dependencies are now declared with
+  `EXCLUDE_FROM_ALL`, which drops those rules without affecting the build.
+- Moved the third-party notices into the macOS bundle, so the disk image now
+  contains only the application and the Applications shortcut. The conventional
+  `share/doc` path is kept on Windows and Linux.
+
 ## [1.0.1] - 2026-08-24
 
 Corrective release. The 1.0.0 macOS disk image could not run at all.
