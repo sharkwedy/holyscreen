@@ -84,6 +84,8 @@ VideoPosition VideoEngine::position() const { return m_position; }
 VideoPosition VideoEngine::duration() const { return m_duration; }
 void VideoEngine::setVolume(double volume) { m_audioOutput->setVolume(std::clamp(volume, 0.0, 1.0)); }
 double VideoEngine::volume() const { return m_audioOutput->volume(); }
+void VideoEngine::setAudioDevice(const QAudioDevice &device) { m_audioOutput->setDevice(device); }
+QAudioDevice VideoEngine::audioDevice() const { return m_audioOutput->device(); }
 
 void VideoEngine::setLoop(bool loop)
 {

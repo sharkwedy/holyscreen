@@ -26,6 +26,11 @@ Clique com o botão direito no nome de um monitor para renomeá-lo. As rotas sã
 persistidas pelo identificador do hardware, mas devem ser conferidas depois de
 trocar GPU, dock ou cabos.
 
+A saída de áudio escolhida fica salva no perfil local. Se o dispositivo for
+desconectado, o HolyScreen usa temporariamente a saída padrão e volta à escolha
+salva quando ela reaparecer. Perfis exportados preservam o identificador, mas a
+seleção precisa ser conferida ao importar o perfil em outro computador.
+
 ## 2. Área de trabalho
 
 **Operação** é a área inicial. Ela reúne biblioteca, preview, playlist atual e

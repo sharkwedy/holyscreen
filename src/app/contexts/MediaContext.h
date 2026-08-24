@@ -27,6 +27,9 @@ class MediaContext final : public QObject {
     Q_PROPERTY(int mediaDurationMs READ mediaDurationMs NOTIFY mediaDurationChanged)
     Q_PROPERTY(double mediaVolume READ mediaVolume WRITE setMediaVolume NOTIFY mediaVolumeChanged)
     Q_PROPERTY(QString mediaRepeatMode READ mediaRepeatMode WRITE setMediaRepeatMode NOTIFY mediaRepeatModeChanged)
+    Q_PROPERTY(QVariantList audioOutputs READ audioOutputs NOTIFY audioOutputsChanged)
+    Q_PROPERTY(QString audioOutputId READ audioOutputId WRITE setAudioOutputId NOTIFY audioOutputsChanged)
+    Q_PROPERTY(bool audioOutputConfigured READ audioOutputConfigured NOTIFY audioOutputsChanged)
 
 public:
     explicit MediaContext(ApplicationController &controller, QObject *parent = nullptr);
@@ -53,6 +56,10 @@ public:
     void setMediaVolume(double volume);
     [[nodiscard]] QString mediaRepeatMode() const;
     void setMediaRepeatMode(const QString &mode);
+    [[nodiscard]] QVariantList audioOutputs() const;
+    [[nodiscard]] QString audioOutputId() const;
+    void setAudioOutputId(const QString &id);
+    [[nodiscard]] bool audioOutputConfigured() const;
 
     Q_INVOKABLE bool addMediaFolder(const QUrl &folder);
     Q_INVOKABLE void removeMediaFolder(const QString &folderPath);
@@ -84,6 +91,7 @@ signals:
     void mediaDurationChanged();
     void mediaVolumeChanged();
     void mediaRepeatModeChanged();
+    void audioOutputsChanged();
 
 private:
     ApplicationController &m_controller;

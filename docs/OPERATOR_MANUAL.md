@@ -26,6 +26,11 @@ Right-click a display name to give it an operator-friendly name. Display
 routes are persisted by hardware identifier, but should be checked after a
 GPU, dock or cable change.
 
+The selected audio output is stored in the local profile. If that device is
+disconnected, HolyScreen temporarily uses the default output and returns to
+the saved choice when it reappears. Exported profiles retain the identifier,
+so verify the selection after importing a profile on another computer.
+
 ## 2. Operator workspace
 
 **Operation** is the default area. It contains the library, preview, current

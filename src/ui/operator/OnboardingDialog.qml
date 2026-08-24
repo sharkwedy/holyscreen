@@ -28,7 +28,7 @@ Dialog {
 
     function stepComplete(stepId) {
         if (stepId === "screens") return controller.outputContext.outputWindows.length > 0
-        if (stepId === "audio") return controller.mediaContext.mediaVolume >= 0
+        if (stepId === "audio") return controller.mediaContext.audioOutputConfigured
         if (stepId === "library") return controller.mediaContext.mediaFolders.length > 0
         if (stepId === "bible") return controller.bibleTranslations.length > 0
         if (stepId === "remote") return controller.remotePasswordConfigured

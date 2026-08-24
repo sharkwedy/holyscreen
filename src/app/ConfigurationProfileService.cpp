@@ -165,11 +165,14 @@ ConfigurationProfileResult ConfigurationProfileService::validate(const QVariantM
 
     const auto media = section(profile, QStringLiteral("media"), result.errors);
     rejectUnknown(media,
-                  {QStringLiteral("volume"), QStringLiteral("repeatMode"),
+                  {QStringLiteral("volume"), QStringLiteral("audioOutputId"),
+                   QStringLiteral("repeatMode"),
                    QStringLiteral("imageFit"), QStringLiteral("imageTransition"),
                    QStringLiteral("imageAutoplay"), QStringLiteral("imageIntervalMs")},
                   QStringLiteral("media"), result.errors);
     expectNumber(media, QStringLiteral("volume"), QStringLiteral("media"), result.errors);
+    expectType(media, QStringLiteral("audioOutputId"), QMetaType::QString,
+               QStringLiteral("media"), result.errors);
     expectType(media, QStringLiteral("repeatMode"), QMetaType::QString,
                QStringLiteral("media"), result.errors);
     expectType(media, QStringLiteral("imageFit"), QMetaType::QString,

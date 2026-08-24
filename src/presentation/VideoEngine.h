@@ -3,6 +3,7 @@
 #include "presentation/IVideoEngine.h"
 #include "presentation/VideoFrameBus.h"
 
+#include <QAudioDevice>
 #include <QMediaPlayer>
 
 QT_FORWARD_DECLARE_CLASS(QAudioOutput)
@@ -27,6 +28,8 @@ public:
     [[nodiscard]] VideoPosition duration() const override;
     void setVolume(double volume) override;
     [[nodiscard]] double volume() const override;
+    void setAudioDevice(const QAudioDevice &device);
+    [[nodiscard]] QAudioDevice audioDevice() const;
     void setLoop(bool loop) override;
     [[nodiscard]] bool loop() const override;
     [[nodiscard]] VideoState state() const override { return m_state; }
