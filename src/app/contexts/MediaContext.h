@@ -10,6 +10,8 @@ class ApplicationController;
 
 class MediaContext final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QVariantList songs READ songs NOTIFY songsChanged)
+    Q_PROPERTY(QString songSearch READ songSearch WRITE setSongSearch NOTIFY songSearchChanged)
     Q_PROPERTY(QVariantList mediaPlaylist READ mediaPlaylist NOTIFY mediaPlaylistChanged)
     Q_PROPERTY(QVariantList mediaFolders READ mediaFolders NOTIFY mediaFoldersChanged)
     Q_PROPERTY(QVariantList folderAudioFiles READ folderAudioFiles NOTIFY mediaCatalogChanged)
@@ -34,6 +36,9 @@ class MediaContext final : public QObject {
 public:
     explicit MediaContext(ApplicationController &controller, QObject *parent = nullptr);
 
+    [[nodiscard]] QVariantList songs() const;
+    [[nodiscard]] QString songSearch() const;
+    void setSongSearch(const QString &search);
     [[nodiscard]] QVariantList mediaPlaylist() const;
     [[nodiscard]] QVariantList mediaFolders() const;
     [[nodiscard]] QVariantList folderAudioFiles() const;
@@ -61,6 +66,10 @@ public:
     void setAudioOutputId(const QString &id);
     [[nodiscard]] bool audioOutputConfigured() const;
 
+    Q_INVOKABLE int importAudioFiles(const QVariantList &urls);
+    Q_INVOKABLE int importVideoFiles(const QVariantList &urls);
+    Q_INVOKABLE int importImageFiles(const QVariantList &urls);
+    Q_INVOKABLE void selectSong(const QString &id);
     Q_INVOKABLE bool addMediaFolder(const QUrl &folder);
     Q_INVOKABLE void removeMediaFolder(const QString &folderPath);
     Q_INVOKABLE void rescanMediaFolders();
@@ -81,6 +90,8 @@ public:
     Q_INVOKABLE bool saveMediaPlaylist(const QUrl &destination);
 
 signals:
+    void songsChanged();
+    void songSearchChanged();
     void mediaPlaylistChanged();
     void mediaFoldersChanged();
     void mediaCatalogChanged();

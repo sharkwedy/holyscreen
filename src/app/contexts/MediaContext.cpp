@@ -7,6 +7,8 @@ namespace churchpresenter {
 MediaContext::MediaContext(ApplicationController &controller, QObject *parent)
     : QObject(parent), m_controller(controller)
 {
+    connect(&controller, &ApplicationController::songsChanged, this, &MediaContext::songsChanged);
+    connect(&controller, &ApplicationController::songSearchChanged, this, &MediaContext::songSearchChanged);
     connect(&controller, &ApplicationController::mediaPlaylistChanged, this, &MediaContext::mediaPlaylistChanged);
     connect(&controller, &ApplicationController::mediaFoldersChanged, this, &MediaContext::mediaFoldersChanged);
     connect(&controller, &ApplicationController::mediaCatalogChanged, this, &MediaContext::mediaCatalogChanged);
@@ -20,6 +22,9 @@ MediaContext::MediaContext(ApplicationController &controller, QObject *parent)
     connect(&controller, &ApplicationController::audioOutputsChanged, this, &MediaContext::audioOutputsChanged);
 }
 
+QVariantList MediaContext::songs() const { return m_controller.songs(); }
+QString MediaContext::songSearch() const { return m_controller.songSearch(); }
+void MediaContext::setSongSearch(const QString &value) { m_controller.setSongSearch(value); }
 QVariantList MediaContext::mediaPlaylist() const { return m_controller.mediaPlaylist(); }
 QVariantList MediaContext::mediaFolders() const { return m_controller.mediaFolders(); }
 QVariantList MediaContext::folderAudioFiles() const { return m_controller.folderAudioFiles(); }
@@ -46,6 +51,10 @@ QVariantList MediaContext::audioOutputs() const { return m_controller.audioOutpu
 QString MediaContext::audioOutputId() const { return m_controller.audioOutputId(); }
 void MediaContext::setAudioOutputId(const QString &id) { m_controller.setAudioOutputId(id); }
 bool MediaContext::audioOutputConfigured() const { return m_controller.audioOutputConfigured(); }
+int MediaContext::importAudioFiles(const QVariantList &urls) { return m_controller.importAudioFiles(urls); }
+int MediaContext::importVideoFiles(const QVariantList &urls) { return m_controller.importVideoFiles(urls); }
+int MediaContext::importImageFiles(const QVariantList &urls) { return m_controller.importImageFiles(urls); }
+void MediaContext::selectSong(const QString &id) { m_controller.selectSong(id); }
 bool MediaContext::addMediaFolder(const QUrl &folder) { return m_controller.addMediaFolder(folder); }
 void MediaContext::removeMediaFolder(const QString &path) { m_controller.removeMediaFolder(path); }
 void MediaContext::rescanMediaFolders() { m_controller.rescanMediaFolders(); }

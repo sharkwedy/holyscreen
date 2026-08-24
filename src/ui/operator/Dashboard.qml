@@ -75,7 +75,7 @@ Item {
     property real mediaVolumeBeforeMute: 0.8
     property var screenBeingRenamed: null
     property var contextMediaItem: null
-    readonly property var libraryModel: selectedLibraryTab === 0 ? dashboard.controller.songs
+    readonly property var libraryModel: selectedLibraryTab === 0 ? dashboard.controller.mediaContext.songs
                                         : selectedLibraryTab === 1 ? dashboard.controller.mediaContext.folderAudioFiles
                                         : selectedLibraryTab === 2 ? dashboard.controller.mediaContext.folderVideoFiles
                                         : dashboard.controller.mediaContext.folderImageFiles
@@ -196,7 +196,7 @@ Item {
     }
 
     function updateSearch(value) {
-        if (selectedLibraryTab === 0) dashboard.controller.songSearch = value
+        if (selectedLibraryTab === 0) dashboard.controller.mediaContext.songSearch = value
         else if (selectedLibraryTab === 1) dashboard.controller.mediaContext.audioFileSearch = value
         else if (selectedLibraryTab === 2) dashboard.controller.mediaContext.videoFileSearch = value
         else dashboard.controller.mediaContext.imageFileSearch = value
@@ -205,13 +205,13 @@ Item {
     onSelectedLibraryTabChanged: updateSearch(librarySearch)
 
     function activateLibraryItem(item) {
-        if (selectedLibraryTab === 0) dashboard.controller.selectSong(item.id)
+        if (selectedLibraryTab === 0) dashboard.controller.mediaContext.selectSong(item.id)
         else dashboard.controller.mediaContext.addCatalogFileToPlaylist(item.path)
     }
 
     function activateLibraryItemFromDoubleClick(item) {
         if (selectedLibraryTab === 0) {
-            dashboard.controller.selectSong(item.id)
+            dashboard.controller.mediaContext.selectSong(item.id)
             return
         }
 

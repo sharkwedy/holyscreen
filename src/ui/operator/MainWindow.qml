@@ -236,7 +236,7 @@ ApplicationWindow {
         title: qsTr("Importar áudios")
         fileMode: FileDialog.OpenFiles
         nameFilters: [qsTr("Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)")]
-        onAccepted: root.controller.importAudioFiles(selectedFiles)
+        onAccepted: root.controller.mediaContext.importAudioFiles(selectedFiles)
     }
 
     FileDialog {
@@ -244,7 +244,7 @@ ApplicationWindow {
         title: qsTr("Importar vídeos")
         fileMode: FileDialog.OpenFiles
         nameFilters: [qsTr("Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)")]
-        onAccepted: root.controller.importVideoFiles(selectedFiles)
+        onAccepted: root.controller.mediaContext.importVideoFiles(selectedFiles)
     }
 
     FileDialog {
@@ -252,7 +252,7 @@ ApplicationWindow {
         title: qsTr("Importar imagens")
         fileMode: FileDialog.OpenFiles
         nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)")]
-        onAccepted: root.controller.importImageFiles(selectedFiles)
+        onAccepted: root.controller.mediaContext.importImageFiles(selectedFiles)
     }
     FileDialog {
         id: bibleImportDialog
@@ -761,9 +761,9 @@ ApplicationWindow {
                 else if (value.match(/\.(jpg|jpeg|png|webp|bmp|gif|tif|tiff|heic)$/))
                     images.push(drop.urls[index])
             }
-            if (audio.length > 0) root.controller.importAudioFiles(audio)
-            if (video.length > 0) root.controller.importVideoFiles(video)
-            if (images.length > 0) root.controller.importImageFiles(images)
+            if (audio.length > 0) root.controller.mediaContext.importAudioFiles(audio)
+            if (video.length > 0) root.controller.mediaContext.importVideoFiles(video)
+            if (images.length > 0) root.controller.mediaContext.importImageFiles(images)
         }
     }
 
