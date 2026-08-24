@@ -52,6 +52,14 @@ FetchContent_Declare(qrcodegen
 )
 FetchContent_MakeAvailable(libgit2 miniz qrcodegen rtmidi)
 
+# miniz 3.1.2 forces /Zi and /Fd in its own CMake project. sccache then expects
+# a program database even when our later /Z7 option makes MSVC embed the debug
+# information in each object. Compile only this small C target directly while
+# retaining the cache for libgit2 and all HolyScreen C++ targets.
+if(MSVC AND TARGET miniz)
+    set_property(TARGET miniz PROPERTY C_COMPILER_LAUNCHER "")
+endif()
+
 find_package(Qt6 COMPONENTS Core Gui Quick QuickControls2 Sql Multimedia Network HttpServer WebSockets Concurrent Test QuickTest LinguistTools REQUIRED)
 qt_standard_project_setup(REQUIRES 6.8)
 
