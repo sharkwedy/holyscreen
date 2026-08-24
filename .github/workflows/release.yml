@@ -66,8 +66,104 @@ jobs:
           echo "No successful CI run found for $release_commit after 30 minutes." >&2
           exit 1
 
-  package:
+  release-quality:
     needs: validate-release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@4c0873ef8656cb3c50b3f42fb63bc1ade0cfa827 # v4
+        with:
+          languages: c-cpp
+          build-mode: manual
+
+      - name: Install Linux quality dependencies
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          clang libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev
+          libsecret-1-dev libasound2-dev ninja-build
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
+        with:
+          version: "6.10.3"
+          modules: "qthttpserver qtmultimedia qtwebsockets"
+          cache: true
+
+      - name: Configure sanitizers
+        run: >-
+          cmake -S . -B build-quality -G Ninja
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_C_FLAGS=-fsanitize=address,undefined
+          -DCMAKE_CXX_FLAGS=-fsanitize=address,undefined
+          -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined
+
+      - name: Build sanitizer instrumentation
+        run: cmake --build build-quality --parallel
+
+      - name: Run sanitizer suites
+        env:
+          ASAN_OPTIONS: detect_leaks=0:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+          QT_QPA_PLATFORM: offscreen
+        run: >-
+          ctest --test-dir build-quality
+          --output-on-failure
+          --output-junit build-quality/ctest-sanitizers.xml
+
+      - name: Analyze C++ with CodeQL
+        uses: github/codeql-action/analyze@4c0873ef8656cb3c50b3f42fb63bc1ade0cfa827 # v4
+        with:
+          category: /language:c-cpp
+          upload: false
+          output: build-quality/codeql-results
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: build-quality
+          format: spdx-json
+          output-file: HolyScreen-${{ github.ref_name }}.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Scan dependencies, configuration and secrets
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: table
+          output: build-quality/trivy-report.txt
+          exit-code: 1
+
+      - name: Upload release SBOM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: HolyScreen-SBOM
+          path: HolyScreen-${{ github.ref_name }}.spdx.json
+          if-no-files-found: error
+
+      - name: Upload quality diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-quality-diagnostics
+          path: |
+            build-quality/ctest-sanitizers.xml
+            build-quality/Testing/Temporary/LastTest.log
+            build-quality/codeql-results
+            build-quality/trivy-report.txt
+          if-no-files-found: warn
+
+  package:
+    needs: [validate-release, release-quality]
     strategy:
       fail-fast: false
       matrix:
@@ -173,6 +269,7 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           path: dist
+          pattern: HolyScreen-*
 
       - name: Generate checksums
         shell: bash

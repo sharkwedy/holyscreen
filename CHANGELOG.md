@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added release-only CodeQL analysis, ASan/UBSan test execution, SPDX SBOM
+  generation and Trivy vulnerability, secret and configuration scanning.
 - Added RC resilience coverage for media removed before playback, unavailable
   codecs, corrupt databases, full-disk rollback, backup failure and upgrades
   from every supported 0.11-0.14 schema, plus labelled performance budgets.
