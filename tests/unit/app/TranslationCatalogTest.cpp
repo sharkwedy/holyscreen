@@ -48,6 +48,16 @@ QSet<QString> placeholders(const QString &text)
     return result;
 }
 
+QString qmlStringValue(QString value)
+{
+    value.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
+    value.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
+    value.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
+    value.replace(QStringLiteral("\\\""), QStringLiteral("\""));
+    value.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
+    return value;
+}
+
 } // namespace
 
 class TranslationCatalogTest final : public QObject {
@@ -72,19 +82,21 @@ void TranslationCatalogTest::migratedQmlUsesCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/AutomationsArea.qml"),
         QStringLiteral("src/ui/operator/Dashboard.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
+        QStringLiteral("src/ui/operator/MainWindow.qml"),
     };
     QSet<QString> sources;
     static const QRegularExpression translated(
         QStringLiteral("qsTr\\(\\\"([^\\\"]+)\\\"\\)"));
     static const QRegularExpression rawVisible(
-        QStringLiteral("(?:text|placeholderText|Accessible\\.name)\\s*:\\s*\\\"[^\\\";\\r\\n]*\\p{L}"));
+        QStringLiteral("(?:text|title|placeholderText|Accessible\\.name|ToolTip\\.text)"
+                       "\\s*:\\s*\\\"(?!https?://)[^\\\";\\r\\n]*\\p{L}"));
     for (const auto &path : qmlFiles) {
         const auto contents = QString::fromUtf8(readFile(path));
         QVERIFY2(!contents.isEmpty(), qPrintable(QStringLiteral("Não foi possível ler %1").arg(path)));
         QVERIFY2(!rawVisible.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
         auto matches = translated.globalMatch(contents);
-        while (matches.hasNext()) sources.insert(matches.next().captured(1));
+        while (matches.hasNext()) sources.insert(qmlStringValue(matches.next().captured(1)));
     }
     QVERIFY(!sources.isEmpty());
 

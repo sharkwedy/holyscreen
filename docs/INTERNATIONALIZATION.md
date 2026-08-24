@@ -23,10 +23,11 @@ engine, so the interface shows a restart notice after the selection changes.
 
 ## Migração incremental
 
-The contract currently covers Events, Maintenance, guided onboarding, Bible
-navigation, quick Bible search, Dashboard, Settings, Automations, Integrations,
-Broadcast settings, Stage labels and output window titles. Add a QML file to the
-`qmlFiles` list in
+The contract currently covers the main operator window, Events, Maintenance,
+guided onboarding, Bible navigation, quick Bible search, Dashboard, Settings,
+Automations, Integrations, Broadcast settings, Stage labels and output window
+titles. It rejects raw labels, titles, placeholders, accessible names and tooltips
+while leaving technical example URLs untranslated. Add a QML file to the `qmlFiles` list in
 `TranslationCatalogTest.cpp` as soon as all of its visible strings are wrapped
 and both catalogs are complete. The 0.14.0 checkpoint requires every operator,
 output and PWA surface to be covered.

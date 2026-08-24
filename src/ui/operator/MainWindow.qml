@@ -24,19 +24,19 @@ ApplicationWindow {
         Qt.quit()
     }
     color: "#0b1220"
-    title: "HolyScreen — Operação"
+    title: qsTr("HolyScreen — Operação")
     width: 1360
     height: 820
     minimumWidth: 1100
     minimumHeight: 680
     property url pendingRestoreSource
-    readonly property var optionalBibleTranslations: [{"id":"", "displayName":"Nenhuma"}]
+    readonly property var optionalBibleTranslations: [{"id":"", "displayName":qsTr("Nenhuma")}]
                                                      .concat(root.controller.bibleTranslations)
-    readonly property var outputBibleTranslations: [{"id":"", "displayName":"Bíblia: composição padrão"}]
+    readonly property var outputBibleTranslations: [{"id":"", "displayName":qsTr("Bíblia: composição padrão")}]
                                                    .concat(root.controller.bibleTranslations)
-    readonly property var outputRoles: [{"id":"audience", "displayName":"Saída: público"},
-                                        {"id":"stage", "displayName":"Saída: palco"},
-                                        {"id":"broadcast", "displayName":"Saída: transmissão"}]
+    readonly property var outputRoles: [{"id":"audience", "displayName":qsTr("Saída: público")},
+                                        {"id":"stage", "displayName":qsTr("Saída: palco")},
+                                        {"id":"broadcast", "displayName":qsTr("Saída: transmissão")}]
     readonly property int previewOutputCount: root.controller.debugEnabled
                                               && root.controller.debugSimulatedOutputs
                                               ? root.controller.simulatedOutputCount : 1
@@ -55,6 +55,18 @@ ApplicationWindow {
         const minutes = Math.floor(totalSeconds / 60)
         const seconds = totalSeconds % 60
         return minutes + ":" + (seconds < 10 ? "0" : "") + seconds
+    }
+
+    function mediaStateLabel(state) {
+        switch (state) {
+        case "loading": return qsTr("CARREGANDO")
+        case "ready": return qsTr("PRONTO")
+        case "playing": return qsTr("REPRODUZINDO")
+        case "paused": return qsTr("PAUSADO")
+        case "buffering": return qsTr("CARREGANDO BUFFER")
+        case "error": return qsTr("ERRO")
+        default: return qsTr("PARADO")
+        }
     }
 
     function translationIndex(model, translationId) {
@@ -93,7 +105,7 @@ ApplicationWindow {
 
     Dialog {
         id: stageMessageDialog
-        title: "Comunicação com o palco"
+        title: qsTr("Comunicação com o palco")
         modal: true
         width: 560
         standardButtons: Dialog.Close
@@ -101,7 +113,7 @@ ApplicationWindow {
         contentItem: ColumnLayout {
             spacing: 12
             Label {
-                text: "A mensagem aparece somente nas telas configuradas como palco."
+                text: qsTr("A mensagem aparece somente nas telas configuradas como palco.")
                 color: "#8da0bc"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
@@ -110,18 +122,18 @@ ApplicationWindow {
                 id: stageMessageEditor
                 Layout.fillWidth: true
                 Layout.preferredHeight: 110
-                placeholderText: "Ex.: Pastor, faltam 5 minutos"
+                placeholderText: qsTr("Ex.: Pastor, faltam 5 minutos")
                 wrapMode: TextEdit.Wrap
             }
             RowLayout {
                 Layout.fillWidth: true
                 Button {
-                    text: "ENVIAR AO PALCO"
+                    text: qsTr("ENVIAR AO PALCO")
                     enabled: stageMessageEditor.text.trim().length > 0
                     onClicked: root.controller.stageMessage = stageMessageEditor.text
                 }
                 Button {
-                    text: "LIMPAR"
+                    text: qsTr("LIMPAR")
                     enabled: root.controller.stageMessage.length > 0
                     onClicked: {
                         stageMessageEditor.text = ""
@@ -163,7 +175,7 @@ ApplicationWindow {
     }
     Dialog {
         id: liveDialog
-        title: "Comunicação ao vivo"
+        title: qsTr("Comunicação ao vivo")
         modal: true
         width: 680
         height: Math.min(root.height - 80, 650)
@@ -173,47 +185,47 @@ ApplicationWindow {
             ColumnLayout {
                 width: parent.width
                 spacing: 14
-                Label { text: "MENSAGEM NO TOPO"; color: "#8da0bc"; font.bold: true }
-                TextField { id: audienceMessageEditor; Layout.fillWidth: true; placeholderText: "Mensagem para o público" }
+                Label { text: qsTr("MENSAGEM NO TOPO"); color: "#8da0bc"; font.bold: true }
+                TextField { id: audienceMessageEditor; Layout.fillWidth: true; placeholderText: qsTr("Mensagem para o público") }
                 RowLayout {
-                    Button { text: "EXIBIR"; onClicked: root.controller.setAudienceMessage(audienceMessageEditor.text) }
-                    Button { text: "LIMPAR"; onClicked: root.controller.setAudienceMessage("") }
+                    Button { text: qsTr("EXIBIR"); onClicked: root.controller.setAudienceMessage(audienceMessageEditor.text) }
+                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setAudienceMessage("") }
                 }
-                Label { text: "ALERTA CENTRAL"; color: "#8da0bc"; font.bold: true }
-                TextField { id: alertEditor; Layout.fillWidth: true; placeholderText: "Aviso importante" }
+                Label { text: qsTr("ALERTA CENTRAL"); color: "#8da0bc"; font.bold: true }
+                TextField { id: alertEditor; Layout.fillWidth: true; placeholderText: qsTr("Aviso importante") }
                 RowLayout {
-                    Button { text: "EXIBIR ALERTA"; onClicked: root.controller.setAlertMessage(alertEditor.text) }
-                    Button { text: "LIMPAR"; onClicked: root.controller.setAlertMessage("") }
+                    Button { text: qsTr("EXIBIR ALERTA"); onClicked: root.controller.setAlertMessage(alertEditor.text) }
+                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setAlertMessage("") }
                 }
-                Label { text: "LOWER THIRD"; color: "#8da0bc"; font.bold: true }
-                TextField { id: lowerThirdTitleEditor; Layout.fillWidth: true; placeholderText: "Nome / título" }
-                TextField { id: lowerThirdSubtitleEditor; Layout.fillWidth: true; placeholderText: "Descrição / igreja" }
+                Label { text: qsTr("LOWER THIRD"); color: "#8da0bc"; font.bold: true }
+                TextField { id: lowerThirdTitleEditor; Layout.fillWidth: true; placeholderText: qsTr("Nome / título") }
+                TextField { id: lowerThirdSubtitleEditor; Layout.fillWidth: true; placeholderText: qsTr("Descrição / igreja") }
                 RowLayout {
-                    Button { text: "EXIBIR LOWER THIRD"; onClicked: root.controller.setLowerThird(lowerThirdTitleEditor.text, lowerThirdSubtitleEditor.text) }
-                    Button { text: "LIMPAR"; onClicked: root.controller.setLowerThird("", "") }
+                    Button { text: qsTr("EXIBIR LOWER THIRD"); onClicked: root.controller.setLowerThird(lowerThirdTitleEditor.text, lowerThirdSubtitleEditor.text) }
+                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setLowerThird("", "") }
                 }
-                Label { text: "CONTAGEM REGRESSIVA"; color: "#8da0bc"; font.bold: true }
+                Label { text: qsTr("CONTAGEM REGRESSIVA"); color: "#8da0bc"; font.bold: true }
                 RowLayout {
-                    Label { text: "Minutos" }
+                    Label { text: qsTr("Minutos") }
                     SpinBox { id: countdownMinutes; from: 0; to: 999; value: 5 }
-                    Label { text: "Segundos" }
+                    Label { text: qsTr("Segundos") }
                     SpinBox { id: countdownSeconds; from: 0; to: 59; value: 0 }
                     Button {
-                        text: root.controller.countdownRunning ? root.controller.countdownText : "INICIAR"
+                        text: root.controller.countdownRunning ? root.controller.countdownText : qsTr("INICIAR")
                         onClicked: root.controller.startCountdown(countdownMinutes.value * 60 + countdownSeconds.value)
                     }
-                    Button { text: "PARAR"; onClicked: root.controller.stopCountdown() }
+                    Button { text: qsTr("PARAR"); onClicked: root.controller.stopCountdown() }
                 }
-                Label { text: "CRONÔMETRO"; color: "#8da0bc"; font.bold: true }
+                Label { text: qsTr("CRONÔMETRO"); color: "#8da0bc"; font.bold: true }
                 RowLayout {
                     Label { text: root.controller.stopwatchText; font.pixelSize: 22; font.bold: true }
                     Button {
-                        text: root.controller.stopwatchRunning ? "PAUSAR" : "INICIAR"
+                        text: root.controller.stopwatchRunning ? qsTr("PAUSAR") : qsTr("INICIAR")
                         onClicked: root.controller.stopwatchRunning
                                    ? root.controller.pauseStopwatch()
                                    : root.controller.startStopwatch()
                     }
-                    Button { text: "ZERAR"; onClicked: root.controller.resetStopwatch() }
+                    Button { text: qsTr("ZERAR"); onClicked: root.controller.resetStopwatch() }
                 }
             }
         }
@@ -221,76 +233,76 @@ ApplicationWindow {
 
     FileDialog {
         id: wallpaperDialog
-        title: "Selecionar wallpaper"
-        nameFilters: ["Imagens (*.jpg *.jpeg *.png *.webp)"]
+        title: qsTr("Selecionar wallpaper")
+        nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp)")]
         onAccepted: root.controller.wallpaperSource = selectedFile
     }
     Dialog {
         id: clearHistoryDialog
-        title: "Limpar histórico?"
+        title: qsTr("Limpar histórico?")
         modal: true
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: root.controller.eventContext.clearHistory()
-        Label { text:"Essa ação remove definitivamente os registros de execução.";wrapMode:Text.WordWrap }
+        Label { text:qsTr("Essa ação remove definitivamente os registros de execução.");wrapMode:Text.WordWrap }
     }
     FileDialog {
         id: restoreDialog
-        title:"Selecionar backup do HolyScreen"
-        nameFilters:["Banco HolyScreen (*.db)"]
+        title:qsTr("Selecionar backup do HolyScreen")
+        nameFilters:[qsTr("Banco HolyScreen (*.db)")]
         onAccepted:{root.pendingRestoreSource=selectedFile;restoreConfirmDialog.open()}
     }
     FileDialog {
         id: diagnosticExportDialog
-        title: "Exportar diagnóstico do HolyScreen"
+        title: qsTr("Exportar diagnóstico do HolyScreen")
         fileMode: FileDialog.SaveFile
-        nameFilters: ["Arquivo ZIP (*.zip)"]
+        nameFilters: [qsTr("Arquivo ZIP (*.zip)")]
         defaultSuffix: "zip"
         onAccepted: root.controller.maintenanceContext.exportDiagnostics(selectedFile)
     }
     Dialog {
-        id:restoreConfirmDialog;title:"Agendar restauração?";modal:true
+        id:restoreConfirmDialog;title:qsTr("Agendar restauração?");modal:true
         standardButtons:Dialog.Ok|Dialog.Cancel
         onAccepted:root.controller.maintenanceContext.scheduleRestore(root.pendingRestoreSource)
-        Label {text:"O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.";wrapMode:Text.WordWrap;width:420}
+        Label {text:qsTr("O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.");wrapMode:Text.WordWrap;width:420}
     }
 
     FileDialog {
         id: audioDialog
-        title: "Importar áudios"
+        title: qsTr("Importar áudios")
         fileMode: FileDialog.OpenFiles
-        nameFilters: ["Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)"]
+        nameFilters: [qsTr("Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)")]
         onAccepted: root.controller.importAudioFiles(selectedFiles)
     }
 
     FileDialog {
         id: videoDialog
-        title: "Importar vídeos"
+        title: qsTr("Importar vídeos")
         fileMode: FileDialog.OpenFiles
-        nameFilters: ["Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)"]
+        nameFilters: [qsTr("Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)")]
         onAccepted: root.controller.importVideoFiles(selectedFiles)
     }
 
     FileDialog {
         id: imageDialog
-        title: "Importar imagens"
+        title: qsTr("Importar imagens")
         fileMode: FileDialog.OpenFiles
-        nameFilters: ["Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)"]
+        nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)")]
         onAccepted: root.controller.importImageFiles(selectedFiles)
     }
     FileDialog {
         id: bibleImportDialog
-        title: "Importar JSON HolyScreen legado"
-        nameFilters: ["HolyScreen Bíblia JSON (*.json)"]
+        title: qsTr("Importar JSON HolyScreen legado")
+        nameFilters: [qsTr("HolyScreen Bíblia JSON (*.json)")]
         onAccepted: root.controller.importBibleTranslation(selectedFile)
     }
     FolderDialog {
         id: bibleFolderDialog
-        title: "Selecionar repositório, data/canonical ou pasta da tradução"
+        title: qsTr("Selecionar repositório, data/canonical ou pasta da tradução")
         onAccepted: root.controller.importBibleFolder(selectedFolder)
     }
     Dialog {
         id: bibleOnlineImportDialog
-        title: "Importar Bíblia de origem pública"
+        title: qsTr("Importar Bíblia de origem pública")
         modal: true
         width: 620
         standardButtons: Dialog.Close
@@ -298,11 +310,11 @@ ApplicationWindow {
             spacing: 12
             Label {
                 Layout.fillWidth: true
-                text: "Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário."
+                text: qsTr("Use uma URL HTTPS pública. O repositório Git é clonado internamente; o ZIP é validado e extraído em staging temporário.")
                 wrapMode: Text.WordWrap
                 color: "#b8c6dc"
             }
-            Label { text: "REPOSITÓRIO GIT HTTPS"; color: "#8da0bc"; font.bold: true }
+            Label { text: qsTr("REPOSITÓRIO GIT HTTPS"); color: "#8da0bc"; font.bold: true }
             RowLayout {
                 Layout.fillWidth: true
                 TextField {
@@ -311,7 +323,7 @@ ApplicationWindow {
                     placeholderText: "https://github.com/usuario/repositorio.git"
                 }
                 Button {
-                    text: "IMPORTAR GIT"
+                    text: qsTr("IMPORTAR GIT")
                     enabled: !root.controller.bibleImportRunning && bibleGitUrl.text.trim().length > 0
                     onClicked: {
                         if (root.controller.importBibleGit(bibleGitUrl.text))
@@ -319,7 +331,7 @@ ApplicationWindow {
                     }
                 }
             }
-            Label { text: "ARQUIVO ZIP HTTPS"; color: "#8da0bc"; font.bold: true }
+            Label { text: qsTr("ARQUIVO ZIP HTTPS"); color: "#8da0bc"; font.bold: true }
             RowLayout {
                 Layout.fillWidth: true
                 TextField {
@@ -328,7 +340,7 @@ ApplicationWindow {
                     placeholderText: "https://exemplo.org/biblias.zip"
                 }
                 Button {
-                    text: "IMPORTAR ZIP"
+                    text: qsTr("IMPORTAR ZIP")
                     enabled: !root.controller.bibleImportRunning && bibleZipUrl.text.trim().length > 0
                     onClicked: {
                         if (root.controller.importBibleZip(bibleZipUrl.text))
@@ -340,7 +352,7 @@ ApplicationWindow {
     }
     Dialog {
         id: bibleLicenseDialog
-        title: "Confirmar licenças das traduções"
+        title: qsTr("Confirmar licenças das traduções")
         modal: true
         width: 580
         standardButtons: Dialog.Ok | Dialog.Cancel
@@ -349,7 +361,7 @@ ApplicationWindow {
             spacing: 10
             Label {
                 Layout.fillWidth: true
-                text: "As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:"
+                text: qsTr("As traduções abaixo não estão marcadas como domínio público. O HolyScreen não redistribui esse conteúdo. Confirme apenas se você tem permissão para importá-lo:")
                 wrapMode: Text.WordWrap
                 color: "#ffba70"
             }
@@ -373,7 +385,7 @@ ApplicationWindow {
     }
     Dialog {
         id: bibleDialog
-        title: "Bíblia"
+        title: qsTr("Bíblia")
         modal: true
         width: Math.min(root.width - 80, 940)
         height: Math.min(root.height - 80, 680)
@@ -385,20 +397,20 @@ ApplicationWindow {
             spacing: 10
             RowLayout {
                 Layout.fillWidth: true
-                Label { text: "TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)"; color: "#8da0bc"; font.bold: true }
+                Label { text: qsTr("TRADUÇÕES (ATÉ 3 SIMULTÂNEAS)"); color: "#8da0bc"; font.bold: true }
                 Item { Layout.fillWidth: true }
                 Button {
-                    text: "IMPORTAR PASTA"
+                    text: qsTr("IMPORTAR PASTA")
                     enabled: !root.controller.bibleImportRunning
                     onClicked: bibleFolderDialog.open()
                 }
                 Button {
-                    text: "GIT / ZIP"
+                    text: qsTr("GIT / ZIP")
                     enabled: !root.controller.bibleImportRunning
                     onClicked: bibleOnlineImportDialog.open()
                 }
                 Button {
-                    text: "JSON LEGADO"
+                    text: qsTr("JSON LEGADO")
                     enabled: !root.controller.bibleImportRunning
                     onClicked: bibleImportDialog.open()
                 }
@@ -416,7 +428,7 @@ ApplicationWindow {
                         elide: Text.ElideRight
                     }
                     Button {
-                        text: "CANCELAR"
+                        text: qsTr("CANCELAR")
                         visible: root.controller.bibleImportRunning
                         onClicked: root.controller.cancelBibleImport()
                     }
@@ -433,9 +445,9 @@ ApplicationWindow {
             GridLayout {
                 Layout.fillWidth: true
                 columns: 3
-                Label { text: "PRINCIPAL"; color: "#8da0bc" }
-                Label { text: "SECUNDÁRIA"; color: "#8da0bc" }
-                Label { text: "TERCEIRA"; color: "#8da0bc" }
+                Label { text: qsTr("PRINCIPAL"); color: "#8da0bc" }
+                Label { text: qsTr("SECUNDÁRIA"); color: "#8da0bc" }
+                Label { text: qsTr("TERCEIRA"); color: "#8da0bc" }
                 ComboBox {
                     Layout.fillWidth: true
                     model: root.controller.bibleTranslations
@@ -461,7 +473,7 @@ ApplicationWindow {
             RowLayout {
                 Layout.fillWidth: true
                 visible: root.controller.bibleTranslations.length > 0
-                Label { text: "ORIGEM:"; color: "#8da0bc"; font.bold: true }
+                Label { text: qsTr("ORIGEM:"); color: "#8da0bc"; font.bold: true }
                 ComboBox {
                     id: bibleManagedTranslation
                     Layout.fillWidth: true
@@ -471,12 +483,12 @@ ApplicationWindow {
                 }
                 Label {
                     text: bibleManagedTranslation.currentIndex >= 0
-                          ? (bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].license || "origem legada")
+                          ? (bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].license || qsTr("origem legada"))
                           : ""
                     color: "#8da0bc"
                 }
                 Button {
-                    text: "ATUALIZAR DA ORIGEM"
+                    text: qsTr("ATUALIZAR DA ORIGEM")
                     enabled: !root.controller.bibleImportRunning
                              && bibleManagedTranslation.currentIndex >= 0
                              && !!bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].canUpdate
@@ -493,9 +505,9 @@ ApplicationWindow {
                         return ""
                     const item = bibleManagedTranslation.model[bibleManagedTranslation.currentIndex]
                     const revision = item.sourceRevision
-                                     ? " • revisão " + item.sourceRevision.substring(0, 12) : ""
+                                     ? qsTr(" • revisão %1").arg(item.sourceRevision.substring(0, 12)) : ""
                     const publisher = item.publisher ? " • " + item.publisher : ""
-                    return "Origem: " + item.sourceLocation + revision + publisher
+                    return qsTr("Origem: %1%2%3").arg(item.sourceLocation).arg(revision).arg(publisher)
                 }
                 color: "#64748b"
                 elide: Text.ElideMiddle
@@ -505,17 +517,17 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 TextField {
                     Layout.fillWidth: true
-                    placeholderText: "João 3:16, Jo 3 16 ou João 3.16"
+                    placeholderText: qsTr("João 3:16, Jo 3 16 ou João 3.16")
                     text: root.controller.bibleReferenceInput
                     onTextEdited: root.controller.bibleReferenceInput = text
                     onAccepted: root.controller.searchBibleReference()
                 }
-                Button { text: "BUSCAR"; highlighted: true; onClicked: root.controller.searchBibleReference() }
+                Button { text: qsTr("BUSCAR"); highlighted: true; onClicked: root.controller.searchBibleReference() }
             }
             Label {
                 visible: root.controller.bibleTranslations.length === 0
                 Layout.fillWidth: true
-                text: "Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento."
+                text: qsTr("Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.")
                 color: "#ffba70"
                 wrapMode: Text.WordWrap
             }
@@ -548,13 +560,13 @@ ApplicationWindow {
                                 wrapMode: Text.WordWrap
                             }
                         }
-                        Button { text: "APRESENTAR"; onClicked: root.controller.showBibleVerse(bibleResultDelegate.index) }
+                        Button { text: qsTr("APRESENTAR"); onClicked: root.controller.showBibleVerse(bibleResultDelegate.index) }
                     }
                 }
                 Label {
                     anchors.centerIn: parent
                     visible: bibleResultsList.count === 0 && root.controller.bibleTranslations.length > 0
-                    text: "Digite uma referência para localizar os versículos"
+                    text: qsTr("Digite uma referência para localizar os versículos")
                     color: "#64748b"
                 }
             }
@@ -562,12 +574,12 @@ ApplicationWindow {
     }
     FolderDialog {
         id: mediaFolderDialog
-        title: "Adicionar pasta de mídia"
+        title: qsTr("Adicionar pasta de mídia")
         onAccepted: root.controller.addMediaFolder(selectedFolder)
     }
     Dialog {
         id: mediaLibraryDialog
-        title: "Biblioteca de pastas"
+        title: qsTr("Biblioteca de pastas")
         modal: true
         width: Math.min(root.width - 80, 1000)
         height: Math.min(root.height - 80, 680)
@@ -579,10 +591,10 @@ ApplicationWindow {
             spacing: 10
             RowLayout {
                 Layout.fillWidth: true
-                Label { text: "PASTAS SELECIONADAS"; color: "#8da0bc"; font.bold: true }
+                Label { text: qsTr("PASTAS SELECIONADAS"); color: "#8da0bc"; font.bold: true }
                 Item { Layout.fillWidth: true }
-                Button { text: "+ PASTA"; onClicked: mediaFolderDialog.open() }
-                Button { text: "ATUALIZAR"; onClicked: root.controller.rescanMediaFolders() }
+                Button { text: qsTr("+ PASTA"); onClicked: mediaFolderDialog.open() }
+                Button { text: qsTr("ATUALIZAR"); onClicked: root.controller.rescanMediaFolders() }
             }
             ListView {
                 id: mediaFoldersList
@@ -604,26 +616,30 @@ ApplicationWindow {
                         anchors.rightMargin: 6
                         Label { text: mediaFolderDelegate.modelData.exists ? "●" : "!"; color: mediaFolderDelegate.modelData.exists ? "#70e1a7" : "#ffba70" }
                         Label { Layout.fillWidth: true; text: mediaFolderDelegate.modelData.path; color: "#d9e5f5"; elide: Text.ElideMiddle }
-                        ToolButton { text: "×"; onClicked: root.controller.removeMediaFolder(mediaFolderDelegate.modelData.path) }
+                        ToolButton {
+                            text: "×"
+                            Accessible.name: qsTr("Remover pasta")
+                            onClicked: root.controller.removeMediaFolder(mediaFolderDelegate.modelData.path)
+                        }
                     }
                 }
                 Label {
                     anchors.centerIn: parent
                     visible: mediaFoldersList.count === 0
-                    text: "Adicione uma ou mais pastas de áudio, vídeo ou imagens"
+                    text: qsTr("Adicione uma ou mais pastas de áudio, vídeo ou imagens")
                     color: "#64748b"
                 }
             }
             TabBar {
                 id: mediaTypeTabs
                 Layout.fillWidth: true
-                TabButton { text: "ÁUDIOS (" + root.controller.folderAudioFiles.length + ")" }
-                TabButton { text: "VÍDEOS (" + root.controller.folderVideoFiles.length + ")" }
-                TabButton { text: "IMAGENS (" + root.controller.folderImageFiles.length + ")" }
+                TabButton { text: qsTr("ÁUDIOS (%1)").arg(root.controller.folderAudioFiles.length) }
+                TabButton { text: qsTr("VÍDEOS (%1)").arg(root.controller.folderVideoFiles.length) }
+                TabButton { text: qsTr("IMAGENS (%1)").arg(root.controller.folderImageFiles.length) }
             }
             TextField {
                 Layout.fillWidth: true
-                placeholderText: "Pesquisar por nome de arquivo"
+                placeholderText: qsTr("Pesquisar por nome de arquivo")
                 text: mediaTypeTabs.currentIndex === 0 ? root.controller.audioFileSearch
                       : mediaTypeTabs.currentIndex === 1 ? root.controller.videoFileSearch
                       : root.controller.imageFileSearch
@@ -666,7 +682,7 @@ ApplicationWindow {
                             Layout.maximumWidth: 260
                         }
                         Button {
-                            text: folderMediaDelegate.modelData.inPlaylist ? "NA PLAYLIST" : "+ PLAYLIST"
+                            text: folderMediaDelegate.modelData.inPlaylist ? qsTr("NA PLAYLIST") : qsTr("+ PLAYLIST")
                             enabled: !folderMediaDelegate.modelData.inPlaylist
                             onClicked: root.controller.addCatalogFileToPlaylist(folderMediaDelegate.modelData.path)
                         }
@@ -676,8 +692,8 @@ ApplicationWindow {
                     anchors.centerIn: parent
                     visible: folderMediaList.count === 0
                     text: root.controller.mediaFolders.length === 0
-                          ? "Nenhuma pasta selecionada"
-                          : "Nenhum arquivo encontrado para esta pesquisa"
+                          ? qsTr("Nenhuma pasta selecionada")
+                          : qsTr("Nenhum arquivo encontrado para esta pesquisa")
                     color: "#64748b"
                 }
             }
@@ -685,38 +701,38 @@ ApplicationWindow {
     }
     FileDialog {
         id: themeBackgroundDialog
-        title: "Selecionar fundo do tema"
-        nameFilters: ["Imagens (*.jpg *.jpeg *.png *.webp *.bmp)"]
+        title: qsTr("Selecionar fundo do tema")
+        nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp *.bmp)")]
         onAccepted: root.controller.updateTheme({backgroundType: 2, backgroundImage: selectedFile.toString()})
     }
 
     menuBar: MenuBar {
         visible: root.controller.debugEnabled
         Menu {
-            title: "Debug"
+            title: qsTr("Debug")
             MenuItem {
-                text: "Ativar modo de debug"
+                text: qsTr("Ativar modo de debug")
                 checkable: true
                 checked: root.controller.debugEnabled
                 onTriggered: root.controller.debugEnabled = checked
             }
             MenuSeparator { }
             MenuItem {
-                text: "Múltiplas saídas simuladas"
+                text: qsTr("Múltiplas saídas simuladas")
                 checkable: true
                 enabled: root.controller.debugEnabled
                 checked: root.controller.debugSimulatedOutputs
                 onTriggered: root.controller.debugSimulatedOutputs = checked
             }
             MenuItem {
-                text: "Diagnósticos e benchmark"
+                text: qsTr("Diagnósticos e benchmark")
                 checkable: true
                 enabled: root.controller.debugEnabled
                 checked: root.controller.debugDiagnostics
                 onTriggered: root.controller.debugDiagnostics = checked
             }
             MenuItem {
-                text: "Registrar mensagens DEBUG"
+                text: qsTr("Registrar mensagens DEBUG")
                 checkable: true
                 enabled: root.controller.debugEnabled
                 checked: root.controller.debugLogging
@@ -738,30 +754,34 @@ ApplicationWindow {
                 Layout.rightMargin: 14
                 spacing: 12
                 Label {
-                    text: "HolyScreen"
+                    text: qsTr("HolyScreen")
                     color: "#f2f4f5"
                     font.bold: true
                     font.pixelSize: 15
                 }
-                ToolButton { text: "Live"; onClicked: liveDialog.open() }
-                ToolButton { text: "Prévia" }
-                ToolButton { text: "Agenda" }
-                ToolButton { text: "Biblioteca"; font.bold: true; onClicked: mediaLibraryDialog.open() }
-                ToolButton { text: "Integrações"; onClicked: integrationsArea.open() }
+                ToolButton { text: qsTr("Live"); onClicked: liveDialog.open() }
+                ToolButton { text: qsTr("Prévia") }
+                ToolButton { text: qsTr("Agenda") }
+                ToolButton { text: qsTr("Biblioteca"); font.bold: true; onClicked: mediaLibraryDialog.open() }
+                ToolButton { text: qsTr("Integrações"); onClicked: integrationsArea.open() }
                 ToolButton {
-                    text: "Automações"
+                    text: qsTr("Automações")
                     onClicked: automationsArea.open()
                     ToolTip.visible: hovered && !root.controller.automationsEnabled
-                    ToolTip.text: "Automações pausadas"
+                    ToolTip.text: qsTr("Automações pausadas")
                 }
                 Item { Layout.fillWidth: true }
                 ToolButton {
                     text: "⚙"
-                    Accessible.name: "Configurações"
+                    Accessible.name: qsTr("Configurações")
                     onClicked: settingsDialog.open()
                 }
-                ToolButton { text: "⛶"; onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen }
-                Button { text: root.controller.outputContext.blackout ? "Restaurar" : "Ao vivo"; highlighted: true; onClicked: root.controller.outputContext.blackout = false }
+                ToolButton {
+                    text: "⛶"
+                    Accessible.name: qsTr("Alternar tela cheia")
+                    onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen
+                }
+                Button { text: root.controller.outputContext.blackout ? qsTr("Restaurar") : qsTr("Ao vivo"); highlighted: true; onClicked: root.controller.outputContext.blackout = false }
             }
             Rectangle {
                 Layout.fillWidth: true
@@ -774,7 +794,7 @@ ApplicationWindow {
                     anchors.rightMargin: 14
                     spacing: 10
                     Label {
-                        text: "★  FAVORITOS"
+                        text: qsTr("★  FAVORITOS")
                         color: "#c7d2fe"
                         font.bold: true
                         font.pixelSize: 11
@@ -795,16 +815,16 @@ ApplicationWindow {
                             y: (favoriteMediaList.height - height) / 2
                             text: (modelData.type === "video" ? "▶  "
                                   : modelData.type === "image" ? "▧  " : "♫  ")
-                                  + (modelData.fileName || modelData.title || "Sem título")
+                                  + (modelData.fileName || modelData.title || qsTr("Sem título"))
                             font.pixelSize: 11
                             onClicked: root.playFavorite(modelData.path)
                             ToolTip.visible: hovered
-                            ToolTip.text: "Reproduzir " + (modelData.fileName || modelData.title)
+                            ToolTip.text: qsTr("Reproduzir %1").arg(modelData.fileName || modelData.title)
                         }
                         Label {
                             anchors.centerIn: parent
                             visible: favoriteMediaList.count === 0
-                            text: "Clique com o botão direito em uma mídia para adicioná-la"
+                            text: qsTr("Clique com o botão direito em uma mídia para adicioná-la")
                             color: "#8d979f"
                             font.pixelSize: 11
                         }
@@ -864,9 +884,9 @@ ApplicationWindow {
                 anchors.fill: parent
                 anchors.margins: 16
                 spacing: 12
-                Label { text: "TELAS"; color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
+                Label { text: qsTr("TELAS"); color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
                 Label {
-                    text: "Selecione até cinco saídas e defina público ou palco."
+                    text: qsTr("Selecione até cinco saídas e defina público ou palco.")
                     color: "#8da0bc"
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -913,13 +933,13 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                         }
                                         Label {
-                                            text: screenDelegate.modelData.primary ? "OPERADOR • tela principal"
-                                                  : !screenDelegate.modelData.selected ? "DISPONÍVEL"
-                                                  : screenDelegate.modelData.role === "stage" ? "PALCO"
-                                                  : screenDelegate.modelData.role === "broadcast" ? "TRANSMISSÃO"
-                                                  : screenDelegate.modelData.role === "confidence" ? "CONFERÊNCIA"
-                                                  : screenDelegate.modelData.role === "custom" ? "PERSONALIZADA"
-                                                  : "PÚBLICO"
+                                            text: screenDelegate.modelData.primary ? qsTr("OPERADOR • tela principal")
+                                                  : !screenDelegate.modelData.selected ? qsTr("DISPONÍVEL")
+                                                  : screenDelegate.modelData.role === "stage" ? qsTr("PALCO")
+                                                  : screenDelegate.modelData.role === "broadcast" ? qsTr("TRANSMISSÃO")
+                                                  : screenDelegate.modelData.role === "confidence" ? qsTr("CONFERÊNCIA")
+                                                  : screenDelegate.modelData.role === "custom" ? qsTr("PERSONALIZADA")
+                                                  : qsTr("PÚBLICO")
                                             color: "#8da0bc"
                                             font.pixelSize: 11
                                         }
@@ -934,7 +954,7 @@ ApplicationWindow {
                                         }
                                         CheckBox {
                                             visible: !screenDelegate.modelData.primary && screenDelegate.modelData.selected
-                                            text: "Exibir mídia nesta tela"
+                                            text: qsTr("Exibir mídia nesta tela")
                                             checked: screenDelegate.modelData.mediaEnabled
                                             onClicked: root.controller.setOutputMediaEnabled(screenDelegate.modelData.id, checked)
                                         }
@@ -955,12 +975,12 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    text: "ATIVAR TODAS"
+                    text: qsTr("ATIVAR TODAS")
                     Layout.fillWidth: true
                     onClicked: root.controller.enableAllScreens()
                 }
                 Button {
-                    text: "IDENTIFICAR TELAS"
+                    text: qsTr("IDENTIFICAR TELAS")
                     Layout.fillWidth: true
                     onClicked: root.controller.identifyScreens()
                 }
@@ -988,9 +1008,9 @@ ApplicationWindow {
                 spacing: 14
                 RowLayout {
                     Layout.fillWidth: true
-                    Label { text: "PRÉVIA DE SAÍDA"; color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
+                    Label { text: qsTr("PRÉVIA DE SAÍDA"); color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
                     Item { Layout.fillWidth: true }
-                    Label { text: "Wallpaper + Relógio"; color: "#8da0bc"; font.pixelSize: 12 }
+                    Label { text: qsTr("Wallpaper + Relógio"); color: "#8da0bc"; font.pixelSize: 12 }
                 }
 
                 GridLayout {
@@ -1010,7 +1030,9 @@ ApplicationWindow {
                                                   : root.previewOutputCount > 2 ? 110 : 160
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            outputLabel: root.previewOutputCount > 1 ? "SIMULAÇÃO " + (index + 1) : "PRÉVIA"
+                            outputLabel: root.previewOutputCount > 1
+                                         ? qsTr("SIMULAÇÃO %1").arg(index + 1)
+                                         : qsTr("PRÉVIA")
                             identifier: index + 1
                             wallpaper: root.controller.wallpaperColor
                             wallpaperSource: root.controller.wallpaperSource
@@ -1043,11 +1065,11 @@ ApplicationWindow {
                             Layout.fillHeight: true
                             RowLayout {
                                 Layout.fillWidth: true
-                                Label { text: "PLAYLIST MULTIMÍDIA"; color: "#e6edf7"; font.bold: true; font.pixelSize: 12 }
+                                Label { text: qsTr("PLAYLIST MULTIMÍDIA"); color: "#e6edf7"; font.bold: true; font.pixelSize: 12 }
                                 Item { Layout.fillWidth: true }
-                                Button { text: "PASTAS"; onClicked: mediaLibraryDialog.open() }
-                                Button { text: "+ ÁUDIO"; onClicked: audioDialog.open() }
-                                Button { text: "+ VÍDEO"; onClicked: videoDialog.open() }
+                                Button { text: qsTr("PASTAS"); onClicked: mediaLibraryDialog.open() }
+                                Button { text: qsTr("+ ÁUDIO"); onClicked: audioDialog.open() }
+                                Button { text: qsTr("+ VÍDEO"); onClicked: videoDialog.open() }
                             }
                             ListView {
                                 id: mediaList
@@ -1076,10 +1098,21 @@ ApplicationWindow {
                                         }
                                         Label { text: mediaDelegate.modelData.typeLabel; color: mediaDelegate.modelData.type === "video" ? "#c4a7ff" : "#70e1a7"; font.pixelSize: 9; font.bold: true }
                                         Label { text: root.formatDuration(mediaDelegate.modelData.durationMs); color: "#8da0bc"; font.pixelSize: 11 }
-                                        ToolButton { text: "↑"; enabled: mediaDelegate.index > 0; onClicked: root.controller.moveMedia(mediaDelegate.modelData.id, mediaDelegate.index - 1) }
-                                        ToolButton { text: "↓"; enabled: mediaDelegate.index + 1 < mediaList.count; onClicked: root.controller.moveMedia(mediaDelegate.modelData.id, mediaDelegate.index + 1) }
+                                        ToolButton {
+                                            text: "↑"
+                                            Accessible.name: qsTr("Mover mídia para cima")
+                                            enabled: mediaDelegate.index > 0
+                                            onClicked: root.controller.moveMedia(mediaDelegate.modelData.id, mediaDelegate.index - 1)
+                                        }
+                                        ToolButton {
+                                            text: "↓"
+                                            Accessible.name: qsTr("Mover mídia para baixo")
+                                            enabled: mediaDelegate.index + 1 < mediaList.count
+                                            onClicked: root.controller.moveMedia(mediaDelegate.modelData.id, mediaDelegate.index + 1)
+                                        }
                                         ToolButton {
                                             text: "×"
+                                            Accessible.name: qsTr("Remover mídia da playlist")
                                             onClicked: root.controller.removeMedia(mediaDelegate.modelData.id)
                                         }
                                     }
@@ -1091,7 +1124,7 @@ ApplicationWindow {
                                 Label {
                                     anchors.centerIn: parent
                                     visible: mediaList.count === 0
-                                    text: "Importe ou arraste áudios e vídeos"
+                                    text: qsTr("Importe ou arraste áudios e vídeos")
                                     color: "#64748b"
                                 }
                             }
@@ -1105,7 +1138,7 @@ ApplicationWindow {
                             Label {
                                 Layout.fillWidth: true
                                 text: root.controller.currentMediaTitle.length > 0
-                                      ? root.controller.currentMediaTitle : "Nenhuma mídia selecionada"
+                                      ? root.controller.currentMediaTitle : qsTr("Nenhuma mídia selecionada")
                                 color: "#eff6ff"
                                 font.bold: true
                                 font.pixelSize: 14
@@ -1114,7 +1147,7 @@ ApplicationWindow {
                             Label {
                                 text: (root.controller.currentMediaType.length > 0
                                        ? root.controller.currentMediaType.toUpperCase() + " · " : "")
-                                      + root.controller.mediaState.toUpperCase()
+                                      + root.mediaStateLabel(root.controller.mediaState)
                                 color: root.controller.mediaState === "playing" ? "#70e1a7" : "#8da0bc"
                                 font.pixelSize: 10
                                 font.bold: true
@@ -1134,9 +1167,9 @@ ApplicationWindow {
                             }
                             RowLayout {
                                 Layout.fillWidth: true
-                                Button { text: "ANTERIOR"; onClicked: root.controller.mediaContext.previousMedia() }
+                                Button { text: qsTr("ANTERIOR"); onClicked: root.controller.mediaContext.previousMedia() }
                                 Button {
-                                    text: root.controller.mediaState === "playing" ? "PAUSAR" : "TOCAR"
+                                    text: root.controller.mediaState === "playing" ? qsTr("PAUSAR") : qsTr("TOCAR")
                                     highlighted: true
                                     onClicked: {
                                         if (root.controller.currentMediaId.length === 0 && mediaList.count > 0)
@@ -1145,12 +1178,12 @@ ApplicationWindow {
                                             root.controller.mediaContext.toggleMediaPause()
                                     }
                                 }
-                                Button { text: "PARAR"; onClicked: root.controller.mediaContext.stopMedia() }
-                                Button { text: "PRÓXIMO"; onClicked: root.controller.mediaContext.nextMedia() }
+                                Button { text: qsTr("PARAR"); onClicked: root.controller.mediaContext.stopMedia() }
+                                Button { text: qsTr("PRÓXIMO"); onClicked: root.controller.mediaContext.nextMedia() }
                             }
                             RowLayout {
                                 Layout.fillWidth: true
-                                Label { text: "VOLUME"; color: "#8da0bc"; font.pixelSize: 10 }
+                                Label { text: qsTr("VOLUME"); color: "#8da0bc"; font.pixelSize: 10 }
                                 Slider {
                                     Layout.fillWidth: true
                                     from: 0; to: 1; stepSize: 0.01
@@ -1158,7 +1191,7 @@ ApplicationWindow {
                                     onMoved: root.controller.mediaVolume = value
                                 }
                                 ComboBox {
-                                    model: ["Não repetir", "Repetir uma", "Repetir playlist"]
+                                    model: [qsTr("Não repetir"), qsTr("Repetir uma"), qsTr("Repetir playlist")]
                                     currentIndex: root.controller.mediaRepeatMode === "one" ? 1
                                                   : root.controller.mediaRepeatMode === "all" ? 2 : 0
                                     onActivated: root.controller.mediaRepeatMode = currentIndex === 1 ? "one"
@@ -1185,8 +1218,8 @@ ApplicationWindow {
                 ColumnLayout {
                     width: parent.width
                     spacing: 12
-                    Label { text: "CONTROLES"; color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
-                    Label { text: "WALLPAPER"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("CONTROLES"); color: "#e6edf7"; font.bold: true; font.pixelSize: 15 }
+                    Label { text: qsTr("WALLPAPER"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     GridLayout {
                         columns: 4
                         Repeater {
@@ -1203,8 +1236,8 @@ ApplicationWindow {
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        Button { text: "ESCOLHER IMAGEM"; Layout.fillWidth: true; onClicked: wallpaperDialog.open() }
-                        Button { text: "LIMPAR"; onClicked: root.controller.wallpaperSource = "" }
+                        Button { text: qsTr("ESCOLHER IMAGEM"); Layout.fillWidth: true; onClicked: wallpaperDialog.open() }
+                        Button { text: qsTr("LIMPAR"); onClicked: root.controller.wallpaperSource = "" }
                     }
                     ComboBox {
                         Layout.fillWidth: true
@@ -1214,9 +1247,9 @@ ApplicationWindow {
                     }
 
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { text: "RELÓGIO"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("RELÓGIO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     CheckBox {
-                        text: "Exibir relógio"
+                        text: qsTr("Exibir relógio")
                         checked: root.controller.clockVisible
                         onToggled: root.controller.clockVisible = checked
                     }
@@ -1234,13 +1267,13 @@ ApplicationWindow {
                     }
                     TextField {
                         Layout.fillWidth: true
-                        placeholderText: "Fonte"
+                        placeholderText: qsTr("Fonte")
                         text: root.controller.clockFontFamily
                         onEditingFinished: root.controller.clockFontFamily = text
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: "Tamanho"; color: "#c8d5e8" }
+                        Label { text: qsTr("Tamanho"); color: "#c8d5e8" }
                         SpinBox {
                             from: 16; to: 240
                             value: root.controller.clockFontSize
@@ -1249,12 +1282,12 @@ ApplicationWindow {
                     }
 
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { text: "IMAGENS"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("IMAGENS"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     RowLayout {
                         Layout.fillWidth: true
-                        Button { text: "IMPORTAR"; Layout.fillWidth: true; onClicked: imageDialog.open() }
+                        Button { text: qsTr("IMPORTAR"); Layout.fillWidth: true; onClicked: imageDialog.open() }
                         Button {
-                            text: "REMOVER"
+                            text: qsTr("REMOVER")
                             enabled: imagePicker.currentValue !== undefined && imagePicker.currentValue.length > 0
                             onClicked: root.controller.removeImage(imagePicker.currentValue)
                         }
@@ -1267,22 +1300,24 @@ ApplicationWindow {
                         valueRole: "id"
                         displayText: root.controller.currentImageTitle.length > 0
                                      ? root.controller.currentImageTitle
-                                     : (currentText.length > 0 ? currentText : "Nenhuma imagem")
+                                     : (currentText.length > 0 ? currentText : qsTr("Nenhuma imagem"))
                     }
                     RowLayout {
                         Layout.fillWidth: true
                         ToolButton {
                             text: "↑"
+                            Accessible.name: qsTr("Mover imagem para cima")
                             enabled: imagePicker.currentIndex > 0
                             onClicked: root.controller.moveImage(imagePicker.currentValue, imagePicker.currentIndex - 1)
                         }
                         ToolButton {
                             text: "↓"
+                            Accessible.name: qsTr("Mover imagem para baixo")
                             enabled: imagePicker.currentIndex >= 0 && imagePicker.currentIndex + 1 < imagePicker.count
                             onClicked: root.controller.moveImage(imagePicker.currentValue, imagePicker.currentIndex + 1)
                         }
                         Button {
-                            text: "EXIBIR"
+                            text: qsTr("EXIBIR")
                             Layout.fillWidth: true
                             highlighted: true
                             enabled: imagePicker.currentValue !== undefined && imagePicker.currentValue.length > 0
@@ -1291,9 +1326,9 @@ ApplicationWindow {
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        Button { text: "ANTERIOR"; Layout.fillWidth: true; onClicked: root.controller.previousImage() }
-                        Button { text: "PRÓXIMA"; Layout.fillWidth: true; onClicked: root.controller.nextImage() }
-                        Button { text: "PARAR"; onClicked: root.controller.stopImage() }
+                        Button { text: qsTr("ANTERIOR"); Layout.fillWidth: true; onClicked: root.controller.previousImage() }
+                        Button { text: qsTr("PRÓXIMA"); Layout.fillWidth: true; onClicked: root.controller.nextImage() }
+                        Button { text: qsTr("PARAR"); onClicked: root.controller.stopImage() }
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -1313,11 +1348,11 @@ ApplicationWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         CheckBox {
-                            text: "Autoplay"
+                            text: qsTr("Autoplay")
                             checked: root.controller.imageAutoplay
                             onToggled: root.controller.imageAutoplay = checked
                         }
-                        Label { text: "segundos"; color: "#8da0bc"; font.pixelSize: 10 }
+                        Label { text: qsTr("segundos"); color: "#8da0bc"; font.pixelSize: 10 }
                         SpinBox {
                             from: 1; to: 3600
                             value: Math.round(root.controller.imageIntervalMs / 1000)
@@ -1326,12 +1361,12 @@ ApplicationWindow {
                     }
 
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { text: "APRESENTAÇÕES DE TEXTO"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("APRESENTAÇÕES DE TEXTO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     RowLayout {
                         Layout.fillWidth: true
-                        TextField { id: newPresentationTitle; Layout.fillWidth: true; placeholderText: "Título da apresentação" }
+                        TextField { id: newPresentationTitle; Layout.fillWidth: true; placeholderText: qsTr("Título da apresentação") }
                         Button {
-                            text: "NOVA"
+                            text: qsTr("NOVA")
                             onClicked: {
                                 if (newPresentationTitle.text.trim().length > 0) {
                                     root.controller.createTextPresentation(newPresentationTitle.text)
@@ -1350,7 +1385,7 @@ ApplicationWindow {
                             onActivated: root.controller.selectTextPresentation(currentValue)
                         }
                         Button {
-                            text: "EXCLUIR"
+                            text: qsTr("EXCLUIR")
                             enabled: root.controller.currentPresentationId.length > 0
                             onClicked: root.controller.deleteTextPresentation(root.controller.currentPresentationId)
                         }
@@ -1366,77 +1401,87 @@ ApplicationWindow {
                     TextField {
                         id: slideLabelEditor
                         Layout.fillWidth: true
-                        placeholderText: "Rótulo do slide"
+                        placeholderText: qsTr("Rótulo do slide")
                         text: root.controller.currentSlideLabel
                     }
                     TextArea {
                         id: slideTextEditor
                         Layout.fillWidth: true
                         Layout.preferredHeight: 120
-                        placeholderText: "Texto do slide"
+                        placeholderText: qsTr("Texto do slide")
                         text: root.controller.currentSlideText
                         wrapMode: TextEdit.Wrap
                     }
                     RowLayout {
                         Layout.fillWidth: true
                         Button {
-                            text: "SALVAR"
+                            text: qsTr("SALVAR")
                             Layout.fillWidth: true
                             enabled: root.controller.currentSlideId.length > 0
                             onClicked: root.controller.updateTextSlide(root.controller.currentSlideId, slideLabelEditor.text, slideTextEditor.text)
                         }
                         Button {
-                            text: "+ SLIDE"
+                            text: qsTr("+ SLIDE")
                             enabled: root.controller.currentPresentationId.length > 0
-                            onClicked: root.controller.addTextSlide(String(root.controller.textSlides.length + 1), "Novo slide")
+                            onClicked: root.controller.addTextSlide(String(root.controller.textSlides.length + 1), qsTr("Novo slide"))
                         }
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        Button { text: "DUPLICAR"; enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.duplicateTextSlide(root.controller.currentSlideId) }
-                        Button { text: "DIVIDIR"; enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.splitTextSlide(root.controller.currentSlideId, slideTextEditor.cursorPosition) }
-                        Button { text: "EXCLUIR"; enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.removeTextSlide(root.controller.currentSlideId) }
+                        Button { text: qsTr("DUPLICAR"); enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.duplicateTextSlide(root.controller.currentSlideId) }
+                        Button { text: qsTr("DIVIDIR"); enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.splitTextSlide(root.controller.currentSlideId, slideTextEditor.cursorPosition) }
+                        Button { text: qsTr("EXCLUIR"); enabled: root.controller.currentSlideId.length > 0; onClicked: root.controller.removeTextSlide(root.controller.currentSlideId) }
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        ToolButton { text: "↑"; enabled: slidePicker.currentIndex > 0; onClicked: root.controller.moveTextSlide(root.controller.currentSlideId, slidePicker.currentIndex - 1) }
-                        ToolButton { text: "↓"; enabled: slidePicker.currentIndex + 1 < slidePicker.count; onClicked: root.controller.moveTextSlide(root.controller.currentSlideId, slidePicker.currentIndex + 1) }
-                        Button { text: "ANTERIOR"; Layout.fillWidth: true; onClicked: root.controller.previousTextSlide() }
-                        Button { text: "EXIBIR"; highlighted: true; enabled: slidePicker.currentIndex >= 0; onClicked: root.controller.showTextSlide(slidePicker.currentIndex) }
-                        Button { text: "PRÓXIMO"; Layout.fillWidth: true; onClicked: root.controller.nextTextSlide() }
+                        ToolButton {
+                            text: "↑"
+                            Accessible.name: qsTr("Mover slide para cima")
+                            enabled: slidePicker.currentIndex > 0
+                            onClicked: root.controller.moveTextSlide(root.controller.currentSlideId, slidePicker.currentIndex - 1)
+                        }
+                        ToolButton {
+                            text: "↓"
+                            Accessible.name: qsTr("Mover slide para baixo")
+                            enabled: slidePicker.currentIndex + 1 < slidePicker.count
+                            onClicked: root.controller.moveTextSlide(root.controller.currentSlideId, slidePicker.currentIndex + 1)
+                        }
+                        Button { text: qsTr("ANTERIOR"); Layout.fillWidth: true; onClicked: root.controller.previousTextSlide() }
+                        Button { text: qsTr("EXIBIR"); highlighted: true; enabled: slidePicker.currentIndex >= 0; onClicked: root.controller.showTextSlide(slidePicker.currentIndex) }
+                        Button { text: qsTr("PRÓXIMO"); Layout.fillWidth: true; onClicked: root.controller.nextTextSlide() }
                     }
-                    Button { text: "VOLTAR AO WALLPAPER"; Layout.fillWidth: true; onClicked: root.controller.stopTextPresentation() }
+                    Button { text: qsTr("VOLTAR AO WALLPAPER"); Layout.fillWidth: true; onClicked: root.controller.stopTextPresentation() }
 
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { text: "TEMAS"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("TEMAS"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     RowLayout {
                         Layout.fillWidth: true
-                        TextField { id: newThemeName; Layout.fillWidth: true; placeholderText: "Nome do tema" }
-                        Button { text: "NOVO"; onClicked: { if(newThemeName.text.trim().length>0){root.controller.createTheme(newThemeName.text);newThemeName.clear()} } }
+                        TextField { id: newThemeName; Layout.fillWidth: true; placeholderText: qsTr("Nome do tema") }
+                        Button { text: qsTr("NOVO"); onClicked: { if(newThemeName.text.trim().length>0){root.controller.createTheme(newThemeName.text);newThemeName.clear()} } }
                     }
                     RowLayout {
                         Layout.fillWidth: true
                         ComboBox { id: themePicker; Layout.fillWidth: true; model: root.controller.themes; textRole:"name"; valueRole:"id"; onActivated: root.controller.applyTheme(currentValue) }
-                        Button { text:"APLICAR"; enabled:themePicker.currentValue!==undefined; onClicked:root.controller.applyTheme(themePicker.currentValue) }
-                        Button { text:"EXCLUIR"; enabled:root.controller.themes.length>1; onClicked:root.controller.deleteTheme(themePicker.currentValue) }
+                        Button { text:qsTr("APLICAR"); enabled:themePicker.currentValue!==undefined; onClicked:root.controller.applyTheme(themePicker.currentValue) }
+                        Button { text:qsTr("EXCLUIR"); enabled:root.controller.themes.length>1; onClicked:root.controller.deleteTheme(themePicker.currentValue) }
                     }
-                    TextField { Layout.fillWidth:true; placeholderText:"Família da fonte"; text:root.controller.activeTheme.fontFamily || ""; onEditingFinished:root.controller.updateTheme({fontFamily:text}) }
+                    TextField { Layout.fillWidth:true; placeholderText:qsTr("Família da fonte"); text:root.controller.activeTheme.fontFamily || ""; onEditingFinished:root.controller.updateTheme({fontFamily:text}) }
                     RowLayout {
                         Layout.fillWidth:true
-                        Label { text:"Fonte"; color:"#8da0bc" }
+                        Label { text:qsTr("Fonte"); color:"#8da0bc" }
                         SpinBox { from:28;to:240;value:root.controller.activeTheme.fontSize || 72; onValueModified:root.controller.updateTheme({fontSize:value}) }
-                        Label { text:"Margem"; color:"#8da0bc" }
+                        Label { text:qsTr("Margem"); color:"#8da0bc" }
                         SpinBox { from:0;to:400;value:root.controller.activeTheme.margin || 64; onValueModified:root.controller.updateTheme({margin:value}) }
                     }
                     RowLayout {
                         Layout.fillWidth:true
-                        TextField { Layout.fillWidth:true; placeholderText:"Cor do texto"; text:root.controller.activeTheme.textColor || "#ffffff"; onEditingFinished:root.controller.updateTheme({textColor:text}) }
-                        TextField { Layout.fillWidth:true; placeholderText:"Cor de fundo"; text:root.controller.activeTheme.backgroundColor || "#000000"; onEditingFinished:root.controller.updateTheme({backgroundColor:text,backgroundType:0}) }
+                        TextField { Layout.fillWidth:true; placeholderText:qsTr("Cor do texto"); text:root.controller.activeTheme.textColor || "#ffffff"; onEditingFinished:root.controller.updateTheme({textColor:text}) }
+                        TextField { Layout.fillWidth:true; placeholderText:qsTr("Cor de fundo"); text:root.controller.activeTheme.backgroundColor || "#000000"; onEditingFinished:root.controller.updateTheme({backgroundColor:text,backgroundType:0}) }
                     }
                     RowLayout {
                         Layout.fillWidth:true
-                        Button { text:"FUNDO COM IMAGEM"; Layout.fillWidth:true; onClicked:themeBackgroundDialog.open() }
-                        Button { text:"FUNDO SÓLIDO"; onClicked:root.controller.updateTheme({backgroundType:0}) }
+                        Button { text:qsTr("FUNDO COM IMAGEM"); Layout.fillWidth:true; onClicked:themeBackgroundDialog.open() }
+                        Button { text:qsTr("FUNDO SÓLIDO"); onClicked:root.controller.updateTheme({backgroundType:0}) }
                     }
                     RowLayout {
                         Layout.fillWidth:true
@@ -1445,30 +1490,30 @@ ApplicationWindow {
                     }
                     RowLayout {
                         Layout.fillWidth:true
-                        CheckBox { text:"Contorno"; checked:root.controller.activeTheme.outline || false; onToggled:root.controller.updateTheme({outline:checked}) }
-                        CheckBox { text:"Sombra"; checked:root.controller.activeTheme.shadow || false; onToggled:root.controller.updateTheme({shadow:checked}) }
+                        CheckBox { text:qsTr("Contorno"); checked:root.controller.activeTheme.outline || false; onToggled:root.controller.updateTheme({outline:checked}) }
+                        CheckBox { text:qsTr("Sombra"); checked:root.controller.activeTheme.shadow || false; onToggled:root.controller.updateTheme({shadow:checked}) }
                         ComboBox { Layout.fillWidth:true; model:["fade","none"]; currentIndex:Math.max(0,model.indexOf(root.controller.activeTheme.transition)); onActivated:root.controller.updateTheme({transition:currentText}) }
                     }
 
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { text:"MÚSICAS"; color:"#8da0bc"; font.bold:true; font.pixelSize:11 }
-                    TextField { Layout.fillWidth:true; placeholderText:"Buscar por título, autor ou letra"; text:root.controller.songSearch; onTextEdited:root.controller.songSearch=text }
+                    Label { text:qsTr("MÚSICAS"); color:"#8da0bc"; font.bold:true; font.pixelSize:11 }
+                    TextField { Layout.fillWidth:true; placeholderText:qsTr("Buscar por título, autor ou letra"); text:root.controller.songSearch; onTextEdited:root.controller.songSearch=text }
                     RowLayout {
                         Layout.fillWidth:true
                         ComboBox { id:songPicker; Layout.fillWidth:true; model:root.controller.songs; textRole:"title"; valueRole:"id"; onActivated:root.controller.selectSong(currentValue) }
-                        Button { text:"ABRIR"; enabled:songPicker.currentValue!==undefined; onClicked:root.controller.selectSong(songPicker.currentValue) }
-                        Button { text:"EXCLUIR"; enabled:songPicker.currentValue!==undefined; onClicked:root.controller.deleteTextPresentation(songPicker.currentValue) }
+                        Button { text:qsTr("ABRIR"); enabled:songPicker.currentValue!==undefined; onClicked:root.controller.selectSong(songPicker.currentValue) }
+                        Button { text:qsTr("EXCLUIR"); enabled:songPicker.currentValue!==undefined; onClicked:root.controller.deleteTextPresentation(songPicker.currentValue) }
                     }
-                    TextField { id:newSongTitle; Layout.fillWidth:true; placeholderText:"Título da música" }
-                    TextField { id:newSongAuthor; Layout.fillWidth:true; placeholderText:"Autor" }
+                    TextField { id:newSongTitle; Layout.fillWidth:true; placeholderText:qsTr("Título da música") }
+                    TextField { id:newSongAuthor; Layout.fillWidth:true; placeholderText:qsTr("Autor") }
                     TextArea {
                         id:newSongLyrics
                         Layout.fillWidth:true; Layout.preferredHeight:150; wrapMode:TextEdit.Wrap
-                        placeholderText:"V1\nLetra do verso\n\nC\nLetra do coro\n\nV2\nPróximo verso"
+                        placeholderText:qsTr("V1\nLetra do verso\n\nC\nLetra do coro\n\nV2\nPróximo verso")
                     }
-                    TextField { id:newSongSequence; Layout.fillWidth:true; placeholderText:"Sequência: V1 C V2 C P C" }
+                    TextField { id:newSongSequence; Layout.fillWidth:true; placeholderText:qsTr("Sequência: V1 C V2 C P C") }
                     Button {
-                        text:"CRIAR MÚSICA"; Layout.fillWidth:true; highlighted:true
+                        text:qsTr("CRIAR MÚSICA"); Layout.fillWidth:true; highlighted:true
                         onClicked:{
                             if(newSongTitle.text.trim().length>0&&newSongLyrics.text.trim().length>0){
                                 root.controller.createSong(newSongTitle.text,newSongAuthor.text,newSongLyrics.text,newSongSequence.text)
@@ -1478,8 +1523,8 @@ ApplicationWindow {
                     }
                     RowLayout {
                         Layout.fillWidth:true
-                        TextField { id:editSongSequence; Layout.fillWidth:true; placeholderText:"Sequência atual"; text:root.controller.songSequence }
-                        Button { text:"SALVAR SEQUÊNCIA"; enabled:root.controller.currentPresentationId.length>0; onClicked:root.controller.updateSongSequence(editSongSequence.text) }
+                        TextField { id:editSongSequence; Layout.fillWidth:true; placeholderText:qsTr("Sequência atual"); text:root.controller.songSequence }
+                        Button { text:qsTr("SALVAR SEQUÊNCIA"); enabled:root.controller.currentPresentationId.length>0; onClicked:root.controller.updateSongSequence(editSongSequence.text) }
                     }
 
                     EventsArea {
@@ -1497,10 +1542,10 @@ ApplicationWindow {
                     }
 
                     Rectangle { visible:root.controller.debugEnabled;Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-                    Label { visible:root.controller.debugEnabled;text: "DESENVOLVIMENTO"; color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+                    Label { visible:root.controller.debugEnabled;text: qsTr("DESENVOLVIMENTO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
                     Label {
                         visible: root.controller.debugEnabled && root.controller.debugSimulatedOutputs
-                        text: "Saídas simuladas: " + root.controller.simulatedOutputCount
+                        text: qsTr("Saídas simuladas: %1").arg(root.controller.simulatedOutputCount)
                         color: "#c8d5e8"
                         font.pixelSize: 12
                     }
@@ -1515,23 +1560,23 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Button {
                             text: root.controller.undoLabel.length > 0
-                                  ? "DESFAZER: " + root.controller.undoLabel.toUpperCase()
-                                  : "DESFAZER"
+                                  ? qsTr("DESFAZER: %1").arg(root.controller.undoLabel.toUpperCase())
+                                  : qsTr("DESFAZER")
                             Layout.fillWidth: true
                             enabled: root.controller.canUndo
                             onClicked: root.controller.undo()
                         }
                         Button {
                             text: root.controller.redoLabel.length > 0
-                                  ? "REFAZER: " + root.controller.redoLabel.toUpperCase()
-                                  : "REFAZER"
+                                  ? qsTr("REFAZER: %1").arg(root.controller.redoLabel.toUpperCase())
+                                  : qsTr("REFAZER")
                             Layout.fillWidth: true
                             enabled: root.controller.canRedo
                             onClicked: root.controller.redo()
                         }
                     }
                     Button {
-                        text: root.controller.outputContext.blackout ? "RESTAURAR APRESENTAÇÃO" : "BLACKOUT"
+                        text: root.controller.outputContext.blackout ? qsTr("RESTAURAR APRESENTAÇÃO") : qsTr("BLACKOUT")
                         Layout.fillWidth: true
                         highlighted: true
                         onClicked: root.controller.outputContext.blackout = !root.controller.outputContext.blackout
