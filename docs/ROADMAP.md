@@ -13,8 +13,8 @@ O handoff detalhado das ondas 4 a 7 está em
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
 | 5 | Automações offline | Concluída e publicada na v0.13.0 |
-| 6 | UX final, onboarding, acessibilidade e documentação | Candidata v0.14.0 em validação |
-| 7 | Validação multiplataforma, endurance e release 1.0 | Pendente |
+| 6 | UX final, onboarding, acessibilidade e documentação | Concluída e publicada na v0.14.0 |
+| 7 | Validação multiplataforma, endurance e release 1.0 | Em andamento |
 
 ## Critério final
 
@@ -46,13 +46,20 @@ via CommandBus, integrações e processos autorizados; prevenção de loops,
 limites, dry-run, histórico e editor. O checkpoint foi publicado na tag
 `v0.13.0`.
 
-## Candidata v0.14.0
+## Checkpoint v0.14.0
 
-A Onda 6 entrega fachadas QML por contexto, interface modular, layout
+A Onda 6 entregou fachadas QML por contexto, interface modular, layout
 persistente, onboarding reabrível, perfis sem segredos, modo demonstração,
 atalhos editáveis, foco e nomes acessíveis, paleta de alto contraste, escala de
 100%, 150% e 200%, pt-BR/en-US no desktop e PWA, documentação bilíngue, nome de
 distribuição unificado e update checker seguro baseado nas Releases oficiais.
+
+## Validação v1.0.0-rc.1
+
+As evidências automatizadas, de empacotamento e de hardware são mantidas no
+[`relatório da candidata`](releases/1.0.0-rc.1-validation.md). Pendências físicas
+ou multiplataforma permanecem visíveis e bloqueiam a promoção quando fazem
+parte dos critérios obrigatórios.
 
 ## Depois da 1.0
 
