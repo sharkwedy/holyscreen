@@ -103,7 +103,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("(?:text|title|placeholderText|Accessible\\.name|ToolTip\\.text)"
                        "\\s*:\\s*\\\"(?!https?://)[^\\\";\\r\\n]*\\p{L}"));
     static const QRegularExpression legacyMediaAlias(
-        QStringLiteral("controller\\.(?:mediaPlaylist|mediaFolders|folderAudioFiles|"
+        QStringLiteral("controller\\.(?:songs|songSearch|importAudioFiles|importVideoFiles|"
+                       "importImageFiles|selectSong|mediaPlaylist|mediaFolders|folderAudioFiles|"
                        "folderVideoFiles|folderImageFiles|favoriteMedia|audioFileSearch|"
                        "videoFileSearch|imageFileSearch|currentMediaId|currentMediaTitle|"
                        "currentMediaType|mediaState|mediaPositionMs|mediaDurationMs|"

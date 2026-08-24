@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Completed `MediaContext` coverage for lyrics and direct file imports, and
+  migrated the remaining operator QML consumers from the temporary root media
+  aliases.
 - Extracted the Dashboard Bible browser into a dedicated `BiblePanel` component
   with encapsulated selection and search state, without changing the operator
   workflow.
