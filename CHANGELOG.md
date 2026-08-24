@@ -25,6 +25,10 @@ release. The procedure and evidence form for every deferred gate is in
   engine tests declared it first and read destroyed objects; the lifetime
   contract is now documented on `registerAdapter` and on the member ordering
   that enforces it.
+- Scoped the release Trivy scan to the repository instead of the build
+  directory, where FetchContent materializes auxiliary tooling that HolyScreen
+  never compiles or ships. The dependencies that reach the binary stay pinned by
+  SHA-256 checksum and inventoried in the release SBOM.
 - Scoped a UndefinedBehaviorSanitizer ignore entry to the misaligned loads in
   libgit2's bundled sha1dc, so third-party design choices no longer fail the
   release while every other undefined behaviour, including in dependencies,

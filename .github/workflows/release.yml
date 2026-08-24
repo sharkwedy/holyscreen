@@ -131,16 +131,25 @@ jobs:
           upload-artifact: false
           upload-release-assets: false
 
+      # O diretório de build é saída gerada, não fonte do projeto. O FetchContent
+      # materializa ali a árvore completa de cada dependência, incluindo
+      # ferramentas auxiliares que o HolyScreen nunca compila nem distribui — o
+      # gerador de documentação em npm do libgit2, a porta Java do qrcodegen e
+      # as ligações Go do RtMidi. CVEs nesses manifestos não descrevem risco no
+      # produto. As dependências que realmente entram no binário são fixadas por
+      # checksum SHA-256 no CMakeLists e inventariadas no SBOM da release, que é
+      # o controle correspondente.
       - name: Scan dependencies, configuration and secrets
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
+          skip-dirs: build-quality
           scanners: vuln,secret,misconfig
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           format: table
-          output: build-quality/trivy-report.txt
+          output: trivy-report.txt
           exit-code: 1
 
       - name: Upload release SBOM
@@ -159,7 +168,7 @@ jobs:
             build-quality/ctest-sanitizers.xml
             build-quality/Testing/Temporary/LastTest.log
             build-quality/codeql-results
-            build-quality/trivy-report.txt
+            trivy-report.txt
           if-no-files-found: warn
 
   package:
