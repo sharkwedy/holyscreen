@@ -343,6 +343,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/BibleSettingsFlow.qml
         ui/operator/LiveCommunicationDialog.qml
         ui/operator/MaintenanceDialogs.qml
+        ui/operator/MediaImportFlow.qml
         ui/operator/SettingsDialog.qml
         ui/operator/BibleBrowser.qml
         ui/operator/QuickBibleSearch.qml

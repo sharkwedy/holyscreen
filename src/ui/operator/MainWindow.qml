@@ -102,29 +102,6 @@ ApplicationWindow {
         controller: root.controller.maintenanceContext
     }
 
-    FileDialog {
-        id: audioDialog
-        title: qsTr("Importar áudios")
-        fileMode: FileDialog.OpenFiles
-        nameFilters: [qsTr("Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)")]
-        onAccepted: root.controller.mediaContext.importAudioFiles(selectedFiles)
-    }
-
-    FileDialog {
-        id: videoDialog
-        title: qsTr("Importar vídeos")
-        fileMode: FileDialog.OpenFiles
-        nameFilters: [qsTr("Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)")]
-        onAccepted: root.controller.mediaContext.importVideoFiles(selectedFiles)
-    }
-
-    FileDialog {
-        id: imageDialog
-        title: qsTr("Importar imagens")
-        fileMode: FileDialog.OpenFiles
-        nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)")]
-        onAccepted: root.controller.mediaContext.importImageFiles(selectedFiles)
-    }
     BibleSettingsFlow {
         id: bibleSettingsFlow
         controller: root.controller.bibleContext
@@ -207,9 +184,9 @@ ApplicationWindow {
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleSettingsFlow.open()
         onOpenBibleBrowser: bibleBrowser.open()
-        onImportAudio: audioDialog.open()
-        onImportVideo: videoDialog.open()
-        onImportImage: imageDialog.open()
+        onImportAudio: mediaImportFlow.openAudio()
+        onImportVideo: mediaImportFlow.openVideo()
+        onImportImage: mediaImportFlow.openImage()
     }
 
     Component.onCompleted: {
@@ -217,27 +194,10 @@ ApplicationWindow {
         height = Math.max(minimumHeight, operatorWindowSettings.savedHeight)
     }
 
-    DropArea {
+    MediaImportFlow {
+        id: mediaImportFlow
         anchors.fill: parent
-        onDropped: function(drop) {
-            if (!drop.urls || drop.urls.length === 0)
-                return
-            const audio = []
-            const video = []
-            const images = []
-            for (let index = 0; index < drop.urls.length; ++index) {
-                const value = drop.urls[index].toString().toLowerCase()
-                if (value.match(/\.(mp3|wav|flac|m4a|aac|ogg|opus|wma|aiff|aif)$/))
-                    audio.push(drop.urls[index])
-                else if (value.match(/\.(mp4|mov|m4v|mkv|webm|avi|wmv|mpeg|mpg)$/))
-                    video.push(drop.urls[index])
-                else if (value.match(/\.(jpg|jpeg|png|webp|bmp|gif|tif|tiff|heic)$/))
-                    images.push(drop.urls[index])
-            }
-            if (audio.length > 0) root.controller.mediaContext.importAudioFiles(audio)
-            if (video.length > 0) root.controller.mediaContext.importVideoFiles(video)
-            if (images.length > 0) root.controller.mediaContext.importImageFiles(images)
-        }
+        controller: root.controller.mediaContext
     }
 
     Shortcut { sequence: root.controller.shortcuts.next; enabled: root.controller.textVisible; onActivated: root.controller.nextTextSlide() }
