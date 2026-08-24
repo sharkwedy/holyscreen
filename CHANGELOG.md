@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Moved presentation, undo/redo, blackout, Bible, backup, update and window
+  activation shortcuts into the reusable `OperatorShortcuts` component.
 - Unified audio, video and image pickers with drag-and-drop classification in
   a `MediaImportFlow` connected directly to `MediaContext`.
 - Connected `MaintenanceArea` to Settings and exposed backup restoration,
