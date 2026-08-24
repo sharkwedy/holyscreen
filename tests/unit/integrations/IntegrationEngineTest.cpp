@@ -165,9 +165,12 @@ private slots:
 
 void IntegrationEngineTest::validatesBeforePersisting()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 
@@ -199,9 +202,12 @@ void IntegrationEngineTest::validatesBeforePersisting()
 
 void IntegrationEngineTest::refusesSecretsStoredInTheConfiguration()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 
@@ -223,11 +229,14 @@ void IntegrationEngineTest::selectsTheAdapterByTypeAndPublishesASanitizedResult(
     qRegisterMetaType<IntegrationRequest>();
     qRegisterMetaType<IntegrationResult>();
 
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     MemorySecretStore secrets;
     FakeAdapter http;
     FakeAdapter midi;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &http);
     engine.registerAdapter(IntegrationType::Midi, &midi);
     engine.setRepository(&repository);
@@ -273,9 +282,12 @@ void IntegrationEngineTest::selectsTheAdapterByTypeAndPublishesASanitizedResult(
 
 void IntegrationEngineTest::retriesOnlyTransientFailuresOfSafeOperations()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 
@@ -316,10 +328,13 @@ void IntegrationEngineTest::retriesOnlyTransientFailuresOfSafeOperations()
 
 void IntegrationEngineTest::failsWithTimeoutWhenTheAdapterNeverAnswers()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
     adapter.silent = true;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 
@@ -340,10 +355,13 @@ void IntegrationEngineTest::failsWithTimeoutWhenTheAdapterNeverAnswers()
 
 void IntegrationEngineTest::cancelsPendingCallsOnShutdown()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
     adapter.silent = true;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
     QVERIFY(engine.save(httpDefinition()).valid);
@@ -361,9 +379,12 @@ void IntegrationEngineTest::cancelsPendingCallsOnShutdown()
 
 void IntegrationEngineTest::refusesDisabledIntegrationsButStillTestsTheConnection()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 
@@ -393,9 +414,12 @@ void IntegrationEngineTest::refusesDisabledIntegrationsButStillTestsTheConnectio
 
 void IntegrationEngineTest::keepsHistoryWithinTheConfiguredRetention()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
     engine.setHistoryRetention(3);
@@ -412,9 +436,12 @@ void IntegrationEngineTest::keepsHistoryWithinTheConfiguredRetention()
 
 void IntegrationEngineTest::removesSecretsFromExportedDefinitions()
 {
-    IntegrationEngine engine;
+    // O motor cancela chamadas pendentes no destrutor e, para isso, chama os
+    // adapters e o repositório. Eles precisam ser declarados antes dele para
+    // sobreviverem à sua destruição.
     MemoryRepository repository;
     FakeAdapter adapter;
+    IntegrationEngine engine;
     engine.registerAdapter(IntegrationType::Http, &adapter);
     engine.setRepository(&repository);
 

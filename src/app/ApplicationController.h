@@ -866,6 +866,10 @@ private:
     std::unique_ptr<ObsIntegrationAdapter> m_obsAdapter;
     std::unique_ptr<MidiIntegrationAdapter> m_midiAdapter;
     std::unique_ptr<OscIntegrationAdapter> m_oscAdapter;
+    // O motor cancela chamadas nos adapters durante a própria destruição, e os
+    // membros morrem na ordem inversa da declaração. Manter o motor depois dos
+    // adapters e dos transportes é o que garante que eles ainda existam nesse
+    // momento; inverter estas linhas reintroduz uso após liberação.
     IntegrationEngine m_integrations;
     AutomationEngine m_automationEngine;
     LocalTimeTriggerScheduler m_localTimeTriggerScheduler;
