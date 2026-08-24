@@ -1062,238 +1062,210 @@
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
+    <name>LiveCommunicationDialog</name>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="27"/>
-        <source>HolyScreen — Operação</source>
-        <translation>HolyScreen — Operação</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="63"/>
-        <source>Comunicação com o palco</source>
-        <translation>Comunicação com o palco</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="71"/>
-        <source>A mensagem aparece somente nas telas configuradas como palco.</source>
-        <translation>A mensagem aparece somente nas telas configuradas como palco.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="80"/>
-        <source>Ex.: Pastor, faltam 5 minutos</source>
-        <translation>Ex.: Pastor, faltam 5 minutos</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="86"/>
-        <source>ENVIAR AO PALCO</source>
-        <translation>ENVIAR AO PALCO</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="91"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="147"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="153"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="160"/>
-        <source>LIMPAR</source>
-        <translation>LIMPAR</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="133"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="13"/>
         <source>Comunicação ao vivo</source>
         <translation>Comunicação ao vivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="25"/>
         <source>MENSAGEM NO TOPO</source>
         <translation>MENSAGEM NO TOPO</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="144"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="32"/>
         <source>Mensagem para o público</source>
         <translation>Mensagem para o público</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="146"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="36"/>
         <source>EXIBIR</source>
         <translation>EXIBIR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="149"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="41"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="61"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="88"/>
+        <source>LIMPAR</source>
+        <translation>LIMPAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="46"/>
         <source>ALERTA CENTRAL</source>
         <translation>ALERTA CENTRAL</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="150"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="53"/>
         <source>Aviso importante</source>
         <translation>Aviso importante</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="152"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="57"/>
         <source>EXIBIR ALERTA</source>
         <translation>EXIBIR ALERTA</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="155"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="66"/>
         <source>LOWER THIRD</source>
         <translation>LOWER THIRD</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="156"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="73"/>
         <source>Nome / título</source>
         <translation>Nome / título</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="157"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="78"/>
         <source>Descrição / igreja</source>
         <translation>Descrição / igreja</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="159"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="82"/>
         <source>EXIBIR LOWER THIRD</source>
         <translation>EXIBIR LOWER THIRD</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="162"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="93"/>
         <source>CONTAGEM REGRESSIVA</source>
         <translation>CONTAGEM REGRESSIVA</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="164"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="98"/>
         <source>Minutos</source>
         <translation>Minutos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="166"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="100"/>
         <source>Segundos</source>
         <translation>Segundos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="169"/>
-        <location filename="../src/ui/operator/MainWindow.qml" line="178"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="104"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="127"/>
         <source>INICIAR</source>
         <translation>INICIAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="172"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="110"/>
         <source>PARAR</source>
         <translation>PARAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="174"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="115"/>
         <source>CRONÔMETRO</source>
         <translation>CRONÔMETRO</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="178"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="127"/>
         <source>PAUSAR</source>
         <translation>PAUSAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="183"/>
+        <location filename="../src/ui/operator/LiveCommunicationDialog.qml" line="133"/>
         <source>ZERAR</source>
         <translation>ZERAR</translation>
     </message>
+</context>
+<context>
+    <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="191"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="26"/>
+        <source>HolyScreen — Operação</source>
+        <translation>HolyScreen — Operação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MainWindow.qml" line="95"/>
         <source>Selecionar wallpaper</source>
         <translation>Selecionar wallpaper</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="192"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="96"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp)</source>
         <translation>Imagens (*.jpg *.jpeg *.png *.webp)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="197"/>
-        <source>Limpar histórico?</source>
-        <translation>Limpar histórico?</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="201"/>
-        <source>Essa ação remove definitivamente os registros de execução.</source>
-        <translation>Essa ação remove definitivamente os registros de execução.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="205"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="101"/>
         <source>Selecionar backup do HolyScreen</source>
         <translation>Selecionar backup do HolyScreen</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="206"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="102"/>
         <source>Banco HolyScreen (*.db)</source>
         <translation>Banco HolyScreen (*.db)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="211"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="107"/>
         <source>Exportar diagnóstico do HolyScreen</source>
         <translation>Exportar diagnóstico do HolyScreen</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="213"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="109"/>
         <source>Arquivo ZIP (*.zip)</source>
         <translation>Arquivo ZIP (*.zip)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="218"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="114"/>
         <source>Agendar restauração?</source>
         <translation>Agendar restauração?</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="221"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="117"/>
         <source>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</source>
         <translation>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="226"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="122"/>
         <source>Importar áudios</source>
         <translation>Importar áudios</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="228"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="124"/>
         <source>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</source>
         <translation>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="234"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="130"/>
         <source>Importar vídeos</source>
         <translation>Importar vídeos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="236"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="132"/>
         <source>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</source>
         <translation>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="242"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="138"/>
         <source>Importar imagens</source>
         <translation>Importar imagens</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="244"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="140"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</source>
         <translation>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="262"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="158"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="264"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="160"/>
         <source>Ativar modo de debug</source>
         <translation>Ativar modo de debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="271"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="167"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Múltiplas saídas simuladas</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="278"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="174"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnósticos e benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="285"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="181"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Registrar mensagens DEBUG</translation>
     </message>

@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted live messages, alerts, lower thirds and timers into
+  `LiveCommunicationDialog`, and removed inaccessible duplicate dialogs from
+  `MainWindow`.
 - Consolidated translation selection, licensed Bible imports, source updates
   and reference search in a `BibleSettingsFlow` backed only by `BibleContext`.
 - Extracted folder management, media catalog filtering and playlist insertion

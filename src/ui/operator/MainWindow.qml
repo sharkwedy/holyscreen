@@ -2,7 +2,6 @@ import QtQuick
 import QtCore
 import QtQuick.Controls
 import QtQuick.Dialogs
-import QtQuick.Layouts
 import QtQuick.Window
 
 pragma ComponentBehavior: Bound
@@ -58,48 +57,6 @@ ApplicationWindow {
         }
     }
 
-    Dialog {
-        id: stageMessageDialog
-        title: qsTr("Comunicação com o palco")
-        modal: true
-        width: 560
-        standardButtons: Dialog.Close
-        onOpened: stageMessageEditor.text = root.controller.stageMessage
-        contentItem: ColumnLayout {
-            spacing: 12
-            Label {
-                text: qsTr("A mensagem aparece somente nas telas configuradas como palco.")
-                color: "#8da0bc"
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-            }
-            TextArea {
-                id: stageMessageEditor
-                Layout.fillWidth: true
-                Layout.preferredHeight: 110
-                placeholderText: qsTr("Ex.: Pastor, faltam 5 minutos")
-                wrapMode: TextEdit.Wrap
-            }
-            RowLayout {
-                Layout.fillWidth: true
-                Button {
-                    text: qsTr("ENVIAR AO PALCO")
-                    enabled: stageMessageEditor.text.trim().length > 0
-                    onClicked: root.controller.stageMessage = stageMessageEditor.text
-                }
-                Button {
-                    text: qsTr("LIMPAR")
-                    enabled: root.controller.stageMessage.length > 0
-                    onClicked: {
-                        stageMessageEditor.text = ""
-                        root.controller.stageMessage = ""
-                    }
-                }
-                Item { Layout.fillWidth: true }
-            }
-        }
-    }
-
     IntegrationsArea {
         id: integrationsArea
         controller: root.controller.integrationContext
@@ -128,77 +85,16 @@ ApplicationWindow {
         onOpenSettings: function(tabIndex) { settingsDialog.openTab(tabIndex) }
         onOpenBible: bibleBrowser.open()
     }
-    Dialog {
+    LiveCommunicationDialog {
         id: liveDialog
-        title: qsTr("Comunicação ao vivo")
-        modal: true
-        width: 680
-        height: Math.min(root.height - 80, 650)
-        standardButtons: Dialog.Close
-        contentItem: ScrollView {
-            clip: true
-            ColumnLayout {
-                width: parent.width
-                spacing: 14
-                Label { text: qsTr("MENSAGEM NO TOPO"); color: "#8da0bc"; font.bold: true }
-                TextField { id: audienceMessageEditor; Layout.fillWidth: true; placeholderText: qsTr("Mensagem para o público") }
-                RowLayout {
-                    Button { text: qsTr("EXIBIR"); onClicked: root.controller.setAudienceMessage(audienceMessageEditor.text) }
-                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setAudienceMessage("") }
-                }
-                Label { text: qsTr("ALERTA CENTRAL"); color: "#8da0bc"; font.bold: true }
-                TextField { id: alertEditor; Layout.fillWidth: true; placeholderText: qsTr("Aviso importante") }
-                RowLayout {
-                    Button { text: qsTr("EXIBIR ALERTA"); onClicked: root.controller.setAlertMessage(alertEditor.text) }
-                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setAlertMessage("") }
-                }
-                Label { text: qsTr("LOWER THIRD"); color: "#8da0bc"; font.bold: true }
-                TextField { id: lowerThirdTitleEditor; Layout.fillWidth: true; placeholderText: qsTr("Nome / título") }
-                TextField { id: lowerThirdSubtitleEditor; Layout.fillWidth: true; placeholderText: qsTr("Descrição / igreja") }
-                RowLayout {
-                    Button { text: qsTr("EXIBIR LOWER THIRD"); onClicked: root.controller.setLowerThird(lowerThirdTitleEditor.text, lowerThirdSubtitleEditor.text) }
-                    Button { text: qsTr("LIMPAR"); onClicked: root.controller.setLowerThird("", "") }
-                }
-                Label { text: qsTr("CONTAGEM REGRESSIVA"); color: "#8da0bc"; font.bold: true }
-                RowLayout {
-                    Label { text: qsTr("Minutos") }
-                    SpinBox { id: countdownMinutes; from: 0; to: 999; value: 5 }
-                    Label { text: qsTr("Segundos") }
-                    SpinBox { id: countdownSeconds; from: 0; to: 59; value: 0 }
-                    Button {
-                        text: root.controller.countdownRunning ? root.controller.countdownText : qsTr("INICIAR")
-                        onClicked: root.controller.startCountdown(countdownMinutes.value * 60 + countdownSeconds.value)
-                    }
-                    Button { text: qsTr("PARAR"); onClicked: root.controller.stopCountdown() }
-                }
-                Label { text: qsTr("CRONÔMETRO"); color: "#8da0bc"; font.bold: true }
-                RowLayout {
-                    Label { text: root.controller.stopwatchText; font.pixelSize: 22; font.bold: true }
-                    Button {
-                        text: root.controller.stopwatchRunning ? qsTr("PAUSAR") : qsTr("INICIAR")
-                        onClicked: root.controller.stopwatchRunning
-                                   ? root.controller.pauseStopwatch()
-                                   : root.controller.startStopwatch()
-                    }
-                    Button { text: qsTr("ZERAR"); onClicked: root.controller.resetStopwatch() }
-                }
-            }
-        }
+        controller: root.controller
+        availableHeight: root.height
     }
-
     FileDialog {
         id: wallpaperDialog
         title: qsTr("Selecionar wallpaper")
         nameFilters: [qsTr("Imagens (*.jpg *.jpeg *.png *.webp)")]
         onAccepted: root.controller.wallpaperSource = selectedFile
-    }
-    Dialog {
-        id: clearHistoryDialog
-        title: qsTr("Limpar histórico?")
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: root.controller.eventContext.clearHistory()
-        Label { text:qsTr("Essa ação remove definitivamente os registros de execução.");wrapMode:Text.WordWrap }
     }
     FileDialog {
         id: restoreDialog
