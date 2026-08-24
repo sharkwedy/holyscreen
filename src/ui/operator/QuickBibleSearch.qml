@@ -144,7 +144,7 @@ Dialog {
             Layout.alignment: Qt.AlignRight
             text: qsTr("Esc para cancelar")
             color: "#c5cbd0"
-            font.pixelSize: 12
+            font.pixelSize: UiScale.px(12)
         }
         Item { Layout.preferredHeight: 4 }
         Label {
@@ -152,13 +152,13 @@ Dialog {
             text: qsTr("BUSCA RÁPIDA DA BÍBLIA")
             color: "#b9c7ff"
             font.bold: true
-            font.pixelSize: 13
+            font.pixelSize: UiScale.px(13)
         }
         Label {
             Layout.alignment: Qt.AlignHCenter
             text: qsTr("Livro, capítulo e versículo")
             color: "#f2f4f5"
-            font.pixelSize: 30
+            font.pixelSize: UiScale.px(30)
             font.bold: true
         }
         RowLayout {
@@ -176,7 +176,7 @@ Dialog {
                     placeholderText: qsTr("Ex.: luc")
                     placeholderTextColor: "#98a2aa"
                     color: "#ffffff"
-                    font.pixelSize: 25
+                    font.pixelSize: UiScale.px(25)
                     font.bold: true
                     selectByMouse: true
                     background: Rectangle {
@@ -212,7 +212,7 @@ Dialog {
                     placeholderText: "1"
                     placeholderTextColor: "#98a2aa"
                     color: "#ffffff"
-                    font.pixelSize: 25
+                    font.pixelSize: UiScale.px(25)
                     font.bold: true
                     selectByMouse: true
                     validator: IntValidator { bottom: 1; top: 999 }
@@ -246,7 +246,7 @@ Dialog {
                     placeholderText: "1"
                     placeholderTextColor: "#98a2aa"
                     color: "#ffffff"
-                    font.pixelSize: 25
+                    font.pixelSize: UiScale.px(25)
                     font.bold: true
                     selectByMouse: true
                     validator: IntValidator { bottom: 1; top: 999 }
@@ -265,7 +265,7 @@ Dialog {
             Layout.alignment: Qt.AlignHCenter
             text: qsTr("Digite o início do livro; ao ficar único, o foco avança automaticamente")
             color: "#c5cbd0"
-            font.pixelSize: 13
+            font.pixelSize: UiScale.px(13)
         }
         Label {
             id: errorLabel

@@ -137,7 +137,7 @@ Dialog {
                 visible: !area.controller.automationsEnabled
                 text: qsTr("Todas as automações estão pausadas.")
                 color: "#ffba70"
-                font.pixelSize: 11
+                font.pixelSize: UiScale.px(11)
             }
             Item { Layout.fillWidth: true }
             Button { text: qsTr("Importar"); onClicked: importDialog.open() }
@@ -206,14 +206,14 @@ Dialog {
                                     text: automationRow.modelData.triggerType + " • "
                                           + qsTr("%1 ações").arg(automationRow.modelData.actionCount)
                                     color: area.textMuted
-                                    font.pixelSize: 10
+                                    font.pixelSize: UiScale.px(10)
                                 }
                                 Label {
                                     visible: automationRow.modelData.consecutiveFailures > 0
                                     text: qsTr("%1 falhas seguidas")
                                           .arg(automationRow.modelData.consecutiveFailures)
                                     color: "#ffba70"
-                                    font.pixelSize: 10
+                                    font.pixelSize: UiScale.px(10)
                                 }
                             }
                             Switch {
@@ -232,7 +232,7 @@ Dialog {
                         visible: automationList.count === 0
                         text: qsTr("Nenhuma automação configurada")
                         color: area.textMuted
-                        font.pixelSize: 12
+                        font.pixelSize: UiScale.px(12)
                     }
                 }
             }
@@ -256,7 +256,7 @@ Dialog {
                         }
                     }
 
-                    Label { text: qsTr("QUANDO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("QUANDO"); color: area.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
                     ComboBox {
                         Layout.fillWidth: true
                         model: area.controller.automationTriggerTypes
@@ -313,7 +313,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("SE"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                        Label { text: qsTr("SE"); color: area.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
                         ComboBox {
                             Layout.preferredWidth: 150
                             model: [{"id": "all", "name": qsTr("todas as condições")},
@@ -376,7 +376,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("ENTÃO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                        Label { text: qsTr("ENTÃO"); color: area.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
                         Item { Layout.fillWidth: true }
                         Button {
                             text: qsTr("+ ação")
@@ -399,7 +399,7 @@ Dialog {
                                 Label {
                                     text: (actionRow.index + 1) + "."
                                     color: area.textMuted
-                                    font.pixelSize: 11
+                                    font.pixelSize: UiScale.px(11)
                                 }
                                 ComboBox {
                                     Layout.preferredWidth: 130
@@ -478,7 +478,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("Debounce (ms)"); color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Debounce (ms)"); color: area.textMuted; font.pixelSize: UiScale.px(11) }
                         SpinBox {
                             from: 0
                             to: 60000
@@ -487,7 +487,7 @@ Dialog {
                             value: area.draft.debounceMs || 0
                             onValueModified: area.updateDraft("debounceMs", value)
                         }
-                        Label { text: qsTr("Orçamento (ms)"); color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Orçamento (ms)"); color: area.textMuted; font.pixelSize: UiScale.px(11) }
                         SpinBox {
                             from: 1000
                             to: 120000
@@ -496,7 +496,7 @@ Dialog {
                             value: area.draft.budgetMs || 15000
                             onValueModified: area.updateDraft("budgetMs", value)
                         }
-                        Label { text: qsTr("Falhas até pausar"); color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Falhas até pausar"); color: area.textMuted; font.pixelSize: UiScale.px(11) }
                         SpinBox {
                             from: 0
                             to: 20
@@ -511,7 +511,7 @@ Dialog {
                         visible: area.validationErrors.length > 0
                         text: area.validationErrors.join("\n")
                         color: "#ff9d9d"
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         wrapMode: Text.WordWrap
                     }
 
@@ -547,11 +547,11 @@ Dialog {
             Layout.fillWidth: true
             text: area.controller.automationStatus
             color: area.textMain
-            font.pixelSize: 12
+            font.pixelSize: UiScale.px(12)
             elide: Text.ElideRight
         }
 
-        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
 
         ListView {
             Layout.fillWidth: true
@@ -567,14 +567,14 @@ Dialog {
                 Label {
                     text: runRow.modelData.startedAt
                     color: area.textMuted
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                     Layout.preferredWidth: 100
                 }
                 Label {
                     text: runRow.modelData.status
                     color: runRow.modelData.status === "completed" ? "#70e1a7"
                            : runRow.modelData.status === "dry-run" ? "#9fb0c7" : "#ff9d9d"
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                     Layout.preferredWidth: 90
                 }
                 Label {
@@ -583,13 +583,13 @@ Dialog {
                           ? runRow.modelData.reason
                           : qsTr("%1 ações").arg(runRow.modelData.outcomes.length)
                     color: area.textMain
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                     elide: Text.ElideRight
                 }
                 Label {
                     text: qsTr("%1 ms").arg(runRow.modelData.durationMs)
                     color: area.textMuted
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
             }
         }
@@ -637,7 +637,7 @@ Dialog {
                 Layout.fillWidth: true
                 text: qsTr("Só executáveis desta lista podem ser acionados, sempre pelo caminho real e sem shell.")
                 color: area.textMuted
-                font.pixelSize: 11
+                font.pixelSize: UiScale.px(11)
                 wrapMode: Text.WordWrap
             }
             RowLayout {
@@ -672,13 +672,13 @@ Dialog {
                         Layout.fillWidth: true
                         text: executableRow.modelData.canonicalPath
                         color: area.textMain
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         elide: Text.ElideMiddle
                     }
                     Label {
                         text: executableRow.modelData.authorizedAt
                         color: area.textMuted
-                        font.pixelSize: 10
+                        font.pixelSize: UiScale.px(10)
                     }
                     Button {
                         text: qsTr("Revogar")

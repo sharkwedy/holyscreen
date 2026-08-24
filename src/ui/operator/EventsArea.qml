@@ -22,7 +22,7 @@ ColumnLayout {
     }
 
     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-    Label { text: qsTr("PLAYLIST DE CULTO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+    Label { text: qsTr("PLAYLIST DE CULTO"); color: "#8da0bc"; font.bold: true; font.pixelSize: UiScale.px(11) }
     RowLayout {
         Layout.fillWidth: true
         TextField { id: newEventTitle; Layout.fillWidth: true; placeholderText: qsTr("Nome do culto"); Accessible.name: placeholderText }
@@ -117,9 +117,9 @@ ColumnLayout {
                         }
                     }
                 }
-                Label { text: eventItemDelegate.modelData.type.toUpperCase(); color: "#70e1a7"; font.pixelSize: 9 }
+                Label { text: eventItemDelegate.modelData.type.toUpperCase(); color: "#70e1a7"; font.pixelSize: UiScale.px(9) }
                 Label { Layout.fillWidth: true; text: eventItemDelegate.modelData.title; color: "#eff6ff"; elide: Text.ElideRight }
-                Label { text: area.duration(eventItemDelegate.modelData.durationMs); color: "#8da0bc"; font.pixelSize: 10 }
+                Label { text: area.duration(eventItemDelegate.modelData.durationMs); color: "#8da0bc"; font.pixelSize: UiScale.px(10) }
                 ToolButton { text: "↑"; Accessible.name: qsTr("Mover para cima"); enabled: eventItemDelegate.index > 0; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index - 1) }
                 ToolButton { text: "↓"; Accessible.name: qsTr("Mover para baixo"); enabled: eventItemDelegate.index + 1 < eventItemsList.count; onClicked: area.context.moveEventItem(eventItemDelegate.modelData.id, eventItemDelegate.index + 1) }
                 Button { text: qsTr("EXECUTAR"); onClicked: area.context.executeEventItem(eventItemDelegate.modelData.id) }
@@ -131,7 +131,7 @@ ColumnLayout {
     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
     RowLayout {
         Layout.fillWidth: true
-        Label { text: qsTr("HISTÓRICO"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: "#8da0bc"; font.bold: true; font.pixelSize: UiScale.px(11) }
         Item { Layout.fillWidth: true }
         Button { text: qsTr("LIMPAR"); enabled: area.context.history.length > 0; onClicked: area.clearHistoryRequested() }
     }
@@ -159,9 +159,9 @@ ColumnLayout {
             RowLayout {
                 anchors.fill: parent
                 anchors.margins: 6
-                Label { text: historyDelegate.modelData.type.toUpperCase(); color: "#70e1a7"; font.pixelSize: 9 }
+                Label { text: historyDelegate.modelData.type.toUpperCase(); color: "#70e1a7"; font.pixelSize: UiScale.px(9) }
                 Label { Layout.fillWidth: true; text: historyDelegate.modelData.title; color: "#eff6ff"; elide: Text.ElideRight }
-                Label { text: historyDelegate.modelData.executedAt.replace("T", " ").slice(0, 16); color: "#8da0bc"; font.pixelSize: 9 }
+                Label { text: historyDelegate.modelData.executedAt.replace("T", " ").slice(0, 16); color: "#8da0bc"; font.pixelSize: UiScale.px(9) }
             }
         }
     }

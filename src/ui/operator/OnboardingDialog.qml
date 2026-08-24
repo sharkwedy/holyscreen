@@ -108,7 +108,7 @@ Dialog {
                     text: onboarding.steps[onboarding.currentStep].title
                     color: "#f2f4f5"
                     font.bold: true
-                    font.pixelSize: 24
+                    font.pixelSize: UiScale.px(24)
                 }
                 Label {
                     Layout.fillWidth: true
@@ -163,7 +163,7 @@ Dialog {
                     text: qsTr("As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.")
                     color: "#8d979f"
                     wrapMode: Text.WordWrap
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
             }
         }

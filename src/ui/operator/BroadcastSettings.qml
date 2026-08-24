@@ -28,7 +28,7 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: 8
-        Label { text: qsTr("Fundo"); color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Fundo"); color: root.textMuted; font.pixelSize: UiScale.px(12) }
         ComboBox {
             Layout.preferredWidth: 190
             model: [{"id": "chroma", "name": qsTr("Chroma key")},
@@ -38,7 +38,7 @@ ColumnLayout {
             currentIndex: root.transparent ? 1 : 0
             onActivated: root.apply({"backgroundMode": currentValue})
         }
-        Label { text: qsTr("Proporção"); color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Proporção"); color: root.textMuted; font.pixelSize: UiScale.px(12) }
         ComboBox {
             Layout.preferredWidth: 110
             model: ["16:9", "9:16"]
@@ -52,7 +52,7 @@ ColumnLayout {
         Layout.fillWidth: true
         visible: !root.transparent
         spacing: 8
-        Label { text: qsTr("Cor do chroma"); color: root.textMuted; font.pixelSize: 12 }
+        Label { text: qsTr("Cor do chroma"); color: root.textMuted; font.pixelSize: UiScale.px(12) }
         Repeater {
             model: ["#00b140", "#0047bb", "#ff00ff", "#000000"]
             delegate: Rectangle {
@@ -84,7 +84,7 @@ ColumnLayout {
         visible: root.transparent && !root.controller.broadcastTransparencySupported
         text: root.controller.broadcastTransparencyWarning
         color: "#ffba70"
-        font.pixelSize: 11
+        font.pixelSize: UiScale.px(11)
         wrapMode: Text.WordWrap
     }
 
@@ -104,7 +104,7 @@ ColumnLayout {
                 Label {
                     text: safeAreaRow.modelData.label
                     color: root.textMuted
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
                 SpinBox {
                     from: 0

@@ -248,7 +248,7 @@ Item {
                 }
                 color: "#64748b"
                 elide: Text.ElideMiddle
-                font.pixelSize: 11
+                font.pixelSize: UiScale.px(11)
             }
             RowLayout {
                 Layout.fillWidth: true

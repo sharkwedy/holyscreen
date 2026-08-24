@@ -119,7 +119,7 @@ Dialog {
             text: qsTr("Sem cofre do sistema (%1): os segredos valem apenas nesta sessão.")
                   .arg(area.controller.integrationSecretBackend)
             color: "#ffba70"
-            font.pixelSize: 11
+            font.pixelSize: UiScale.px(11)
             wrapMode: Text.WordWrap
         }
 
@@ -186,7 +186,7 @@ Dialog {
                                 Label {
                                     text: integrationRow.modelData.type.toUpperCase()
                                     color: area.textMuted
-                                    font.pixelSize: 10
+                                    font.pixelSize: UiScale.px(10)
                                 }
                             }
                             Switch {
@@ -205,7 +205,7 @@ Dialog {
                         visible: integrationList.count === 0
                         text: qsTr("Nenhuma integração configurada")
                         color: area.textMuted
-                        font.pixelSize: 12
+                        font.pixelSize: UiScale.px(12)
                     }
                 }
             }
@@ -246,7 +246,7 @@ Dialog {
                             Label {
                                 text: fieldRow.modelData.label
                                 color: area.textMuted
-                                font.pixelSize: 11
+                                font.pixelSize: UiScale.px(11)
                             }
                             ComboBox {
                                 Layout.fillWidth: true
@@ -296,7 +296,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("Timeout (ms)"); color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Timeout (ms)"); color: area.textMuted; font.pixelSize: UiScale.px(11) }
                         SpinBox {
                             from: 250
                             to: 60000
@@ -305,7 +305,7 @@ Dialog {
                             value: area.draft.timeoutMs || 5000
                             onValueModified: area.updateDraft("timeoutMs", value)
                         }
-                        Label { text: qsTr("Tentativas"); color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Tentativas"); color: area.textMuted; font.pixelSize: UiScale.px(11) }
                         SpinBox {
                             from: 1
                             to: 5
@@ -342,7 +342,7 @@ Dialog {
                         visible: area.validationErrors.length > 0
                         text: area.validationErrors.join("\n")
                         color: "#ff9d9d"
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         wrapMode: Text.WordWrap
                     }
 
@@ -402,11 +402,11 @@ Dialog {
             Layout.fillWidth: true
             text: area.controller.integrationStatus
             color: area.textMain
-            font.pixelSize: 12
+            font.pixelSize: UiScale.px(12)
             elide: Text.ElideRight
         }
 
-        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
 
         ListView {
             Layout.fillWidth: true
@@ -426,13 +426,13 @@ Dialog {
                     Label {
                         text: historyRow.modelData.occurredAt
                         color: area.textMuted
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         Layout.preferredWidth: 100
                     }
                     Label {
                         text: historyRow.modelData.operation
                         color: area.textMain
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         Layout.preferredWidth: 150
                         elide: Text.ElideRight
                     }
@@ -443,13 +443,13 @@ Dialog {
                               : (historyRow.modelData.errorCode + " — "
                                  + historyRow.modelData.message)
                         color: historyRow.modelData.accepted ? "#70e1a7" : "#ff9d9d"
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         elide: Text.ElideRight
                     }
                     Label {
                         text: qsTr("%1 ms").arg(historyRow.modelData.durationMs)
                         color: area.textMuted
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                     }
                 }
             }

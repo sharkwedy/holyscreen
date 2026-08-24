@@ -91,6 +91,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY preferencesChanged)
     Q_PROPERTY(bool localeRestartRequired READ localeRestartRequired NOTIFY preferencesChanged)
     Q_PROPERTY(bool demoMode READ demoMode WRITE setDemoMode NOTIFY preferencesChanged)
+    Q_PROPERTY(double interfaceScale READ interfaceScale WRITE setInterfaceScale NOTIFY preferencesChanged)
     Q_PROPERTY(bool onboardingCompleted READ onboardingCompleted NOTIFY onboardingChanged)
     Q_PROPERTY(QStringList onboardingSkippedSteps READ onboardingSkippedSteps NOTIFY onboardingChanged)
     Q_PROPERTY(QVariantMap shortcuts READ shortcuts NOTIFY preferencesChanged)
@@ -268,6 +269,8 @@ public:
     void setLocale(const QString &locale);
     [[nodiscard]] bool demoMode() const;
     void setDemoMode(bool enabled);
+    [[nodiscard]] double interfaceScale() const;
+    void setInterfaceScale(double scale);
     [[nodiscard]] bool onboardingCompleted() const;
     [[nodiscard]] QStringList onboardingSkippedSteps() const;
     [[nodiscard]] QVariantMap shortcuts() const;
@@ -881,6 +884,7 @@ private:
     std::unique_ptr<OutputContext> m_outputContext;
     QString m_locale = QStringLiteral("pt-BR");
     bool m_demoMode = false;
+    double m_interfaceScale = 1.0;
     bool m_onboardingCompleted = false;
     QStringList m_onboardingSkippedSteps;
     QVariantMap m_shortcuts{

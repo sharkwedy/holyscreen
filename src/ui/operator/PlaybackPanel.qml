@@ -104,7 +104,7 @@ Rectangle {
             Label {
                 text: qsTr("O nome técnico do monitor no Windows não será alterado.")
                 color: panel.textMutedColor
-                font.pixelSize: 11
+                font.pixelSize: UiScale.px(11)
             }
         }
     }
@@ -165,13 +165,13 @@ Rectangle {
                 Label {
                     text: panel.duration(panel.mediaController.mediaPositionMs)
                     color: panel.accentColor
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
                 Item { Layout.fillWidth: true }
                 Label {
                     text: panel.duration(panel.mediaController.mediaDurationMs)
                     color: panel.textMutedColor
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
             }
             RowLayout {
@@ -275,7 +275,7 @@ Rectangle {
                         text: qsTr("Exibir vídeo em:")
                         color: panel.textMainColor
                         font.bold: true
-                        font.pixelSize: 12
+                        font.pixelSize: UiScale.px(12)
                     }
                     Repeater {
                         model: panel.outputController.screens
@@ -301,14 +301,14 @@ Rectangle {
                                     visible: screenCheckBox.checked
                                     color: "white"
                                     font.bold: true
-                                    font.pixelSize: 14
+                                    font.pixelSize: UiScale.px(14)
                                 }
                             }
                             contentItem: Label {
                                 leftPadding: screenCheckBox.indicator.width + screenCheckBox.spacing
                                 text: screenCheckBox.text
                                 color: panel.textMainColor
-                                font.pixelSize: 12
+                                font.pixelSize: UiScale.px(12)
                                 verticalAlignment: Text.AlignVCenter
                                 elide: Text.ElideRight
                             }
@@ -326,7 +326,7 @@ Rectangle {
                         visible: panel.externalScreenCount() === 0
                         text: qsTr("nenhuma tela externa detectada")
                         color: panel.textMutedColor
-                        font.pixelSize: 12
+                        font.pixelSize: UiScale.px(12)
                     }
                     Button {
                         visible: panel.externalScreenCount()

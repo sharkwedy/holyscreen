@@ -1180,37 +1180,37 @@
         <translation>HolyScreen — Operation</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="96"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="97"/>
         <source>Selecionar wallpaper</source>
         <translation>Select wallpaper</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="97"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="98"/>
         <source>Imagens (*.jpg *.jpeg *.png *.webp)</source>
         <translation>Images (*.jpg *.jpeg *.png *.webp)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="120"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="121"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="122"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="123"/>
         <source>Ativar modo de debug</source>
         <translation>Enable debug mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="129"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="130"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Multiple simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="136"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="137"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnostics and benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="144"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Log DEBUG messages</translation>
     </message>
@@ -2012,542 +2012,548 @@
         <translation>English (United States)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="133"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="132"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="141"/>
+        <source>Tamanho da interface</source>
+        <translation>Interface size</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="145"/>
         <source>Modo demonstração</source>
         <translation>Demo mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="142"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>
         <source>Reinicie o HolyScreen para aplicar o novo idioma.</source>
         <translation>Restart HolyScreen to apply the new language.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="166"/>
         <source>Atalhos de teclado</source>
         <translation>Keyboard shortcuts</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="156"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="168"/>
         <source>Blackout</source>
         <translation>Blackout</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="157"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="169"/>
         <source>Próximo slide</source>
         <translation>Next slide</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="158"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="170"/>
         <source>Slide anterior</source>
         <translation>Previous slide</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="159"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="171"/>
         <source>Parar apresentação</source>
         <translation>Stop presentation</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="160"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="172"/>
         <source>Busca bíblica</source>
         <translation>Bible search</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="173"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="185"/>
         <source>Atalho para %1</source>
         <translation>Shortcut for %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="176"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="188"/>
         <source>Atalho inválido ou já utilizado.</source>
         <translation>Invalid shortcut or already in use.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="179"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="191"/>
         <source>Atalho atualizado.</source>
         <translation>Shortcut updated.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="195"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="207"/>
         <source>Monitores detectados</source>
         <translation>Detected displays</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="197"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="209"/>
         <source>Identificar</source>
         <translation>Identify</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="198"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="210"/>
         <source>Ativar todas</source>
         <translation>Enable all</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="230"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="242"/>
         <source>OPERADOR</source>
         <translation>OPERATOR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="231"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="243"/>
         <source>ATIVA</source>
         <translation>ACTIVE</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="231"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="243"/>
         <source>INATIVA</source>
         <translation>INACTIVE</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="241"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="253"/>
         <source>Exibir vídeo</source>
         <translation>Show video</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="248"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="260"/>
         <source>Saída para o público</source>
         <translation>Audience output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="249"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="261"/>
         <source>Saída de palco</source>
         <translation>Stage output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="250"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="262"/>
         <source>Saída de transmissão</source>
         <translation>Broadcast output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="278"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="290"/>
         <source>Reprodução</source>
         <translation>Playback</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="280"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="292"/>
         <source>Volume</source>
         <translation>Volume</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="284"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="296"/>
         <source>Saída de áudio</source>
         <translation>Audio output</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="287"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="299"/>
         <source>Selecione um dispositivo</source>
         <translation>Select a device</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="293"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="305"/>
         <source>Dispositivo de saída de áudio</source>
         <translation>Audio output device</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="303"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="315"/>
         <source>Nenhum dispositivo de áudio foi detectado. Verifique a conexão e tente novamente.</source>
         <translation>No audio device was detected. Check the connection and try again.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="308"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="320"/>
         <source>Repetição</source>
         <translation>Repeat</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="311"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="323"/>
         <source>Sem repetição</source>
         <translation>No repeat</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="312"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="324"/>
         <source>Repetir item</source>
         <translation>Repeat item</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="313"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="325"/>
         <source>Repetir playlist</source>
         <translation>Repeat playlist</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="320"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="332"/>
         <source>Imagens</source>
         <translation>Images</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="322"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="334"/>
         <source>Ajuste</source>
         <translation>Fit</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="325"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="406"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="337"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="418"/>
         <source>Conter</source>
         <translation>Contain</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="326"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="405"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="338"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="417"/>
         <source>Preencher</source>
         <translation>Cover</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="327"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="407"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="339"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="419"/>
         <source>Esticar</source>
         <translation>Stretch</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="328"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="408"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="340"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="420"/>
         <source>Centralizar</source>
         <translation>Center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="335"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="347"/>
         <source>Avançar imagens automaticamente</source>
         <translation>Advance images automatically</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="342"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="354"/>
         <source>Intervalo (segundos)</source>
         <translation>Interval (seconds)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="353"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="365"/>
         <source>Fundo da apresentação</source>
         <translation>Presentation background</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="374"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="386"/>
         <source>Fundo de cor sólida</source>
         <translation>Solid color background</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="382"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="394"/>
         <source>Escolher imagem…</source>
         <translation>Choose image…</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="384"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="396"/>
         <source>Remover imagem</source>
         <translation>Remove image</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="392"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="404"/>
         <source>Nenhuma imagem selecionada</source>
         <translation>No image selected</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="398"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="410"/>
         <source>Cor</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="402"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="414"/>
         <source>Ajuste do fundo</source>
         <translation>Background fit</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="415"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="427"/>
         <source>Relógio</source>
         <translation>Clock</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="417"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="429"/>
         <source>Exibir relógio nas saídas</source>
         <translation>Show clock on outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="423"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="435"/>
         <source>Formato</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="427"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="439"/>
         <source>Tamanho</source>
         <translation>Size</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="431"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="443"/>
         <source>Nome da fonte</source>
         <translation>Font family</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="439"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="451"/>
         <source>N</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="440"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="452"/>
         <source>Negrito</source>
         <translation>Bold</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="447"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="459"/>
         <source>I</source>
         <translation>I</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="448"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="460"/>
         <source>Itálico</source>
         <translation>Italic</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="456"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="468"/>
         <source>Cor da fonte</source>
         <translation>Font color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="460"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="472"/>
         <source>Cor de fundo</source>
         <translation>Background color</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="464"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="476"/>
         <source>Altura da linha</source>
         <translation>Line height</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="474"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="486"/>
         <source>Efeito</source>
         <translation>Effect</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="477"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="489"/>
         <source>Nenhum</source>
         <translation>None</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="478"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="490"/>
         <source>Contorno</source>
         <translation>Outline</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="479"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="491"/>
         <source>Elevado</source>
         <translation>Raised</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="480"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="492"/>
         <source>Baixo relevo</source>
         <translation>Sunken</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="485"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="497"/>
         <source>Canto</source>
         <translation>Corner</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="489"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="501"/>
         <source>Opacidade da fonte</source>
         <translation>Font opacity</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="492"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="504"/>
         <source>Opacidade do fundo</source>
         <translation>Background opacity</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="497"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="509"/>
         <source>Localização</source>
         <translation>Position</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="500"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="512"/>
         <source>Superior esquerda</source>
         <translation>Top left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="501"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="513"/>
         <source>Superior centro</source>
         <translation>Top center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="502"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="514"/>
         <source>Superior direita</source>
         <translation>Top right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="503"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="515"/>
         <source>Centro esquerda</source>
         <translation>Center left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="504"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="516"/>
         <source>Centro</source>
         <translation>Center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="505"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="517"/>
         <source>Centro direita</source>
         <translation>Center right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="506"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="518"/>
         <source>Inferior esquerda</source>
         <translation>Bottom left</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="507"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="519"/>
         <source>Inferior centro</source>
         <translation>Bottom center</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="508"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="520"/>
         <source>Inferior direita</source>
         <translation>Bottom right</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="515"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="527"/>
         <source>Margem horizontal (%)</source>
         <translation>Horizontal margin (%)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="517"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="529"/>
         <source>Margem vertical (%)</source>
         <translation>Vertical margin (%)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="528"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="540"/>
         <source>Controle remoto local</source>
         <translation>Local remote control</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="531"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="543"/>
         <source>O servidor fica desligado por padrão e deve ser usado somente na rede local confiável.</source>
         <translation>The server is disabled by default and should only be used on a trusted local network.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="536"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="548"/>
         <source>Habilitar controle remoto</source>
         <translation>Enable remote control</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="544"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="556"/>
         <source>Interface IPv4</source>
         <translation>IPv4 interface</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="556"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="568"/>
         <source>Porta</source>
         <translation>Port</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="564"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="576"/>
         <source>Senha fixa</source>
         <translation>Fixed password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="572"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="584"/>
         <source>Nova senha (mínimo 8 caracteres)</source>
         <translation>New password (minimum 8 characters)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="573"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="585"/>
         <source>Defina uma senha (mínimo 8 caracteres)</source>
         <translation>Set a password (minimum 8 characters)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="579"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="591"/>
         <source>Trocar senha</source>
         <translation>Change password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="579"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="591"/>
         <source>Definir senha</source>
         <translation>Set password</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="588"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="600"/>
         <source>Acesso</source>
         <translation>Access</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="592"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="604"/>
         <source>Servidor remoto desabilitado</source>
         <translation>Remote server disabled</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="611"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="623"/>
         <source>Leia o QR na mesma rede local para abrir o controle.</source>
         <translation>Scan the QR code on the same local network to open the remote.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="616"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="628"/>
         <source>Clientes conectados: %1  •  Sessões ativas: %2</source>
         <translation>Connected clients: %1  •  Active sessions: %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="622"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="634"/>
         <source>Revogar todas as sessões</source>
         <translation>Revoke all sessions</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="641"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="653"/>
         <source>Opções de desenvolvimento</source>
         <translation>Development options</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="643"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="655"/>
         <source>Ativar modo de debug</source>
         <translation>Enable debug mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="649"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="661"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Multiple simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="656"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="668"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnostics and benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="663"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="675"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Log DEBUG messages</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="671"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="683"/>
         <source>Saídas simuladas</source>
         <translation>Simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="677"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="689"/>
         <source>Os registros continuam sendo gravados no diretório de dados do HolyScreen, mesmo sem a janela de terminal.</source>
         <translation>Logs continue to be written to the HolyScreen data directory even without a terminal window.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="688"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="700"/>
         <source>Importar perfil do HolyScreen</source>
         <translation>Import HolyScreen profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="690"/>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="704"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="702"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="716"/>
         <source>Perfil HolyScreen (*.json)</source>
         <translation>HolyScreen profile (*.json)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="694"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="706"/>
         <source>Perfil importado. Credenciais e servidor remoto foram preservados.</source>
         <translation>Profile imported. Credentials and remote server settings were preserved.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="695"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="707"/>
         <source>Não foi possível importar o perfil.</source>
         <translation>Could not import the profile.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="701"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="713"/>
         <source>Exportar perfil do HolyScreen</source>
         <translation>Export HolyScreen profile</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="708"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="720"/>
         <source>Perfil exportado sem segredos.</source>
         <translation>Profile exported without secrets.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/SettingsDialog.qml" line="709"/>
+        <location filename="../src/ui/operator/SettingsDialog.qml" line="721"/>
         <source>Não foi possível exportar o perfil.</source>
         <translation>Could not export the profile.</translation>
     </message>
@@ -2629,680 +2635,680 @@
         <translation>HolyScreen is up to date (%1).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="870"/>
+        <location filename="../src/app/ApplicationController.cpp" line="880"/>
         <source>A tela principal é reservada para o operador.</source>
         <translation>The primary screen is reserved for the operator.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="883"/>
+        <location filename="../src/app/ApplicationController.cpp" line="893"/>
         <source>O limite de cinco saídas foi atingido.</source>
         <translation>The five-output limit has been reached.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="884"/>
+        <location filename="../src/app/ApplicationController.cpp" line="894"/>
         <source>A tela não está mais conectada.</source>
         <translation>The screen is no longer connected.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="905"/>
+        <location filename="../src/app/ApplicationController.cpp" line="915"/>
         <source>Todas as telas externas conectadas estão ativas.</source>
         <translation>All connected external screens are active.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="906"/>
+        <location filename="../src/app/ApplicationController.cpp" line="916"/>
         <source>Nenhuma tela externa conectada foi encontrada.</source>
         <translation>No connected external screen was found.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="967"/>
+        <location filename="../src/app/ApplicationController.cpp" line="977"/>
         <source>O perfil de transmissão não pôde ser salvo.</source>
         <translation>The broadcast profile could not be saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1023"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1033"/>
         <source>Chamada enviada.</source>
         <translation>Request sent.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1028"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1038"/>
         <source>%1: %2 (%3 ms)</source>
         <translation>%1: %2 (%3 ms)</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1029"/>
-        <location filename="../src/app/ApplicationController.cpp" line="1216"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1039"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1226"/>
         <source>%1 falhou: %2</source>
         <translation>%1 failed: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1073"/>
-        <location filename="../src/app/ApplicationController.cpp" line="1375"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1083"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1385"/>
         <source>Comando fora do catálogo: %1.</source>
         <translation>Command is not in the catalog: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1112"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1122"/>
         <source>Processo %1 concluído.</source>
         <translation>Process %1 completed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1113"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1123"/>
         <source>Processo %1 falhou: %2</source>
         <translation>Process %1 failed: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1118"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1128"/>
         <source>Processo iniciado.</source>
         <translation>Process started.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1221"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1231"/>
         <source>%1 bloqueada: %2</source>
         <translation>%1 blocked: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1223"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1233"/>
         <source>%1 executada.</source>
         <translation>%1 executed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1235"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1245"/>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1282"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1292"/>
         <source>Automações ativas.</source>
         <translation>Automations active.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1283"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1293"/>
         <source>Automações pausadas.</source>
         <translation>Automations paused.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1298"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1308"/>
         <source>Processos externos liberados para a lista autorizada.</source>
         <translation>External processes enabled for the authorized list.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1299"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1309"/>
         <source>Processos externos desativados.</source>
         <translation>External processes disabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1336"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1346"/>
         <source>A automação precisa de um nome.</source>
         <translation>The automation needs a name.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1339"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1349"/>
         <source>Escolha um gatilho válido.</source>
         <translation>Choose a valid trigger.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1350"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1360"/>
         <source>Informe horário e dias válidos para o gatilho local.</source>
         <translation>Enter a valid time and days for the local trigger.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1354"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1364"/>
         <source>Adicione pelo menos uma ação.</source>
         <translation>Add at least one action.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1357"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1367"/>
         <source>No máximo %1 ações por automação.</source>
         <translation>At most %1 actions per automation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1363"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1373"/>
         <source>Condição incompleta ou com operação inválida.</source>
         <translation>Incomplete condition or invalid operation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1369"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1379"/>
         <source>Ação não suportada: %1.</source>
         <translation>Unsupported action: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1380"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1390"/>
         <source>Integração não encontrada: %1.</source>
         <translation>Integration not found: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1386"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1396"/>
         <source>O executável %1 não está autorizado.</source>
         <translation>Executable %1 is not authorized.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1405"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1415"/>
         <source>A automação não pôde ser salva.</source>
         <translation>The automation could not be saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1408"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1418"/>
         <source>Automação %1 salva.</source>
         <translation>Automation %1 saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1420"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1430"/>
         <source>Escolha o arquivo de destino.</source>
         <translation>Choose the destination file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1444"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1454"/>
         <source>Não foi possível exportar o arquivo.</source>
         <translation>Could not export the file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1446"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1456"/>
         <source>%1 automações exportadas.</source>
         <translation>%1 automation(s) exported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1459"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1469"/>
         <source>O arquivo não pôde ser lido ou excede 1 MiB.</source>
         <translation>The file could not be read or exceeds 1 MiB.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1470"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1480"/>
         <source>Documento de automações inválido ou incompatível.</source>
         <translation>Invalid or incompatible automation document.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1477"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1487"/>
         <source>O documento deve conter entre 1 e 500 automações.</source>
         <translation>The document must contain between 1 and 500 automations.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1489"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1499"/>
         <source>Item %1 não é uma definição.</source>
         <translation>Item %1 is not a definition.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1502"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1512"/>
         <source>Integração não encontrada:</source>
         <translation>Integration not found:</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1503"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1513"/>
         <source>O executável </source>
         <translation>The executable </translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1526"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1536"/>
         <source>A importação foi revertida por falha no banco.</source>
         <translation>The import was rolled back because of a database failure.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1533"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1543"/>
         <source>%1 automações importadas.</source>
         <translation>%1 automation(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1534"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1544"/>
         <source>%1 automações importadas; %2 desativadas por referências ausentes.</source>
         <translation>%1 automation(s) imported; %2 disabled because of missing references.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1546"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1556"/>
         <source>Automação removida.</source>
         <translation>Automation removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1571"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1581"/>
         <source>Automação retomada.</source>
         <translation>Automation resumed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1585"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1595"/>
         <source>Ensaio concluído com %1 ações previstas.</source>
         <translation>Dry run completed with %1 planned action(s).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1586"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1596"/>
         <source>Ensaio: %1</source>
         <translation>Dry run: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1600"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1610"/>
         <source>Executável autorizado.</source>
         <translation>Executable authorized.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1610"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1620"/>
         <source>Autorização removida.</source>
         <translation>Authorization removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1723"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1734"/>
         <source>Selecione um arquivo local.</source>
         <translation>Select a local file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1729"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1740"/>
         <source>Não foi possível salvar o perfil.</source>
         <translation>Could not save the profile.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1740"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1751"/>
         <source>Não foi possível abrir o perfil.</source>
         <translation>Could not open the profile.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1761"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1772"/>
         <source>O atalho %1 entra em conflito com a configuração atual.</source>
         <translation>Shortcut %1 conflicts with the current configuration.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1835"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1847"/>
         <source>Integração %1 salva.</source>
         <translation>Integration %1 saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1851"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1863"/>
         <source>Integração removida.</source>
         <translation>Integration removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1864"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1876"/>
         <source>%1 (cópia)</source>
         <translation>%1 (copy)</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1872"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1884"/>
         <source>Integração duplicada. Configure os segredos da cópia.</source>
         <translation>Integration duplicated. Configure the copy&apos;s secrets.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1907"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1919"/>
         <source>Segredo guardado no %1.</source>
         <translation>Secret stored in %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1909"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1921"/>
         <source>Sem cofre do sistema: o segredo vale só nesta sessão.</source>
         <translation>No system vault: the secret is valid only for this session.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1937"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1949"/>
         <source>ativa</source>
         <translation>active</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1938"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1950"/>
         <source>inativa</source>
         <translation>inactive</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2020"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2032"/>
         <source>A pasta selecionada não está disponível.</source>
         <translation>The selected folder is unavailable.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2024"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2036"/>
         <source>Essa pasta já faz parte da biblioteca.</source>
         <translation>This folder is already in the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2031"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2043"/>
         <source>Pasta adicionada à biblioteca.</source>
         <translation>Folder added to the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2043"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2055"/>
         <source>Pasta removida da biblioteca. Os itens já adicionados à playlist foram mantidos.</source>
         <translation>Folder removed from the library. Items already added to the playlist were kept.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2049"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2061"/>
         <source>Biblioteca de pastas atualizada.</source>
         <translation>Folder library refreshed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2058"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2070"/>
         <source>O arquivo não está mais disponível.</source>
         <translation>The file is no longer available.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2072"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2084"/>
         <source>Esse formato de arquivo não é compatível.</source>
         <translation>This file format is not supported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2085"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2097"/>
         <source>O arquivo não está mais disponível na biblioteca.</source>
         <translation>The file is no longer available in the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2096"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2108"/>
         <source>Não foi possível adicionar o arquivo à playlist.</source>
         <translation>Could not add the file to the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2104"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2116"/>
         <source>%1 adicionado à playlist.</source>
         <translation>%1 added to the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2119"/>
-        <location filename="../src/app/ApplicationController.cpp" line="2138"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2131"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2150"/>
         <source>Não foi possível localizar esse arquivo.</source>
         <translation>Could not locate this file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2124"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2136"/>
         <source>%1 removido dos favoritos.</source>
         <translation>%1 removed from favorites.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2127"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2139"/>
         <source>%1 adicionado aos favoritos.</source>
         <translation>%1 added to favorites.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2142"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2154"/>
         <source>Não foi possível abrir a pasta do arquivo.</source>
         <translation>Could not open the file&apos;s folder.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2181"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2193"/>
         <source>Adicione pelo menos dois itens para embaralhar a playlist.</source>
         <translation>Add at least two items to shuffle the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2189"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2201"/>
         <source>Não foi possível embaralhar a playlist.</source>
         <translation>Could not shuffle the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2194"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2206"/>
         <source>Playlist embaralhada.</source>
         <translation>Playlist shuffled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2207"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2219"/>
         <source>Não foi possível limpar a playlist.</source>
         <translation>Could not clear the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2214"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2226"/>
         <source>Playlist limpa.</source>
         <translation>Playlist cleared.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2249"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2261"/>
         <source>A playlist está vazia.</source>
         <translation>The playlist is empty.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2256"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2268"/>
         <source>Não foi possível salvar a playlist.</source>
         <translation>Could not save the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2270"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2282"/>
         <source>Não foi possível concluir o salvamento da playlist.</source>
         <translation>Could not finish saving the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2273"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2285"/>
         <source>Playlist salva em %1.</source>
         <translation>Playlist saved to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2288"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2300"/>
         <source>O arquivo não existe mais: %1</source>
         <translation>The file no longer exists: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2310"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2322"/>
         <source>Não foi possível exibir a imagem selecionada.</source>
         <translation>Could not show the selected image.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2501"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2513"/>
         <source>%1 áudio(s) importado(s).</source>
         <translation>%1 audio file(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2502"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2514"/>
         <source>Nenhum áudio novo foi importado.</source>
         <translation>No new audio was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2575"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2587"/>
         <source>%1 vídeo(s) importado(s).</source>
         <translation>%1 video(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2576"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2588"/>
         <source>Nenhum vídeo novo foi importado.</source>
         <translation>No new video was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2640"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2652"/>
         <source>%1 imagem(ns) importada(s).</source>
         <translation>%1 image(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2641"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2653"/>
         <source>Nenhuma imagem nova foi importada.</source>
         <translation>No new image was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2670"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2682"/>
         <source>O arquivo de imagem não existe mais.</source>
         <translation>The image file no longer exists.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2717"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2729"/>
         <source>Adicionar slide</source>
         <translation>Add slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2725"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2737"/>
         <source>Editar slide</source>
         <translation>Edit slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2733"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2745"/>
         <source>Duplicar slide</source>
         <translation>Duplicate slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2741"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2753"/>
         <source>Dividir slide</source>
         <translation>Split slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2749"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2761"/>
         <source>Remover slide</source>
         <translation>Remove slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2757"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2769"/>
         <source>Mover slide</source>
         <translation>Move slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2926"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2938"/>
         <source>Não foi possível criar o backup.</source>
         <translation>Could not create the backup.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2926"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2938"/>
         <source>Backup criado em %1</source>
         <translation>Backup created at %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2927"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2939"/>
         <source>Restauração agendada. Reinicie o HolyScreen para aplicá-la.</source>
         <translation>Restore scheduled. Restart HolyScreen to apply it.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2927"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2939"/>
         <source>O arquivo não é um backup SQLite válido.</source>
         <translation>The file is not a valid SQLite backup.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2961"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2973"/>
         <source>Diagnóstico exportado para %1.</source>
         <translation>Diagnostics exported to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2966"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2978"/>
         <source>Verificando...</source>
         <translation>Checking...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2974"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2986"/>
         <source>Não foi possível abrir o arquivo da Bíblia.</source>
         <translation>Could not open the Bible file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2985"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2997"/>
         <source>Não foi possível salvar a tradução importada.</source>
         <translation>Could not save the imported translation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2990"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3002"/>
         <source>Tradução %1 importada com %2 versículo(s).</source>
         <translation>Translation %1 imported with %2 verse(s).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3025"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3037"/>
         <source>Cancelando importação...</source>
         <translation>Canceling import...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3034"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3046"/>
         <source>Essa tradução não possui uma origem atualizável registrada.</source>
         <translation>This translation has no registered updateable source.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3047"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3059"/>
         <source>Já existe uma importação bíblica em andamento.</source>
         <translation>A Bible import is already running.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3051"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3063"/>
         <source>Informe a pasta ou URL da origem bíblica.</source>
         <translation>Enter the Bible source folder or URL.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3059"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3071"/>
         <source>Preparando importação...</source>
         <translation>Preparing import...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3104"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3116"/>
         <source>Confirmação de licença necessária.</source>
         <translation>License confirmation required.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3108"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3120"/>
         <source>Importação cancelada.</source>
         <translation>Import canceled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3113"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3125"/>
         <source>A importação falhou.</source>
         <translation>The import failed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3118"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3130"/>
         <source>%1 tradução(ões) e %2 versículo(s) importados.</source>
         <translation>%1 translation(s) and %2 verse(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3122"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3134"/>
         <source> %1 tradução(ões) ignoradas por erro: %2</source>
         <translation> %1 translation(s) skipped because of errors: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3146"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3158"/>
         <source>Referência bíblica inválida. Exemplo: João 3:16-18.</source>
         <translation>Invalid Bible reference. Example: John 3:16-18.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3158"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3170"/>
         <source>Importe e selecione ao menos uma tradução bíblica.</source>
         <translation>Import and select at least one Bible translation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3201"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3213"/>
         <source>Nenhum versículo foi encontrado nas traduções selecionadas.</source>
         <translation>No verse was found in the selected translations.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3204"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3216"/>
         <source>%1 versículo(s) encontrado(s).</source>
         <translation>%1 verse(s) found.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3304"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3316"/>
         <source>Não foi possível abrir o wallpaper selecionado.</source>
         <translation>Could not open the selected wallpaper.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3549"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3561"/>
         <source>Defina uma senha antes de habilitar o controle remoto.</source>
         <translation>Set a password before enabling remote control.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3555"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3567"/>
         <source>Controle remoto habilitado.</source>
         <translation>Remote control enabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3560"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3572"/>
         <source>Controle remoto desabilitado.</source>
         <translation>Remote control disabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3583"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3595"/>
         <source>Informe um endereço IPv4 válido para o remoto.</source>
         <translation>Enter a valid IPv4 address for remote control.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3600"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3612"/>
         <source>A senha do remoto deve ter pelo menos 8 caracteres.</source>
         <translation>The remote password must have at least 8 characters.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3606"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3618"/>
         <source>Não foi possível salvar a senha do remoto.</source>
         <translation>Could not save the remote password.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3609"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3621"/>
         <source>Senha do controle remoto atualizada. Sessões antigas foram revogadas.</source>
         <translation>Remote-control password updated. Previous sessions were revoked.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3617"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3629"/>
         <source>Todas as sessões remotas foram revogadas.</source>
         <translation>All remote sessions were revoked.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3721"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3733"/>
         <source>A saída de áudio selecionada não está disponível.</source>
         <translation>The selected audio output is not available.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3729"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3741"/>
         <source>Saída de áudio alterada para %1.</source>
         <translation>Audio output changed to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3868"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3880"/>
         <source>Não foi possível atualizar o banco local: %1</source>
         <translation>Could not update the local database: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3978"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3993"/>
         <source>Padrão</source>
         <translation>Default</translation>
     </message>

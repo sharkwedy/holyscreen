@@ -73,7 +73,27 @@ private slots:
     void automationDefinitionsRoundTripWithoutOverwritingOrSecrets();
     void facadesExposeBoundedQmlContracts();
     void onboardingStepsCanBeDeferredAndRestored();
+    void interfaceScaleIsValidatedAndPersisted();
 };
+
+void ApplicationCommandBridgeTest::interfaceScaleIsValidatedAndPersisted()
+{
+    {
+        ApplicationController controller;
+        controller.setInterfaceScale(1.0);
+        QSignalSpy preferencesSpy(&controller, &ApplicationController::preferencesChanged);
+        controller.setInterfaceScale(1.5);
+        QCOMPARE(controller.interfaceScale(), 1.5);
+        QCOMPARE(preferencesSpy.count(), 1);
+        controller.setInterfaceScale(1.25);
+        QCOMPARE(controller.interfaceScale(), 1.5);
+        QCOMPARE(preferencesSpy.count(), 1);
+    }
+
+    ApplicationController restored;
+    QCOMPARE(restored.interfaceScale(), 1.5);
+    restored.setInterfaceScale(1.0);
+}
 
 void ApplicationCommandBridgeTest::onboardingStepsCanBeDeferredAndRestored()
 {

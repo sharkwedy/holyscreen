@@ -10,7 +10,7 @@ ColumnLayout {
     spacing: 8
 
     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#24334b" }
-    Label { text: qsTr("MANUTENÇÃO E DIAGNÓSTICOS"); color: "#8da0bc"; font.bold: true; font.pixelSize: 11 }
+    Label { text: qsTr("MANUTENÇÃO E DIAGNÓSTICOS"); color: "#8da0bc"; font.bold: true; font.pixelSize: UiScale.px(11) }
     Label {
         visible: area.context.recoveredFromCrash
         text: qsTr("Uma sessão anterior terminou inesperadamente. Um snapshot de recuperação foi criado.")

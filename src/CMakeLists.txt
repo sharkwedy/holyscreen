@@ -326,10 +326,12 @@ if(WIN32)
     )
 endif()
 qt_add_library(presenter-ui STATIC)
+set_source_files_properties(ui/operator/UiScale.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 qt_add_qml_module(presenter-ui
     URI ChurchPresenter
     VERSION 1.0
     QML_FILES
+        ui/operator/UiScale.qml
         ui/operator/MainWindow.qml
         ui/operator/OperatorHeader.qml
         ui/operator/EventsDialog.qml

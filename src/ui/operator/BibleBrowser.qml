@@ -69,7 +69,7 @@ Dialog {
                 text: qsTr("Digite uma referência ou escolha livro, capítulo e versículo")
                 color: browser.textMain
                 font.bold: true
-                font.pixelSize: 15
+                font.pixelSize: UiScale.px(15)
             }
             Item { Layout.fillWidth: true }
             Label {
@@ -77,7 +77,7 @@ Dialog {
                       ? qsTr("Tradução principal ativa") : qsTr("Nenhuma tradução importada")
                 color: browser.controller.bibleTranslations.length > 0
                        ? "#8bdcb7" : "#ffba70"
-                font.pixelSize: 11
+                font.pixelSize: UiScale.px(11)
             }
         }
 
@@ -105,7 +105,7 @@ Dialog {
             wrapMode: Text.WordWrap
         }
 
-        Label { text: qsTr("LIVROS"); color: browser.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("LIVROS"); color: browser.textMuted; font.bold: true; font.pixelSize: UiScale.px(11) }
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 260
@@ -141,7 +141,7 @@ Dialog {
                             width: parent.width
                             text: bookDelegate.modelData.name
                             color: "white"
-                            font.pixelSize: 14
+                            font.pixelSize: UiScale.px(14)
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
                             elide: Text.ElideRight
@@ -151,7 +151,7 @@ Dialog {
                             text: bookDelegate.modelData.testament === "old"
                                   ? qsTr("Antigo Testamento") : qsTr("Novo Testamento")
                             color: "#e5e7eb"
-                            font.pixelSize: 9
+                            font.pixelSize: UiScale.px(9)
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }

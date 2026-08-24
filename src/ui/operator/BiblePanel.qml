@@ -277,7 +277,7 @@ Rectangle {
                           : qsTr("Nenhuma tradução importada")
                     color: panel.textMainColor
                     font.bold: true
-                    font.pixelSize: 10
+                    font.pixelSize: UiScale.px(10)
                 }
                 Label {
                     text: panel.selectedTranslation
@@ -286,7 +286,7 @@ Rectangle {
                              : panel.selectedTranslation.license)
                           : qsTr("Use uma origem com licença adequada")
                     color: panel.textMutedColor
-                    font.pixelSize: 9
+                    font.pixelSize: UiScale.px(9)
                 }
             }
         }

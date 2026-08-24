@@ -24,6 +24,7 @@ ApplicationWindow {
     }
     color: "#0b1220"
     title: qsTr("HolyScreen — Operação")
+    font.pixelSize: UiScale.px(13)
     width: 1360
     height: 820
     minimumWidth: 1100
@@ -89,7 +90,7 @@ ApplicationWindow {
     LiveCommunicationDialog {
         id: liveDialog
         controller: root.controller
-        availableHeight: root.height
+        hostHeight: root.height
     }
     FileDialog {
         id: wallpaperDialog
@@ -111,8 +112,8 @@ ApplicationWindow {
     MediaLibraryDialog {
         id: mediaLibraryDialog
         controller: root.controller.mediaContext
-        availableWidth: root.width
-        availableHeight: root.height
+        hostWidth: root.width
+        hostHeight: root.height
     }
     menuBar: MenuBar {
         visible: root.controller.debugEnabled
@@ -174,6 +175,9 @@ ApplicationWindow {
             if (!quickBibleSearch.visible)
                 quickBibleSearch.openWithText(initialText)
         }
+        function onPreferencesChanged() {
+            UiScale.factor = root.controller.interfaceScale
+        }
     }
 
     Dashboard {
@@ -190,6 +194,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        UiScale.factor = root.controller.interfaceScale
         width = Math.max(minimumWidth, operatorWindowSettings.savedWidth)
         height = Math.max(minimumHeight, operatorWindowSettings.savedHeight)
     }

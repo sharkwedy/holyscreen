@@ -485,6 +485,7 @@ bool ApplicationController::localeRestartRequired() const
     return selected.name() != QLocale().name();
 }
 bool ApplicationController::demoMode() const { return m_demoMode; }
+double ApplicationController::interfaceScale() const { return m_interfaceScale; }
 bool ApplicationController::onboardingCompleted() const { return m_onboardingCompleted; }
 QStringList ApplicationController::onboardingSkippedSteps() const
 {
@@ -506,6 +507,15 @@ void ApplicationController::setDemoMode(bool enabled)
     if (m_demoMode == enabled) return;
     m_demoMode = enabled;
     if (m_settings) m_settings->setValue(QStringLiteral("operator/demoMode"), enabled);
+    emit preferencesChanged();
+}
+
+void ApplicationController::setInterfaceScale(double scale)
+{
+    if (scale != 1.0 && scale != 1.5 && scale != 2.0) return;
+    if (m_interfaceScale == scale) return;
+    m_interfaceScale = scale;
+    if (m_settings) m_settings->setValue(QStringLiteral("operator/interfaceScale"), scale);
     emit preferencesChanged();
 }
 
@@ -1673,6 +1683,7 @@ QVariantMap ApplicationController::exportConfiguration(const QUrl &destination) 
     QVariantMap profile{
         {QStringLiteral("locale"), m_locale},
         {QStringLiteral("demoMode"), m_demoMode},
+        {QStringLiteral("interfaceScale"), m_interfaceScale},
         {QStringLiteral("presentation"), QVariantMap{
              {QStringLiteral("wallpaperColor"), wallpaperColor()},
              {QStringLiteral("wallpaperSource"), wallpaperSource().toString()},
@@ -1765,6 +1776,7 @@ QVariantMap ApplicationController::importConfiguration(const QUrl &source)
     }
     if (profile.contains(QStringLiteral("locale"))) setLocale(profile.value(QStringLiteral("locale")).toString());
     if (profile.contains(QStringLiteral("demoMode"))) setDemoMode(profile.value(QStringLiteral("demoMode")).toBool());
+    if (profile.contains(QStringLiteral("interfaceScale"))) setInterfaceScale(profile.value(QStringLiteral("interfaceScale")).toDouble());
     const auto presentation = profile.value(QStringLiteral("presentation")).toMap();
     if (presentation.contains(QStringLiteral("wallpaperColor"))) setWallpaperColor(presentation.value(QStringLiteral("wallpaperColor")).toString());
     if (presentation.contains(QStringLiteral("wallpaperSource"))) setWallpaperSource(QUrl(presentation.value(QStringLiteral("wallpaperSource")).toString()));
@@ -3911,6 +3923,9 @@ void ApplicationController::loadSettings()
     if (m_locale != QStringLiteral("pt-BR") && m_locale != QStringLiteral("en-US"))
         m_locale = QStringLiteral("pt-BR");
     m_demoMode = m_settings->value(QStringLiteral("operator/demoMode"), false).toBool();
+    m_interfaceScale = m_settings->value(QStringLiteral("operator/interfaceScale"), 1.0).toDouble();
+    if (m_interfaceScale != 1.0 && m_interfaceScale != 1.5 && m_interfaceScale != 2.0)
+        m_interfaceScale = 1.0;
     m_onboardingCompleted = m_settings->value(
         QStringLiteral("operator/onboardingCompleted"), false).toBool();
     m_onboardingSkippedSteps = m_settings->value(

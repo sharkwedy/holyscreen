@@ -71,7 +71,7 @@ Dialog {
                 ColumnLayout {
                     width: parent.width
                     spacing: 14
-                    Label { text: qsTr("Biblioteca"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Biblioteca"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Label {
                         Layout.fillWidth: true
                         text: qsTr("Gerencie as pastas usadas pelo catálogo de áudio, vídeo e imagens.")
@@ -84,7 +84,7 @@ Dialog {
                         Button { text: qsTr("Restaurar layout"); onClicked: settings.restoreLayout() }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Comunicação com o palco"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Comunicação com o palco"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     TextArea {
                         id: stageMessageSetting
                         Layout.fillWidth: true
@@ -104,7 +104,7 @@ Dialog {
                         onDiagnosticsExportRequested: settings.exportDiagnostics()
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Perfil do operador"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Perfil do operador"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Label {
                         Layout.fillWidth: true
                         text: qsTr("Importe ou exporte telas, aparência, mídia, biblioteca e preferências. Senhas, tokens e credenciais nunca são incluídos.")
@@ -129,6 +129,18 @@ Dialog {
                             currentIndex: settings.controller.locale === "en-US" ? 1 : 0
                             onActivated: settings.controller.locale = currentValue
                         }
+                        Label { text: qsTr("Tamanho da interface"); color: settings.textMain }
+                        ComboBox {
+                            model: [{"text":"100%", "value":1.0},
+                                    {"text":"150%", "value":1.5},
+                                    {"text":"200%", "value":2.0}]
+                            textRole: "text"
+                            valueRole: "value"
+                            currentIndex: settings.controller.interfaceScale === 2.0 ? 2
+                                          : settings.controller.interfaceScale === 1.5 ? 1 : 0
+                            Accessible.name: qsTr("Tamanho da interface")
+                            onActivated: settings.controller.interfaceScale = currentValue
+                        }
                         CheckBox {
                             text: qsTr("Modo demonstração")
                             checked: settings.controller.demoMode
@@ -151,7 +163,7 @@ Dialog {
                         wrapMode: Text.WordWrap
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Atalhos de teclado"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Atalhos de teclado"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Repeater {
                         model: [{"id":"blackout", "label":qsTr("Blackout")},
                                 {"id":"next", "label":qsTr("Próximo slide")},
@@ -192,7 +204,7 @@ Dialog {
                     spacing: 10
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("Monitores detectados"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                        Label { text: qsTr("Monitores detectados"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                         Item { Layout.fillWidth: true }
                         Button { text: qsTr("Identificar"); onClicked: settings.controller.outputContext.identifyScreens() }
                         Button { text: qsTr("Ativar todas"); onClicked: settings.controller.outputContext.enableAllScreens() }
@@ -231,7 +243,7 @@ Dialog {
                                               : screenRow.modelData.selected ? qsTr("ATIVA") : qsTr("INATIVA")
                                         color: screenRow.modelData.selected ? "#9eb5ff" : settings.textMuted
                                         font.bold: true
-                                        font.pixelSize: 10
+                                        font.pixelSize: UiScale.px(10)
                                     }
                                 }
                                 RowLayout {
@@ -275,7 +287,7 @@ Dialog {
                 ColumnLayout {
                     width: parent.width
                     spacing: 14
-                    Label { text: qsTr("Reprodução"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Reprodução"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     RowLayout {
                         Label { text: qsTr("Volume"); color: settings.textMain; Layout.preferredWidth: 160 }
                         Slider { Layout.fillWidth: true; from: 0; to: 1; value: settings.controller.mediaContext.mediaVolume; onMoved: settings.controller.mediaContext.mediaVolume = value }
@@ -317,7 +329,7 @@ Dialog {
                         }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Imagens"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Imagens"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     RowLayout {
                         Label { text: qsTr("Ajuste"); color: settings.textMain; Layout.preferredWidth: 160 }
                         ComboBox {
@@ -350,7 +362,7 @@ Dialog {
                 ColumnLayout {
                     width: parent.width
                     spacing: 14
-                    Label { text: qsTr("Fundo da apresentação"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Fundo da apresentação"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 150
@@ -412,7 +424,7 @@ Dialog {
                         }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Relógio"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Relógio"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     CheckBox {
                         text: qsTr("Exibir relógio nas saídas")
                         checked: settings.controller.clockVisible
@@ -525,7 +537,7 @@ Dialog {
                 ColumnLayout {
                     width: parent.width
                     spacing: 12
-                    Label { text: qsTr("Controle remoto local"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Controle remoto local"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Label {
                         Layout.fillWidth: true
                         text: qsTr("O servidor fica desligado por padrão e deve ser usado somente na rede local confiável.")
@@ -561,7 +573,7 @@ Dialog {
                         }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Senha fixa"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Senha fixa"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     RowLayout {
                         Layout.fillWidth: true
                         TextField {
@@ -585,7 +597,7 @@ Dialog {
                         }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Acesso"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Acesso"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     Label {
                         Layout.fillWidth: true
                         text: settings.controller.remoteEnabled
@@ -638,7 +650,7 @@ Dialog {
                 ColumnLayout {
                     width: parent.width
                     spacing: 12
-                    Label { text: qsTr("Opções de desenvolvimento"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
+                    Label { text: qsTr("Opções de desenvolvimento"); color: settings.textMain; font.bold: true; font.pixelSize: UiScale.px(16) }
                     CheckBox {
                         text: qsTr("Ativar modo de debug")
                         checked: settings.controller.debugEnabled
