@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted the Dashboard Bible browser into a dedicated `BiblePanel` component
+  with encapsulated selection and search state, without changing the operator
+  workflow.
 - Completed the `BibleContext` facade for translation selection, search,
   imports and slide rendering, and migrated operator and output QML away from
   the temporary root-controller Bible aliases.

@@ -83,6 +83,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/IntegrationsArea.qml"),
         QStringLiteral("src/ui/operator/AutomationsArea.qml"),
         QStringLiteral("src/ui/operator/Dashboard.qml"),
+        QStringLiteral("src/ui/operator/BiblePanel.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
         QStringLiteral("src/ui/operator/MainWindow.qml"),
         QStringLiteral("src/ui/output/AudienceView.qml"),
@@ -134,7 +135,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("Alias legado de mídia usado em %1").arg(path)));
         QVERIFY2(!legacyOutputAlias.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("Alias legado de saída usado em %1").arg(path)));
-        const bool receivesBibleContext = path.endsWith(QStringLiteral("/BibleBrowser.qml"))
+        const bool receivesBibleContext = path.endsWith(QStringLiteral("/BiblePanel.qml"))
+            || path.endsWith(QStringLiteral("/BibleBrowser.qml"))
             || path.endsWith(QStringLiteral("/QuickBibleSearch.qml"));
         QVERIFY2(receivesBibleContext || !legacyBibleAlias.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("Alias legado de Bíblia usado em %1").arg(path)));
