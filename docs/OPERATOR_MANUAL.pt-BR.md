@@ -42,6 +42,26 @@ As demais áreas agrupam Bíblia, Eventos, Integrações, Automações e Manuten
 Avisos são não bloqueantes sempre que for seguro continuar. Operações
 destrutivas, como restaurar o banco, exigem confirmação.
 
+### Atalhos de teclado
+
+Os atalhos operacionais funcionam quando nenhum campo de texto está em edição:
+
+| Ação | Padrão |
+|---|---|
+| Blackout | `Ctrl+B` |
+| Próximo slide | `Seta direita` |
+| Slide anterior | `Seta esquerda` |
+| Primeiro/último slide | `Home` / `End` |
+| Parar apresentação | `Esc` |
+| Busca bíblica rápida | `Ctrl+K` ou começar a digitar |
+| Desfazer/refazer | `Ctrl+Z` / `Ctrl+Y` |
+| Abrir manutenção | `Ctrl+Shift+O` |
+
+Blackout, próximo slide, slide anterior, parar e busca bíblica podem ser
+alterados em **Configurações > Geral > Atalhos de teclado**. O HolyScreen
+recusa sequências inválidas ou já atribuídas a outra ação. Use `Tab` e
+`Shift+Tab` para percorrer os controles e `Espaço` ou `Enter` para ativá-los.
+
 ## 3. Biblioteca e playlist
 
 Adicione uma ou mais pastas no gerenciador da biblioteca. O HolyScreen examina

@@ -42,6 +42,26 @@ The other areas group Bible, Events, Integrations, Automations and Maintenance.
 Status messages are non-blocking whenever continuing is safe. Destructive
 operations such as restoring a database ask for confirmation.
 
+### Keyboard shortcuts
+
+Operational shortcuts work while no text field is being edited:
+
+| Action | Default |
+|---|---|
+| Blackout | `Ctrl+B` |
+| Next slide | `Right Arrow` |
+| Previous slide | `Left Arrow` |
+| First/last slide | `Home` / `End` |
+| Stop presentation | `Esc` |
+| Quick Bible search | `Ctrl+K` or start typing |
+| Undo/redo | `Ctrl+Z` / `Ctrl+Y` |
+| Open maintenance | `Ctrl+Shift+O` |
+
+Blackout, next slide, previous slide, stop and Bible search can be changed in
+**Settings > General > Keyboard shortcuts**. HolyScreen rejects invalid
+sequences and conflicts with an existing action. Use `Tab` and `Shift+Tab` to
+move through controls, then `Space` or `Enter` to activate them.
+
 ## 3. Media library and playlist
 
 Add one or more folders in the library manager. HolyScreen scans supported

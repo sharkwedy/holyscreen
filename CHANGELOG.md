@@ -5,6 +5,13 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added persisted 100%, 150% and 200% operator interface scaling, including
+  secret-free profile import/export support and enlarged explicit UI fonts.
+- Standardized the desktop on the customizable Fusion control style with an
+  accessible dark palette, and made startup smoke tests reject unsupported
+  native customization and QML binding loops.
+- Documented the complete keyboard workflow in both operator manuals and added
+  a persistence/conflict contract for editable shortcuts.
 - Added visible keyboard focus to custom playback and media search controls,
   plus a source contract that rejects icon-only buttons without accessible
   names.
