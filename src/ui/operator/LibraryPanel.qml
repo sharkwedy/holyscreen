@@ -90,6 +90,7 @@ Rectangle {
                     color: panel.textMainColor
                     selectionColor: panel.accentColor
                     selectedTextColor: panel.backgroundColor
+                    Accessible.name: qsTr("Pesquisar mídia")
                     text: panel.searchText
                     onTextEdited: {
                         panel.searchText = text
@@ -98,7 +99,9 @@ Rectangle {
                     leftPadding: 34
                     background: Rectangle {
                         color: panel.panelHighColor
-                        border.color: panel.lineColor
+                        border.color: mediaSearch.activeFocus
+                                      ? panel.accentColor : panel.lineColor
+                        border.width: mediaSearch.activeFocus ? 2 : 1
                         radius: 4
                     }
                     Label {
