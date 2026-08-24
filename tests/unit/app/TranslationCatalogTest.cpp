@@ -90,6 +90,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/PlaybackPanel.qml"),
         QStringLiteral("src/ui/operator/MediaLibraryDialog.qml"),
         QStringLiteral("src/ui/operator/BibleSettingsFlow.qml"),
+        QStringLiteral("src/ui/operator/LiveCommunicationDialog.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
         QStringLiteral("src/ui/operator/MainWindow.qml"),
         QStringLiteral("src/ui/output/AudienceView.qml"),
