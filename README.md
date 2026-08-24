@@ -96,8 +96,8 @@ Run the application:
 
 ```bash
 open build/src/HolyScreen.app                          # macOS
-build/src/holyscreen.exe                               # Windows
-build/src/church-presenter                             # Linux
+build/holyscreen.exe                                   # Windows
+build/src/holyscreen                                   # Linux
 ```
 
 Local data is stored in the operating system's application-data directory in

@@ -77,8 +77,8 @@ Para iniciar o build local:
 
 ```bash
 open build/src/HolyScreen.app          # macOS
-build/src/holyscreen.exe               # Windows
-build/src/church-presenter             # Linux
+build/holyscreen.exe                   # Windows
+build/src/holyscreen                   # Linux
 ```
 
 Consulte [ROADMAP.md](docs/ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md),

@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Unified the distributed executable name as `holyscreen` on Windows and Linux
+  while retaining the native `HolyScreen.app` bundle name on macOS.
 - Added persisted 100%, 150% and 200% operator interface scaling, including
   secret-free profile import/export support and enlarged explicit UI fonts.
 - Standardized the desktop on the customizable Fusion control style with an

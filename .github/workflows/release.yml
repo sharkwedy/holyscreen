@@ -87,7 +87,7 @@ jobs:
           release-tools/linuxdeploy-x86_64.AppImage \
             --appimage-extract-and-run \
             --appdir build/AppDir \
-            --executable build/src/church-presenter \
+            --executable build/src/holyscreen \
             --desktop-file packaging/app.holyscreen.presenter.desktop \
             --icon-file packaging/holyscreen.svg \
             --plugin qt \
