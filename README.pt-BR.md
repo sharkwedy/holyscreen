@@ -12,6 +12,10 @@ construído em C++20 e Qt 6/QML para funcionar offline.
 Captura real do HolyScreen usando a tradução Bíblia Livre (BLIVRE), marcada
 como domínio público e importada de [`damarals/biblias`](https://github.com/damarals/biblias).
 
+Documentação do operador: [manual completo](docs/OPERATOR_MANUAL.pt-BR.md),
+[guia rápido de culto](docs/QUICK_SERVICE_GUIDE.pt-BR.md) e
+[solução de problemas](docs/TROUBLESHOOTING.pt-BR.md).
+
 ## Instalar uma prévia
 
 1. Acesse as [releases](https://github.com/sharkwedy/holyscreen/releases).

@@ -41,6 +41,9 @@ translation imported from [`damarals/biblias`](https://github.com/damarals/bibli
 See the [roadmap](docs/ROADMAP.md) for the path to 1.0 and [IDEA.md](IDEA.md)
 for the original product design.
 
+Operator documentation: [full manual](docs/OPERATOR_MANUAL.md), [quick service
+guide](docs/QUICK_SERVICE_GUIDE.md), and [troubleshooting](docs/TROUBLESHOOTING.md).
+
 ## Install a development preview
 
 1. Open the [Releases](https://github.com/sharkwedy/holyscreen/releases) page.
