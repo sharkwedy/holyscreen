@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized operator-facing C++ status, validation, automation, integration,
+  media, Bible, backup and remote-control messages, and formatted authorized
+  executable timestamps using the selected locale.
 - Extended the translation contract to every operator and external-output QML
   surface, including Audience, Stage, Broadcast, previews, overlays, clocks and
   presentation layers.

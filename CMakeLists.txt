@@ -67,7 +67,7 @@ add_subdirectory(src)
 
 qt_add_translations(
     TARGETS church-presenter
-    SOURCE_TARGETS presenter-ui
+    SOURCE_TARGETS presenter-ui presenter-app
     TS_FILES
         translations/holyscreen_pt_BR.ts
         translations/holyscreen_en_US.ts
