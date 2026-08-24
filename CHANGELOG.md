@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized the complete Automations editor and authorized-process dialogs in
+  pt-BR/en-US, including weekday labels and accessible action names.
 - Localized the complete Integrations editor in pt-BR/en-US, including dynamic
   field labels, secret-storage warnings, actions, history, and confirmations.
 - Localized Stage output labels, output-window titles, and Broadcast profile

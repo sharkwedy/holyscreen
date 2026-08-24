@@ -12,7 +12,7 @@ Dialog {
 
     required property var controller
 
-    title: "Automações"
+    title: qsTr("Automações")
     modal: true
     width: Math.min(980, parent ? parent.width - 60 : 980)
     height: Math.min(740, parent ? parent.height - 60 : 740)
@@ -32,7 +32,7 @@ Dialog {
     function newAutomation() {
         area.selectedId = ""
         area.validationErrors = []
-        area.draft = {"id": "", "name": "Nova automação", "enabled": true,
+        area.draft = {"id": "", "name": qsTr("Nova automação"), "enabled": true,
                       "triggerType": area.controller.automationTriggerTypes[0],
                       "triggerParameters": {}, "conditionGroup": "all",
                       "conditions": [], "actions": [],
@@ -128,21 +128,21 @@ Dialog {
             Layout.fillWidth: true
             spacing: 10
             Switch {
-                text: "Automações ativas"
+                text: qsTr("Automações ativas")
                 checked: area.controller.automationsEnabled
                 palette.windowText: area.textMain
                 onClicked: area.controller.automationsEnabled = checked
             }
             Label {
                 visible: !area.controller.automationsEnabled
-                text: "Todas as automações estão pausadas."
+                text: qsTr("Todas as automações estão pausadas.")
                 color: "#ffba70"
                 font.pixelSize: 11
             }
             Item { Layout.fillWidth: true }
-            Button { text: "Importar"; onClicked: importDialog.open() }
-            Button { text: "Exportar"; onClicked: exportDialog.open() }
-            Button { text: "Processos autorizados"; onClicked: processDialog.open() }
+            Button { text: qsTr("Importar"); onClicked: importDialog.open() }
+            Button { text: qsTr("Exportar"); onClicked: exportDialog.open() }
+            Button { text: qsTr("Processos autorizados"); onClicked: processDialog.open() }
         }
 
         RowLayout {
@@ -159,11 +159,11 @@ Dialog {
                     TextField {
                         id: searchField
                         Layout.fillWidth: true
-                        placeholderText: "Pesquisar"
+                        placeholderText: qsTr("Pesquisar")
                     }
                     Button {
                         text: "+"
-                        Accessible.name: "Nova automação"
+                        Accessible.name: qsTr("Nova automação")
                         onClicked: area.newAutomation()
                     }
                 }
@@ -204,21 +204,21 @@ Dialog {
                                 }
                                 Label {
                                     text: automationRow.modelData.triggerType + " • "
-                                          + automationRow.modelData.actionCount + " ações"
+                                          + qsTr("%1 ações").arg(automationRow.modelData.actionCount)
                                     color: area.textMuted
                                     font.pixelSize: 10
                                 }
                                 Label {
                                     visible: automationRow.modelData.consecutiveFailures > 0
-                                    text: automationRow.modelData.consecutiveFailures
-                                          + " falhas seguidas"
+                                    text: qsTr("%1 falhas seguidas")
+                                          .arg(automationRow.modelData.consecutiveFailures)
                                     color: "#ffba70"
                                     font.pixelSize: 10
                                 }
                             }
                             Switch {
                                 checked: automationRow.modelData.enabled
-                                Accessible.name: "Ativar automação"
+                                Accessible.name: qsTr("Ativar automação")
                                 onClicked: area.controller.setAutomationEnabled(
                                                automationRow.modelData.id, checked)
                             }
@@ -230,7 +230,7 @@ Dialog {
                     Label {
                         anchors.centerIn: parent
                         visible: automationList.count === 0
-                        text: "Nenhuma automação configurada"
+                        text: qsTr("Nenhuma automação configurada")
                         color: area.textMuted
                         font.pixelSize: 12
                     }
@@ -251,12 +251,12 @@ Dialog {
                         TextField {
                             Layout.fillWidth: true
                             text: area.draft.name || ""
-                            placeholderText: "Nome"
+                            placeholderText: qsTr("Nome")
                             onEditingFinished: area.updateDraft("name", text)
                         }
                     }
 
-                    Label { text: "QUANDO"; color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                    Label { text: qsTr("QUANDO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
                     ComboBox {
                         Layout.fillWidth: true
                         model: area.controller.automationTriggerTypes
@@ -275,12 +275,12 @@ Dialog {
                         Layout.fillWidth: true
                         visible: area.draft.triggerType === "time.local"
                         RowLayout {
-                            Label { text: "Horário local"; color: area.textMuted }
+                            Label { text: qsTr("Horário local"); color: area.textMuted }
                             TextField {
                                 id: localTimeField
                                 Layout.preferredWidth: 100
                                 text: (area.draft.triggerParameters || ({})).time || "09:00"
-                                placeholderText: "HH:mm"
+                                placeholderText: qsTr("HH:mm")
                                 validator: RegularExpressionValidator {
                                     regularExpression: /^([01][0-9]|2[0-3]):[0-5][0-9]$/
                                 }
@@ -289,19 +289,22 @@ Dialog {
                             }
                         }
                         RowLayout {
-                            Label { text: "Dias"; color: area.textMuted }
+                            Label { text: qsTr("Dias"); color: area.textMuted }
                             Repeater {
-                                model: [{"day": 1, "label": "S"}, {"day": 2, "label": "T"},
-                                        {"day": 3, "label": "Q"}, {"day": 4, "label": "Q"},
-                                        {"day": 5, "label": "S"}, {"day": 6, "label": "S"},
-                                        {"day": 7, "label": "D"}]
+                                model: [{"day": 1, "label": qsTr("Seg")},
+                                        {"day": 2, "label": qsTr("Ter")},
+                                        {"day": 3, "label": qsTr("Qua")},
+                                        {"day": 4, "label": qsTr("Qui")},
+                                        {"day": 5, "label": qsTr("Sex")},
+                                        {"day": 6, "label": qsTr("Sáb")},
+                                        {"day": 7, "label": qsTr("Dom")}]
                                 delegate: CheckBox {
                                     id: dayCheck
                                     required property var modelData
                                     text: dayCheck.modelData.label
                                     checked: ((area.draft.triggerParameters || ({})).daysOfWeek
                                               || []).indexOf(dayCheck.modelData.day) >= 0
-                                    Accessible.name: "Dia " + dayCheck.modelData.day
+                                    Accessible.name: qsTr("Dia %1").arg(dayCheck.modelData.day)
                                     onClicked: area.toggleTriggerDay(dayCheck.modelData.day, checked)
                                 }
                             }
@@ -310,11 +313,11 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: "SE"; color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                        Label { text: qsTr("SE"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
                         ComboBox {
                             Layout.preferredWidth: 150
-                            model: [{"id": "all", "name": "todas as condições"},
-                                    {"id": "any", "name": "qualquer condição"}]
+                            model: [{"id": "all", "name": qsTr("todas as condições")},
+                                    {"id": "any", "name": qsTr("qualquer condição")}]
                             textRole: "name"
                             valueRole: "id"
                             currentIndex: (area.draft.conditionGroup || "all") === "any" ? 1 : 0
@@ -322,7 +325,7 @@ Dialog {
                         }
                         Item { Layout.fillWidth: true }
                         Button {
-                            text: "+ condição"
+                            text: qsTr("+ condição")
                             onClicked: area.appendTo("conditions",
                                                      {"field": "event.title",
                                                       "operation": "contains",
@@ -341,7 +344,7 @@ Dialog {
                             TextField {
                                 Layout.fillWidth: true
                                 text: conditionRow.modelData.field || ""
-                                placeholderText: "campo (event.x ou state.y)"
+                                placeholderText: qsTr("campo (event.x ou state.y)")
                                 onEditingFinished: area.updateList("conditions",
                                                                    conditionRow.index,
                                                                    {"field": text})
@@ -358,14 +361,14 @@ Dialog {
                                 Layout.preferredWidth: 150
                                 text: conditionRow.modelData.expected === undefined
                                       ? "" : String(conditionRow.modelData.expected)
-                                placeholderText: "valor"
+                                placeholderText: qsTr("valor")
                                 onEditingFinished: area.updateList("conditions",
                                                                    conditionRow.index,
                                                                    {"expected": text})
                             }
                             Button {
                                 text: "−"
-                                Accessible.name: "Remover condição"
+                                Accessible.name: qsTr("Remover condição")
                                 onClicked: area.removeFrom("conditions", conditionRow.index)
                             }
                         }
@@ -373,10 +376,10 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: "ENTÃO"; color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+                        Label { text: qsTr("ENTÃO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
                         Item { Layout.fillWidth: true }
                         Button {
-                            text: "+ ação"
+                            text: qsTr("+ ação")
                             onClicked: area.appendTo("actions",
                                                      {"type": "command", "parameters": {}})
                         }
@@ -421,11 +424,11 @@ Dialog {
                                         return parameters.type || ""
                                     }
                                     placeholderText: actionRow.modelData.type === "integration"
-                                                     ? "id da integração"
+                                                     ? qsTr("id da integração")
                                                      : actionRow.modelData.type === "process"
-                                                       ? "caminho autorizado"
+                                                       ? qsTr("caminho autorizado")
                                                        : actionRow.modelData.type === "wait"
-                                                         ? "milissegundos" : "comando"
+                                                         ? qsTr("milissegundos") : qsTr("comando")
                                     onEditingFinished: {
                                         const parameters = Object.assign(
                                             {}, actionRow.modelData.parameters || ({}))
@@ -445,7 +448,7 @@ Dialog {
                                     Layout.preferredWidth: 150
                                     visible: actionRow.modelData.type === "integration"
                                     text: (actionRow.modelData.parameters || ({})).operation || ""
-                                    placeholderText: "operação"
+                                    placeholderText: qsTr("operação")
                                     onEditingFinished: {
                                         const parameters = Object.assign(
                                             {}, actionRow.modelData.parameters || ({}))
@@ -456,17 +459,17 @@ Dialog {
                                 }
                                 Button {
                                     text: "↑"
-                                    Accessible.name: "Subir ação"
+                                    Accessible.name: qsTr("Subir ação")
                                     onClicked: area.moveAction(actionRow.index, -1)
                                 }
                                 Button {
                                     text: "↓"
-                                    Accessible.name: "Descer ação"
+                                    Accessible.name: qsTr("Descer ação")
                                     onClicked: area.moveAction(actionRow.index, 1)
                                 }
                                 Button {
                                     text: "−"
-                                    Accessible.name: "Remover ação"
+                                    Accessible.name: qsTr("Remover ação")
                                     onClicked: area.removeFrom("actions", actionRow.index)
                                 }
                             }
@@ -475,7 +478,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: "Debounce (ms)"; color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Debounce (ms)"); color: area.textMuted; font.pixelSize: 11 }
                         SpinBox {
                             from: 0
                             to: 60000
@@ -484,7 +487,7 @@ Dialog {
                             value: area.draft.debounceMs || 0
                             onValueModified: area.updateDraft("debounceMs", value)
                         }
-                        Label { text: "Orçamento (ms)"; color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Orçamento (ms)"); color: area.textMuted; font.pixelSize: 11 }
                         SpinBox {
                             from: 1000
                             to: 120000
@@ -493,7 +496,7 @@ Dialog {
                             value: area.draft.budgetMs || 15000
                             onValueModified: area.updateDraft("budgetMs", value)
                         }
-                        Label { text: "Falhas até pausar"; color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Falhas até pausar"); color: area.textMuted; font.pixelSize: 11 }
                         SpinBox {
                             from: 0
                             to: 20
@@ -515,14 +518,14 @@ Dialog {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Button { text: "Salvar"; highlighted: true; onClicked: area.save() }
+                        Button { text: qsTr("Salvar"); highlighted: true; onClicked: area.save() }
                         Button {
-                            text: "Ensaiar"
+                            text: qsTr("Ensaiar")
                             enabled: area.selectedId.length > 0
                             onClicked: area.controller.dryRunAutomation(area.selectedId, {})
                         }
                         Button {
-                            text: "Retomar"
+                            text: qsTr("Retomar")
                             visible: area.selectedId.length > 0 && !(area.draft.enabled === true)
                             onClicked: {
                                 area.controller.resumeAutomation(area.selectedId)
@@ -531,7 +534,7 @@ Dialog {
                         }
                         Item { Layout.fillWidth: true }
                         Button {
-                            text: "Excluir"
+                            text: qsTr("Excluir")
                             enabled: area.selectedId.length > 0
                             onClicked: removeConfirmation.open()
                         }
@@ -548,7 +551,7 @@ Dialog {
             elide: Text.ElideRight
         }
 
-        Label { text: "HISTÓRICO"; color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
 
         ListView {
             Layout.fillWidth: true
@@ -578,13 +581,13 @@ Dialog {
                     Layout.fillWidth: true
                     text: runRow.modelData.reason.length > 0
                           ? runRow.modelData.reason
-                          : runRow.modelData.outcomes.length + " ações"
+                          : qsTr("%1 ações").arg(runRow.modelData.outcomes.length)
                     color: area.textMain
                     font.pixelSize: 11
                     elide: Text.ElideRight
                 }
                 Label {
-                    text: runRow.modelData.durationMs + " ms"
+                    text: qsTr("%1 ms").arg(runRow.modelData.durationMs)
                     color: area.textMuted
                     font.pixelSize: 11
                 }
@@ -594,14 +597,14 @@ Dialog {
 
     Dialog {
         id: removeConfirmation
-        title: "Excluir automação"
+        title: qsTr("Excluir automação")
         modal: true
         width: 380
         anchors.centerIn: parent
         standardButtons: Dialog.Cancel | Dialog.Yes
         contentItem: Label {
             width: removeConfirmation.availableWidth
-            text: "A automação e o histórico dela serão apagados. Confirmar?"
+            text: qsTr("A automação e o histórico dela serão apagados. Confirmar?")
             color: area.textMain
             wrapMode: Text.WordWrap
         }
@@ -616,7 +619,7 @@ Dialog {
 
     Dialog {
         id: processDialog
-        title: "Processos externos autorizados"
+        title: qsTr("Processos externos autorizados")
         modal: true
         width: Math.min(620, area.width - 60)
         anchors.centerIn: parent
@@ -625,15 +628,14 @@ Dialog {
         contentItem: ColumnLayout {
             spacing: 8
             Switch {
-                text: "Permitir que automações executem processos externos"
+                text: qsTr("Permitir que automações executem processos externos")
                 checked: area.controller.processActionsEnabled
                 palette.windowText: area.textMain
                 onClicked: area.controller.processActionsEnabled = checked
             }
             Label {
                 Layout.fillWidth: true
-                text: "Só executáveis desta lista podem ser acionados, sempre pelo caminho real "
-                      + "e sem shell."
+                text: qsTr("Só executáveis desta lista podem ser acionados, sempre pelo caminho real e sem shell.")
                 color: area.textMuted
                 font.pixelSize: 11
                 wrapMode: Text.WordWrap
@@ -643,11 +645,11 @@ Dialog {
                 TextField {
                     id: executablePath
                     Layout.fillWidth: true
-                    placeholderText: "/caminho/absoluto/do/executavel"
+                    placeholderText: qsTr("/caminho/absoluto/do/executavel")
                 }
-                Button { text: "Procurar"; onClicked: executableDialog.open() }
+                Button { text: qsTr("Procurar"); onClicked: executableDialog.open() }
                 Button {
-                    text: "Autorizar"
+                    text: qsTr("Autorizar")
                     enabled: executablePath.text.length > 0
                     onClicked: {
                         const result = area.controller.authorizeExecutable(executablePath.text, "")
@@ -679,7 +681,7 @@ Dialog {
                         font.pixelSize: 10
                     }
                     Button {
-                        text: "Revogar"
+                        text: qsTr("Revogar")
                         onClicked: area.controller.revokeExecutable(
                                        executableRow.modelData.canonicalPath)
                     }
@@ -690,24 +692,24 @@ Dialog {
 
     FileDialog {
         id: executableDialog
-        title: "Escolher executável"
+        title: qsTr("Escolher executável")
         onAccepted: executablePath.text = selectedFile.toString().replace("file://", "")
     }
 
     FileDialog {
         id: importDialog
-        title: "Importar automações"
+        title: qsTr("Importar automações")
         fileMode: FileDialog.OpenFile
-        nameFilters: ["Automações HolyScreen (*.json)"]
+        nameFilters: [qsTr("Automações HolyScreen (*.json)")]
         onAccepted: area.controller.importAutomations(selectedFile)
     }
 
     FileDialog {
         id: exportDialog
-        title: "Exportar automações"
+        title: qsTr("Exportar automações")
         fileMode: FileDialog.SaveFile
         defaultSuffix: "json"
-        nameFilters: ["Automações HolyScreen (*.json)"]
+        nameFilters: [qsTr("Automações HolyScreen (*.json)")]
         onAccepted: area.controller.exportAutomations(selectedFile)
     }
 }

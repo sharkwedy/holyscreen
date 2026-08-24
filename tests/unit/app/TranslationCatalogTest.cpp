@@ -69,6 +69,7 @@ void TranslationCatalogTest::migratedQmlUsesCataloguedVisibleStrings()
         QStringLiteral("src/ui/output/StageView.qml"),
         QStringLiteral("src/ui/output/OutputWindow.qml"),
         QStringLiteral("src/ui/operator/IntegrationsArea.qml"),
+        QStringLiteral("src/ui/operator/AutomationsArea.qml"),
     };
     QSet<QString> sources;
     static const QRegularExpression translated(
