@@ -547,129 +547,19 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="105"/>
-        <source>Renomear monitor</source>
-        <translation>Renomear monitor</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="118"/>
-        <source>Nome que será exibido no HolyScreen:</source>
-        <translation>Nome que será exibido no HolyScreen:</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="124"/>
-        <source>Ex.: Projetor principal</source>
-        <translation>Ex.: Projetor principal</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="128"/>
-        <source>O nome técnico do monitor no Windows não será alterado.</source>
-        <translation>O nome técnico do monitor no Windows não será alterado.</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="138"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="59"/>
         <source>Abrir local do arquivo</source>
         <translation>Abrir local do arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="152"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="73"/>
         <source>★ Remover dos favoritos</source>
         <translation>★ Remover dos favoritos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="154"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="75"/>
         <source>☆ Adicionar aos favoritos</source>
         <translation>☆ Adicionar aos favoritos</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="238"/>
-        <source>PRÉVIA</source>
-        <translation>PRÉVIA</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="278"/>
-        <source>Embaralhar playlist</source>
-        <translation>Embaralhar playlist</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="287"/>
-        <source>Ativar repetição de toda a playlist</source>
-        <translation>Ativar repetição de toda a playlist</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="289"/>
-        <source>Repetir somente o item atual</source>
-        <translation>Repetir somente o item atual</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="290"/>
-        <source>Desativar repetição</source>
-        <translation>Desativar repetição</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="300"/>
-        <source>Mídia anterior</source>
-        <translation>Mídia anterior</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="309"/>
-        <source>Pausar</source>
-        <translation>Pausar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="309"/>
-        <source>Reproduzir</source>
-        <translation>Reproduzir</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="314"/>
-        <source>Parar</source>
-        <translation>Parar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="319"/>
-        <source>Próxima mídia</source>
-        <translation>Próxima mídia</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="327"/>
-        <source>Mutar</source>
-        <translation>Mutar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="327"/>
-        <source>Desmutar</source>
-        <translation>Desmutar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="345"/>
-        <source>Ocultar seleção de telas</source>
-        <translation>Ocultar seleção de telas</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="346"/>
-        <source>Mostrar seleção de telas</source>
-        <translation>Mostrar seleção de telas</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="365"/>
-        <source>Exibir vídeo em:</source>
-        <translation>Exibir vídeo em:</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="405"/>
-        <source>Clique com o botão direito para renomear</source>
-        <translation>Clique com o botão direito para renomear</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="415"/>
-        <source>nenhuma tela externa detectada</source>
-        <translation>nenhuma tela externa detectada</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="421"/>
-        <source>Ativar todas</source>
-        <translation>Ativar todas</translation>
     </message>
 </context>
 <context>
@@ -1776,6 +1666,119 @@
         <location filename="../src/ui/output/OutputWindow.qml" line="14"/>
         <source>HolyScreen — %1</source>
         <translation>HolyScreen — %1</translation>
+    </message>
+</context>
+<context>
+    <name>PlaybackPanel</name>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="81"/>
+        <source>Renomear monitor</source>
+        <translation>Renomear monitor</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="95"/>
+        <source>Nome que será exibido no HolyScreen:</source>
+        <translation>Nome que será exibido no HolyScreen:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="101"/>
+        <source>Ex.: Projetor principal</source>
+        <translation>Ex.: Projetor principal</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="105"/>
+        <source>O nome técnico do monitor no Windows não será alterado.</source>
+        <translation>O nome técnico do monitor no Windows não será alterado.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="124"/>
+        <source>PRÉVIA</source>
+        <translation>PRÉVIA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="181"/>
+        <source>Embaralhar playlist</source>
+        <translation>Embaralhar playlist</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="190"/>
+        <source>Ativar repetição de toda a playlist</source>
+        <translation>Ativar repetição de toda a playlist</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="192"/>
+        <source>Repetir somente o item atual</source>
+        <translation>Repetir somente o item atual</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="193"/>
+        <source>Desativar repetição</source>
+        <translation>Desativar repetição</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="203"/>
+        <source>Mídia anterior</source>
+        <translation>Mídia anterior</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="212"/>
+        <source>Pausar</source>
+        <translation>Pausar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="212"/>
+        <source>Reproduzir</source>
+        <translation>Reproduzir</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="217"/>
+        <source>Parar</source>
+        <translation>Parar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="222"/>
+        <source>Próxima mídia</source>
+        <translation>Próxima mídia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="230"/>
+        <source>Mutar</source>
+        <translation>Mutar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="230"/>
+        <source>Desmutar</source>
+        <translation>Desmutar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="254"/>
+        <source>Ocultar seleção de telas</source>
+        <translation>Ocultar seleção de telas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="255"/>
+        <source>Mostrar seleção de telas</source>
+        <translation>Mostrar seleção de telas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="275"/>
+        <source>Exibir vídeo em:</source>
+        <translation>Exibir vídeo em:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="316"/>
+        <source>Clique com o botão direito para renomear</source>
+        <translation>Clique com o botão direito para renomear</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="327"/>
+        <source>nenhuma tela externa detectada</source>
+        <translation>nenhuma tela externa detectada</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaybackPanel.qml" line="334"/>
+        <source>Ativar todas</source>
+        <translation>Ativar todas</translation>
     </message>
 </context>
 <context>

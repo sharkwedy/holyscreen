@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 
 Item {
     id: dashboard
@@ -47,90 +46,11 @@ Item {
     readonly property color textMuted: "#aab2b8"
     readonly property color accent: "#b9c7ff"
 
-    property bool screenControlsExpanded: true
-    property real mediaVolumeBeforeMute: 0.8
-    property var screenBeingRenamed: null
     property var contextMediaItem: null
 
-    function externalScreenCount() {
-        let count = 0
-        for (let index = 0; index < dashboard.controller.outputContext.screens.length; ++index) {
-            if (!dashboard.controller.outputContext.screens[index].primary)
-                ++count
-        }
-        return count
-    }
-
-    function ensureExternalOutputs() {
-        if (dashboard.controller.outputContext.outputWindows.length === 0 && externalScreenCount() > 0)
-            dashboard.controller.outputContext.enableAllScreens()
-    }
-
-    function setScreenMediaEnabled(screen, enabled) {
-        if (enabled && !screen.selected) {
-            const screenId = screen.id
-            if (dashboard.controller.outputContext.toggleScreen(screenId, true)) {
-                Qt.callLater(function() {
-                    dashboard.controller.outputContext.setOutputMediaEnabled(screenId, true)
-                })
-            }
-            return
-        }
-        if (screen.selected)
-            dashboard.controller.outputContext.setOutputMediaEnabled(screen.id, enabled)
-    }
-
-    function openScreenRename(screen) {
-        if (!screen.selected && !dashboard.controller.outputContext.toggleScreen(screen.id, true))
-            return
-        screenBeingRenamed = screen
-        screenNameField.text = screen.name
-        screenRenameDialog.open()
-        screenNameField.forceActiveFocus()
-        screenNameField.selectAll()
-    }
-
     Component.onCompleted: Qt.callLater(function() {
-        ensureExternalOutputs()
         restoreLayout()
     })
-
-    Connections {
-        target: dashboard.controller.outputContext
-        function onScreensChanged() { Qt.callLater(dashboard.ensureExternalOutputs) }
-    }
-
-    Dialog {
-        id: screenRenameDialog
-        title: qsTr("Renomear monitor")
-        modal: true
-        anchors.centerIn: parent
-        width: 430
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: {
-            if (dashboard.screenBeingRenamed && screenNameField.text.trim().length > 0)
-                dashboard.controller.outputContext.setOutputDisplayName(
-                            dashboard.screenBeingRenamed.id, screenNameField.text)
-        }
-        contentItem: ColumnLayout {
-            spacing: 10
-            Label {
-                text: qsTr("Nome que será exibido no HolyScreen:")
-                color: dashboard.textMain
-            }
-            TextField {
-                id: screenNameField
-                Layout.fillWidth: true
-                placeholderText: qsTr("Ex.: Projetor principal")
-                onAccepted: screenRenameDialog.accept()
-            }
-            Label {
-                text: qsTr("O nome técnico do monitor no Windows não será alterado.")
-                color: dashboard.textMuted
-                font.pixelSize: 11
-            }
-        }
-    }
 
     Menu {
         id: mediaContextMenu
@@ -222,211 +142,20 @@ Item {
                 }
                 HoverHandler { cursorShape: Qt.SplitVCursor }
             }
-            Rectangle {
+            PlaybackPanel {
                 id: previewPane
                 SplitView.preferredHeight: Math.max(350, dashboard.height * 0.53)
                 SplitView.minimumHeight: 280
-                color: dashboard.panel; border.color: dashboard.line; radius: 6
-                ColumnLayout {
-                    anchors.fill: parent; spacing: 0
-                    Rectangle {
-                        Layout.fillWidth: true; Layout.fillHeight: true
-                        color: "#000000"; radius: 6
-                        SimulatedOutput {
-                            anchors.fill: parent
-                            controller: dashboard.controller
-                            outputLabel: qsTr("PRÉVIA")
-                            identifier: 1
-                            wallpaper: dashboard.controller.wallpaperColor
-                            wallpaperSource: dashboard.controller.wallpaperSource
-                            wallpaperFit: dashboard.controller.wallpaperFit
-                            showClock: dashboard.controller.clockVisible
-                            clockText: dashboard.controller.clockText
-                            clockPosition: dashboard.controller.clockPosition
-                            clockFamily: dashboard.controller.clockFontFamily
-                            clockFontSize: dashboard.controller.clockFontSize
-                            clockColor: dashboard.controller.clockColor
-                            clockFontBold: dashboard.controller.clockFontBold
-                            clockFontItalic: dashboard.controller.clockFontItalic
-                            clockBackgroundColor: dashboard.controller.clockBackgroundColor
-                            clockLineHeight: dashboard.controller.clockLineHeight
-                            clockCornerRadius: dashboard.controller.clockCornerRadius
-                            clockTextOpacity: dashboard.controller.clockTextOpacity
-                            clockBackgroundOpacity: dashboard.controller.clockBackgroundOpacity
-                            clockMarginHorizontal: dashboard.controller.clockMarginHorizontal
-                            clockMarginVertical: dashboard.controller.clockMarginVertical
-                            clockEffect: dashboard.controller.clockEffect
-                            isBlackout: dashboard.controller.outputContext.blackout
-                            identifyVisible: dashboard.controller.outputContext.identifyVisible
-                        }
-                    }
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: dashboard.screenControlsExpanded ? 202 : 148
-                        Layout.margins: 12; spacing: 6
-                        Slider { Layout.fillWidth: true; from: 0; to: Math.max(1, dashboard.controller.mediaContext.mediaDurationMs); value: dashboard.controller.mediaContext.mediaPositionMs; onMoved: dashboard.controller.mediaContext.seekMedia(value) }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Label { text: dashboard.duration(dashboard.controller.mediaContext.mediaPositionMs); color: dashboard.accent; font.pixelSize: 11 }
-                            Item { Layout.fillWidth: true }
-                            Label { text: dashboard.duration(dashboard.controller.mediaContext.mediaDurationMs); color: dashboard.textMuted; font.pixelSize: 11 }
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true
-                            PlayerButton {
-                                text: "⇄"
-                                Accessible.name: qsTr("Embaralhar playlist")
-                                ToolTip.visible: hovered
-                                ToolTip.text: Accessible.name
-                                onClicked: dashboard.controller.mediaContext.shuffleMediaPlaylist()
-                            }
-                            PlayerButton {
-                                text: dashboard.controller.mediaContext.mediaRepeatMode === "one" ? "↻¹" : "↻"
-                                highlighted: dashboard.controller.mediaContext.mediaRepeatMode !== "off"
-                                Accessible.name: dashboard.controller.mediaContext.mediaRepeatMode === "off"
-                                                 ? qsTr("Ativar repetição de toda a playlist")
-                                                 : dashboard.controller.mediaContext.mediaRepeatMode === "all"
-                                                   ? qsTr("Repetir somente o item atual")
-                                                   : qsTr("Desativar repetição")
-                                ToolTip.visible: hovered
-                                ToolTip.text: Accessible.name
-                                onClicked: dashboard.controller.mediaContext.mediaRepeatMode =
-                                               dashboard.controller.mediaContext.mediaRepeatMode === "off" ? "all"
-                                             : dashboard.controller.mediaContext.mediaRepeatMode === "all" ? "one" : "off"
-                            }
-                            Item { Layout.fillWidth: true }
-                            PlayerButton {
-                                text: "⏮"
-                                Accessible.name: qsTr("Mídia anterior")
-                                onClicked: dashboard.controller.mediaContext.previousMedia()
-                            }
-                            PlayerButton {
-                                text: dashboard.controller.mediaContext.mediaState === "playing"
-                                      || dashboard.controller.mediaContext.mediaState === "buffering" ? "⏸" : "▶"
-                                highlighted: true
-                                Accessible.name: dashboard.controller.mediaContext.mediaState === "playing"
-                                                 || dashboard.controller.mediaContext.mediaState === "buffering"
-                                                 ? qsTr("Pausar") : qsTr("Reproduzir")
-                                onClicked: dashboard.controller.mediaContext.toggleMediaPause()
-                            }
-                            PlayerButton {
-                                text: "■"
-                                Accessible.name: qsTr("Parar")
-                                onClicked: dashboard.controller.mediaContext.stopMedia()
-                            }
-                            PlayerButton {
-                                text: "⏭"
-                                Accessible.name: qsTr("Próxima mídia")
-                                onClicked: dashboard.controller.mediaContext.nextMedia()
-                            }
-                            Item { Layout.fillWidth: true }
-                            PlayerButton {
-                                implicitWidth: 42
-                                text: dashboard.controller.mediaContext.mediaVolume > 0.001 ? "🔊" : "🔇"
-                                Accessible.name: dashboard.controller.mediaContext.mediaVolume > 0.001
-                                                 ? qsTr("Mutar") : qsTr("Desmutar")
-                                ToolTip.visible: hovered
-                                ToolTip.text: Accessible.name
-                                onClicked: {
-                                    if (dashboard.controller.mediaContext.mediaVolume > 0.001) {
-                                        dashboard.mediaVolumeBeforeMute = dashboard.controller.mediaContext.mediaVolume
-                                        dashboard.controller.mediaContext.mediaVolume = 0
-                                    } else {
-                                        dashboard.controller.mediaContext.mediaVolume = Math.max(0.05,
-                                                                          dashboard.mediaVolumeBeforeMute)
-                                    }
-                                }
-                            }
-                            Slider { Layout.preferredWidth: 110; from: 0; to: 1; value: dashboard.controller.mediaContext.mediaVolume; onMoved: dashboard.controller.mediaContext.mediaVolume = value }
-                            PlayerButton {
-                                implicitWidth: 42
-                                text: dashboard.screenControlsExpanded ? "▾" : "▸"
-                                Accessible.name: dashboard.screenControlsExpanded
-                                                 ? qsTr("Ocultar seleção de telas")
-                                                 : qsTr("Mostrar seleção de telas")
-                                ToolTip.visible: hovered
-                                ToolTip.text: Accessible.name
-                                onClicked: dashboard.screenControlsExpanded = !dashboard.screenControlsExpanded
-                            }
-                        }
-                        Rectangle {
-                            visible: dashboard.screenControlsExpanded
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 48
-                            radius: 6
-                            color: "#2b3137"
-                            border.color: dashboard.line
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 8
-                                spacing: 12
-                                Label {
-                                    text: qsTr("Exibir vídeo em:")
-                                    color: dashboard.textMain
-                                    font.bold: true
-                                    font.pixelSize: 12
-                                }
-                                Repeater {
-                                    model: dashboard.controller.outputContext.screens
-                                    delegate: CheckBox {
-                                        id: screenCheckBox
-                                        required property var modelData
-                                        visible: !screenCheckBox.modelData.primary
-                                        text: screenCheckBox.modelData.name
-                                        checked: screenCheckBox.modelData.selected && screenCheckBox.modelData.mediaEnabled
-                                        spacing: 7
-                                        indicator: Rectangle {
-                                            implicitWidth: 20
-                                            implicitHeight: 20
-                                            x: screenCheckBox.leftPadding
-                                            y: (screenCheckBox.height - height) / 2
-                                            radius: 4
-                                            color: screenCheckBox.checked ? "#4f7cff" : "#171b1f"
-                                            border.color: screenCheckBox.checked ? "#8eabff" : "#77818a"
-                                            Label {
-                                                anchors.centerIn: parent
-                                                text: "✓"
-                                                visible: screenCheckBox.checked
-                                                color: "white"
-                                                font.bold: true
-                                                font.pixelSize: 14
-                                            }
-                                        }
-                                        contentItem: Label {
-                                            leftPadding: screenCheckBox.indicator.width + screenCheckBox.spacing
-                                            text: screenCheckBox.text
-                                            color: dashboard.textMain
-                                            font.pixelSize: 12
-                                            verticalAlignment: Text.AlignVCenter
-                                            elide: Text.ElideRight
-                                        }
-                                        ToolTip.visible: hovered
-                                        ToolTip.text: qsTr("Clique com o botão direito para renomear")
-                                        onClicked: dashboard.setScreenMediaEnabled(screenCheckBox.modelData, checked)
-                                        TapHandler {
-                                            acceptedButtons: Qt.RightButton
-                                            onTapped: dashboard.openScreenRename(screenCheckBox.modelData)
-                                        }
-                                    }
-                                }
-                                Label {
-                                    visible: dashboard.externalScreenCount() === 0
-                                    text: qsTr("nenhuma tela externa detectada")
-                                    color: dashboard.textMuted
-                                    font.pixelSize: 12
-                                }
-                                Button {
-                                    visible: dashboard.externalScreenCount() > dashboard.controller.outputContext.outputWindows.length
-                                    text: qsTr("Ativar todas")
-                                    onClicked: dashboard.controller.outputContext.enableAllScreens()
-                                }
-                                Item { Layout.fillWidth: true }
-                            }
-                        }
-                    }
-                }
+                applicationController: dashboard.controller
+                mediaController: dashboard.controller.mediaContext
+                outputController: dashboard.controller.outputContext
+                panelColor: dashboard.panel
+                lineColor: dashboard.line
+                textMainColor: dashboard.textMain
+                textMutedColor: dashboard.textMuted
+                accentColor: dashboard.accent
             }
+
             PlaylistPanel {
                 SplitView.fillHeight: true
                 SplitView.minimumHeight: 120
@@ -462,10 +191,4 @@ Item {
         }
     }
 
-    function duration(milliseconds) {
-        const totalSeconds = Math.max(0, Math.floor((milliseconds || 0) / 1000))
-        const minutes = Math.floor(totalSeconds / 60)
-        const seconds = totalSeconds % 60
-        return minutes + ":" + (seconds < 10 ? "0" : "") + seconds
-    }
 }
