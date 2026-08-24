@@ -19,8 +19,9 @@ struct MigrationResult {
 class DatabaseMigrator final {
 public:
     using Migration = std::function<bool(QSqlDatabase &database, QString *error)>;
+    using BackupCopier = std::function<bool(const QString &source, const QString &target)>;
 
-    explicit DatabaseMigrator(QString databasePath);
+    explicit DatabaseMigrator(QString databasePath, BackupCopier backupCopier = {});
 
     bool addMigration(int version, QString description, Migration migration);
     [[nodiscard]] MigrationResult migrate() const;
@@ -33,6 +34,7 @@ private:
     };
 
     QString m_databasePath;
+    BackupCopier m_backupCopier;
     QVector<Entry> m_migrations;
 };
 

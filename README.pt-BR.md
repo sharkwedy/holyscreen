@@ -77,8 +77,11 @@ Requer CMake 3.21+, compilador C++20 e Qt 6.8+ com os módulos listados no
 cmake -S . -B build -DBUILD_TESTING=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-cmake --build build --target church-presenter_qmllint
+cmake --build build --target presenter-ui_qmllint
 ```
+
+Consulte o [guia de testes](docs/TESTING.pt-BR.md) para as suítes unitária, de
+integração, QML, golden, E2E e performance.
 
 Para iniciar o build local:
 

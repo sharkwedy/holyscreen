@@ -5,6 +5,11 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added RC resilience coverage for media removed before playback, unavailable
+  codecs, corrupt databases, full-disk rollback, backup failure and upgrades
+  from every supported 0.11-0.14 schema, plus labelled performance budgets.
+- Aligned the generated QML module output directory with its URI, removing the
+  Qt tooling warning without changing the public `ChurchPresenter` import.
 - Hardened the release workflow so supported tags must resolve to `main` with a
   successful CI run, all six package formats are required, action revisions are
   pinned, and only `v1.0.0` is published as stable and verified after download.

@@ -96,8 +96,11 @@ configure.
 cmake -S . -B build -DBUILD_TESTING=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-cmake --build build --target church-presenter_qmllint
+cmake --build build --target presenter-ui_qmllint
 ```
+
+See the [testing guide](docs/TESTING.md) for the unit, integration, QML,
+golden, E2E and performance suites.
 
 Run the application:
 

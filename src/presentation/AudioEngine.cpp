@@ -75,6 +75,10 @@ void AudioEngine::loadFromPath(const QString &path)
 
 void AudioEngine::play()
 {
+    if (!m_currentPath.isEmpty() && !QFile::exists(m_currentPath)) {
+        setError(AudioError::FileNotFound);
+        return;
+    }
     if (m_error != AudioError::None) return;
     if (m_state == AudioState::Playing) return;
 
@@ -176,13 +180,17 @@ void AudioEngine::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
     }
 }
 
-void AudioEngine::onErrorOccurred(QMediaPlayer::Error, const QString &errorString)
+void AudioEngine::onErrorOccurred(QMediaPlayer::Error playerError, const QString &errorString)
 {
     qWarning() << "Audio error:" << errorString;
     AudioError err = AudioError::DecodeError;
     if (errorString.contains("not found", Qt::CaseInsensitive)) {
         err = AudioError::FileNotFound;
-    } else if (errorString.contains("read", Qt::CaseInsensitive)) {
+    } else if (playerError == QMediaPlayer::FormatError) {
+        err = AudioError::UnsupportedFormat;
+    } else if (playerError == QMediaPlayer::AccessDeniedError
+               || playerError == QMediaPlayer::ResourceError
+               || errorString.contains("read", Qt::CaseInsensitive)) {
         err = AudioError::ReadError;
     }
     setError(err);
