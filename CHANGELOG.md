@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted the operator preview, transport controls and per-screen media
+  routing into `PlaybackPanel`, connected directly to Media and Output contexts.
 - Extracted the reorderable media playlist and save dialog into
   `PlaylistPanel`, and promoted the transport button styling to the reusable
   `PlayerButton` component.
