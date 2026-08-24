@@ -18,7 +18,7 @@ std::optional<QString> InMemorySecretStore::retrieve(const QString &reference) c
 
 bool InMemorySecretStore::remove(const QString &reference)
 {
-    return m_secrets.remove(reference) > 0;
+    return m_secrets.remove(reference);
 }
 
 QStringList InMemorySecretStore::references() const

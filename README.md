@@ -11,7 +11,7 @@ HolyScreen is an open-source desktop presentation engine for churches. Built
 with C++20 and Qt 6/QML, it works offline and keeps screen discovery,
 presentation state, persistence, and rendering separate.
 
-> Status: `0.13.0` development pre-release. This is not yet the stable `1.0.0` release.
+> Status: `0.14.0` development pre-release. This is not yet the stable `1.0.0` release.
 
 ![HolyScreen operator dashboard](.stitch/painel-principal.png)
 
@@ -21,7 +21,8 @@ translation imported from [`damarals/biblias`](https://github.com/damarals/bibli
 ## What works today
 
 - a dedicated operator screen and up to five persistent external outputs;
-- Audience and Stage output roles, monitor identification, blackout, and simulations;
+- Audience, Stage and Broadcast output roles, monitor identification, blackout,
+  safe areas, chroma/transparent capture profiles, and simulations;
 - wallpaper, clock, text, lyrics, Bible, image, audio, and video presentation;
 - unified media player with playlists, seeking, volume, and repeat;
 - recursive media folders, type-specific catalogs, and filename search;
@@ -36,6 +37,12 @@ translation imported from [`damarals/biblias`](https://github.com/damarals/bibli
 - a password-protected local HTTP/WebSocket API v1 and responsive offline web
   remote for presentations, media, Bible, events, Stage View, overlays, and
   timers;
+- HTTP, WebSocket, OBS v5, MIDI and OSC integrations with sanitized history and
+  operating-system-backed secret storage when available;
+- offline automations with guarded triggers, declarative conditions, bounded
+  actions, dry-run, history and an authorized executable allowlist;
+- guided setup, secret-free operator profiles, editable keyboard shortcuts,
+  pt-BR/en-US UI and remote, and 100%, 150% and 200% interface scaling;
 - a shared command/event architecture used by the desktop UI and remote.
 
 See the [roadmap](docs/ROADMAP.md) for the path to 1.0 and [IDEA.md](IDEA.md)

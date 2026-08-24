@@ -12,8 +12,8 @@ O handoff detalhado das ondas 4 a 7 está em
 | 2 | Controle remoto autenticado e API v1 | Concluída e validada na v0.11.0 |
 | 3 | Importação bíblica por pasta, Git e ZIP | Concluída e validada na v0.11.0 |
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
-| 5 | Automações offline | Implementada; aguardando checkpoint v0.13.0 |
-| 6 | UX final, onboarding, acessibilidade e documentação | Em implementação — v0.14.0 |
+| 5 | Automações offline | Concluída e publicada na v0.13.0 |
+| 6 | UX final, onboarding, acessibilidade e documentação | Candidata v0.14.0 em validação |
 | 7 | Validação multiplataforma, endurance e release 1.0 | Pendente |
 
 ## Critério final
@@ -38,14 +38,21 @@ estavam disponíveis neste checkpoint: captura da saída Broadcast pelo OBS real
 no Windows, no macOS e no Linux, MIDI com porta física ou virtual em cada
 sistema, e golden tests de resolução e DPI.
 
-## Candidata v0.13.0
+## Checkpoint v0.13.0
 
 A Onda 5 completa automações offline: gatilhos de apresentação, música, mídia,
 eventos, slide, horário local, remoto e timers; condições declarativas; ações
 via CommandBus, integrações e processos autorizados; prevenção de loops,
-limites, dry-run, histórico e editor. A candidata passa localmente por build,
-72 testes, Qt Quick Test e QML lint sem avisos. A tag permanece bloqueada até o
-CI verde em Windows, macOS e Linux.
+limites, dry-run, histórico e editor. O checkpoint foi publicado na tag
+`v0.13.0`.
+
+## Candidata v0.14.0
+
+A Onda 6 entrega fachadas QML por contexto, interface modular, layout
+persistente, onboarding reabrível, perfis sem segredos, modo demonstração,
+atalhos editáveis, foco e nomes acessíveis, paleta de alto contraste, escala de
+100%, 150% e 200%, pt-BR/en-US no desktop e PWA, documentação bilíngue, nome de
+distribuição unificado e update checker seguro baseado nas Releases oficiais.
 
 ## Depois da 1.0
 

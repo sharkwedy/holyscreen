@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-24
+
 - Unified the distributed executable name as `holyscreen` on Windows and Linux
   while retaining the native `HolyScreen.app` bundle name on macOS.
 - Added persisted 100%, 150% and 200% operator interface scaling, including
@@ -116,6 +118,8 @@ Versioning where practical before 1.0.
 - Added Qt Linguist catalogs for pt-BR and en-US, locale loading before QML,
   restart guidance and a unit contract that rejects missing, unfinished or
   placeholder-incompatible translations in migrated components.
+
+## [0.13.0] - 2026-08-24
 
 - Added the offline automation domain: triggers, declarative conditions with
   `all`/`any` grouping, ordered actions, and runs, with no scripting language.
