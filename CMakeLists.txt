@@ -4,7 +4,7 @@ if(POLICY CMP0219)
     cmake_policy(SET CMP0219 OLD)
 endif()
 
-project(holyscreen VERSION 1.0.1 LANGUAGES C CXX)
+project(holyscreen VERSION 1.0.2 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,7 +18,21 @@ set(BUILD_TESTS OFF CACHE BOOL "Do not build bundled dependency tests" FORCE)
 set(BUILD_CLI OFF CACHE BOOL "Do not build the libgit2 CLI" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "Do not build bundled dependency examples" FORCE)
 set(BUILD_FUZZERS OFF CACHE BOOL "Do not build bundled dependency fuzzers" FORCE)
-set(INSTALL_PROJECT OFF CACHE BOOL "Do not install bundled dependencies" FORCE)
+
+# As dependências empacotadas declaram regras de install incondicionais, que
+# levariam headers, bibliotecas estáticas e arquivos de pacote CMake para dentro
+# dos pacotes do HolyScreen. EXCLUDE_FROM_ALL descarta essas regras sem impedir
+# que os alvos sejam compilados, já que ligamos a eles explicitamente. A opção
+# existe a partir do CMake 3.28; em versões anteriores o projeto continua
+# compilando, apenas com pacotes contendo esse material extra.
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
+    set(HOLYSCREEN_DEPENDENCY_SCOPE EXCLUDE_FROM_ALL)
+else()
+    set(HOLYSCREEN_DEPENDENCY_SCOPE "")
+    message(STATUS "CMake ${CMAKE_VERSION}: os pacotes incluirão artefatos de "
+                   "desenvolvimento das dependências. Use CMake 3.28 ou mais "
+                   "recente para gerar pacotes limpos.")
+endif()
 set(USE_SSH OFF CACHE STRING "HolyScreen imports public HTTPS repositories only" FORCE)
 set(USE_HTTP_PARSER builtin CACHE STRING "Use bundled libgit2 HTTP parser" FORCE)
 set(REGEX_BACKEND builtin CACHE STRING "Use bundled libgit2 regex backend" FORCE)
@@ -30,11 +44,13 @@ FetchContent_Declare(libgit2
     URL https://github.com/libgit2/libgit2/archive/refs/tags/v1.9.7.tar.gz
     URL_HASH SHA256=1a4fbe7589e814777ae76b64734ad80f4ecad22cd33a22682a2aaea4ae5375e7
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    ${HOLYSCREEN_DEPENDENCY_SCOPE}
 )
 FetchContent_Declare(miniz
     URL https://github.com/richgel999/miniz/archive/refs/tags/3.1.2.tar.gz
     URL_HASH SHA256=98468f8924934b723276680f85238b6c78bf1f8b49b4459cc9b7214a20e2e9fb
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    ${HOLYSCREEN_DEPENDENCY_SCOPE}
 )
 set(RTMIDI_BUILD_STATIC_LIBS ON CACHE BOOL "Link RtMidi statically" FORCE)
 set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "Do not build the RtMidi test programs" FORCE)
@@ -44,11 +60,13 @@ FetchContent_Declare(rtmidi
     URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.tar.gz
     URL_HASH SHA256=ef7bcda27fee6936b651c29ebe9544c74959d0b1583b716ce80a1c6fea7617f0
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    ${HOLYSCREEN_DEPENDENCY_SCOPE}
 )
 FetchContent_Declare(qrcodegen
     URL https://github.com/nayuki/QR-Code-generator/archive/2c9044de6b049ca25cb3cd1649ed7e27aa055138.tar.gz
     URL_HASH SHA256=fd5b5079196cbe4d733838e784eecc1d854f3772562f166483a9b617844922f5
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    ${HOLYSCREEN_DEPENDENCY_SCOPE}
 )
 FetchContent_MakeAvailable(libgit2 miniz qrcodegen rtmidi)
 
@@ -79,7 +97,16 @@ install(TARGETS church-presenter
     BUNDLE DESTINATION .
     RUNTIME DESTINATION bin
 )
-install(FILES THIRD_PARTY_NOTICES.md DESTINATION share/doc/HolyScreen)
+# No macOS o aviso de terceiros pertence ao próprio bundle: uma pasta share/doc
+# ao lado do aplicativo é ruído para quem abre a imagem de disco. Nos demais
+# sistemas o caminho convencional é mantido.
+if(APPLE)
+    install(FILES THIRD_PARTY_NOTICES.md
+        DESTINATION "HolyScreen.app/Contents/Resources"
+    )
+else()
+    install(FILES THIRD_PARTY_NOTICES.md DESTINATION share/doc/HolyScreen)
+endif()
 if(APPLE)
     qt_generate_deploy_script(
         TARGET church-presenter
