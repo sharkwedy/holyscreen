@@ -5,6 +5,7 @@
 #include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QTranslator>
@@ -15,6 +16,9 @@
 
 int main(int argc, char *argv[])
 {
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE"))
+        QQuickStyle::setStyle(QStringLiteral("Fusion"));
+
     QGuiApplication app(argc, argv);
     QCoreApplication::setOrganizationName(QStringLiteral("HolyScreen"));
     QCoreApplication::setApplicationName(QStringLiteral("HolyScreen"));

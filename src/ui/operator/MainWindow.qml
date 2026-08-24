@@ -23,6 +23,18 @@ ApplicationWindow {
         Qt.quit()
     }
     color: "#0b1220"
+    palette.window: "#0b1220"
+    palette.windowText: "#f2f4f5"
+    palette.base: "#1d2227"
+    palette.alternateBase: "#252b31"
+    palette.text: "#f2f4f5"
+    palette.button: "#252b31"
+    palette.buttonText: "#f2f4f5"
+    palette.brightText: "#ffffff"
+    palette.highlight: "#4f6bdc"
+    palette.highlightedText: "#ffffff"
+    palette.placeholderText: "#8d979f"
+    palette.mid: "#4b5563"
     title: qsTr("HolyScreen — Operação")
     font.pixelSize: UiScale.px(13)
     width: 1360

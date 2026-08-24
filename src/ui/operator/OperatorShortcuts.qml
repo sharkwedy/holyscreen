@@ -33,12 +33,12 @@ Item {
         onActivated: shortcuts.controller.stopTextPresentation()
     }
     Shortcut {
-        sequence: StandardKey.Undo
+        sequences: [StandardKey.Undo]
         enabled: shortcuts.controller.canUndo
         onActivated: shortcuts.controller.undo()
     }
     Shortcut {
-        sequence: StandardKey.Redo
+        sequences: [StandardKey.Redo]
         enabled: shortcuts.controller.canRedo
         onActivated: shortcuts.controller.redo()
     }
