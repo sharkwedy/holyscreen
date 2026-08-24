@@ -60,6 +60,8 @@ FetchContent_Declare(rtmidi
     URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.tar.gz
     URL_HASH SHA256=ef7bcda27fee6936b651c29ebe9544c74959d0b1583b716ce80a1c6fea7617f0
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    PATCH_COMMAND ${CMAKE_COMMAND} -P
+        "${CMAKE_CURRENT_LIST_DIR}/cmake/patch-rtmidi-coremidi.cmake"
     ${HOLYSCREEN_DEPENDENCY_SCOPE}
 )
 FetchContent_Declare(qrcodegen
