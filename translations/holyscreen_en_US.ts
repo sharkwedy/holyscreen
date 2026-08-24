@@ -158,6 +158,97 @@
     </message>
 </context>
 <context>
+    <name>OnboardingDialog</name>
+    <message>
+        <source>Configuração guiada do HolyScreen</source>
+        <translation>HolyScreen guided setup</translation>
+    </message>
+    <message>
+        <source>Telas</source>
+        <translation>Displays</translation>
+    </message>
+    <message>
+        <source>Escolha as saídas de público, palco e transmissão.</source>
+        <translation>Choose audience, stage, and broadcast outputs.</translation>
+    </message>
+    <message>
+        <source>Áudio</source>
+        <translation>Audio</translation>
+    </message>
+    <message>
+        <source>Ajuste volume, repetição e comportamento de imagens.</source>
+        <translation>Adjust volume, repeat, and image behavior.</translation>
+    </message>
+    <message>
+        <source>Biblioteca</source>
+        <translation>Library</translation>
+    </message>
+    <message>
+        <source>Importe ao menos uma pasta de mídia.</source>
+        <translation>Import at least one media folder.</translation>
+    </message>
+    <message>
+        <source>Bíblia</source>
+        <translation>Bible</translation>
+    </message>
+    <message>
+        <source>Importe e selecione uma tradução bíblica.</source>
+        <translation>Import and select a Bible translation.</translation>
+    </message>
+    <message>
+        <source>Controle remoto</source>
+        <translation>Remote control</translation>
+    </message>
+    <message>
+        <source>Defina uma senha antes de habilitar o servidor local.</source>
+        <translation>Set a password before enabling the local server.</translation>
+    </message>
+    <message>
+        <source>Broadcast</source>
+        <translation>Broadcast</translation>
+    </message>
+    <message>
+        <source>Configure uma saída para transmissão ou deixe esta etapa para depois.</source>
+        <translation>Configure a broadcast output or leave this step for later.</translation>
+    </message>
+    <message>
+        <source>Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações.</source>
+        <translation>Prepare the operator without interrupting setup. Pending steps can be resumed later from Settings.</translation>
+    </message>
+    <message>
+        <source>Etapa configurada</source>
+        <translation>Step configured</translation>
+    </message>
+    <message>
+        <source>Configuração pendente</source>
+        <translation>Setup pending</translation>
+    </message>
+    <message>
+        <source>Configurar esta etapa</source>
+        <translation>Configure this step</translation>
+    </message>
+    <message>
+        <source>As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.</source>
+        <translation>This assistant is informational and does not automatically enable displays, networking, or Broadcast.</translation>
+    </message>
+    <message>
+        <source>Voltar</source>
+        <translation>Back</translation>
+    </message>
+    <message>
+        <source>Próxima</source>
+        <translation>Next</translation>
+    </message>
+    <message>
+        <source>Agora não</source>
+        <translation>Not now</translation>
+    </message>
+    <message>
+        <source>Concluir configuração</source>
+        <translation>Finish setup</translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/ui/operator/SettingsDialog.qml" line="154"/>

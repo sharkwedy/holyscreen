@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized the guided onboarding checklist, status messages, and actions in
+  pt-BR/en-US and added the screen to the QML translation contract.
 - Added complete pt-BR/en-US catalogs and a persistent language selector to
   the offline web remote, including dynamic state messages and a contract test
   for keys, placeholders and service-worker cache replacement.
