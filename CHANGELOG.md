@@ -1,10 +1,27 @@
 # Changelog
 
 Notable HolyScreen changes are documented here. The project follows Semantic
-Versioning where practical before 1.0.
+Versioning.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-24
+
+First stable release. HolyScreen presents text, Bible passages, images, audio
+and video to up to five outputs with independent roles, drives them from an
+authenticated local remote and a phone PWA, reacts to offline automations, and
+talks to HTTP, WebSocket, OBS, MIDI and OSC systems — fully offline, on macOS
+ARM64, Windows x64 and Linux x64.
+
+Field validation — two-hour endurance, physical hot-plug, mixed DPI, real OBS
+capture, phone PWA over Wi-Fi loss, packages installed on the three systems and
+controlled operation in a real service — was deliberately deferred past this
+release. The procedure and evidence form for every deferred gate is in
+[`docs/POST_1.0_VALIDATION.md`](docs/POST_1.0_VALIDATION.md).
+
+- Documented the field validation deferred past 1.0, with a procedure and an
+  evidence form for each gate, plus the open macOS Metal texture warning
+  observed under aggressive output reconfiguration during playback.
 - Added `tools/make-synthetic-media.sh` and `tools/make-synthetic-media.ps1`,
   which generate unprotected 1080p60, audio-dropout, alternate-codec, tone,
   image and unreadable-file fixtures for media validation without touching the
