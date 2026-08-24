@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added complete operator manuals, quick service checklists and troubleshooting
+  guides in pt-BR and en-US, covering displays, codecs, audio, remote control,
+  OBS, Bible data, backups and safe shutdown.
 - Added a shared `sccache` compiler cache and the Ninja generator to the
   Windows, macOS and Linux CI jobs while preserving clean configure, complete
   CTest and QML lint runs.
