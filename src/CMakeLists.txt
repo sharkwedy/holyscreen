@@ -335,6 +335,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/EventsDialog.qml
         ui/operator/Dashboard.qml
         ui/operator/BiblePanel.qml
+        ui/operator/LibraryPanel.qml
         ui/operator/SettingsDialog.qml
         ui/operator/BibleBrowser.qml
         ui/operator/QuickBibleSearch.qml
