@@ -547,17 +547,17 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="59"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="58"/>
         <source>Abrir local do arquivo</source>
         <translation>Abrir local do arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="73"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="72"/>
         <source>★ Remover dos favoritos</source>
         <translation>★ Remover dos favoritos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="75"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="74"/>
         <source>☆ Adicionar aos favoritos</source>
         <translation>☆ Adicionar aos favoritos</translation>
     </message>
@@ -1270,102 +1270,27 @@
         <translation>Digite uma referência para localizar os versículos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="542"/>
-        <source>Adicionar pasta de mídia</source>
-        <translation>Adicionar pasta de mídia</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="547"/>
-        <source>Biblioteca de pastas</source>
-        <translation>Biblioteca de pastas</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="559"/>
-        <source>PASTAS SELECIONADAS</source>
-        <translation>PASTAS SELECIONADAS</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="561"/>
-        <source>+ PASTA</source>
-        <translation>+ PASTA</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="562"/>
-        <source>ATUALIZAR</source>
-        <translation>ATUALIZAR</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="586"/>
-        <source>Remover pasta</source>
-        <translation>Remover pasta</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="594"/>
-        <source>Adicione uma ou mais pastas de áudio, vídeo ou imagens</source>
-        <translation>Adicione uma ou mais pastas de áudio, vídeo ou imagens</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="601"/>
-        <source>ÁUDIOS (%1)</source>
-        <translation>ÁUDIOS (%1)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="602"/>
-        <source>VÍDEOS (%1)</source>
-        <translation>VÍDEOS (%1)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="603"/>
-        <source>IMAGENS (%1)</source>
-        <translation>IMAGENS (%1)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="607"/>
-        <source>Pesquisar por nome de arquivo</source>
-        <translation>Pesquisar por nome de arquivo</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="650"/>
-        <source>NA PLAYLIST</source>
-        <translation>NA PLAYLIST</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="650"/>
-        <source>+ PLAYLIST</source>
-        <translation>+ PLAYLIST</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="660"/>
-        <source>Nenhuma pasta selecionada</source>
-        <translation>Nenhuma pasta selecionada</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="661"/>
-        <source>Nenhum arquivo encontrado para esta pesquisa</source>
-        <translation>Nenhum arquivo encontrado para esta pesquisa</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="670"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="549"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="672"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="551"/>
         <source>Ativar modo de debug</source>
         <translation>Ativar modo de debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="679"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="558"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Múltiplas saídas simuladas</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="686"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="565"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnósticos e benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="693"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="572"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Registrar mensagens DEBUG</translation>
     </message>
@@ -1416,6 +1341,84 @@
         <location filename="../src/ui/operator/MaintenanceArea.qml" line="54"/>
         <source>VERIFICAR ATUALIZAÇÕES</source>
         <translation>VERIFICAR ATUALIZAÇÕES</translation>
+    </message>
+</context>
+<context>
+    <name>MediaLibraryDialog</name>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="15"/>
+        <source>Biblioteca de pastas</source>
+        <translation>Biblioteca de pastas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="25"/>
+        <source>Adicionar pasta de mídia</source>
+        <translation>Adicionar pasta de mídia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="34"/>
+        <source>PASTAS SELECIONADAS</source>
+        <translation>PASTAS SELECIONADAS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="40"/>
+        <source>+ PASTA</source>
+        <translation>+ PASTA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="44"/>
+        <source>ATUALIZAR</source>
+        <translation>ATUALIZAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="78"/>
+        <source>Remover pasta</source>
+        <translation>Remover pasta</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="87"/>
+        <source>Adicione uma ou mais pastas de áudio, vídeo ou imagens</source>
+        <translation>Adicione uma ou mais pastas de áudio, vídeo ou imagens</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="95"/>
+        <source>ÁUDIOS (%1)</source>
+        <translation>ÁUDIOS (%1)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="98"/>
+        <source>VÍDEOS (%1)</source>
+        <translation>VÍDEOS (%1)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="101"/>
+        <source>IMAGENS (%1)</source>
+        <translation>IMAGENS (%1)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="106"/>
+        <source>Pesquisar por nome de arquivo</source>
+        <translation>Pesquisar por nome de arquivo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="153"/>
+        <source>NA PLAYLIST</source>
+        <translation>NA PLAYLIST</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="153"/>
+        <source>+ PLAYLIST</source>
+        <translation>+ PLAYLIST</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="164"/>
+        <source>Nenhuma pasta selecionada</source>
+        <translation>Nenhuma pasta selecionada</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaLibraryDialog.qml" line="165"/>
+        <source>Nenhum arquivo encontrado para esta pesquisa</source>
+        <translation>Nenhum arquivo encontrado para esta pesquisa</translation>
     </message>
 </context>
 <context>
