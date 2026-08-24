@@ -266,6 +266,158 @@
     </message>
 </context>
 <context>
+    <name>IntegrationsArea</name>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="14"/>
+        <source>Integrações</source>
+        <translation>Integrations</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="32"/>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="36"/>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="33"/>
+        <source>Método</source>
+        <translation>Method</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="34"/>
+        <source>Corpo</source>
+        <translation>Body</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="37"/>
+        <source>Mensagem</source>
+        <translation>Message</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="38"/>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="42"/>
+        <source>Host</source>
+        <translation>Host</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="39"/>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="43"/>
+        <source>Porta</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="40"/>
+        <source>Porta de saída</source>
+        <translation>Output port</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="41"/>
+        <source>Canal</source>
+        <translation>Channel</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="44"/>
+        <source>Caminho OSC</source>
+        <translation>OSC path</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="86"/>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="146"/>
+        <source>Nova integração</source>
+        <translation>New integration</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="119"/>
+        <source>Sem cofre do sistema (%1): os segredos valem apenas nesta sessão.</source>
+        <translation>No system keychain (%1): secrets are available only for this session.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="142"/>
+        <source>Pesquisar</source>
+        <translation>Search</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="194"/>
+        <source>Ativar integração</source>
+        <translation>Enable integration</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="206"/>
+        <source>Nenhuma integração configurada</source>
+        <translation>No integrations configured</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="228"/>
+        <source>Nome</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="299"/>
+        <source>Timeout (ms)</source>
+        <translation>Timeout (ms)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="308"/>
+        <source>Tentativas</source>
+        <translation>Attempts</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="325"/>
+        <source>Segredo (fica no cofre do sistema)</source>
+        <translation>Secret (stored in the system keychain)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="328"/>
+        <source>Guardar segredo</source>
+        <translation>Store secret</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="352"/>
+        <source>Salvar</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="354"/>
+        <source>Testar conexão</source>
+        <translation>Test connection</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="359"/>
+        <source>Duplicar</source>
+        <translation>Duplicate</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="369"/>
+        <source>Excluir</source>
+        <translation>Delete</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="389"/>
+        <source>Executar operação</source>
+        <translation>Run operation</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="409"/>
+        <source>HISTÓRICO</source>
+        <translation>HISTORY</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="450"/>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="461"/>
+        <source>Excluir integração</source>
+        <translation>Delete integration</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/IntegrationsArea.qml" line="468"/>
+        <source>A integração e o histórico dela serão apagados. Confirmar?</source>
+        <translation>The integration and its history will be deleted. Confirm?</translation>
+    </message>
+</context>
+<context>
     <name>MaintenanceArea</name>
     <message>
         <location filename="../src/ui/operator/MaintenanceArea.qml" line="13"/>
