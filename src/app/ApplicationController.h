@@ -92,6 +92,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool localeRestartRequired READ localeRestartRequired NOTIFY preferencesChanged)
     Q_PROPERTY(bool demoMode READ demoMode WRITE setDemoMode NOTIFY preferencesChanged)
     Q_PROPERTY(bool onboardingCompleted READ onboardingCompleted NOTIFY onboardingChanged)
+    Q_PROPERTY(QStringList onboardingSkippedSteps READ onboardingSkippedSteps NOTIFY onboardingChanged)
     Q_PROPERTY(QVariantMap shortcuts READ shortcuts NOTIFY preferencesChanged)
     Q_PROPERTY(QVariantList screens READ screens NOTIFY screensChanged)
     Q_PROPERTY(QVariantList outputWindows READ outputWindows NOTIFY outputWindowsChanged)
@@ -268,6 +269,7 @@ public:
     [[nodiscard]] bool demoMode() const;
     void setDemoMode(bool enabled);
     [[nodiscard]] bool onboardingCompleted() const;
+    [[nodiscard]] QStringList onboardingSkippedSteps() const;
     [[nodiscard]] QVariantMap shortcuts() const;
 
     [[nodiscard]] QVariantList screens() const;
@@ -469,6 +471,8 @@ public:
     Q_INVOKABLE QVariantMap importConfiguration(const QUrl &source);
     Q_INVOKABLE void completeOnboarding();
     Q_INVOKABLE void reopenOnboarding();
+    Q_INVOKABLE bool skipOnboardingStep(const QString &stepId);
+    Q_INVOKABLE bool resumeOnboardingStep(const QString &stepId);
     Q_INVOKABLE bool setShortcut(const QString &action, const QString &sequence);
 
     Q_INVOKABLE QVariantMap outputBroadcastProfile(const QString &screenFingerprint) const;

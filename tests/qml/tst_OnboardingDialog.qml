@@ -34,11 +34,31 @@ TestCase {
         property var bibleContext: fakeBibleContext
         property bool remotePasswordConfigured: false
         property bool onboardingCompleted: true
+        property var onboardingSkippedSteps: []
         signal onboardingChanged()
 
         function completeOnboarding() {
             onboardingCompleted = true
             onboardingChanged()
+        }
+
+        function skipOnboardingStep(stepId) {
+            if (onboardingSkippedSteps.indexOf(stepId) >= 0)
+                return false
+            onboardingSkippedSteps = onboardingSkippedSteps.concat([stepId])
+            onboardingChanged()
+            return true
+        }
+
+        function resumeOnboardingStep(stepId) {
+            const index = onboardingSkippedSteps.indexOf(stepId)
+            if (index < 0)
+                return false
+            const updated = onboardingSkippedSteps.slice()
+            updated.splice(index, 1)
+            onboardingSkippedSteps = updated
+            onboardingChanged()
+            return true
         }
     }
 
@@ -71,6 +91,7 @@ TestCase {
         fakeBibleContext.bibleTranslations = []
         fakeController.remotePasswordConfigured = false
         fakeController.onboardingCompleted = true
+        fakeController.onboardingSkippedSteps = []
     }
 
     function test_reportsEveryChecklistState() {
@@ -123,5 +144,16 @@ TestCase {
         fakeController.remotePasswordConfigured = true
         fakeOutputContext.screens = [{"role": "broadcast"}]
         compare(onboarding.firstIncompleteStep(), onboarding.steps.length - 1)
+    }
+
+    function test_skippedStepsAreIgnoredUntilResumed() {
+        verify(fakeController.skipOnboardingStep("screens"))
+        verify(onboarding.stepSkipped("screens"))
+        compare(onboarding.firstIncompleteStep(), 1)
+
+        onboarding.currentStep = 0
+        onboarding.configureCurrentStep()
+        verify(!onboarding.stepSkipped("screens"))
+        compare(settingsSpy.signalArguments[0][0], 1)
     }
 }

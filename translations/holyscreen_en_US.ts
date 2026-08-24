@@ -1475,47 +1475,62 @@
         <translation>Configure a broadcast output or leave this step for later.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="68"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="76"/>
         <source>Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações.</source>
         <translation>Prepare the operator without interrupting setup. Pending steps can be resumed later from Settings.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="118"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="130"/>
         <source>Etapa configurada</source>
         <translation>Step configured</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="118"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="132"/>
         <source>Configuração pendente</source>
         <translation>Setup pending</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="125"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="132"/>
+        <source>Etapa adiada</source>
+        <translation>Step deferred</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="143"/>
         <source>Configurar esta etapa</source>
         <translation>Configure this step</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="132"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="143"/>
+        <source>Retomar esta etapa</source>
+        <translation>Resume this step</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="150"/>
+        <source>Fazer depois</source>
+        <translation>Do this later</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="163"/>
         <source>As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.</source>
         <translation>This assistant is informational and does not automatically enable displays, networking, or Broadcast.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="142"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="173"/>
         <source>Voltar</source>
         <translation>Back</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="147"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="178"/>
         <source>Próxima</source>
         <translation>Next</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="152"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="183"/>
         <source>Agora não</source>
         <translation>Not now</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/OnboardingDialog.qml" line="154"/>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="185"/>
         <source>Concluir configuração</source>
         <translation>Finish setup</translation>
     </message>
@@ -2614,680 +2629,680 @@
         <translation>HolyScreen is up to date (%1).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="839"/>
+        <location filename="../src/app/ApplicationController.cpp" line="870"/>
         <source>A tela principal é reservada para o operador.</source>
         <translation>The primary screen is reserved for the operator.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="852"/>
+        <location filename="../src/app/ApplicationController.cpp" line="883"/>
         <source>O limite de cinco saídas foi atingido.</source>
         <translation>The five-output limit has been reached.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="853"/>
+        <location filename="../src/app/ApplicationController.cpp" line="884"/>
         <source>A tela não está mais conectada.</source>
         <translation>The screen is no longer connected.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="874"/>
+        <location filename="../src/app/ApplicationController.cpp" line="905"/>
         <source>Todas as telas externas conectadas estão ativas.</source>
         <translation>All connected external screens are active.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="875"/>
+        <location filename="../src/app/ApplicationController.cpp" line="906"/>
         <source>Nenhuma tela externa conectada foi encontrada.</source>
         <translation>No connected external screen was found.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="936"/>
+        <location filename="../src/app/ApplicationController.cpp" line="967"/>
         <source>O perfil de transmissão não pôde ser salvo.</source>
         <translation>The broadcast profile could not be saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="992"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1023"/>
         <source>Chamada enviada.</source>
         <translation>Request sent.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="997"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1028"/>
         <source>%1: %2 (%3 ms)</source>
         <translation>%1: %2 (%3 ms)</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="998"/>
-        <location filename="../src/app/ApplicationController.cpp" line="1185"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1029"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1216"/>
         <source>%1 falhou: %2</source>
         <translation>%1 failed: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1042"/>
-        <location filename="../src/app/ApplicationController.cpp" line="1344"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1073"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1375"/>
         <source>Comando fora do catálogo: %1.</source>
         <translation>Command is not in the catalog: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1081"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1112"/>
         <source>Processo %1 concluído.</source>
         <translation>Process %1 completed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1082"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1113"/>
         <source>Processo %1 falhou: %2</source>
         <translation>Process %1 failed: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1087"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1118"/>
         <source>Processo iniciado.</source>
         <translation>Process started.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1190"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1221"/>
         <source>%1 bloqueada: %2</source>
         <translation>%1 blocked: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1192"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1223"/>
         <source>%1 executada.</source>
         <translation>%1 executed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1204"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1235"/>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1251"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1282"/>
         <source>Automações ativas.</source>
         <translation>Automations active.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1252"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1283"/>
         <source>Automações pausadas.</source>
         <translation>Automations paused.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1267"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1298"/>
         <source>Processos externos liberados para a lista autorizada.</source>
         <translation>External processes enabled for the authorized list.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1268"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1299"/>
         <source>Processos externos desativados.</source>
         <translation>External processes disabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1305"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1336"/>
         <source>A automação precisa de um nome.</source>
         <translation>The automation needs a name.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1308"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1339"/>
         <source>Escolha um gatilho válido.</source>
         <translation>Choose a valid trigger.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1319"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1350"/>
         <source>Informe horário e dias válidos para o gatilho local.</source>
         <translation>Enter a valid time and days for the local trigger.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1323"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1354"/>
         <source>Adicione pelo menos uma ação.</source>
         <translation>Add at least one action.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1326"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1357"/>
         <source>No máximo %1 ações por automação.</source>
         <translation>At most %1 actions per automation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1332"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1363"/>
         <source>Condição incompleta ou com operação inválida.</source>
         <translation>Incomplete condition or invalid operation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1338"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1369"/>
         <source>Ação não suportada: %1.</source>
         <translation>Unsupported action: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1349"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1380"/>
         <source>Integração não encontrada: %1.</source>
         <translation>Integration not found: %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1355"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1386"/>
         <source>O executável %1 não está autorizado.</source>
         <translation>Executable %1 is not authorized.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1374"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1405"/>
         <source>A automação não pôde ser salva.</source>
         <translation>The automation could not be saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1377"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1408"/>
         <source>Automação %1 salva.</source>
         <translation>Automation %1 saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1389"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1420"/>
         <source>Escolha o arquivo de destino.</source>
         <translation>Choose the destination file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1413"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1444"/>
         <source>Não foi possível exportar o arquivo.</source>
         <translation>Could not export the file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1415"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1446"/>
         <source>%1 automações exportadas.</source>
         <translation>%1 automation(s) exported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1428"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1459"/>
         <source>O arquivo não pôde ser lido ou excede 1 MiB.</source>
         <translation>The file could not be read or exceeds 1 MiB.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1439"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1470"/>
         <source>Documento de automações inválido ou incompatível.</source>
         <translation>Invalid or incompatible automation document.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1446"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1477"/>
         <source>O documento deve conter entre 1 e 500 automações.</source>
         <translation>The document must contain between 1 and 500 automations.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1458"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1489"/>
         <source>Item %1 não é uma definição.</source>
         <translation>Item %1 is not a definition.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1471"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1502"/>
         <source>Integração não encontrada:</source>
         <translation>Integration not found:</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1472"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1503"/>
         <source>O executável </source>
         <translation>The executable </translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1495"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1526"/>
         <source>A importação foi revertida por falha no banco.</source>
         <translation>The import was rolled back because of a database failure.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1502"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1533"/>
         <source>%1 automações importadas.</source>
         <translation>%1 automation(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1503"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1534"/>
         <source>%1 automações importadas; %2 desativadas por referências ausentes.</source>
         <translation>%1 automation(s) imported; %2 disabled because of missing references.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1515"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1546"/>
         <source>Automação removida.</source>
         <translation>Automation removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1540"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1571"/>
         <source>Automação retomada.</source>
         <translation>Automation resumed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1554"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1585"/>
         <source>Ensaio concluído com %1 ações previstas.</source>
         <translation>Dry run completed with %1 planned action(s).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1555"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1586"/>
         <source>Ensaio: %1</source>
         <translation>Dry run: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1569"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1600"/>
         <source>Executável autorizado.</source>
         <translation>Executable authorized.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1579"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1610"/>
         <source>Autorização removida.</source>
         <translation>Authorization removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1692"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1723"/>
         <source>Selecione um arquivo local.</source>
         <translation>Select a local file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1698"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1729"/>
         <source>Não foi possível salvar o perfil.</source>
         <translation>Could not save the profile.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1709"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1740"/>
         <source>Não foi possível abrir o perfil.</source>
         <translation>Could not open the profile.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1730"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1761"/>
         <source>O atalho %1 entra em conflito com a configuração atual.</source>
         <translation>Shortcut %1 conflicts with the current configuration.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1804"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1835"/>
         <source>Integração %1 salva.</source>
         <translation>Integration %1 saved.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1820"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1851"/>
         <source>Integração removida.</source>
         <translation>Integration removed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1833"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1864"/>
         <source>%1 (cópia)</source>
         <translation>%1 (copy)</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1841"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1872"/>
         <source>Integração duplicada. Configure os segredos da cópia.</source>
         <translation>Integration duplicated. Configure the copy&apos;s secrets.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1876"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1907"/>
         <source>Segredo guardado no %1.</source>
         <translation>Secret stored in %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1878"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1909"/>
         <source>Sem cofre do sistema: o segredo vale só nesta sessão.</source>
         <translation>No system vault: the secret is valid only for this session.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1906"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1937"/>
         <source>ativa</source>
         <translation>active</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1907"/>
+        <location filename="../src/app/ApplicationController.cpp" line="1938"/>
         <source>inativa</source>
         <translation>inactive</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1989"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2020"/>
         <source>A pasta selecionada não está disponível.</source>
         <translation>The selected folder is unavailable.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="1993"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2024"/>
         <source>Essa pasta já faz parte da biblioteca.</source>
         <translation>This folder is already in the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2000"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2031"/>
         <source>Pasta adicionada à biblioteca.</source>
         <translation>Folder added to the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2012"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2043"/>
         <source>Pasta removida da biblioteca. Os itens já adicionados à playlist foram mantidos.</source>
         <translation>Folder removed from the library. Items already added to the playlist were kept.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2018"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2049"/>
         <source>Biblioteca de pastas atualizada.</source>
         <translation>Folder library refreshed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2027"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2058"/>
         <source>O arquivo não está mais disponível.</source>
         <translation>The file is no longer available.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2041"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2072"/>
         <source>Esse formato de arquivo não é compatível.</source>
         <translation>This file format is not supported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2054"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2085"/>
         <source>O arquivo não está mais disponível na biblioteca.</source>
         <translation>The file is no longer available in the library.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2065"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2096"/>
         <source>Não foi possível adicionar o arquivo à playlist.</source>
         <translation>Could not add the file to the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2073"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2104"/>
         <source>%1 adicionado à playlist.</source>
         <translation>%1 added to the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2088"/>
-        <location filename="../src/app/ApplicationController.cpp" line="2107"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2119"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2138"/>
         <source>Não foi possível localizar esse arquivo.</source>
         <translation>Could not locate this file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2093"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2124"/>
         <source>%1 removido dos favoritos.</source>
         <translation>%1 removed from favorites.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2096"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2127"/>
         <source>%1 adicionado aos favoritos.</source>
         <translation>%1 added to favorites.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2111"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2142"/>
         <source>Não foi possível abrir a pasta do arquivo.</source>
         <translation>Could not open the file&apos;s folder.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2150"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2181"/>
         <source>Adicione pelo menos dois itens para embaralhar a playlist.</source>
         <translation>Add at least two items to shuffle the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2158"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2189"/>
         <source>Não foi possível embaralhar a playlist.</source>
         <translation>Could not shuffle the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2163"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2194"/>
         <source>Playlist embaralhada.</source>
         <translation>Playlist shuffled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2176"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2207"/>
         <source>Não foi possível limpar a playlist.</source>
         <translation>Could not clear the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2183"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2214"/>
         <source>Playlist limpa.</source>
         <translation>Playlist cleared.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2218"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2249"/>
         <source>A playlist está vazia.</source>
         <translation>The playlist is empty.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2225"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2256"/>
         <source>Não foi possível salvar a playlist.</source>
         <translation>Could not save the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2239"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2270"/>
         <source>Não foi possível concluir o salvamento da playlist.</source>
         <translation>Could not finish saving the playlist.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2242"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2273"/>
         <source>Playlist salva em %1.</source>
         <translation>Playlist saved to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2257"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2288"/>
         <source>O arquivo não existe mais: %1</source>
         <translation>The file no longer exists: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2279"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2310"/>
         <source>Não foi possível exibir a imagem selecionada.</source>
         <translation>Could not show the selected image.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2470"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2501"/>
         <source>%1 áudio(s) importado(s).</source>
         <translation>%1 audio file(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2471"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2502"/>
         <source>Nenhum áudio novo foi importado.</source>
         <translation>No new audio was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2544"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2575"/>
         <source>%1 vídeo(s) importado(s).</source>
         <translation>%1 video(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2545"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2576"/>
         <source>Nenhum vídeo novo foi importado.</source>
         <translation>No new video was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2609"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2640"/>
         <source>%1 imagem(ns) importada(s).</source>
         <translation>%1 image(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2610"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2641"/>
         <source>Nenhuma imagem nova foi importada.</source>
         <translation>No new image was imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2639"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2670"/>
         <source>O arquivo de imagem não existe mais.</source>
         <translation>The image file no longer exists.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2686"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2717"/>
         <source>Adicionar slide</source>
         <translation>Add slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2694"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2725"/>
         <source>Editar slide</source>
         <translation>Edit slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2702"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2733"/>
         <source>Duplicar slide</source>
         <translation>Duplicate slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2710"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2741"/>
         <source>Dividir slide</source>
         <translation>Split slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2718"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2749"/>
         <source>Remover slide</source>
         <translation>Remove slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2726"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2757"/>
         <source>Mover slide</source>
         <translation>Move slide</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2895"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2926"/>
         <source>Não foi possível criar o backup.</source>
         <translation>Could not create the backup.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2895"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2926"/>
         <source>Backup criado em %1</source>
         <translation>Backup created at %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2896"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2927"/>
         <source>Restauração agendada. Reinicie o HolyScreen para aplicá-la.</source>
         <translation>Restore scheduled. Restart HolyScreen to apply it.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2896"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2927"/>
         <source>O arquivo não é um backup SQLite válido.</source>
         <translation>The file is not a valid SQLite backup.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2930"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2961"/>
         <source>Diagnóstico exportado para %1.</source>
         <translation>Diagnostics exported to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2935"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2966"/>
         <source>Verificando...</source>
         <translation>Checking...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2943"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2974"/>
         <source>Não foi possível abrir o arquivo da Bíblia.</source>
         <translation>Could not open the Bible file.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2954"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2985"/>
         <source>Não foi possível salvar a tradução importada.</source>
         <translation>Could not save the imported translation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2959"/>
+        <location filename="../src/app/ApplicationController.cpp" line="2990"/>
         <source>Tradução %1 importada com %2 versículo(s).</source>
         <translation>Translation %1 imported with %2 verse(s).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="2994"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3025"/>
         <source>Cancelando importação...</source>
         <translation>Canceling import...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3003"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3034"/>
         <source>Essa tradução não possui uma origem atualizável registrada.</source>
         <translation>This translation has no registered updateable source.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3016"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3047"/>
         <source>Já existe uma importação bíblica em andamento.</source>
         <translation>A Bible import is already running.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3020"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3051"/>
         <source>Informe a pasta ou URL da origem bíblica.</source>
         <translation>Enter the Bible source folder or URL.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3028"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3059"/>
         <source>Preparando importação...</source>
         <translation>Preparing import...</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3073"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3104"/>
         <source>Confirmação de licença necessária.</source>
         <translation>License confirmation required.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3077"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3108"/>
         <source>Importação cancelada.</source>
         <translation>Import canceled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3082"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3113"/>
         <source>A importação falhou.</source>
         <translation>The import failed.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3087"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3118"/>
         <source>%1 tradução(ões) e %2 versículo(s) importados.</source>
         <translation>%1 translation(s) and %2 verse(s) imported.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3091"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3122"/>
         <source> %1 tradução(ões) ignoradas por erro: %2</source>
         <translation> %1 translation(s) skipped because of errors: %2</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3115"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3146"/>
         <source>Referência bíblica inválida. Exemplo: João 3:16-18.</source>
         <translation>Invalid Bible reference. Example: John 3:16-18.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3127"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3158"/>
         <source>Importe e selecione ao menos uma tradução bíblica.</source>
         <translation>Import and select at least one Bible translation.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3170"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3201"/>
         <source>Nenhum versículo foi encontrado nas traduções selecionadas.</source>
         <translation>No verse was found in the selected translations.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3173"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3204"/>
         <source>%1 versículo(s) encontrado(s).</source>
         <translation>%1 verse(s) found.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3273"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3304"/>
         <source>Não foi possível abrir o wallpaper selecionado.</source>
         <translation>Could not open the selected wallpaper.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3518"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3549"/>
         <source>Defina uma senha antes de habilitar o controle remoto.</source>
         <translation>Set a password before enabling remote control.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3524"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3555"/>
         <source>Controle remoto habilitado.</source>
         <translation>Remote control enabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3529"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3560"/>
         <source>Controle remoto desabilitado.</source>
         <translation>Remote control disabled.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3552"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3583"/>
         <source>Informe um endereço IPv4 válido para o remoto.</source>
         <translation>Enter a valid IPv4 address for remote control.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3569"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3600"/>
         <source>A senha do remoto deve ter pelo menos 8 caracteres.</source>
         <translation>The remote password must have at least 8 characters.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3575"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3606"/>
         <source>Não foi possível salvar a senha do remoto.</source>
         <translation>Could not save the remote password.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3578"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3609"/>
         <source>Senha do controle remoto atualizada. Sessões antigas foram revogadas.</source>
         <translation>Remote-control password updated. Previous sessions were revoked.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3586"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3617"/>
         <source>Todas as sessões remotas foram revogadas.</source>
         <translation>All remote sessions were revoked.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3690"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3721"/>
         <source>A saída de áudio selecionada não está disponível.</source>
         <translation>The selected audio output is not available.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3698"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3729"/>
         <source>Saída de áudio alterada para %1.</source>
         <translation>Audio output changed to %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3837"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3868"/>
         <source>Não foi possível atualizar o banco local: %1</source>
         <translation>Could not update the local database: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3947"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3978"/>
         <source>Padrão</source>
         <translation>Default</translation>
     </message>
