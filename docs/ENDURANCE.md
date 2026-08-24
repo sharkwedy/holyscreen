@@ -20,6 +20,10 @@ holyscreen --endurance --endurance-minutes=120 \
 | `--endurance-report=CAMINHO` | destino do JSON. Padrão: `endurance-report.json` no diretório de dados |
 | `--endurance-media=DIR` | pasta com mídia sintética a apresentar. Sem ela a sessão roda só com texto e sobreposições |
 
+Gere a pasta de mídia com `tools/make-synthetic-media.sh` (ou
+`tools/make-synthetic-media.ps1` no Windows). O script imprime o caminho na
+última linha e não versiona nada.
+
 A sessão **nunca** usa a biblioteca do operador. Sem `HOLYSCREEN_DATA_DIR`
 definido, o modo cria um diretório de dados temporário e o descarta ao final. A
 pasta indicada em `--endurance-media` é registrada nesse banco temporário.

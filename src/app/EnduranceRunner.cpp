@@ -220,8 +220,13 @@ QStringList EnduranceRunner::availableActions() const
         actions << QStringLiteral("output-role") << QStringLiteral("output-media");
     }
     if (!m_mediaIds.isEmpty()) {
-        actions << QStringLiteral("media-play") << QStringLiteral("media-play")
-                << QStringLiteral("media-pause") << QStringLiteral("media-stop");
+        actions << QStringLiteral("media-play") << QStringLiteral("media-play");
+        // Pausar ou parar sem mídia carregada é recusado pelo domínio, e com
+        // razão. O executor só oferece essas ações quando há reprodução, para
+        // que uma recusa continue sendo sinal de defeito.
+        const auto state = m_controller.mediaState();
+        if (state == QStringLiteral("playing") || state == QStringLiteral("paused"))
+            actions << QStringLiteral("media-pause") << QStringLiteral("media-stop");
     }
     return actions;
 }
