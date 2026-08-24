@@ -17,9 +17,9 @@ ToolBar {
     signal toggleFullScreen()
 
     function playFavorite(path) {
-        const mediaId = header.controller.addCatalogFileToPlaylist(path)
+        const mediaId = header.controller.mediaContext.addCatalogFileToPlaylist(path)
         if (mediaId.length > 0)
-            header.controller.playMedia(mediaId)
+            header.controller.mediaContext.playMedia(mediaId)
     }
 
     height: 92
@@ -127,7 +127,7 @@ ToolBar {
                     orientation: ListView.Horizontal
                     spacing: 6
                     clip: true
-                    model: header.controller.favoriteMedia
+                    model: header.controller.mediaContext.favoriteMedia
 
                     delegate: Button {
                         required property var modelData

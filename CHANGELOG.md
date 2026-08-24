@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Migrated every operator QML media consumer to `MediaContext` and added a
+  contract guard that prevents new uses of the temporary root-controller media
+  aliases.
 - Added persistent audio-output selection with hot-plug fallback to the system
   default, profile import/export support and a truthful onboarding audio gate.
 - Extracted the operator header and favorites into a dedicated component, and

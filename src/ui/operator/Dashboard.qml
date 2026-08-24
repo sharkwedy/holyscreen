@@ -82,7 +82,7 @@ Item {
         }
     }
     property int selectedLibraryTab: 1
-    property string librarySearch: dashboard.controller.audioFileSearch
+    property string librarySearch: dashboard.controller.mediaContext.audioFileSearch
     property bool screenControlsExpanded: true
     property real mediaVolumeBeforeMute: 0.8
     property var screenBeingRenamed: null
@@ -96,9 +96,9 @@ Item {
                 ? dashboard.controller.bibleChapterNumbers(selectedBibleBookId) : []
     }
     readonly property var libraryModel: selectedLibraryTab === 0 ? dashboard.controller.songs
-                                        : selectedLibraryTab === 1 ? dashboard.controller.folderAudioFiles
-                                        : selectedLibraryTab === 2 ? dashboard.controller.folderVideoFiles
-                                        : dashboard.controller.folderImageFiles
+                                        : selectedLibraryTab === 1 ? dashboard.controller.mediaContext.folderAudioFiles
+                                        : selectedLibraryTab === 2 ? dashboard.controller.mediaContext.folderVideoFiles
+                                        : dashboard.controller.mediaContext.folderImageFiles
 
     function externalScreenCount() {
         let count = 0
@@ -241,7 +241,7 @@ Item {
             text: qsTr("Abrir local do arquivo")
             enabled: dashboard.contextMediaItem !== null
                      && (dashboard.contextMediaItem.path || "").length > 0
-            onTriggered: dashboard.controller.openFileLocation(
+            onTriggered: dashboard.controller.mediaContext.openFileLocation(
                              dashboard.contextMediaItem.path)
         }
         MenuSeparator { }
@@ -249,7 +249,7 @@ Item {
             text: {
                 const path = dashboard.contextMediaItem !== null
                            ? (dashboard.contextMediaItem.path || "") : ""
-                const favorites = dashboard.controller.favoriteMedia
+                const favorites = dashboard.controller.mediaContext.favoriteMedia
                 for (let index = 0; index < favorites.length; ++index) {
                     if (favorites[index].path === path)
                         return qsTr("★ Remover dos favoritos")
@@ -258,7 +258,7 @@ Item {
             }
             enabled: dashboard.contextMediaItem !== null
                      && (dashboard.contextMediaItem.path || "").length > 0
-            onTriggered: dashboard.controller.toggleFavoriteMedia(
+            onTriggered: dashboard.controller.mediaContext.toggleFavoriteMedia(
                              dashboard.contextMediaItem.path)
         }
     }
@@ -272,16 +272,16 @@ Item {
 
     function updateSearch(value) {
         if (selectedLibraryTab === 0) dashboard.controller.songSearch = value
-        else if (selectedLibraryTab === 1) dashboard.controller.audioFileSearch = value
-        else if (selectedLibraryTab === 2) dashboard.controller.videoFileSearch = value
-        else dashboard.controller.imageFileSearch = value
+        else if (selectedLibraryTab === 1) dashboard.controller.mediaContext.audioFileSearch = value
+        else if (selectedLibraryTab === 2) dashboard.controller.mediaContext.videoFileSearch = value
+        else dashboard.controller.mediaContext.imageFileSearch = value
     }
 
     onSelectedLibraryTabChanged: updateSearch(librarySearch)
 
     function activateLibraryItem(item) {
         if (selectedLibraryTab === 0) dashboard.controller.selectSong(item.id)
-        else dashboard.controller.addCatalogFileToPlaylist(item.path)
+        else dashboard.controller.mediaContext.addCatalogFileToPlaylist(item.path)
     }
 
     function activateLibraryItemFromDoubleClick(item) {
@@ -290,21 +290,21 @@ Item {
             return
         }
 
-        const wasPlaying = dashboard.controller.mediaState === "playing"
+        const wasPlaying = dashboard.controller.mediaContext.mediaState === "playing"
         let mediaId = ""
         if (item.inPlaylist) {
-            for (let index = 0; index < dashboard.controller.mediaPlaylist.length; ++index) {
-                if (dashboard.controller.mediaPlaylist[index].path === item.path) {
-                    mediaId = dashboard.controller.mediaPlaylist[index].id
+            for (let index = 0; index < dashboard.controller.mediaContext.mediaPlaylist.length; ++index) {
+                if (dashboard.controller.mediaContext.mediaPlaylist[index].path === item.path) {
+                    mediaId = dashboard.controller.mediaContext.mediaPlaylist[index].id
                     break
                 }
             }
         } else {
-            mediaId = dashboard.controller.addCatalogFileToPlaylist(item.path)
+            mediaId = dashboard.controller.mediaContext.addCatalogFileToPlaylist(item.path)
         }
 
         if (!wasPlaying && mediaId.length > 0)
-            dashboard.controller.playMedia(mediaId)
+            dashboard.controller.mediaContext.playMedia(mediaId)
     }
 
     Rectangle { anchors.fill: parent; color: dashboard.background }
@@ -428,7 +428,7 @@ Item {
                     Label {
                         anchors.centerIn: parent
                         visible: libraryList.count === 0
-                        text: dashboard.controller.mediaFolders.length === 0 && dashboard.selectedLibraryTab > 0
+                        text: dashboard.controller.mediaContext.mediaFolders.length === 0 && dashboard.selectedLibraryTab > 0
                               ? qsTr("Adicione pastas na Biblioteca para ver suas mídias")
                               : qsTr("Nenhum arquivo encontrado")
                         color: dashboard.textMuted
@@ -506,12 +506,12 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: dashboard.screenControlsExpanded ? 202 : 148
                         Layout.margins: 12; spacing: 6
-                        Slider { Layout.fillWidth: true; from: 0; to: Math.max(1, dashboard.controller.mediaDurationMs); value: dashboard.controller.mediaPositionMs; onMoved: dashboard.controller.seekMedia(value) }
+                        Slider { Layout.fillWidth: true; from: 0; to: Math.max(1, dashboard.controller.mediaContext.mediaDurationMs); value: dashboard.controller.mediaContext.mediaPositionMs; onMoved: dashboard.controller.mediaContext.seekMedia(value) }
                         RowLayout {
                             Layout.fillWidth: true
-                            Label { text: dashboard.duration(dashboard.controller.mediaPositionMs); color: dashboard.accent; font.pixelSize: 11 }
+                            Label { text: dashboard.duration(dashboard.controller.mediaContext.mediaPositionMs); color: dashboard.accent; font.pixelSize: 11 }
                             Item { Layout.fillWidth: true }
-                            Label { text: dashboard.duration(dashboard.controller.mediaDurationMs); color: dashboard.textMuted; font.pixelSize: 11 }
+                            Label { text: dashboard.duration(dashboard.controller.mediaContext.mediaDurationMs); color: dashboard.textMuted; font.pixelSize: 11 }
                         }
                         RowLayout {
                             Layout.fillWidth: true
@@ -520,66 +520,66 @@ Item {
                                 Accessible.name: qsTr("Embaralhar playlist")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
-                                onClicked: dashboard.controller.shuffleMediaPlaylist()
+                                onClicked: dashboard.controller.mediaContext.shuffleMediaPlaylist()
                             }
                             PlayerButton {
-                                text: dashboard.controller.mediaRepeatMode === "one" ? "↻¹" : "↻"
-                                highlighted: dashboard.controller.mediaRepeatMode !== "off"
-                                Accessible.name: dashboard.controller.mediaRepeatMode === "off"
+                                text: dashboard.controller.mediaContext.mediaRepeatMode === "one" ? "↻¹" : "↻"
+                                highlighted: dashboard.controller.mediaContext.mediaRepeatMode !== "off"
+                                Accessible.name: dashboard.controller.mediaContext.mediaRepeatMode === "off"
                                                  ? qsTr("Ativar repetição de toda a playlist")
-                                                 : dashboard.controller.mediaRepeatMode === "all"
+                                                 : dashboard.controller.mediaContext.mediaRepeatMode === "all"
                                                    ? qsTr("Repetir somente o item atual")
                                                    : qsTr("Desativar repetição")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
-                                onClicked: dashboard.controller.mediaRepeatMode =
-                                               dashboard.controller.mediaRepeatMode === "off" ? "all"
-                                             : dashboard.controller.mediaRepeatMode === "all" ? "one" : "off"
+                                onClicked: dashboard.controller.mediaContext.mediaRepeatMode =
+                                               dashboard.controller.mediaContext.mediaRepeatMode === "off" ? "all"
+                                             : dashboard.controller.mediaContext.mediaRepeatMode === "all" ? "one" : "off"
                             }
                             Item { Layout.fillWidth: true }
                             PlayerButton {
                                 text: "⏮"
                                 Accessible.name: qsTr("Mídia anterior")
-                                onClicked: dashboard.controller.previousMedia()
+                                onClicked: dashboard.controller.mediaContext.previousMedia()
                             }
                             PlayerButton {
-                                text: dashboard.controller.mediaState === "playing"
-                                      || dashboard.controller.mediaState === "buffering" ? "⏸" : "▶"
+                                text: dashboard.controller.mediaContext.mediaState === "playing"
+                                      || dashboard.controller.mediaContext.mediaState === "buffering" ? "⏸" : "▶"
                                 highlighted: true
-                                Accessible.name: dashboard.controller.mediaState === "playing"
-                                                 || dashboard.controller.mediaState === "buffering"
+                                Accessible.name: dashboard.controller.mediaContext.mediaState === "playing"
+                                                 || dashboard.controller.mediaContext.mediaState === "buffering"
                                                  ? qsTr("Pausar") : qsTr("Reproduzir")
-                                onClicked: dashboard.controller.toggleMediaPause()
+                                onClicked: dashboard.controller.mediaContext.toggleMediaPause()
                             }
                             PlayerButton {
                                 text: "■"
                                 Accessible.name: qsTr("Parar")
-                                onClicked: dashboard.controller.stopMedia()
+                                onClicked: dashboard.controller.mediaContext.stopMedia()
                             }
                             PlayerButton {
                                 text: "⏭"
                                 Accessible.name: qsTr("Próxima mídia")
-                                onClicked: dashboard.controller.nextMedia()
+                                onClicked: dashboard.controller.mediaContext.nextMedia()
                             }
                             Item { Layout.fillWidth: true }
                             PlayerButton {
                                 implicitWidth: 42
-                                text: dashboard.controller.mediaVolume > 0.001 ? "🔊" : "🔇"
-                                Accessible.name: dashboard.controller.mediaVolume > 0.001
+                                text: dashboard.controller.mediaContext.mediaVolume > 0.001 ? "🔊" : "🔇"
+                                Accessible.name: dashboard.controller.mediaContext.mediaVolume > 0.001
                                                  ? qsTr("Mutar") : qsTr("Desmutar")
                                 ToolTip.visible: hovered
                                 ToolTip.text: Accessible.name
                                 onClicked: {
-                                    if (dashboard.controller.mediaVolume > 0.001) {
-                                        dashboard.mediaVolumeBeforeMute = dashboard.controller.mediaVolume
-                                        dashboard.controller.mediaVolume = 0
+                                    if (dashboard.controller.mediaContext.mediaVolume > 0.001) {
+                                        dashboard.mediaVolumeBeforeMute = dashboard.controller.mediaContext.mediaVolume
+                                        dashboard.controller.mediaContext.mediaVolume = 0
                                     } else {
-                                        dashboard.controller.mediaVolume = Math.max(0.05,
+                                        dashboard.controller.mediaContext.mediaVolume = Math.max(0.05,
                                                                           dashboard.mediaVolumeBeforeMute)
                                     }
                                 }
                             }
-                            Slider { Layout.preferredWidth: 110; from: 0; to: 1; value: dashboard.controller.mediaVolume; onMoved: dashboard.controller.mediaVolume = value }
+                            Slider { Layout.preferredWidth: 110; from: 0; to: 1; value: dashboard.controller.mediaContext.mediaVolume; onMoved: dashboard.controller.mediaContext.mediaVolume = value }
                             PlayerButton {
                                 implicitWidth: 42
                                 text: dashboard.screenControlsExpanded ? "▾" : "▸"
@@ -682,14 +682,14 @@ Item {
                             Label { text: qsTr("▾  Reprodução"); color: dashboard.textMain; font.bold: true; font.pixelSize: 12 }
                             Item { Layout.fillWidth: true }
                             Button { text: qsTr("Salvar"); flat: true; onClicked: savePlaylistDialog.open() }
-                            Button { text: qsTr("Limpar"); flat: true; onClicked: dashboard.controller.clearMediaPlaylist() }
+                            Button { text: qsTr("Limpar"); flat: true; onClicked: dashboard.controller.mediaContext.clearMediaPlaylist() }
                         }
                     }
                     ListView {
                         id: playlistList
                         Layout.fillWidth: true; Layout.fillHeight: true; clip: true
                         spacing: 2
-                        model: dashboard.controller.mediaPlaylist
+                        model: dashboard.controller.mediaContext.mediaPlaylist
                         delegate: Rectangle {
                             id: playlistDelegate
                             required property var modelData
@@ -699,7 +699,7 @@ Item {
                             z: reorderDrag.active ? 10 : 0
                             radius: 4
                             color: reorderDrag.active ? "#40546b"
-                                  : dashboard.controller.currentMediaId === playlistDelegate.modelData.id ? "#263b55"
+                                  : dashboard.controller.mediaContext.currentMediaId === playlistDelegate.modelData.id ? "#263b55"
                                   : playlistTap.hovered ? "#30373d"
                                   : (index % 2 ? "#1d2226" : "transparent")
                             border.color: reorderDrag.active ? dashboard.accent : "transparent"
@@ -716,13 +716,13 @@ Item {
                                     font.pixelSize: 18
                                     text: "▶"
                                     Accessible.name: qsTr("Reproduzir %1").arg(playlistDelegate.modelData.title)
-                                    onClicked: dashboard.controller.playMedia(playlistDelegate.modelData.id)
+                                    onClicked: dashboard.controller.mediaContext.playMedia(playlistDelegate.modelData.id)
                                 }
                             }
                             HoverHandler { id: playlistTap }
                             TapHandler {
                                 acceptedButtons: Qt.LeftButton
-                                onDoubleTapped: dashboard.controller.playMedia(playlistDelegate.modelData.id)
+                                onDoubleTapped: dashboard.controller.mediaContext.playMedia(playlistDelegate.modelData.id)
                             }
                             TapHandler {
                                 acceptedButtons: Qt.RightButton
@@ -748,7 +748,7 @@ Item {
                                     persistentTranslation = Qt.vector2d(0, 0)
                                     playlistDelegate.dragDistance = 0
                                     if (targetIndex !== sourceIndex)
-                                        dashboard.controller.moveMedia(mediaId, targetIndex)
+                                        dashboard.controller.mediaContext.moveMedia(mediaId, targetIndex)
                                 }
                             }
                         }
@@ -916,7 +916,7 @@ Item {
         fileMode: FileDialog.SaveFile
         nameFilters: ["Playlist M3U8 (*.m3u8)"]
         defaultSuffix: "m3u8"
-        onAccepted: dashboard.controller.saveMediaPlaylist(selectedFile)
+        onAccepted: dashboard.controller.mediaContext.saveMediaPlaylist(selectedFile)
     }
 
     function duration(milliseconds) {
