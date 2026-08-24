@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added complete pt-BR/en-US catalogs and a persistent language selector to
+  the offline web remote, including dynamic state messages and a contract test
+  for keys, placeholders and service-worker cache replacement.
 - Added complete operator manuals, quick service checklists and troubleshooting
   guides in pt-BR and en-US, covering displays, codecs, audio, remote control,
   OBS, Bible data, backups and safe shutdown.

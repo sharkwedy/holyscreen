@@ -1,26 +1,319 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08111f"><link rel="manifest" href="/manifest.webmanifest"><title>HolyScreen Remoto</title>
-<style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08111f;color:#edf6ff;font:15px system-ui}main{max-width:820px;margin:auto;padding:18px}.top{display:flex;align-items:center;gap:12px;justify-content:space-between}.card{background:#101d31;padding:16px;border:1px solid #243b5c;border-radius:16px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.three{grid-template-columns:repeat(3,minmax(0,1fr))}button,input,select,textarea{font:inherit;border:0;border-radius:10px;padding:13px;background:#152137;color:white;width:100%}button{background:#183b69;font-weight:700;cursor:pointer}button.primary{background:#2563eb}button.danger{background:#a51d2d}button.small{padding:8px;width:auto}textarea{min-height:70px;resize:vertical}label{display:block;color:#9fb0c7;margin-top:10px}.state{padding:12px;background:#091525;border-radius:10px;white-space:pre-wrap}.muted{color:#9fb0c7}.ok{color:#70e1a7}.hidden{display:none}details summary{cursor:pointer;font-weight:800;font-size:17px;padding:5px 0}.list button{margin-top:7px;text-align:left}.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}@media(max-width:520px){.grid,.three{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.row{flex-direction:column}}</style></head>
-<body><main><div class="top"><div><h1>HOLYSCREEN</h1><div id="status" class="muted">Autentique para controlar</div></div><button id="logoutButton" class="small hidden" onclick="logout()">SAIR</button></div>
-<section id="login" class="card"><label for="password">Senha do controle remoto</label><input id="password" type="password" autocomplete="current-password"><button class="primary" onclick="authenticate()">ENTRAR</button></section>
-<div id="controls" class="hidden"><section class="card"><div id="presentationState" class="state">Nenhuma apresentação ativa</div><div class="grid three"><button onclick="send('presentation.slide.first',{})">PRIMEIRO</button><button onclick="send('presentation.slide.previous',{})">◀ ANTERIOR</button><button class="primary" onclick="send('presentation.slide.next',{})">PRÓXIMO ▶</button><button onclick="send('presentation.slide.last',{})">ÚLTIMO</button><button onclick="send('presentation.stop',{})">OCULTAR</button><button id="blackout" class="danger" onclick="toggleBlackout()">BLACKOUT</button></div></section>
-<details class="card" open><summary>Player e playlist</summary><div id="mediaState" class="state">Player parado</div><div class="grid three"><button onclick="send('media.previous',{})">◀ MÍDIA</button><button onclick="send('media.pause.toggle',{})">TOCAR / PAUSAR</button><button onclick="send('media.next',{})">MÍDIA ▶</button></div><button class="danger" onclick="send('media.stop',{})">PARAR</button><label>Repetição</label><select id="repeat" onchange="send('media.repeat.set',{mode:this.value})"><option value="off">Desativada</option><option value="one">Repetir item</option><option value="all">Repetir playlist</option></select><div id="playlist" class="list"></div></details>
-<details class="card"><summary>Bíblia</summary><div class="grid three"><input id="book" inputmode="numeric" placeholder="Livro (1–66)"><input id="chapter" inputmode="numeric" placeholder="Capítulo"><input id="verse" inputmode="numeric" placeholder="Versículo"></div><button class="primary" onclick="presentBible()">APRESENTAR REFERÊNCIA</button><div id="bibleState" class="state"></div></details>
-<details class="card"><summary>Eventos</summary><label>Evento</label><select id="eventPicker" onchange="send('event.select',{eventId:this.value})"></select><div id="eventItems" class="list"></div></details>
-<details class="card"><summary>Palco e overlays</summary><label>Mensagem ao palco</label><textarea id="stage"></textarea><button onclick="send('stage.message.set',{message:byId('stage').value})">ENVIAR AO PALCO</button><label>Mensagem ao público</label><textarea id="audience"></textarea><button onclick="send('overlay.audience-message.set',{message:byId('audience').value})">EXIBIR MENSAGEM</button><label>Alerta</label><textarea id="alert"></textarea><button onclick="send('overlay.alert.set',{message:byId('alert').value})">EXIBIR ALERTA</button><div class="row"><input id="lowerTitle" placeholder="Título"><input id="lowerSubtitle" placeholder="Subtítulo"></div><button onclick="send('overlay.lower-third.set',{title:byId('lowerTitle').value,subtitle:byId('lowerSubtitle').value})">EXIBIR LOWER THIRD</button></details>
-<details class="card"><summary>Timers</summary><div id="timerState" class="state"></div><div class="row"><input id="countdown" type="number" min="1" value="300" placeholder="Segundos"><button onclick="send('timer.countdown.start',{seconds:Number(byId('countdown').value)})">INICIAR CONTAGEM</button><button onclick="send('timer.countdown.stop',{})">PARAR CONTAGEM</button></div><div class="grid three"><button onclick="send('timer.stopwatch.start',{})">INICIAR CRONÔMETRO</button><button onclick="send('timer.stopwatch.pause',{})">PAUSAR</button><button onclick="send('timer.stopwatch.reset',{})">ZERAR</button></div></details></div></main>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title data-i18n="app.title">HolyScreen Remoto</title>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08111f;color:#edf6ff;font:15px system-ui}main{max-width:820px;margin:auto;padding:18px}.top{display:flex;align-items:center;gap:12px;justify-content:space-between}.top-actions{display:flex;align-items:center;gap:8px}.card{background:#101d31;padding:16px;border:1px solid #243b5c;border-radius:16px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.three{grid-template-columns:repeat(3,minmax(0,1fr))}button,input,select,textarea{font:inherit;border:0;border-radius:10px;padding:13px;background:#152137;color:white;width:100%}button{background:#183b69;font-weight:700;cursor:pointer}button.primary{background:#2563eb}button.danger{background:#a51d2d}button.small,select.small{padding:8px;width:auto}textarea{min-height:70px;resize:vertical}label{display:block;color:#9fb0c7;margin-top:10px}.state{padding:12px;background:#091525;border-radius:10px;white-space:pre-wrap}.muted{color:#9fb0c7}.ok{color:#70e1a7}.hidden{display:none}details summary{cursor:pointer;font-weight:800;font-size:17px;padding:5px 0}.list button{margin-top:7px;text-align:left}.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}@media(max-width:520px){.grid,.three{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>HOLYSCREEN</h1>
+      <div id="status" class="muted" data-i18n="status.authenticate">Autentique para controlar</div>
+    </div>
+    <div class="top-actions">
+      <select id="language" class="small" data-i18n-aria-label="language.label" onchange="setLocale(this.value)">
+        <option value="pt-BR">Português (Brasil)</option>
+        <option value="en-US">English (United States)</option>
+      </select>
+      <button id="logoutButton" class="small hidden" data-i18n="action.logout" onclick="logout()">SAIR</button>
+    </div>
+  </div>
+
+  <section id="login" class="card">
+    <label for="password" data-i18n="login.password">Senha do controle remoto</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button class="primary" data-i18n="action.login" onclick="authenticate()">ENTRAR</button>
+  </section>
+
+  <div id="controls" class="hidden">
+    <section class="card">
+      <div id="presentationState" class="state" data-i18n="presentation.none">Nenhuma apresentação ativa</div>
+      <div class="grid three">
+        <button data-i18n="presentation.first" onclick="send('presentation.slide.first',{})">PRIMEIRO</button>
+        <button data-i18n="presentation.previous" onclick="send('presentation.slide.previous',{})">◀ ANTERIOR</button>
+        <button class="primary" data-i18n="presentation.next" onclick="send('presentation.slide.next',{})">PRÓXIMO ▶</button>
+        <button data-i18n="presentation.last" onclick="send('presentation.slide.last',{})">ÚLTIMO</button>
+        <button data-i18n="presentation.hide" onclick="send('presentation.stop',{})">OCULTAR</button>
+        <button id="blackout" class="danger" data-i18n="presentation.blackout" onclick="toggleBlackout()">BLACKOUT</button>
+      </div>
+    </section>
+
+    <details class="card" open>
+      <summary data-i18n="media.section">Player e playlist</summary>
+      <div id="mediaState" class="state" data-i18n="media.stopped">Player parado</div>
+      <div class="grid three">
+        <button data-i18n="media.previous" onclick="send('media.previous',{})">◀ MÍDIA</button>
+        <button data-i18n="media.playPause" onclick="send('media.pause.toggle',{})">TOCAR / PAUSAR</button>
+        <button data-i18n="media.next" onclick="send('media.next',{})">MÍDIA ▶</button>
+      </div>
+      <button class="danger" data-i18n="media.stop" onclick="send('media.stop',{})">PARAR</button>
+      <label for="repeat" data-i18n="media.repeat">Repetição</label>
+      <select id="repeat" onchange="send('media.repeat.set',{mode:this.value})">
+        <option value="off" data-i18n="media.repeatOff">Desativada</option>
+        <option value="one" data-i18n="media.repeatOne">Repetir item</option>
+        <option value="all" data-i18n="media.repeatAll">Repetir playlist</option>
+      </select>
+      <div id="playlist" class="list"></div>
+    </details>
+
+    <details class="card">
+      <summary data-i18n="bible.section">Bíblia</summary>
+      <div class="grid three">
+        <input id="book" inputmode="numeric" placeholder="Livro (1–66)" data-i18n-placeholder="bible.book">
+        <input id="chapter" inputmode="numeric" placeholder="Capítulo" data-i18n-placeholder="bible.chapter">
+        <input id="verse" inputmode="numeric" placeholder="Versículo" data-i18n-placeholder="bible.verse">
+      </div>
+      <button class="primary" data-i18n="bible.present" onclick="presentBible()">APRESENTAR REFERÊNCIA</button>
+      <div id="bibleState" class="state"></div>
+    </details>
+
+    <details class="card">
+      <summary data-i18n="events.section">Eventos</summary>
+      <label for="eventPicker" data-i18n="events.event">Evento</label>
+      <select id="eventPicker" onchange="send('event.select',{eventId:this.value})"></select>
+      <div id="eventItems" class="list"></div>
+    </details>
+
+    <details class="card">
+      <summary data-i18n="overlays.section">Palco e overlays</summary>
+      <label for="stage" data-i18n="overlays.stageMessage">Mensagem ao palco</label>
+      <textarea id="stage"></textarea>
+      <button data-i18n="overlays.sendStage" onclick="send('stage.message.set',{message:byId('stage').value})">ENVIAR AO PALCO</button>
+      <label for="audience" data-i18n="overlays.audienceMessage">Mensagem ao público</label>
+      <textarea id="audience"></textarea>
+      <button data-i18n="overlays.showMessage" onclick="send('overlay.audience-message.set',{message:byId('audience').value})">EXIBIR MENSAGEM</button>
+      <label for="alert" data-i18n="overlays.alert">Alerta</label>
+      <textarea id="alert"></textarea>
+      <button data-i18n="overlays.showAlert" onclick="send('overlay.alert.set',{message:byId('alert').value})">EXIBIR ALERTA</button>
+      <div class="row">
+        <input id="lowerTitle" placeholder="Título" data-i18n-placeholder="overlays.title">
+        <input id="lowerSubtitle" placeholder="Subtítulo" data-i18n-placeholder="overlays.subtitle">
+      </div>
+      <button data-i18n="overlays.showLowerThird" onclick="send('overlay.lower-third.set',{title:byId('lowerTitle').value,subtitle:byId('lowerSubtitle').value})">EXIBIR LOWER THIRD</button>
+    </details>
+
+    <details class="card">
+      <summary data-i18n="timers.section">Timers</summary>
+      <div id="timerState" class="state"></div>
+      <div class="row">
+        <input id="countdown" type="number" min="1" value="300" placeholder="Segundos" data-i18n-placeholder="timers.seconds">
+        <button data-i18n="timers.startCountdown" onclick="send('timer.countdown.start',{seconds:Number(byId('countdown').value)})">INICIAR CONTAGEM</button>
+        <button data-i18n="timers.stopCountdown" onclick="send('timer.countdown.stop',{})">PARAR CONTAGEM</button>
+      </div>
+      <div class="grid three">
+        <button data-i18n="timers.startStopwatch" onclick="send('timer.stopwatch.start',{})">INICIAR CRONÔMETRO</button>
+        <button data-i18n="timers.pause" onclick="send('timer.stopwatch.pause',{})">PAUSAR</button>
+        <button data-i18n="timers.reset" onclick="send('timer.stopwatch.reset',{})">ZERAR</button>
+      </div>
+    </details>
+  </div>
+</main>
+
+<script id="translations" type="application/json">
+{
+  "pt-BR": {
+    "app.title": "HolyScreen Remoto",
+    "language.label": "Idioma",
+    "status.authenticate": "Autentique para controlar",
+    "status.blocked": "Acesso temporariamente bloqueado",
+    "status.incorrectPassword": "Senha incorreta",
+    "status.connected": "Conectado",
+    "status.sessionEnded": "Sessão encerrada",
+    "status.reconnecting": "Reconectando…",
+    "status.offline": "Sem conexão",
+    "action.logout": "SAIR",
+    "action.login": "ENTRAR",
+    "login.password": "Senha do controle remoto",
+    "presentation.none": "Nenhuma apresentação ativa",
+    "presentation.first": "PRIMEIRO",
+    "presentation.previous": "◀ ANTERIOR",
+    "presentation.next": "PRÓXIMO ▶",
+    "presentation.last": "ÚLTIMO",
+    "presentation.hide": "OCULTAR",
+    "presentation.blackout": "BLACKOUT",
+    "presentation.disableBlackout": "DESATIVAR BLACKOUT",
+    "media.section": "Player e playlist",
+    "media.stopped": "Player parado",
+    "media.previous": "◀ MÍDIA",
+    "media.playPause": "TOCAR / PAUSAR",
+    "media.next": "MÍDIA ▶",
+    "media.stop": "PARAR",
+    "media.repeat": "Repetição",
+    "media.repeatOff": "Desativada",
+    "media.repeatOne": "Repetir item",
+    "media.repeatAll": "Repetir playlist",
+    "media.state.playing": "tocando",
+    "media.state.paused": "pausado",
+    "media.state.stopped": "parado",
+    "media.state.loading": "carregando",
+    "media.state.error": "erro",
+    "bible.section": "Bíblia",
+    "bible.book": "Livro (1–66)",
+    "bible.chapter": "Capítulo",
+    "bible.verse": "Versículo",
+    "bible.present": "APRESENTAR REFERÊNCIA",
+    "events.section": "Eventos",
+    "events.event": "Evento",
+    "events.select": "Selecione…",
+    "events.execute": "EXECUTAR • %1",
+    "overlays.section": "Palco e overlays",
+    "overlays.stageMessage": "Mensagem ao palco",
+    "overlays.sendStage": "ENVIAR AO PALCO",
+    "overlays.audienceMessage": "Mensagem ao público",
+    "overlays.showMessage": "EXIBIR MENSAGEM",
+    "overlays.alert": "Alerta",
+    "overlays.showAlert": "EXIBIR ALERTA",
+    "overlays.title": "Título",
+    "overlays.subtitle": "Subtítulo",
+    "overlays.showLowerThird": "EXIBIR LOWER THIRD",
+    "timers.section": "Timers",
+    "timers.seconds": "Segundos",
+    "timers.startCountdown": "INICIAR CONTAGEM",
+    "timers.stopCountdown": "PARAR CONTAGEM",
+    "timers.startStopwatch": "INICIAR CRONÔMETRO",
+    "timers.pause": "PAUSAR",
+    "timers.reset": "ZERAR",
+    "render.noPresentation": "Sem apresentação",
+    "render.current": "Atual: %1",
+    "render.next": "Próximo: %1",
+    "render.noMedia": "Nenhuma mídia",
+    "render.noReference": "Nenhuma referência",
+    "render.countdown": "Contagem: %1 • Cronômetro: %2"
+  },
+  "en-US": {
+    "app.title": "HolyScreen Remote",
+    "language.label": "Language",
+    "status.authenticate": "Sign in to control",
+    "status.blocked": "Access temporarily blocked",
+    "status.incorrectPassword": "Incorrect password",
+    "status.connected": "Connected",
+    "status.sessionEnded": "Session ended",
+    "status.reconnecting": "Reconnecting…",
+    "status.offline": "No connection",
+    "action.logout": "SIGN OUT",
+    "action.login": "SIGN IN",
+    "login.password": "Remote control password",
+    "presentation.none": "No active presentation",
+    "presentation.first": "FIRST",
+    "presentation.previous": "◀ PREVIOUS",
+    "presentation.next": "NEXT ▶",
+    "presentation.last": "LAST",
+    "presentation.hide": "HIDE",
+    "presentation.blackout": "BLACKOUT",
+    "presentation.disableBlackout": "DISABLE BLACKOUT",
+    "media.section": "Player and playlist",
+    "media.stopped": "Player stopped",
+    "media.previous": "◀ MEDIA",
+    "media.playPause": "PLAY / PAUSE",
+    "media.next": "MEDIA ▶",
+    "media.stop": "STOP",
+    "media.repeat": "Repeat",
+    "media.repeatOff": "Off",
+    "media.repeatOne": "Repeat item",
+    "media.repeatAll": "Repeat playlist",
+    "media.state.playing": "playing",
+    "media.state.paused": "paused",
+    "media.state.stopped": "stopped",
+    "media.state.loading": "loading",
+    "media.state.error": "error",
+    "bible.section": "Bible",
+    "bible.book": "Book (1–66)",
+    "bible.chapter": "Chapter",
+    "bible.verse": "Verse",
+    "bible.present": "PRESENT REFERENCE",
+    "events.section": "Events",
+    "events.event": "Event",
+    "events.select": "Select…",
+    "events.execute": "RUN • %1",
+    "overlays.section": "Stage and overlays",
+    "overlays.stageMessage": "Stage message",
+    "overlays.sendStage": "SEND TO STAGE",
+    "overlays.audienceMessage": "Audience message",
+    "overlays.showMessage": "SHOW MESSAGE",
+    "overlays.alert": "Alert",
+    "overlays.showAlert": "SHOW ALERT",
+    "overlays.title": "Title",
+    "overlays.subtitle": "Subtitle",
+    "overlays.showLowerThird": "SHOW LOWER THIRD",
+    "timers.section": "Timers",
+    "timers.seconds": "Seconds",
+    "timers.startCountdown": "START COUNTDOWN",
+    "timers.stopCountdown": "STOP COUNTDOWN",
+    "timers.startStopwatch": "START STOPWATCH",
+    "timers.pause": "PAUSE",
+    "timers.reset": "RESET",
+    "render.noPresentation": "No presentation",
+    "render.current": "Current: %1",
+    "render.next": "Next: %1",
+    "render.noMedia": "No media",
+    "render.noReference": "No reference",
+    "render.countdown": "Countdown: %1 • Stopwatch: %2"
+  }
+}
+</script>
+
 <script>
-let token=sessionStorage.getItem('hs-token')||'',ws=null,state={},reconnectTimer;
+const translations=JSON.parse(document.getElementById('translations').textContent);
+let locale=localStorage.getItem('hs-locale')||(navigator.language.toLowerCase().startsWith('en')?'en-US':'pt-BR');
+if(!translations[locale])locale='pt-BR';
+let connectionStatus='status.authenticate';
 const byId=id=>document.getElementById(id);
-async function authenticate(){const r=await fetch('/api/v1/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:byId('password').value})});const d=await r.json();if(!d.accepted){byId('status').textContent=d.errorCode==='login_blocked'?'Acesso temporariamente bloqueado':'Senha incorreta';return}token=d.token;sessionStorage.setItem('hs-token',token);showControls();connect()}
+const t=(key,...values)=>values.reduce((text,value,index)=>text.replace('%'+(index+1),value),translations[locale][key]||translations['pt-BR'][key]||key);
+function applyLocale(){
+  document.documentElement.lang=locale;
+  byId('language').value=locale;
+  document.querySelectorAll('[data-i18n]').forEach(element=>element.textContent=t(element.dataset.i18n));
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(element=>element.placeholder=t(element.dataset.i18nPlaceholder));
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(element=>element.setAttribute('aria-label',t(element.dataset.i18nAriaLabel)));
+  if(connectionStatus)byId('status').textContent=t(connectionStatus);
+  render();
+}
+function setLocale(value){if(!translations[value])return;locale=value;localStorage.setItem('hs-locale',locale);applyLocale()}
+function setStatus(key,className='muted'){connectionStatus=key;byId('status').textContent=t(key);byId('status').className=className}
+
+let token=sessionStorage.getItem('hs-token')||'',ws=null,state={},reconnectTimer;
+async function authenticate(){const r=await fetch('/api/v1/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:byId('password').value})});const d=await r.json();if(!d.accepted){setStatus(d.errorCode==='login_blocked'?'status.blocked':'status.incorrectPassword');return}token=d.token;sessionStorage.setItem('hs-token',token);showControls();connect()}
 function showControls(){byId('login').classList.add('hidden');byId('controls').classList.remove('hidden');byId('logoutButton').classList.remove('hidden')}
-function showLogin(message='Autentique para controlar'){token='';sessionStorage.removeItem('hs-token');byId('login').classList.remove('hidden');byId('controls').classList.add('hidden');byId('logoutButton').classList.add('hidden');byId('status').textContent=message}
+function showLogin(messageKey='status.authenticate'){token='';sessionStorage.removeItem('hs-token');byId('login').classList.remove('hidden');byId('controls').classList.add('hidden');byId('logoutButton').classList.add('hidden');setStatus(messageKey)}
 async function logout(){if(token)await fetch('/api/v1/session',{method:'DELETE',headers:{Authorization:'Bearer '+token}});if(ws)ws.close();showLogin()}
-function connect(){clearTimeout(reconnectTimer);ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/api/v1/ws`);ws.onopen=()=>ws.send(JSON.stringify({type:'authenticate',token}));ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.type==='authenticated'){byId('status').textContent='Conectado';byId('status').className='ok'}if(d.type==='state'){state=d.data||{};render()}if(d.type==='commandResult'&&!d.accepted)byId('status').textContent=d.message||d.errorCode};ws.onclose=e=>{if(e.reason==='invalid_session'||e.reason==='sessions_revoked'||e.reason==='authentication_required'){showLogin('Sessão encerrada');return}byId('status').textContent='Reconectando…';reconnectTimer=setTimeout(connect,1200)}}
+function connect(){clearTimeout(reconnectTimer);ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/api/v1/ws`);ws.onopen=()=>ws.send(JSON.stringify({type:'authenticate',token}));ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.type==='authenticated')setStatus('status.connected','ok');if(d.type==='state'){state=d.data||{};render()}if(d.type==='commandResult'&&!d.accepted){connectionStatus='';byId('status').textContent=d.message||d.errorCode}};ws.onclose=e=>{if(e.reason==='invalid_session'||e.reason==='sessions_revoked'||e.reason==='authentication_required'){showLogin('status.sessionEnded');return}setStatus('status.reconnecting');reconnectTimer=setTimeout(connect,1200)}}
 function commandId(){return crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random()}
-function send(type,payload){if(!ws||ws.readyState!==1){byId('status').textContent='Sem conexão';return}ws.send(JSON.stringify({type:'command',command:{id:commandId(),type,payload}}))}
+function send(type,payload){if(!ws||ws.readyState!==1){setStatus('status.offline');return}ws.send(JSON.stringify({type:'command',command:{id:commandId(),type,payload}}))}
 function toggleBlackout(){send('presentation.blackout.set',{enabled:!state.blackout})}
 function presentBible(){send('bible.reference.present',{bookId:Number(byId('book').value),chapter:Number(byId('chapter').value),verse:Number(byId('verse').value)})}
-function render(){const p=state.presentation||{},m=state.media||{},b=state.bible||{},ev=state.event||{},timers=state.timers||{},overlays=state.overlays||{};byId('presentationState').textContent=(p.title||'Sem apresentação')+'\nAtual: '+(p.slideText||'—')+'\nPróximo: '+(p.nextSlideText||'—');byId('mediaState').textContent=(m.title||'Nenhuma mídia')+' • '+(m.state||'stopped');byId('repeat').value=m.repeatMode||'off';byId('blackout').textContent=state.blackout?'DESATIVAR BLACKOUT':'BLACKOUT';byId('playlist').innerHTML='';(m.playlist||[]).forEach(item=>{const button=document.createElement('button');button.textContent='▶ '+item.title;button.onclick=()=>send('media.play',{mediaId:item.id});byId('playlist').appendChild(button)});byId('bibleState').textContent=b.reference||'Nenhuma referência';const selected=ev.id||'';byId('eventPicker').innerHTML='<option value="">Selecione…</option>';(ev.events||[]).forEach(item=>byId('eventPicker').add(new Option(item.title,item.id,item.id===selected,item.id===selected)));byId('eventItems').innerHTML='';(ev.items||[]).forEach(item=>{const button=document.createElement('button');button.textContent='EXECUTAR • '+item.title;button.onclick=()=>send('event.item.execute',{itemId:item.id});byId('eventItems').appendChild(button)});byId('stage').value=(state.stage||{}).message||'';byId('audience').value=overlays.audienceMessage||'';byId('alert').value=overlays.alertMessage||'';byId('lowerTitle').value=overlays.lowerThirdTitle||'';byId('lowerSubtitle').value=overlays.lowerThirdSubtitle||'';byId('timerState').textContent='Contagem: '+(timers.countdownText||'00:00')+' • Cronômetro: '+(timers.stopwatchText||'00:00')}
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');if(token){showControls();connect()}
-</script></body></html>
+function render(){
+  if(!byId('presentationState'))return;
+  const p=state.presentation||{},m=state.media||{},b=state.bible||{},ev=state.event||{},timers=state.timers||{},overlays=state.overlays||{};
+  byId('presentationState').textContent=(p.title||t('render.noPresentation'))+'\n'+t('render.current',p.slideText||'—')+'\n'+t('render.next',p.nextSlideText||'—');
+  const mediaStateKey='media.state.'+(m.state||'stopped');
+  byId('mediaState').textContent=(m.title||t('render.noMedia'))+' • '+(translations[locale][mediaStateKey]||m.state||t('media.state.stopped'));
+  byId('repeat').value=m.repeatMode||'off';
+  byId('blackout').textContent=state.blackout?t('presentation.disableBlackout'):t('presentation.blackout');
+  byId('playlist').replaceChildren();
+  (m.playlist||[]).forEach(item=>{const button=document.createElement('button');button.textContent='▶ '+item.title;button.onclick=()=>send('media.play',{mediaId:item.id});byId('playlist').appendChild(button)});
+  byId('bibleState').textContent=b.reference||t('render.noReference');
+  const selected=ev.id||'';
+  byId('eventPicker').replaceChildren(new Option(t('events.select'),''));
+  (ev.events||[]).forEach(item=>byId('eventPicker').add(new Option(item.title,item.id,item.id===selected,item.id===selected)));
+  byId('eventItems').replaceChildren();
+  (ev.items||[]).forEach(item=>{const button=document.createElement('button');button.textContent=t('events.execute',item.title);button.onclick=()=>send('event.item.execute',{itemId:item.id});byId('eventItems').appendChild(button)});
+  byId('stage').value=(state.stage||{}).message||'';
+  byId('audience').value=overlays.audienceMessage||'';
+  byId('alert').value=overlays.alertMessage||'';
+  byId('lowerTitle').value=overlays.lowerThirdTitle||'';
+  byId('lowerSubtitle').value=overlays.lowerThirdSubtitle||'';
+  byId('timerState').textContent=t('render.countdown',timers.countdownText||'00:00',timers.stopwatchText||'00:00');
+}
+applyLocale();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
+if(token){showControls();connect()}
+</script>
+</body>
+</html>

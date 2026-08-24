@@ -27,3 +27,10 @@ The contract currently covers the focused Events and Maintenance areas. Add a
 QML file to the `qmlFiles` list in `TranslationCatalogTest.cpp` as soon as all
 of its visible strings are wrapped and both catalogs are complete. The 0.14.0
 checkpoint requires every operator, output and PWA surface to be covered.
+
+The embedded PWA chooses pt-BR by default, follows an English browser locale
+on first use and persists an explicit pt-BR/en-US selection in local storage.
+Its catalogs are embedded as JSON in `index.html`; `test_pwa_translation`
+requires identical, non-empty key sets, matching placeholders and coverage of
+every static or runtime translation key. The service worker cache version must
+change whenever the embedded shell changes.
