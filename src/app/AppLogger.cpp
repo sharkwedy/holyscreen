@@ -15,9 +15,18 @@ QString logFilePath;
 QMutex logMutex;
 QtMessageHandler previousHandler = nullptr;
 std::atomic_bool debugMessagesEnabled = false;
+std::atomic<quint64> warningCount = 0;
+std::atomic<quint64> criticalCount = 0;
+std::atomic<quint64> fatalCount = 0;
 
 void writeMessage(QtMsgType type, const QMessageLogContext &context, const QString &message)
 {
+    switch (type) {
+    case QtWarningMsg: warningCount.fetch_add(1, std::memory_order_relaxed); break;
+    case QtCriticalMsg: criticalCount.fetch_add(1, std::memory_order_relaxed); break;
+    case QtFatalMsg: fatalCount.fetch_add(1, std::memory_order_relaxed); break;
+    default: break;
+    }
     {
         QMutexLocker lock(&logMutex);
         if (!logFilePath.isEmpty()
@@ -61,6 +70,19 @@ void AppLogger::setDebugMessagesEnabled(bool enabled)
 bool AppLogger::debugMessagesEnabled()
 {
     return ::debugMessagesEnabled.load(std::memory_order_relaxed);
+}
+
+quint64 AppLogger::warningCount() { return ::warningCount.load(std::memory_order_relaxed); }
+
+quint64 AppLogger::criticalCount() { return ::criticalCount.load(std::memory_order_relaxed); }
+
+quint64 AppLogger::fatalCount() { return ::fatalCount.load(std::memory_order_relaxed); }
+
+void AppLogger::resetCounters()
+{
+    ::warningCount.store(0, std::memory_order_relaxed);
+    ::criticalCount.store(0, std::memory_order_relaxed);
+    ::fatalCount.store(0, std::memory_order_relaxed);
 }
 
 } // namespace churchpresenter

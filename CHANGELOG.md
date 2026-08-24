@@ -5,6 +5,12 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added an isolated endurance mode to the executable, with `--endurance`,
+  `--endurance-minutes`, `--endurance-report` and `--endurance-media`, a JSON
+  report covering environment, CPU, resident memory, event-loop lag, failures
+  and verdict, and automatic blockers for critical logs, rejected commands,
+  output loss, playback stalls, automation loops, event-loop lag and memory
+  growth.
 - Reduced packaged runtime surface by excluding QML debugger plugins and every
   SQL driver except SQLite from non-macOS distributions.
 - Added release-only CodeQL analysis, ASan/UBSan test execution, SPDX SBOM

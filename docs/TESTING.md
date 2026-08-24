@@ -20,6 +20,7 @@ Run one suite with `ctest --test-dir build -L <label> --output-on-failure`.
 | `golden` | deterministic output pixels, colors, blackout and safe areas |
 | `e2e` | application startup and command-to-output workflows |
 | `performance` | command, slide and Full HD frame budgets |
+| `endurance` | short self-driven session that validates the endurance report |
 
 Public internet tests are opt-in. Set `HOLYSCREEN_NETWORK_TESTS=1` only when
 validating a known public Bible source. Normal CI and local suites remain fully
@@ -29,6 +30,10 @@ Release validation additionally covers packages on clean systems, the physical
 operator/two-output topology, mixed DPI, a phone PWA and a two-hour endurance
 session. Record those results in the release validation report; automated tests
 do not replace the physical checks.
+
+The two-hour session runs through the executable, not through CTest. See
+[`ENDURANCE.md`](ENDURANCE.md) for the options, the report schema and the
+blocker thresholds.
 
 The working report for the next candidate is
 [`releases/1.0.0-rc.1-validation.md`](releases/1.0.0-rc.1-validation.md).
