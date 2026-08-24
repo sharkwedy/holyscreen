@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted the operator header and favorites into a dedicated component, and
+  connected the previously inert Agenda action to the service-playlist editor
+  with destructive-history confirmation.
 - Removed the hidden legacy operator workspace that was still instantiated
   behind the active modular dashboard, together with its stale shortcuts and
   duplicate bindings.

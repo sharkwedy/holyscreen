@@ -331,6 +331,8 @@ qt_add_qml_module(presenter-ui
     VERSION 1.0
     QML_FILES
         ui/operator/MainWindow.qml
+        ui/operator/OperatorHeader.qml
+        ui/operator/EventsDialog.qml
         ui/operator/Dashboard.qml
         ui/operator/SettingsDialog.qml
         ui/operator/BibleBrowser.qml

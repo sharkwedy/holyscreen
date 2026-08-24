@@ -71,6 +71,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
 {
     const QStringList qmlFiles{
         QStringLiteral("src/ui/operator/EventsArea.qml"),
+        QStringLiteral("src/ui/operator/EventsDialog.qml"),
+        QStringLiteral("src/ui/operator/OperatorHeader.qml"),
         QStringLiteral("src/ui/operator/MaintenanceArea.qml"),
         QStringLiteral("src/ui/operator/OnboardingDialog.qml"),
         QStringLiteral("src/ui/operator/BibleBrowser.qml"),
