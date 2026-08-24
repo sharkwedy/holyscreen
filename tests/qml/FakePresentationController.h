@@ -8,6 +8,8 @@
 //! propriedades que as views de saída consomem, sem banco, telas ou mídia.
 class FakePresentationController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QObject *outputContext READ outputContext CONSTANT)
+    Q_PROPERTY(QObject *bibleContext READ bibleContext CONSTANT)
     Q_PROPERTY(bool blackout MEMBER blackout NOTIFY changed)
     Q_PROPERTY(bool identifyVisible MEMBER identifyVisible NOTIFY changed)
     Q_PROPERTY(QString wallpaperColor MEMBER wallpaperColor NOTIFY changed)
@@ -53,6 +55,12 @@ class FakePresentationController final : public QObject {
 
 public:
     using QObject::QObject;
+
+    // The production controller exposes these properties through lightweight
+    // contexts. Returning this fake keeps the component contract identical
+    // without duplicating state between test-only objects.
+    [[nodiscard]] QObject *outputContext() { return this; }
+    [[nodiscard]] QObject *bibleContext() { return this; }
 
     Q_INVOKABLE QString bibleTextForSlide(int index, const QString &translationId) const
     {

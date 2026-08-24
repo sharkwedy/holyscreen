@@ -84,7 +84,7 @@ ApplicationWindow {
         id: onboardingDialog
         controller: root.controller
         onOpenSettings: function(tabIndex) { settingsDialog.openTab(tabIndex) }
-        onOpenBible: bibleBrowser.open()
+        onOpenBible: bibleSettingsFlow.open()
     }
     LiveCommunicationDialog {
         id: liveDialog
