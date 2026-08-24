@@ -206,6 +206,50 @@ jobs:
       - name: Package
         run: cmake --build build --config Release --target package
 
+      # A 1.0.0 publicou um DMG que o Apple Silicon matava com SIGKILL por
+      # assinatura inválida, e nenhum job percebeu. Este passo abre o pacote
+      # final e reprova a release se o aplicativo dentro dele não for íntegro.
+      - name: Verify the macOS disk image
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          images=(build/HolyScreen-*-Darwin.dmg)
+          if [[ "${#images[@]}" -ne 1 ]]; then
+            echo "Esperava exatamente uma imagem de disco, encontrei ${#images[@]}." >&2
+            printf '%s\n' "${images[@]}" >&2
+            exit 1
+          fi
+          image="${images[0]}"
+          mountpoint="$(mktemp -d)"
+          # A imagem embute o contrato de licença (CPACK_RESOURCE_FILE_LICENSE),
+          # e o hdiutil exige aceitá-lo antes de montar: sem terminal a montagem
+          # trava ou é cancelada. O `yes` responde por nós. O -noverify pula a
+          # verificação de checksum do hdiutil, que a release já cobre pelo
+          # SHA256SUMS.
+          # A substituição de processo evita o SIGPIPE que um `yes |` normal
+          # provoca sob `pipefail` quando o hdiutil termina antes.
+          hdiutil attach -nobrowse -readonly -noverify -noautoopen \
+            -mountpoint "$mountpoint" "$image" < <(yes)
+          trap 'hdiutil detach "$mountpoint" >/dev/null 2>&1 || true' EXIT
+
+          app="$mountpoint/HolyScreen.app"
+          test -d "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+
+          broken="$(find "$app" -type l ! -exec test -e {} \; -print | wc -l | tr -d ' ')"
+          if [[ "$broken" != "0" ]]; then
+            echo "O bundle tem $broken link(s) simbólico(s) quebrado(s)." >&2
+            find "$app" -type l ! -exec test -e {} \; -print >&2
+            exit 1
+          fi
+
+          for module in QtCore QtQml QtQuick QtMultimedia; do
+            test -d "$app/Contents/Resources/qml/$module" \
+              || { echo "Módulo QML ausente no pacote: $module" >&2; exit 1; }
+          done
+
       - name: Build self-contained Linux AppImage
         if: runner.os == 'Linux'
         shell: bash

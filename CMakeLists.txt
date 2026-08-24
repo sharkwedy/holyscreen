@@ -4,7 +4,7 @@ if(POLICY CMP0219)
     cmake_policy(SET CMP0219 OLD)
 endif()
 
-project(holyscreen VERSION 1.0.0 LANGUAGES C CXX)
+project(holyscreen VERSION 1.0.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -117,6 +117,26 @@ foreach(plugin IN LISTS plugins_found)
     endif()
 endforeach()
 
+# O Homebrew distribui da mesma forma os arquivos qmldir, cujos caminhos
+# relativos também deixam de resolver dentro do bundle. Um link quebrado faz a
+# assinatura referenciar arquivo inexistente, e o app inteiro passa a ser
+# recusado. Materializar apenas os links quebrados mantém isto como no-op nos
+# pacotes oficiais do Qt, que trazem arquivos regulares.
+set(deployed_qml "\${QT_DEPLOY_PREFIX}/$<TARGET_FILE_NAME:church-presenter>.app/Contents/Resources/qml")
+file(GLOB_RECURSE deployed_entries LIST_DIRECTORIES false "\${deployed_qml}/*")
+foreach(entry IN LISTS deployed_entries)
+    if(IS_SYMLINK "\${entry}" AND NOT EXISTS "\${entry}")
+        file(RELATIVE_PATH entry_relative "\${deployed_qml}" "\${entry}")
+        set(entry_source "\${__QT_DEPLOY_QT_INSTALL_PREFIX}/share/qt/qml/\${entry_relative}")
+        if(NOT EXISTS "\${entry_source}")
+            message(FATAL_ERROR "Could not materialize QML file: \${entry_relative}")
+        endif()
+        file(REAL_PATH "\${entry_source}" entry_real)
+        file(REMOVE "\${entry}")
+        file(COPY_FILE "\${entry_real}" "\${entry}")
+    endif()
+endforeach()
+
 qt6_deploy_runtime_dependencies(
     EXECUTABLE "$<TARGET_FILE_NAME:church-presenter>.app"
     ADDITIONAL_MODULES \${plugins_found}
@@ -134,6 +154,36 @@ else()
     )
 endif()
 install(SCRIPT ${deploy_script})
+
+if(APPLE)
+    # O linker assina o bundle ad hoc, e a implantação copia frameworks e
+    # plugins do Qt para dentro dele depois disso. A assinatura deixa de cobrir
+    # os recursos novos, o Gatekeeper reporta "está danificado" e, no Apple
+    # Silicon, o kernel mata o processo com SIGKILL antes do primeiro quadro.
+    # Reassinar ad hoc no fim da instalação devolve uma assinatura consistente,
+    # e a verificação logo abaixo reprova o pacote se isso deixar de valer.
+    #
+    # Isto não substitui Developer ID e notarização: o app continua sem
+    # identidade de desenvolvedor, e quem baixar pela internet ainda precisa
+    # autorizá-lo explicitamente. O que muda é que ele passa a ser executável.
+    install(CODE [[
+        set(holyscreen_bundle "${CMAKE_INSTALL_PREFIX}/HolyScreen.app")
+        execute_process(
+            COMMAND codesign --force --deep --sign - "${holyscreen_bundle}"
+            RESULT_VARIABLE holyscreen_sign_result
+        )
+        if(NOT holyscreen_sign_result EQUAL 0)
+            message(FATAL_ERROR "Não foi possível assinar ${holyscreen_bundle}.")
+        endif()
+        execute_process(
+            COMMAND codesign --verify --deep --strict "${holyscreen_bundle}"
+            RESULT_VARIABLE holyscreen_verify_result
+        )
+        if(NOT holyscreen_verify_result EQUAL 0)
+            message(FATAL_ERROR "A assinatura de ${holyscreen_bundle} está inconsistente.")
+        endif()
+    ]])
+endif()
 
 if(UNIX AND NOT APPLE)
     install(FILES packaging/app.holyscreen.presenter.desktop

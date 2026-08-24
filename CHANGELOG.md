@@ -5,6 +5,27 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-24
+
+Corrective release. The 1.0.0 macOS disk image could not run at all.
+
+- Fixed the macOS bundle signature. The linker signs the bundle ad hoc and Qt
+  deployment then copies frameworks and plugins into it, so the signature no
+  longer covered the bundle's resources. Gatekeeper reported the app as damaged
+  and, on Apple Silicon, the kernel killed it with `SIGKILL (Code Signature
+  Invalid)` before the first frame. Installation now re-signs the bundle ad hoc
+  and verifies it, failing the package instead of publishing an app that cannot
+  start. This is not Developer ID signing or notarization: downloaded copies
+  still have to be authorized explicitly.
+- Materialized the broken `qmldir` symlinks that Homebrew's Qt leaves inside the
+  bundle, which the new signature verification would otherwise turn into a hard
+  packaging failure on developer machines. No effect on the official Qt used by
+  the release runners.
+- Added a release gate that mounts the produced disk image and rejects it unless
+  the bundle signature verifies, no symlink inside it is broken and the QtCore,
+  QtQml, QtQuick and QtMultimedia QML modules are present. Verified against the
+  broken 1.0.0 image, which it refuses.
+
 ## [1.0.0] - 2026-08-24
 
 First stable release. HolyScreen presents text, Bible passages, images, audio
