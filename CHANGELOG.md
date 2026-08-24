@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added a shared `sccache` compiler cache and the Ninja generator to the
+  Windows, macOS and Linux CI jobs while preserving clean configure, complete
+  CTest and QML lint runs.
 - The update checker now reads published releases directly from the official
   `sharkwedy/holyscreen` GitHub Releases API, including pre-releases. It
   rejects drafts and untrusted URLs, applies timeout and response-size limits,
