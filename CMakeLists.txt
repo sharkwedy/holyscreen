@@ -129,6 +129,8 @@ else()
         OUTPUT_SCRIPT deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR
         DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM
+        EXCLUDE_PLUGIN_TYPES qmltooling
+        EXCLUDE_PLUGINS qsqlibase qsqlmimer qsqloci qsqlodbc qsqlpsql
     )
 endif()
 install(SCRIPT ${deploy_script})
