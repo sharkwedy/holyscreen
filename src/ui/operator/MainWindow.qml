@@ -51,7 +51,7 @@ ApplicationWindow {
     }
 
     Instantiator {
-        model: root.controller.outputWindows
+        model: root.controller.outputContext.outputWindows
         delegate: OutputWindow {
             required property var modelData
             targetScreenIndex: modelData.screenIndex

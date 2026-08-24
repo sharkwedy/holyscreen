@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Migrated QML screen routing, identification and blackout consumers to
+  `OutputContext`, with a contract guard against temporary root aliases.
 - Migrated every operator QML media consumer to `MediaContext` and added a
   contract guard that prevents new uses of the temporary root-controller media
   aliases.

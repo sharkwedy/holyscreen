@@ -102,16 +102,16 @@ Item {
 
     function externalScreenCount() {
         let count = 0
-        for (let index = 0; index < dashboard.controller.screens.length; ++index) {
-            if (!dashboard.controller.screens[index].primary)
+        for (let index = 0; index < dashboard.controller.outputContext.screens.length; ++index) {
+            if (!dashboard.controller.outputContext.screens[index].primary)
                 ++count
         }
         return count
     }
 
     function ensureExternalOutputs() {
-        if (dashboard.controller.outputWindows.length === 0 && externalScreenCount() > 0)
-            dashboard.controller.enableAllScreens()
+        if (dashboard.controller.outputContext.outputWindows.length === 0 && externalScreenCount() > 0)
+            dashboard.controller.outputContext.enableAllScreens()
     }
 
     function bibleBook(bookId) {
@@ -165,19 +165,19 @@ Item {
     function setScreenMediaEnabled(screen, enabled) {
         if (enabled && !screen.selected) {
             const screenId = screen.id
-            if (dashboard.controller.toggleScreen(screenId, true)) {
+            if (dashboard.controller.outputContext.toggleScreen(screenId, true)) {
                 Qt.callLater(function() {
-                    dashboard.controller.setOutputMediaEnabled(screenId, true)
+                    dashboard.controller.outputContext.setOutputMediaEnabled(screenId, true)
                 })
             }
             return
         }
         if (screen.selected)
-            dashboard.controller.setOutputMediaEnabled(screen.id, enabled)
+            dashboard.controller.outputContext.setOutputMediaEnabled(screen.id, enabled)
     }
 
     function openScreenRename(screen) {
-        if (!screen.selected && !dashboard.controller.toggleScreen(screen.id, true))
+        if (!screen.selected && !dashboard.controller.outputContext.toggleScreen(screen.id, true))
             return
         screenBeingRenamed = screen
         screenNameField.text = screen.name
@@ -212,7 +212,7 @@ Item {
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: {
             if (dashboard.screenBeingRenamed && screenNameField.text.trim().length > 0)
-                dashboard.controller.setOutputDisplayName(
+                dashboard.controller.outputContext.setOutputDisplayName(
                             dashboard.screenBeingRenamed.id, screenNameField.text)
         }
         contentItem: ColumnLayout {
@@ -498,8 +498,8 @@ Item {
                             clockMarginHorizontal: dashboard.controller.clockMarginHorizontal
                             clockMarginVertical: dashboard.controller.clockMarginVertical
                             clockEffect: dashboard.controller.clockEffect
-                            isBlackout: dashboard.controller.blackout
-                            identifyVisible: dashboard.controller.identifyVisible
+                            isBlackout: dashboard.controller.outputContext.blackout
+                            identifyVisible: dashboard.controller.outputContext.identifyVisible
                         }
                     }
                     ColumnLayout {
@@ -610,7 +610,7 @@ Item {
                                     font.pixelSize: 12
                                 }
                                 Repeater {
-                                    model: dashboard.controller.screens
+                                    model: dashboard.controller.outputContext.screens
                                     delegate: CheckBox {
                                         id: screenCheckBox
                                         required property var modelData
@@ -659,9 +659,9 @@ Item {
                                     font.pixelSize: 12
                                 }
                                 Button {
-                                    visible: dashboard.externalScreenCount() > dashboard.controller.outputWindows.length
+                                    visible: dashboard.externalScreenCount() > dashboard.controller.outputContext.outputWindows.length
                                     text: qsTr("Ativar todas")
-                                    onClicked: dashboard.controller.enableAllScreens()
+                                    onClicked: dashboard.controller.outputContext.enableAllScreens()
                                 }
                                 Item { Layout.fillWidth: true }
                             }
