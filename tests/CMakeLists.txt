@@ -357,5 +357,6 @@ set_tests_properties(test_qml_output_views PROPERTIES
 add_test(NAME test_app_starts COMMAND $<TARGET_FILE:church-presenter> --quit-after-startup)
 set_tests_properties(test_app_starts PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+    FAIL_REGULAR_EXPRESSION "QQmlApplicationEngine failed;does not support customization;Binding loop detected"
     TIMEOUT 15
 )

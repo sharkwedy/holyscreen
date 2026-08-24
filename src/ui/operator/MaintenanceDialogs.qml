@@ -41,11 +41,11 @@ Item {
         id: restoreConfirmDialog
         title: qsTr("Agendar restauração?")
         modal: true
+        width: UiScale.px(500)
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: dialogs.controller.scheduleRestore(
                         dialogs.pendingRestoreSource)
         Label {
-            width: 420
             text: qsTr("O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.")
             wrapMode: Text.WordWrap
         }

@@ -37,6 +37,7 @@ Dialog {
         anchors.centerIn: parent
         title: qsTr("Limpar histórico?")
         modal: true
+        width: Math.min(UiScale.px(500), dialog.width - UiScale.px(80))
         standardButtons: Dialog.Yes | Dialog.No
         onAccepted: dialog.controller.eventContext.clearHistory()
 
@@ -44,7 +45,6 @@ Dialog {
             text: qsTr("Essa ação remove definitivamente os registros de execução.")
             color: "#f2f4f5"
             wrapMode: Text.WordWrap
-            width: 420
         }
     }
 }
