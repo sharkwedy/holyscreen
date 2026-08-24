@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Dialogs
 import QtQuick.Layouts
 
 Item {
@@ -48,27 +47,6 @@ Item {
     readonly property color textMuted: "#aab2b8"
     readonly property color accent: "#b9c7ff"
 
-    component PlayerButton: Button {
-        id: playerButton
-        implicitWidth: 48
-        implicitHeight: 42
-        flat: true
-        font.pixelSize: 22
-        font.bold: true
-        contentItem: Label {
-            text: playerButton.text
-            color: playerButton.enabled ? "#f2f4f5" : "#626a70"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font: playerButton.font
-        }
-        background: Rectangle {
-            radius: 6
-            color: playerButton.down ? "#526173"
-                  : playerButton.hovered ? "#3c4650" : "transparent"
-            border.color: playerButton.highlighted ? "#9fb3ff" : "transparent"
-        }
-    }
     property bool screenControlsExpanded: true
     property real mediaVolumeBeforeMute: 0.8
     property var screenBeingRenamed: null
@@ -449,91 +427,17 @@ Item {
                     }
                 }
             }
-            Rectangle {
+            PlaylistPanel {
                 SplitView.fillHeight: true
                 SplitView.minimumHeight: 120
-                color: dashboard.panel; border.color: dashboard.line; radius: 6
-                ColumnLayout {
-                    anchors.fill: parent; spacing: 0
-                    Rectangle {
-                        Layout.fillWidth: true; Layout.preferredHeight: 42; color: dashboard.panelHigh
-                        RowLayout {
-                            anchors.fill: parent; anchors.margins: 10
-                            Label { text: qsTr("▾  Reprodução"); color: dashboard.textMain; font.bold: true; font.pixelSize: 12 }
-                            Item { Layout.fillWidth: true }
-                            Button { text: qsTr("Salvar"); flat: true; onClicked: savePlaylistDialog.open() }
-                            Button { text: qsTr("Limpar"); flat: true; onClicked: dashboard.controller.mediaContext.clearMediaPlaylist() }
-                        }
-                    }
-                    ListView {
-                        id: playlistList
-                        Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-                        spacing: 2
-                        model: dashboard.controller.mediaContext.mediaPlaylist
-                        delegate: Rectangle {
-                            id: playlistDelegate
-                            required property var modelData
-                            required property int index
-                            property real dragDistance: 0
-                            width: ListView.view.width; height: 48
-                            z: reorderDrag.active ? 10 : 0
-                            radius: 4
-                            color: reorderDrag.active ? "#40546b"
-                                  : dashboard.controller.mediaContext.currentMediaId === playlistDelegate.modelData.id ? "#263b55"
-                                  : playlistTap.hovered ? "#30373d"
-                                  : (index % 2 ? "#1d2226" : "transparent")
-                            border.color: reorderDrag.active ? dashboard.accent : "transparent"
-                            transform: Translate { y: playlistDelegate.dragDistance }
-                            RowLayout {
-                                anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12
-                                Label { text: "☰"; color: dashboard.accent; font.pixelSize: 18; Layout.preferredWidth: 24 }
-                                Label { text: playlistDelegate.index + 1; color: dashboard.textMuted; Layout.preferredWidth: 24 }
-                                Label { Layout.fillWidth: true; text: playlistDelegate.modelData.title; color: dashboard.textMain; elide: Text.ElideRight }
-                                Label { text: dashboard.duration(playlistDelegate.modelData.durationMs); color: dashboard.textMuted; font.pixelSize: 11 }
-                                PlayerButton {
-                                    implicitWidth: 38
-                                    implicitHeight: 36
-                                    font.pixelSize: 18
-                                    text: "▶"
-                                    Accessible.name: qsTr("Reproduzir %1").arg(playlistDelegate.modelData.title)
-                                    onClicked: dashboard.controller.mediaContext.playMedia(playlistDelegate.modelData.id)
-                                }
-                            }
-                            HoverHandler { id: playlistTap }
-                            TapHandler {
-                                acceptedButtons: Qt.LeftButton
-                                onDoubleTapped: dashboard.controller.mediaContext.playMedia(playlistDelegate.modelData.id)
-                            }
-                            TapHandler {
-                                acceptedButtons: Qt.RightButton
-                                onTapped: dashboard.openMediaContextMenu(playlistDelegate.modelData)
-                            }
-                            DragHandler {
-                                id: reorderDrag
-                                target: null
-                                xAxis.enabled: false
-                                onTranslationChanged: {
-                                    if (active)
-                                        playlistDelegate.dragDistance = translation.y
-                                }
-                                onActiveChanged: {
-                                    if (active)
-                                        return
-                                    const mediaId = playlistDelegate.modelData.id
-                                    const sourceIndex = playlistDelegate.index
-                                    const offset = Math.round(playlistDelegate.dragDistance
-                                                              / playlistDelegate.height)
-                                    const targetIndex = Math.max(0, Math.min(playlistList.count - 1,
-                                                                           sourceIndex + offset))
-                                    persistentTranslation = Qt.vector2d(0, 0)
-                                    playlistDelegate.dragDistance = 0
-                                    if (targetIndex !== sourceIndex)
-                                        dashboard.controller.mediaContext.moveMedia(mediaId, targetIndex)
-                                }
-                            }
-                        }
-                    }
-                }
+                controller: dashboard.controller.mediaContext
+                panelColor: dashboard.panel
+                panelHighColor: dashboard.panelHigh
+                lineColor: dashboard.line
+                textMainColor: dashboard.textMain
+                textMutedColor: dashboard.textMuted
+                accentColor: dashboard.accent
+                onShowMediaOptions: function(item) { dashboard.openMediaContextMenu(item) }
             }
         }
 
@@ -556,15 +460,6 @@ Item {
             onOpenBrowser: dashboard.openBibleBrowser()
             onOpenSettings: dashboard.openBible()
         }
-    }
-
-    FileDialog {
-        id: savePlaylistDialog
-        title: qsTr("Salvar playlist")
-        fileMode: FileDialog.SaveFile
-        nameFilters: ["Playlist M3U8 (*.m3u8)"]
-        defaultSuffix: "m3u8"
-        onAccepted: dashboard.controller.mediaContext.saveMediaPlaylist(selectedFile)
     }
 
     function duration(milliseconds) {

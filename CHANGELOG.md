@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted the reorderable media playlist and save dialog into
+  `PlaylistPanel`, and promoted the transport button styling to the reusable
+  `PlayerButton` component.
 - Extracted the searchable lyrics, audio, video and image library from the
   Dashboard into a dedicated `LibraryPanel` connected only to `MediaContext`.
 - Completed `MediaContext` coverage for lyrics and direct file imports, and

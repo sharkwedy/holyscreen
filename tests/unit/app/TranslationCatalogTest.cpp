@@ -85,6 +85,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/Dashboard.qml"),
         QStringLiteral("src/ui/operator/BiblePanel.qml"),
         QStringLiteral("src/ui/operator/LibraryPanel.qml"),
+        QStringLiteral("src/ui/operator/PlaylistPanel.qml"),
+        QStringLiteral("src/ui/operator/PlayerButton.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
         QStringLiteral("src/ui/operator/MainWindow.qml"),
         QStringLiteral("src/ui/output/AudienceView.qml"),
@@ -133,7 +135,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QVERIFY2(!contents.isEmpty(), qPrintable(QStringLiteral("Não foi possível ler %1").arg(path)));
         QVERIFY2(!rawVisible.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
-        const bool receivesMediaContext = path.endsWith(QStringLiteral("/LibraryPanel.qml"));
+        const bool receivesMediaContext = path.endsWith(QStringLiteral("/LibraryPanel.qml"))
+            || path.endsWith(QStringLiteral("/PlaylistPanel.qml"));
         QVERIFY2(receivesMediaContext || !legacyMediaAlias.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("Alias legado de mídia usado em %1").arg(path)));
         QVERIFY2(!legacyOutputAlias.match(contents).hasMatch(),
