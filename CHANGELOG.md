@@ -7,6 +7,13 @@ Versioning.
 
 ## [1.0.2] - 2026-08-24
 
+- Fixed a startup crash on macOS machines where CoreMIDI is unavailable. RtMidi
+  6.0.0 declares both `getCoreMidiClientSingleton` overloads `throw()` yet calls
+  an error handler that throws, so a failing `MIDIClientCreate` terminated the
+  process with SIGABRT before any caller could react — the existing handling in
+  `RtMidiTransport` never got the chance to run. The pinned dependency is now
+  patched to drop that specification, and an unavailable MIDI backend degrades
+  to a message instead of killing the application.
 - Removed the development artifacts that the bundled dependencies were shipping
   inside every package. libgit2 and RtMidi declare unconditional install rules,
   so their headers, static libraries and CMake package files were landing next
