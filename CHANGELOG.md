@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized Dashboard library, player, display selection, playlist, Bible, and
+  media context actions in pt-BR/en-US, with accessible transport names.
 - Localized the complete Automations editor and authorized-process dialogs in
   pt-BR/en-US, including weekday labels and accessible action names.
 - Localized the complete Integrations editor in pt-BR/en-US, including dynamic
