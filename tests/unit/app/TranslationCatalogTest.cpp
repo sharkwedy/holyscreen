@@ -116,6 +116,15 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                        "toggleScreen|enableAllScreens|setOutputBibleTranslation|setOutputRole|"
                        "setOutputMediaEnabled|outputBroadcastProfile|setOutputBroadcastProfile|"
                        "setOutputDisplayName|identifyScreens)\\b"));
+    static const QRegularExpression legacyBibleAlias(
+        QStringLiteral("controller\\.(?:bibleTranslations|bibleBooks|biblePrimaryTranslationId|"
+                       "bibleSecondaryTranslationId|bibleTertiaryTranslationId|bibleReferenceInput|"
+                       "bibleResults|bibleImportRunning|bibleImportProgress|bibleImportMessage|"
+                       "bibleImportRequiresLicenseConfirmation|bibleImportLicenseWarning|"
+                       "importBibleTranslation|importBibleFolder|importBibleGit|importBibleZip|"
+                       "confirmBibleImportLicenses|cancelBibleImport|updateBibleTranslationFromSource|"
+                       "searchBibleReference|showBibleVerse|bibleChapterNumbers|bibleVerseNumbers|"
+                       "presentBibleReference|bibleTextForSlide)\\b"));
     for (const auto &path : qmlFiles) {
         const auto contents = QString::fromUtf8(readFile(path));
         QVERIFY2(!contents.isEmpty(), qPrintable(QStringLiteral("Não foi possível ler %1").arg(path)));
@@ -125,6 +134,10 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("Alias legado de mídia usado em %1").arg(path)));
         QVERIFY2(!legacyOutputAlias.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("Alias legado de saída usado em %1").arg(path)));
+        const bool receivesBibleContext = path.endsWith(QStringLiteral("/BibleBrowser.qml"))
+            || path.endsWith(QStringLiteral("/QuickBibleSearch.qml"));
+        QVERIFY2(receivesBibleContext || !legacyBibleAlias.match(contents).hasMatch(),
+                 qPrintable(QStringLiteral("Alias legado de Bíblia usado em %1").arg(path)));
         auto matches = translated.globalMatch(contents);
         while (matches.hasNext()) sources.insert(qmlStringValue(matches.next().captured(1)));
     }

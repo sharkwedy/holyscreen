@@ -51,13 +51,13 @@ Item {
     readonly property color biblePresented: "#245d45"
     readonly property color biblePresentedBorder: "#58dc9a"
     readonly property var selectedBibleTranslation: {
-        for (let index = 0; index < dashboard.controller.bibleTranslations.length; ++index) {
-            const translation = dashboard.controller.bibleTranslations[index]
-            if (translation.id === dashboard.controller.biblePrimaryTranslationId)
+        for (let index = 0; index < dashboard.controller.bibleContext.bibleTranslations.length; ++index) {
+            const translation = dashboard.controller.bibleContext.bibleTranslations[index]
+            if (translation.id === dashboard.controller.bibleContext.biblePrimaryTranslationId)
                 return translation
         }
-        return dashboard.controller.bibleTranslations.length > 0
-                ? dashboard.controller.bibleTranslations[0] : null
+        return dashboard.controller.bibleContext.bibleTranslations.length > 0
+                ? dashboard.controller.bibleContext.bibleTranslations[0] : null
     }
 
     component PlayerButton: Button {
@@ -91,9 +91,9 @@ Item {
     property int selectedBibleChapter: 1
     property int selectedBibleVerseIndex: -1
     readonly property var bibleChapterModel: {
-        const translationId = dashboard.controller.biblePrimaryTranslationId
+        const translationId = dashboard.controller.bibleContext.biblePrimaryTranslationId
         return translationId && selectedBibleBookId > 0
-                ? dashboard.controller.bibleChapterNumbers(selectedBibleBookId) : []
+                ? dashboard.controller.bibleContext.bibleChapterNumbers(selectedBibleBookId) : []
     }
     readonly property var libraryModel: selectedLibraryTab === 0 ? dashboard.controller.songs
                                         : selectedLibraryTab === 1 ? dashboard.controller.mediaContext.folderAudioFiles
@@ -115,8 +115,8 @@ Item {
     }
 
     function bibleBook(bookId) {
-        for (let index = 0; index < dashboard.controller.bibleBooks.length; ++index) {
-            const book = dashboard.controller.bibleBooks[index]
+        for (let index = 0; index < dashboard.controller.bibleContext.bibleBooks.length; ++index) {
+            const book = dashboard.controller.bibleContext.bibleBooks[index]
             if (book.id === bookId)
                 return book
         }
@@ -126,34 +126,34 @@ Item {
     function searchSelectedBibleChapter() {
         const book = bibleBook(selectedBibleBookId)
         if (!book || selectedBibleChapter <= 0
-                || !dashboard.controller.biblePrimaryTranslationId)
+                || !dashboard.controller.bibleContext.biblePrimaryTranslationId)
             return
-        const verses = dashboard.controller.bibleVerseNumbers(selectedBibleBookId,
+        const verses = dashboard.controller.bibleContext.bibleVerseNumbers(selectedBibleBookId,
                                                       selectedBibleChapter)
         if (verses.length === 0)
             return
-        dashboard.controller.bibleReferenceInput = book.name + " " + selectedBibleChapter
+        dashboard.controller.bibleContext.bibleReferenceInput = book.name + " " + selectedBibleChapter
                 + ":" + verses[0] + "-" + verses[verses.length - 1]
-        dashboard.controller.searchBibleReference()
+        dashboard.controller.bibleContext.searchBibleReference()
     }
 
     function selectBibleBook(bookId) {
         selectedBibleBookId = Number(bookId)
-        const chapters = dashboard.controller.bibleChapterNumbers(selectedBibleBookId)
+        const chapters = dashboard.controller.bibleContext.bibleChapterNumbers(selectedBibleBookId)
         selectedBibleChapter = chapters.length > 0 ? Number(chapters[0]) : 0
         searchSelectedBibleChapter()
     }
 
     function syncBibleSelectors() {
-        let reference = dashboard.controller.bibleReferenceInput
-        if (dashboard.controller.bibleResults.length > 0)
-            reference = dashboard.controller.bibleResults[0].label
+        let reference = dashboard.controller.bibleContext.bibleReferenceInput
+        if (dashboard.controller.bibleContext.bibleResults.length > 0)
+            reference = dashboard.controller.bibleContext.bibleResults[0].label
         const match = /^(.+?)\s+(\d+)\s*(?::|\.)/.exec(reference.trim())
         if (!match)
             return
         const requestedBook = match[1].toLocaleLowerCase()
-        for (let index = 0; index < dashboard.controller.bibleBooks.length; ++index) {
-            const book = dashboard.controller.bibleBooks[index]
+        for (let index = 0; index < dashboard.controller.bibleContext.bibleBooks.length; ++index) {
+            const book = dashboard.controller.bibleContext.bibleBooks[index]
             if (book.name.toLocaleLowerCase() === requestedBook) {
                 selectedBibleBookId = Number(book.id)
                 selectedBibleChapter = Number(match[2])
@@ -190,13 +190,17 @@ Item {
         ensureExternalOutputs()
         syncBibleSelectors()
         restoreLayout()
-        if (dashboard.controller.bibleResults.length === 0)
+        if (dashboard.controller.bibleContext.bibleResults.length === 0)
             searchSelectedBibleChapter()
     })
 
     Connections {
-        target: dashboard.controller
+        target: dashboard.controller.outputContext
         function onScreensChanged() { Qt.callLater(dashboard.ensureExternalOutputs) }
+    }
+
+    Connections {
+        target: dashboard.controller.bibleContext
         function onBibleResultsChanged() {
             dashboard.selectedBibleVerseIndex = -1
             Qt.callLater(dashboard.syncBibleSelectors)
@@ -779,12 +783,12 @@ Item {
                     ComboBox {
                         id: bibleBookCombo
                         Layout.fillWidth: true
-                        model: dashboard.controller.bibleBooks
+                        model: dashboard.controller.bibleContext.bibleBooks
                         textRole: "name"
                         valueRole: "id"
                         currentIndex: {
-                            for (let index = 0; index < dashboard.controller.bibleBooks.length; ++index) {
-                                if (dashboard.controller.bibleBooks[index].id
+                            for (let index = 0; index < dashboard.controller.bibleContext.bibleBooks.length; ++index) {
+                                if (dashboard.controller.bibleContext.bibleBooks[index].id
                                         === dashboard.selectedBibleBookId)
                                     return index
                             }
@@ -812,19 +816,19 @@ Item {
                     ComboBox {
                         id: bibleTranslationCombo
                         Layout.preferredWidth: 110
-                        model: dashboard.controller.bibleTranslations
+                        model: dashboard.controller.bibleContext.bibleTranslations
                         textRole: "abbreviation"
                         valueRole: "id"
                         currentIndex: {
-                            for (let index = 0; index < dashboard.controller.bibleTranslations.length; ++index) {
-                                if (dashboard.controller.bibleTranslations[index].id
-                                        === dashboard.controller.biblePrimaryTranslationId)
+                            for (let index = 0; index < dashboard.controller.bibleContext.bibleTranslations.length; ++index) {
+                                if (dashboard.controller.bibleContext.bibleTranslations[index].id
+                                        === dashboard.controller.bibleContext.biblePrimaryTranslationId)
                                     return index
                             }
-                            return dashboard.controller.bibleTranslations.length > 0 ? 0 : -1
+                            return dashboard.controller.bibleContext.bibleTranslations.length > 0 ? 0 : -1
                         }
                         onActivated: {
-                            dashboard.controller.biblePrimaryTranslationId = currentValue
+                            dashboard.controller.bibleContext.biblePrimaryTranslationId = currentValue
                             dashboard.searchSelectedBibleChapter()
                         }
                     }
@@ -832,7 +836,7 @@ Item {
                 Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dashboard.line }
                 ListView {
                     Layout.fillWidth: true; Layout.fillHeight: true; clip: true; spacing: 0
-                    model: dashboard.controller.bibleResults
+                    model: dashboard.controller.bibleContext.bibleResults
                     delegate: Rectangle {
                         id: bibleVerseDelegate
                         required property var modelData
@@ -870,14 +874,14 @@ Item {
                             onTapped: dashboard.selectedBibleVerseIndex = bibleVerseDelegate.index
                             onDoubleTapped: {
                                 dashboard.selectedBibleVerseIndex = bibleVerseDelegate.index
-                                dashboard.controller.showBibleVerse(bibleVerseDelegate.index)
+                                dashboard.controller.bibleContext.showBibleVerse(bibleVerseDelegate.index)
                             }
                         }
                     }
                     Label {
                         anchors.centerIn: parent
                         visible: parent.count === 0
-                        text: dashboard.controller.bibleTranslations.length === 0
+                        text: dashboard.controller.bibleContext.bibleTranslations.length === 0
                               ? qsTr("Importe uma tradução bíblica para visualizar passagens")
                               : qsTr("Nenhum versículo encontrado")
                         color: dashboard.textMuted

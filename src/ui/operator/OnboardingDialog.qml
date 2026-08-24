@@ -30,7 +30,7 @@ Dialog {
         if (stepId === "screens") return controller.outputContext.outputWindows.length > 0
         if (stepId === "audio") return controller.mediaContext.audioOutputConfigured
         if (stepId === "library") return controller.mediaContext.mediaFolders.length > 0
-        if (stepId === "bible") return controller.bibleTranslations.length > 0
+        if (stepId === "bible") return controller.bibleContext.bibleTranslations.length > 0
         if (stepId === "remote") return controller.remotePasswordConfigured
         if (stepId === "broadcast") {
             for (let index = 0; index < controller.outputContext.screens.length; ++index) {

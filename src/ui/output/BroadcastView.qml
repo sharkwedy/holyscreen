@@ -73,7 +73,7 @@ Item {
                 controller: root.controller
                 isBlackout: root.controller.outputContext.blackout
                 textOverride: root.controller.currentPresentationType === "bible"
-                              ? root.controller.bibleTextForSlide(
+                              ? root.controller.bibleContext.bibleTextForSlide(
                                     root.controller.currentSlideIndex, root.bibleTranslationId)
                               : ""
             }
