@@ -10,7 +10,7 @@ Dialog {
     signal openSettings(int tabIndex)
     signal openBible()
 
-    title: "Configuração guiada do HolyScreen"
+    title: qsTr("Configuração guiada do HolyScreen")
     modal: true
     width: Math.min(760, parent ? parent.width - 80 : 760)
     height: Math.min(620, parent ? parent.height - 80 : 620)
@@ -18,12 +18,12 @@ Dialog {
     closePolicy: Popup.CloseOnEscape
     property int currentStep: 0
     readonly property var steps: [
-        {"id":"screens", "title":"Telas", "description":"Escolha as saídas de público, palco e transmissão.", "tab":1},
-        {"id":"audio", "title":"Áudio", "description":"Ajuste volume, repetição e comportamento de imagens.", "tab":2},
-        {"id":"library", "title":"Biblioteca", "description":"Importe ao menos uma pasta de mídia.", "tab":0},
-        {"id":"bible", "title":"Bíblia", "description":"Importe e selecione uma tradução bíblica.", "tab":-1},
-        {"id":"remote", "title":"Controle remoto", "description":"Defina uma senha antes de habilitar o servidor local.", "tab":4},
-        {"id":"broadcast", "title":"Broadcast", "description":"Configure uma saída para transmissão ou deixe esta etapa para depois.", "tab":1}
+        {"id":"screens", "title":qsTr("Telas"), "description":qsTr("Escolha as saídas de público, palco e transmissão."), "tab":1},
+        {"id":"audio", "title":qsTr("Áudio"), "description":qsTr("Ajuste volume, repetição e comportamento de imagens."), "tab":2},
+        {"id":"library", "title":qsTr("Biblioteca"), "description":qsTr("Importe ao menos uma pasta de mídia."), "tab":0},
+        {"id":"bible", "title":qsTr("Bíblia"), "description":qsTr("Importe e selecione uma tradução bíblica."), "tab":-1},
+        {"id":"remote", "title":qsTr("Controle remoto"), "description":qsTr("Defina uma senha antes de habilitar o servidor local."), "tab":4},
+        {"id":"broadcast", "title":qsTr("Broadcast"), "description":qsTr("Configure uma saída para transmissão ou deixe esta etapa para depois."), "tab":1}
     ]
 
     function stepComplete(stepId) {
@@ -65,7 +65,7 @@ Dialog {
         spacing: 16
         Label {
             Layout.fillWidth: true
-            text: "Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações."
+            text: qsTr("Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações.")
             color: "#aab2b8"
             wrapMode: Text.WordWrap
         }
@@ -115,21 +115,21 @@ Dialog {
                     Label {
                         anchors.centerIn: parent
                         text: onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
-                              ? "Etapa configurada" : "Configuração pendente"
+                              ? qsTr("Etapa configurada") : qsTr("Configuração pendente")
                         color: onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
                                ? "#70e1a7" : "#f0c36a"
                         font.bold: true
                     }
                 }
                 Button {
-                    text: "Configurar esta etapa"
+                    text: qsTr("Configurar esta etapa")
                     Accessible.name: text
                     onClicked: onboarding.configureCurrentStep()
                 }
                 Item { Layout.fillHeight: true }
                 Label {
                     Layout.fillWidth: true
-                    text: "As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast."
+                    text: qsTr("As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.")
                     color: "#8d979f"
                     wrapMode: Text.WordWrap
                     font.pixelSize: 11
@@ -139,19 +139,19 @@ Dialog {
         RowLayout {
             Layout.fillWidth: true
             Button {
-                text: "Voltar"
+                text: qsTr("Voltar")
                 enabled: onboarding.currentStep > 0
                 onClicked: --onboarding.currentStep
             }
             Button {
-                text: "Próxima"
+                text: qsTr("Próxima")
                 enabled: onboarding.currentStep < onboarding.steps.length - 1
                 onClicked: ++onboarding.currentStep
             }
             Item { Layout.fillWidth: true }
-            Button { text: "Agora não"; flat: true; onClicked: onboarding.close() }
+            Button { text: qsTr("Agora não"); flat: true; onClicked: onboarding.close() }
             Button {
-                text: "Concluir configuração"
+                text: qsTr("Concluir configuração")
                 highlighted: true
                 onClicked: {
                     onboarding.controller.completeOnboarding()

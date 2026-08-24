@@ -23,10 +23,11 @@ engine, so the interface shows a restart notice after the selection changes.
 
 ## Migração incremental
 
-The contract currently covers the focused Events and Maintenance areas. Add a
-QML file to the `qmlFiles` list in `TranslationCatalogTest.cpp` as soon as all
-of its visible strings are wrapped and both catalogs are complete. The 0.14.0
-checkpoint requires every operator, output and PWA surface to be covered.
+The contract currently covers the Events, Maintenance and guided onboarding
+areas. Add a QML file to the `qmlFiles` list in `TranslationCatalogTest.cpp` as
+soon as all of its visible strings are wrapped and both catalogs are complete.
+The 0.14.0 checkpoint requires every operator, output and PWA surface to be
+covered.
 
 The embedded PWA chooses pt-BR by default, follows an English browser locale
 on first use and persists an explicit pt-BR/en-US selection in local storage.
