@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Extracted the searchable lyrics, audio, video and image library from the
+  Dashboard into a dedicated `LibraryPanel` connected only to `MediaContext`.
 - Completed `MediaContext` coverage for lyrics and direct file imports, and
   migrated the remaining operator QML consumers from the temporary root media
   aliases.

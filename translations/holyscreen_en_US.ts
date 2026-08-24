@@ -547,212 +547,152 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="133"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="127"/>
         <source>Renomear monitor</source>
         <translation>Rename display</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="146"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="140"/>
         <source>Nome que será exibido no HolyScreen:</source>
         <translation>Name shown in HolyScreen:</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="152"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="146"/>
         <source>Ex.: Projetor principal</source>
         <translation>Example: Main projector</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="156"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="150"/>
         <source>O nome técnico do monitor no Windows não será alterado.</source>
         <translation>The display&apos;s technical name in Windows will not change.</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="166"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="160"/>
         <source>Abrir local do arquivo</source>
         <translation>Open file location</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="180"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="174"/>
         <source>★ Remover dos favoritos</source>
         <translation>★ Remove from favorites</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="182"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="176"/>
         <source>☆ Adicionar aos favoritos</source>
         <translation>☆ Add to favorites</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="275"/>
-        <source>Pesquisar mídia...</source>
-        <translation>Search media...</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="292"/>
-        <source>Letras</source>
-        <translation>Lyrics</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="292"/>
-        <source>Áudio</source>
-        <translation>Audio</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="293"/>
-        <source>Vídeo</source>
-        <translation>Video</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="293"/>
-        <source>Imagem</source>
-        <translation>Image</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="328"/>
-        <source>Sem título</source>
-        <translation>Untitled</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="332"/>
-        <source>Letra</source>
-        <translation>Lyrics</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="339"/>
-        <source>ABRIR</source>
-        <translation>OPEN</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="357"/>
-        <source>Adicione pastas na Biblioteca para ver suas mídias</source>
-        <translation>Add folders to the Library to see your media</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="358"/>
-        <source>Nenhum arquivo encontrado</source>
-        <translation>No files found</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="366"/>
-        <source>%1 itens</source>
-        <translation>%1 items</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="368"/>
-        <source>Biblioteca</source>
-        <translation>Library</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="405"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="260"/>
         <source>PRÉVIA</source>
         <translation>PREVIEW</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="445"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="300"/>
         <source>Embaralhar playlist</source>
         <translation>Shuffle playlist</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="454"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="309"/>
         <source>Ativar repetição de toda a playlist</source>
         <translation>Repeat the entire playlist</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="456"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="311"/>
         <source>Repetir somente o item atual</source>
         <translation>Repeat only the current item</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="457"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="312"/>
         <source>Desativar repetição</source>
         <translation>Disable repeat</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="467"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="322"/>
         <source>Mídia anterior</source>
         <translation>Previous media</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="476"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="331"/>
         <source>Pausar</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="476"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="331"/>
         <source>Reproduzir</source>
         <translation>Play</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="481"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="336"/>
         <source>Parar</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="486"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="341"/>
         <source>Próxima mídia</source>
         <translation>Next media</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="494"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="349"/>
         <source>Mutar</source>
         <translation>Mute</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="494"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="349"/>
         <source>Desmutar</source>
         <translation>Unmute</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="512"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="367"/>
         <source>Ocultar seleção de telas</source>
         <translation>Hide display selection</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="513"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="368"/>
         <source>Mostrar seleção de telas</source>
         <translation>Show display selection</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="532"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="387"/>
         <source>Exibir vídeo em:</source>
         <translation>Show video on:</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="572"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="427"/>
         <source>Clique com o botão direito para renomear</source>
         <translation>Right-click to rename</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="582"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="437"/>
         <source>nenhuma tela externa detectada</source>
         <translation>no external display detected</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="588"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="443"/>
         <source>Ativar todas</source>
         <translation>Enable all</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="607"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="462"/>
         <source>▾  Reprodução</source>
         <translation>▾  Playback</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="609"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="464"/>
         <source>Salvar</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="610"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="465"/>
         <source>Limpar</source>
         <translation>Clear</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="643"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="498"/>
         <source>Reproduzir %1</source>
         <translation>Play %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="708"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="563"/>
         <source>Salvar playlist</source>
         <translation>Save playlist</translation>
     </message>
@@ -1033,6 +973,69 @@
         <location filename="../src/ui/operator/IntegrationsArea.qml" line="468"/>
         <source>A integração e o histórico dela serão apagados. Confirmar?</source>
         <translation>The integration and its history will be deleted. Confirm?</translation>
+    </message>
+</context>
+<context>
+    <name>LibraryPanel</name>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="88"/>
+        <source>Pesquisar mídia...</source>
+        <translation>Search media...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="116"/>
+        <source>Letras</source>
+        <translation>Lyrics</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="116"/>
+        <source>Áudio</source>
+        <translation>Audio</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="117"/>
+        <source>Vídeo</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="117"/>
+        <source>Imagem</source>
+        <translation>Image</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="170"/>
+        <source>Sem título</source>
+        <translation>Untitled</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="177"/>
+        <source>Letra</source>
+        <translation>Lyrics</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="186"/>
+        <source>ABRIR</source>
+        <translation>OPEN</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="208"/>
+        <source>Adicione pastas na Biblioteca para ver suas mídias</source>
+        <translation>Add folders to the Library to see your media</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="209"/>
+        <source>Nenhum arquivo encontrado</source>
+        <translation>No files found</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="222"/>
+        <source>%1 itens</source>
+        <translation>%1 items</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="228"/>
+        <source>Biblioteca</source>
+        <translation>Library</translation>
     </message>
 </context>
 <context>

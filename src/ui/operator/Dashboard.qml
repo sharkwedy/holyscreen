@@ -69,16 +69,10 @@ Item {
             border.color: playerButton.highlighted ? "#9fb3ff" : "transparent"
         }
     }
-    property int selectedLibraryTab: 1
-    property string librarySearch: dashboard.controller.mediaContext.audioFileSearch
     property bool screenControlsExpanded: true
     property real mediaVolumeBeforeMute: 0.8
     property var screenBeingRenamed: null
     property var contextMediaItem: null
-    readonly property var libraryModel: selectedLibraryTab === 0 ? dashboard.controller.mediaContext.songs
-                                        : selectedLibraryTab === 1 ? dashboard.controller.mediaContext.folderAudioFiles
-                                        : selectedLibraryTab === 2 ? dashboard.controller.mediaContext.folderVideoFiles
-                                        : dashboard.controller.mediaContext.folderImageFiles
 
     function externalScreenCount() {
         let count = 0
@@ -195,43 +189,6 @@ Item {
         mediaContextMenu.popup()
     }
 
-    function updateSearch(value) {
-        if (selectedLibraryTab === 0) dashboard.controller.mediaContext.songSearch = value
-        else if (selectedLibraryTab === 1) dashboard.controller.mediaContext.audioFileSearch = value
-        else if (selectedLibraryTab === 2) dashboard.controller.mediaContext.videoFileSearch = value
-        else dashboard.controller.mediaContext.imageFileSearch = value
-    }
-
-    onSelectedLibraryTabChanged: updateSearch(librarySearch)
-
-    function activateLibraryItem(item) {
-        if (selectedLibraryTab === 0) dashboard.controller.mediaContext.selectSong(item.id)
-        else dashboard.controller.mediaContext.addCatalogFileToPlaylist(item.path)
-    }
-
-    function activateLibraryItemFromDoubleClick(item) {
-        if (selectedLibraryTab === 0) {
-            dashboard.controller.mediaContext.selectSong(item.id)
-            return
-        }
-
-        const wasPlaying = dashboard.controller.mediaContext.mediaState === "playing"
-        let mediaId = ""
-        if (item.inPlaylist) {
-            for (let index = 0; index < dashboard.controller.mediaContext.mediaPlaylist.length; ++index) {
-                if (dashboard.controller.mediaContext.mediaPlaylist[index].path === item.path) {
-                    mediaId = dashboard.controller.mediaContext.mediaPlaylist[index].id
-                    break
-                }
-            }
-        } else {
-            mediaId = dashboard.controller.mediaContext.addCatalogFileToPlaylist(item.path)
-        }
-
-        if (!wasPlaying && mediaId.length > 0)
-            dashboard.controller.mediaContext.playMedia(mediaId)
-    }
-
     Rectangle { anchors.fill: parent; color: dashboard.background }
 
     SplitView {
@@ -253,122 +210,20 @@ Item {
             HoverHandler { cursorShape: Qt.SplitHCursor }
         }
 
-        Rectangle {
+        LibraryPanel {
             id: libraryPane
             SplitView.preferredWidth: Math.max(280, dashboard.width * 0.25)
             SplitView.minimumWidth: 220
-            color: dashboard.panel
-            border.color: dashboard.line
-            radius: 6
-
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 0
-                Rectangle {
-                    Layout.fillWidth: true; Layout.preferredHeight: 92
-                    color: "transparent"
-                    ColumnLayout {
-                        anchors.fill: parent; anchors.margins: 12; spacing: 8
-                        TextField {
-                            id: mediaSearch
-                            Layout.fillWidth: true
-                            placeholderText: qsTr("Pesquisar mídia...")
-                            placeholderTextColor: "#9ca6ad"
-                            color: dashboard.textMain
-                            selectionColor: dashboard.accent
-                            selectedTextColor: dashboard.background
-                            text: dashboard.librarySearch
-                            onTextEdited: {
-                                dashboard.librarySearch = text
-                                dashboard.updateSearch(text)
-                            }
-                            leftPadding: 34
-                            background: Rectangle { color: dashboard.panelHigh; border.color: dashboard.line; radius: 4 }
-                            Label { anchors.left: parent.left; anchors.leftMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: "⌕"; color: dashboard.textMuted }
-                        }
-                        RowLayout {
-                            Layout.fillWidth: true; spacing: 5
-                            Repeater {
-                                model: [qsTr("Letras"), qsTr("Áudio"),
-                                        qsTr("Vídeo"), qsTr("Imagem")]
-                                Button {
-                                    required property string modelData
-                                    required property int index
-                                    Layout.fillWidth: true
-                                    text: modelData
-                                    highlighted: index === dashboard.selectedLibraryTab
-                                    onClicked: dashboard.selectedLibraryTab = index
-                                }
-                            }
-                        }
-                    }
-                }
-                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dashboard.line }
-                ListView {
-                    id: libraryList
-                    Layout.fillWidth: true; Layout.fillHeight: true
-                    clip: true; model: dashboard.libraryModel
-                    delegate: Rectangle {
-                        id: catalogDelegate
-                        required property var modelData
-                        required property int index
-                        width: ListView.view.width; height: 58
-                        color: tapHandler.hovered ? "#343b43" : "transparent"
-                        border.color: catalogDelegate.modelData.inPlaylist === true ? dashboard.accent : "transparent"
-                        RowLayout {
-                            anchors.fill: parent; anchors.margins: 10; spacing: 10
-                            Label {
-                                text: dashboard.selectedLibraryTab === 0 ? "≡"
-                                      : dashboard.selectedLibraryTab === 1 ? "♫"
-                                      : dashboard.selectedLibraryTab === 2 ? "▶" : "▧"
-                                color: dashboard.accent; font.pixelSize: 18
-                            }
-                            ColumnLayout {
-                                Layout.fillWidth: true; spacing: 1
-                                Label { Layout.fillWidth: true; text: catalogDelegate.modelData.fileName || catalogDelegate.modelData.title || qsTr("Sem título"); color: dashboard.textMain; elide: Text.ElideRight }
-                                Label {
-                                    Layout.fillWidth: true
-                                    text: dashboard.selectedLibraryTab === 0
-                                          ? (catalogDelegate.modelData.author || qsTr("Letra"))
-                                          : (catalogDelegate.modelData.folderPath || "")
-                                    color: dashboard.textMuted; font.pixelSize: 11; elide: Text.ElideMiddle
-                                }
-                            }
-                            Button {
-                                text: dashboard.selectedLibraryTab === 0
-                                      ? qsTr("ABRIR")
-                                      : (catalogDelegate.modelData.inPlaylist ? "✓" : "+")
-                                flat: true
-                                enabled: dashboard.selectedLibraryTab === 0 || !catalogDelegate.modelData.inPlaylist
-                                onClicked: dashboard.activateLibraryItem(catalogDelegate.modelData)
-                            }
-                        }
-                        HoverHandler { id: tapHandler }
-                        TapHandler { onDoubleTapped: dashboard.activateLibraryItemFromDoubleClick(catalogDelegate.modelData) }
-                        TapHandler {
-                            acceptedButtons: Qt.RightButton
-                            onTapped: dashboard.openMediaContextMenu(catalogDelegate.modelData)
-                        }
-                    }
-                    Label {
-                        anchors.centerIn: parent
-                        visible: libraryList.count === 0
-                        text: dashboard.controller.mediaContext.mediaFolders.length === 0 && dashboard.selectedLibraryTab > 0
-                              ? qsTr("Adicione pastas na Biblioteca para ver suas mídias")
-                              : qsTr("Nenhum arquivo encontrado")
-                        color: dashboard.textMuted
-                    }
-                }
-                Rectangle {
-                    Layout.fillWidth: true; Layout.preferredHeight: 42; color: dashboard.panelHigh
-                    RowLayout {
-                        anchors.fill: parent; anchors.margins: 10
-                        Label { text: qsTr("%1 itens").arg(libraryList.count); color: dashboard.textMuted; font.pixelSize: 11 }
-                        Item { Layout.fillWidth: true }
-                        Button { text: qsTr("Biblioteca"); flat: true; onClicked: dashboard.openLibrary() }
-                    }
-                }
-            }
+            controller: dashboard.controller.mediaContext
+            backgroundColor: dashboard.background
+            panelColor: dashboard.panel
+            panelHighColor: dashboard.panelHigh
+            lineColor: dashboard.line
+            textMainColor: dashboard.textMain
+            textMutedColor: dashboard.textMuted
+            accentColor: dashboard.accent
+            onOpenLibrary: dashboard.openLibrary()
+            onShowMediaOptions: function(item) { dashboard.openMediaContextMenu(item) }
         }
 
         SplitView {
