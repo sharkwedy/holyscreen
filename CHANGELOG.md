@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Unified audio, video and image pickers with drag-and-drop classification in
+  a `MediaImportFlow` connected directly to `MediaContext`.
 - Connected `MaintenanceArea` to Settings and exposed backup restoration,
   diagnostic export, update checks and benchmark actions through dedicated
   `MaintenanceDialogs`.

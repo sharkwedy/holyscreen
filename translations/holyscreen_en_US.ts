@@ -1185,57 +1185,27 @@
         <translation>Images (*.jpg *.jpeg *.png *.webp)</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="107"/>
-        <source>Importar áudios</source>
-        <translation>Import audio</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="109"/>
-        <source>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</source>
-        <translation>Audio (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="115"/>
-        <source>Importar vídeos</source>
-        <translation>Import videos</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="117"/>
-        <source>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</source>
-        <translation>Videos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="123"/>
-        <source>Importar imagens</source>
-        <translation>Import images</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="125"/>
-        <source>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</source>
-        <translation>Images (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="120"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="145"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="122"/>
         <source>Ativar modo de debug</source>
         <translation>Enable debug mode</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="152"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="129"/>
         <source>Múltiplas saídas simuladas</source>
         <translation>Multiple simulated outputs</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="159"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="136"/>
         <source>Diagnósticos e benchmark</source>
         <translation>Diagnostics and benchmark</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="166"/>
+        <location filename="../src/ui/operator/MainWindow.qml" line="143"/>
         <source>Registrar mensagens DEBUG</source>
         <translation>Log DEBUG messages</translation>
     </message>
@@ -1319,6 +1289,39 @@
         <location filename="../src/ui/operator/MaintenanceDialogs.qml" line="49"/>
         <source>O banco atual será preservado em um backup de segurança. A restauração será aplicada somente após reiniciar o app.</source>
         <translation>The current database will be preserved in a safety backup. The restore will be applied only after restarting the app.</translation>
+    </message>
+</context>
+<context>
+    <name>MediaImportFlow</name>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="25"/>
+        <source>Importar áudios</source>
+        <translation>Import audio</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="28"/>
+        <source>Áudios (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</source>
+        <translation>Audio (*.mp3 *.wav *.flac *.m4a *.aac *.ogg *.opus *.wma *.aiff *.aif)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="35"/>
+        <source>Importar vídeos</source>
+        <translation>Import videos</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="38"/>
+        <source>Vídeos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</source>
+        <translation>Videos (*.mp4 *.mov *.m4v *.mkv *.webm *.avi *.wmv *.mpeg *.mpg)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="45"/>
+        <source>Importar imagens</source>
+        <translation>Import images</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/MediaImportFlow.qml" line="48"/>
+        <source>Imagens (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</source>
+        <translation>Images (*.jpg *.jpeg *.png *.webp *.bmp *.gif *.tif *.tiff *.heic)</translation>
     </message>
 </context>
 <context>

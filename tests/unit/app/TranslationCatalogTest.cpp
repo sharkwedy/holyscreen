@@ -92,6 +92,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/BibleSettingsFlow.qml"),
         QStringLiteral("src/ui/operator/LiveCommunicationDialog.qml"),
         QStringLiteral("src/ui/operator/MaintenanceDialogs.qml"),
+        QStringLiteral("src/ui/operator/MediaImportFlow.qml"),
         QStringLiteral("src/ui/operator/SettingsDialog.qml"),
         QStringLiteral("src/ui/operator/MainWindow.qml"),
         QStringLiteral("src/ui/output/AudienceView.qml"),
@@ -142,7 +143,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
         const bool receivesMediaContext = path.endsWith(QStringLiteral("/LibraryPanel.qml"))
             || path.endsWith(QStringLiteral("/PlaylistPanel.qml"))
-            || path.endsWith(QStringLiteral("/MediaLibraryDialog.qml"));
+            || path.endsWith(QStringLiteral("/MediaLibraryDialog.qml"))
+            || path.endsWith(QStringLiteral("/MediaImportFlow.qml"));
         QVERIFY2(receivesMediaContext || !legacyMediaAlias.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("Alias legado de mídia usado em %1").arg(path)));
         QVERIFY2(!legacyOutputAlias.match(contents).hasMatch(),
