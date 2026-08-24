@@ -35,5 +35,22 @@ The two-hour session runs through the executable, not through CTest. See
 [`ENDURANCE.md`](ENDURANCE.md) for the options, the report schema and the
 blocker thresholds.
 
+## Synthetic media
+
+Media validation never uses the operator library or any protected content.
+`tools/make-synthetic-media.sh` (and `tools/make-synthetic-media.ps1` on
+Windows) generates everything from ffmpeg sources: a 1080p60 H.264 reference
+clip, the same clip with a deliberate audio dropout, a VP9/Opus clip for a
+different decode path, WAV and AAC tones, images at 640x480, 1920x1080 and
+3840x2160, and an unreadable file for the missing-codec path.
+
+```sh
+media_dir="$(tools/make-synthetic-media.sh)"
+holyscreen --endurance --endurance-minutes=120 --endurance-media="$media_dir"
+```
+
+Nothing is committed: the default destination is a temporary directory and the
+script prints its path on the last line.
+
 The working report for the next candidate is
 [`releases/1.0.0-rc.1-validation.md`](releases/1.0.0-rc.1-validation.md).

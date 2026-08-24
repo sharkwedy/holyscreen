@@ -5,6 +5,10 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Added `tools/make-synthetic-media.sh` and `tools/make-synthetic-media.ps1`,
+  which generate unprotected 1080p60, audio-dropout, alternate-codec, tone,
+  image and unreadable-file fixtures for media validation without touching the
+  operator library.
 - Added an isolated endurance mode to the executable, with `--endurance`,
   `--endurance-minutes`, `--endurance-report` and `--endurance-media`, a JSON
   report covering environment, CPU, resident memory, event-loop lag, failures
