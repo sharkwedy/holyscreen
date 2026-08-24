@@ -13,7 +13,7 @@ Dialog {
     property var chapterModel: []
     property var verseModel: []
 
-    title: "Navegação bíblica"
+    title: qsTr("Navegação bíblica")
     modal: true
     width: Math.min(parent ? parent.width - 48 : 1240, 1240)
     height: Math.min(parent ? parent.height - 48 : 760, 760)
@@ -66,7 +66,7 @@ Dialog {
         RowLayout {
             Layout.fillWidth: true
             Label {
-                text: "Digite uma referência ou escolha livro, capítulo e versículo"
+                text: qsTr("Digite uma referência ou escolha livro, capítulo e versículo")
                 color: browser.textMain
                 font.bold: true
                 font.pixelSize: 15
@@ -74,7 +74,7 @@ Dialog {
             Item { Layout.fillWidth: true }
             Label {
                 text: browser.controller.bibleTranslations.length > 0
-                      ? "Tradução principal ativa" : "Nenhuma tradução importada"
+                      ? qsTr("Tradução principal ativa") : qsTr("Nenhuma tradução importada")
                 color: browser.controller.bibleTranslations.length > 0
                        ? "#8bdcb7" : "#ffba70"
                 font.pixelSize: 11
@@ -86,13 +86,13 @@ Dialog {
             TextField {
                 id: directReference
                 Layout.fillWidth: true
-                placeholderText: "Ex.: João 3:16"
+                placeholderText: qsTr("Ex.: João 3:16")
                 color: browser.textMain
                 placeholderTextColor: browser.textMuted
                 onAccepted: browser.presentTypedReference()
             }
             Button {
-                text: "APRESENTAR"
+                text: qsTr("APRESENTAR")
                 highlighted: true
                 onClicked: browser.presentTypedReference()
             }
@@ -105,7 +105,7 @@ Dialog {
             wrapMode: Text.WordWrap
         }
 
-        Label { text: "LIVROS"; color: browser.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("LIVROS"); color: browser.textMuted; font.bold: true; font.pixelSize: 11 }
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 260
@@ -149,7 +149,7 @@ Dialog {
                         Label {
                             width: parent.width
                             text: bookDelegate.modelData.testament === "old"
-                                  ? "Antigo Testamento" : "Novo Testamento"
+                                  ? qsTr("Antigo Testamento") : qsTr("Novo Testamento")
                             color: "#e5e7eb"
                             font.pixelSize: 9
                             horizontalAlignment: Text.AlignHCenter
@@ -176,7 +176,8 @@ Dialog {
                     anchors.margins: 8
                     Label {
                         text: browser.selectedBook === null
-                              ? "CAPÍTULOS" : "CAPÍTULOS — " + browser.selectedBook.name
+                              ? qsTr("CAPÍTULOS")
+                              : qsTr("CAPÍTULOS — %1").arg(browser.selectedBook.name)
                         color: browser.textMain
                         font.bold: true
                     }
@@ -201,8 +202,8 @@ Dialog {
                             anchors.centerIn: parent
                             visible: chaptersGrid.count === 0
                             text: browser.selectedBook === null
-                                  ? "Selecione um livro"
-                                  : "Nenhum capítulo disponível"
+                                  ? qsTr("Selecione um livro")
+                                  : qsTr("Nenhum capítulo disponível")
                             color: browser.textMuted
                         }
                     }
@@ -219,9 +220,9 @@ Dialog {
                     anchors.margins: 8
                     Label {
                         text: browser.selectedChapter > 0
-                              ? "VERSÍCULOS — " + browser.selectedBook.name
-                                + " " + browser.selectedChapter
-                              : "VERSÍCULOS"
+                              ? qsTr("VERSÍCULOS — %1 %2").arg(browser.selectedBook.name)
+                                .arg(browser.selectedChapter)
+                              : qsTr("VERSÍCULOS")
                         color: browser.textMain
                         font.bold: true
                     }
@@ -255,8 +256,8 @@ Dialog {
                             anchors.centerIn: parent
                             visible: versesGrid.count === 0
                             text: browser.selectedChapter === 0
-                                  ? "Selecione um capítulo"
-                                  : "Nenhum versículo disponível"
+                                  ? qsTr("Selecione um capítulo")
+                                  : qsTr("Nenhum versículo disponível")
                             color: browser.textMuted
                         }
                     }

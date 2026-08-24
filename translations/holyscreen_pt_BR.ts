@@ -2,6 +2,94 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_BR">
 <context>
+    <name>BibleBrowser</name>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="16"/>
+        <source>Navegação bíblica</source>
+        <translation>Navegação bíblica</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="69"/>
+        <source>Digite uma referência ou escolha livro, capítulo e versículo</source>
+        <translation>Digite uma referência ou escolha livro, capítulo e versículo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="77"/>
+        <source>Tradução principal ativa</source>
+        <translation>Tradução principal ativa</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="77"/>
+        <source>Nenhuma tradução importada</source>
+        <translation>Nenhuma tradução importada</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="89"/>
+        <source>Ex.: João 3:16</source>
+        <translation>Ex.: João 3:16</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="95"/>
+        <source>APRESENTAR</source>
+        <translation>APRESENTAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="108"/>
+        <source>LIVROS</source>
+        <translation>LIVROS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="152"/>
+        <source>Antigo Testamento</source>
+        <translation>Antigo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="152"/>
+        <source>Novo Testamento</source>
+        <translation>Novo Testamento</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="179"/>
+        <source>CAPÍTULOS</source>
+        <translation>CAPÍTULOS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="180"/>
+        <source>CAPÍTULOS — %1</source>
+        <translation>CAPÍTULOS — %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="205"/>
+        <source>Selecione um livro</source>
+        <translation>Selecione um livro</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="206"/>
+        <source>Nenhum capítulo disponível</source>
+        <translation>Nenhum capítulo disponível</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="223"/>
+        <source>VERSÍCULOS — %1 %2</source>
+        <translation>VERSÍCULOS — %1 %2</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="225"/>
+        <source>VERSÍCULOS</source>
+        <translation>VERSÍCULOS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="259"/>
+        <source>Selecione um capítulo</source>
+        <translation>Selecione um capítulo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleBrowser.qml" line="260"/>
+        <source>Nenhum versículo disponível</source>
+        <translation>Nenhum versículo disponível</translation>
+    </message>
+</context>
+<context>
     <name>EventsArea</name>
     <message>
         <location filename="../src/ui/operator/EventsArea.qml" line="25"/>
@@ -160,92 +248,190 @@
 <context>
     <name>OnboardingDialog</name>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="13"/>
         <source>Configuração guiada do HolyScreen</source>
         <translation>Configuração guiada do HolyScreen</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="21"/>
         <source>Telas</source>
         <translation>Telas</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="21"/>
         <source>Escolha as saídas de público, palco e transmissão.</source>
         <translation>Escolha as saídas de público, palco e transmissão.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="22"/>
         <source>Áudio</source>
         <translation>Áudio</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="22"/>
         <source>Ajuste volume, repetição e comportamento de imagens.</source>
         <translation>Ajuste volume, repetição e comportamento de imagens.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="23"/>
         <source>Biblioteca</source>
         <translation>Biblioteca</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="23"/>
         <source>Importe ao menos uma pasta de mídia.</source>
         <translation>Importe ao menos uma pasta de mídia.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="24"/>
         <source>Bíblia</source>
         <translation>Bíblia</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="24"/>
         <source>Importe e selecione uma tradução bíblica.</source>
         <translation>Importe e selecione uma tradução bíblica.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="25"/>
         <source>Controle remoto</source>
         <translation>Controle remoto</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="25"/>
         <source>Defina uma senha antes de habilitar o servidor local.</source>
         <translation>Defina uma senha antes de habilitar o servidor local.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="26"/>
         <source>Broadcast</source>
         <translation>Broadcast</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="26"/>
         <source>Configure uma saída para transmissão ou deixe esta etapa para depois.</source>
         <translation>Configure uma saída para transmissão ou deixe esta etapa para depois.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="68"/>
         <source>Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações.</source>
         <translation>Prepare o operador sem interromper a configuração. Etapas pendentes podem ser retomadas depois em Configurações.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="118"/>
         <source>Etapa configurada</source>
         <translation>Etapa configurada</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="118"/>
         <source>Configuração pendente</source>
         <translation>Configuração pendente</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="125"/>
         <source>Configurar esta etapa</source>
         <translation>Configurar esta etapa</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="132"/>
         <source>As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.</source>
         <translation>As mensagens deste assistente são informativas e não ativam automaticamente telas, rede ou Broadcast.</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="142"/>
         <source>Voltar</source>
         <translation>Voltar</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="147"/>
         <source>Próxima</source>
         <translation>Próxima</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="152"/>
         <source>Agora não</source>
         <translation>Agora não</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/OnboardingDialog.qml" line="154"/>
         <source>Concluir configuração</source>
         <translation>Concluir configuração</translation>
+    </message>
+</context>
+<context>
+    <name>QuickBibleSearch</name>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="64"/>
+        <source>Selecione um livro antes do capítulo.</source>
+        <translation>Selecione um livro antes do capítulo.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="70"/>
+        <source>Capítulo indisponível para o livro selecionado.</source>
+        <translation>Capítulo indisponível para o livro selecionado.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="97"/>
+        <source>Digite um nome de livro válido.</source>
+        <translation>Digite um nome de livro válido.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="104"/>
+        <source>Digite um capítulo válido.</source>
+        <translation>Digite um capítulo válido.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="117"/>
+        <source>Digite um versículo válido.</source>
+        <translation>Digite um versículo válido.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="145"/>
+        <source>Esc para cancelar</source>
+        <translation>Esc para cancelar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="152"/>
+        <source>BUSCA RÁPIDA DA BÍBLIA</source>
+        <translation>BUSCA RÁPIDA DA BÍBLIA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="159"/>
+        <source>Livro, capítulo e versículo</source>
+        <translation>Livro, capítulo e versículo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="170"/>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="175"/>
+        <source>Livro</source>
+        <translation>Livro</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="176"/>
+        <source>Ex.: luc</source>
+        <translation>Ex.: luc</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="198"/>
+        <source>Continue digitando até identificar um único livro.</source>
+        <translation>Continue digitando até identificar um único livro.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="205"/>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="210"/>
+        <source>Capítulo</source>
+        <translation>Capítulo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="239"/>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="244"/>
+        <source>Versículo</source>
+        <translation>Versículo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/QuickBibleSearch.qml" line="266"/>
+        <source>Digite o início do livro; ao ficar único, o foco avança automaticamente</source>
+        <translation>Digite o início do livro; ao ficar único, o foco avança automaticamente</translation>
     </message>
 </context>
 <context>

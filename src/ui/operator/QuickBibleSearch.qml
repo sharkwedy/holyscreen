@@ -61,13 +61,13 @@ Dialog {
 
     function acceptChapter() {
         if (selectedBookId < 1 && !completeBook(false)) {
-            errorLabel.text = "Selecione um livro antes do capítulo."
+            errorLabel.text = qsTr("Selecione um livro antes do capítulo.")
             bookInput.forceActiveFocus()
             return false
         }
         const chapter = Number(chapterInput.text)
         if (!chapterAvailable(chapter)) {
-            errorLabel.text = "Capítulo indisponível para o livro selecionado."
+            errorLabel.text = qsTr("Capítulo indisponível para o livro selecionado.")
             chapterInput.forceActiveFocus()
             chapterInput.selectAll()
             return false
@@ -94,14 +94,14 @@ Dialog {
 
     function presentReference() {
         if (selectedBookId < 1 && !completeBook(false)) {
-            errorLabel.text = "Digite um nome de livro válido."
+            errorLabel.text = qsTr("Digite um nome de livro válido.")
             bookInput.forceActiveFocus()
             return
         }
         const chapter = Number(chapterInput.text)
         const verse = Number(verseInput.text)
         if (!chapterAvailable(chapter)) {
-            errorLabel.text = "Digite um capítulo válido."
+            errorLabel.text = qsTr("Digite um capítulo válido.")
             chapterInput.forceActiveFocus()
             return
         }
@@ -114,7 +114,7 @@ Dialog {
             }
         }
         if (verseIndex < 0) {
-            errorLabel.text = "Digite um versículo válido."
+            errorLabel.text = qsTr("Digite um versículo válido.")
             verseInput.forceActiveFocus()
             verseInput.selectAll()
             return
@@ -142,21 +142,21 @@ Dialog {
         spacing: 12
         Label {
             Layout.alignment: Qt.AlignRight
-            text: "Esc para cancelar"
+            text: qsTr("Esc para cancelar")
             color: "#c5cbd0"
             font.pixelSize: 12
         }
         Item { Layout.preferredHeight: 4 }
         Label {
             Layout.alignment: Qt.AlignHCenter
-            text: "BUSCA RÁPIDA DA BÍBLIA"
+            text: qsTr("BUSCA RÁPIDA DA BÍBLIA")
             color: "#b9c7ff"
             font.bold: true
             font.pixelSize: 13
         }
         Label {
             Layout.alignment: Qt.AlignHCenter
-            text: "Livro, capítulo e versículo"
+            text: qsTr("Livro, capítulo e versículo")
             color: "#f2f4f5"
             font.pixelSize: 30
             font.bold: true
@@ -167,13 +167,13 @@ Dialog {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 5
-                Label { text: "Livro"; color: "#c5cbd0"; font.bold: true }
+                Label { text: qsTr("Livro"); color: "#c5cbd0"; font.bold: true }
                 TextField {
                     id: bookInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 70
-                    Accessible.name: "Livro"
-                    placeholderText: "Ex.: luc"
+                    Accessible.name: qsTr("Livro")
+                    placeholderText: qsTr("Ex.: luc")
                     placeholderTextColor: "#98a2aa"
                     color: "#ffffff"
                     font.pixelSize: 25
@@ -195,19 +195,19 @@ Dialog {
                     onAccepted: {
                         bookAdvance.stop()
                         if (!quickSearch.completeBook(true))
-                            errorLabel.text = "Continue digitando até identificar um único livro."
+                            errorLabel.text = qsTr("Continue digitando até identificar um único livro.")
                     }
                 }
             }
             ColumnLayout {
                 Layout.preferredWidth: 150
                 spacing: 5
-                Label { text: "Capítulo"; color: "#c5cbd0"; font.bold: true }
+                Label { text: qsTr("Capítulo"); color: "#c5cbd0"; font.bold: true }
                 TextField {
                     id: chapterInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 70
-                    Accessible.name: "Capítulo"
+                    Accessible.name: qsTr("Capítulo")
                     horizontalAlignment: TextInput.AlignHCenter
                     placeholderText: "1"
                     placeholderTextColor: "#98a2aa"
@@ -236,12 +236,12 @@ Dialog {
             ColumnLayout {
                 Layout.preferredWidth: 150
                 spacing: 5
-                Label { text: "Versículo"; color: "#c5cbd0"; font.bold: true }
+                Label { text: qsTr("Versículo"); color: "#c5cbd0"; font.bold: true }
                 TextField {
                     id: verseInput
                     Layout.fillWidth: true
                     Layout.preferredHeight: 70
-                    Accessible.name: "Versículo"
+                    Accessible.name: qsTr("Versículo")
                     horizontalAlignment: TextInput.AlignHCenter
                     placeholderText: "1"
                     placeholderTextColor: "#98a2aa"
@@ -263,7 +263,7 @@ Dialog {
         }
         Label {
             Layout.alignment: Qt.AlignHCenter
-            text: "Digite o início do livro; ao ficar único, o foco avança automaticamente"
+            text: qsTr("Digite o início do livro; ao ficar único, o foco avança automaticamente")
             color: "#c5cbd0"
             font.pixelSize: 13
         }
