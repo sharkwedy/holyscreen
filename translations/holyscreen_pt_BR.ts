@@ -2,6 +2,332 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pt_BR">
 <context>
+    <name>AutomationsArea</name>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="15"/>
+        <source>Automações</source>
+        <translation>Automações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="35"/>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="166"/>
+        <source>Nova automação</source>
+        <translation>Nova automação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="131"/>
+        <source>Automações ativas</source>
+        <translation>Automações ativas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="138"/>
+        <source>Todas as automações estão pausadas.</source>
+        <translation>Todas as automações estão pausadas.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="143"/>
+        <source>Importar</source>
+        <translation>Importar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="144"/>
+        <source>Exportar</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="145"/>
+        <source>Processos autorizados</source>
+        <translation>Processos autorizados</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="162"/>
+        <source>Pesquisar</source>
+        <translation>Pesquisar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="207"/>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="584"/>
+        <source>%1 ações</source>
+        <translation>%1 ações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="213"/>
+        <source>%1 falhas seguidas</source>
+        <translation>%1 falhas seguidas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="221"/>
+        <source>Ativar automação</source>
+        <translation>Ativar automação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="233"/>
+        <source>Nenhuma automação configurada</source>
+        <translation>Nenhuma automação configurada</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="254"/>
+        <source>Nome</source>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="259"/>
+        <source>QUANDO</source>
+        <translation>QUANDO</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="278"/>
+        <source>Horário local</source>
+        <translation>Horário local</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="283"/>
+        <source>HH:mm</source>
+        <translation>HH:mm</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="292"/>
+        <source>Dias</source>
+        <translation>Dias</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="294"/>
+        <source>Seg</source>
+        <translation>Seg</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="295"/>
+        <source>Ter</source>
+        <translation>Ter</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="296"/>
+        <source>Qua</source>
+        <translation>Qua</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="297"/>
+        <source>Qui</source>
+        <translation>Qui</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="298"/>
+        <source>Sex</source>
+        <translation>Sex</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="299"/>
+        <source>Sáb</source>
+        <translation>Sáb</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="300"/>
+        <source>Dom</source>
+        <translation>Dom</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="307"/>
+        <source>Dia %1</source>
+        <translation>Dia %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="316"/>
+        <source>SE</source>
+        <translation>SE</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="319"/>
+        <source>todas as condições</source>
+        <translation>todas as condições</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="320"/>
+        <source>qualquer condição</source>
+        <translation>qualquer condição</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="328"/>
+        <source>+ condição</source>
+        <translation>+ condição</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="347"/>
+        <source>campo (event.x ou state.y)</source>
+        <translation>campo (event.x ou state.y)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="364"/>
+        <source>valor</source>
+        <translation>valor</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="371"/>
+        <source>Remover condição</source>
+        <translation>Remover condição</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="379"/>
+        <source>ENTÃO</source>
+        <translation>ENTÃO</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="382"/>
+        <source>+ ação</source>
+        <translation>+ ação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="427"/>
+        <source>id da integração</source>
+        <translation>id da integração</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="429"/>
+        <source>caminho autorizado</source>
+        <translation>caminho autorizado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="431"/>
+        <source>milissegundos</source>
+        <translation>milissegundos</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="431"/>
+        <source>comando</source>
+        <translation>comando</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="451"/>
+        <source>operação</source>
+        <translation>operação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="462"/>
+        <source>Subir ação</source>
+        <translation>Subir ação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="467"/>
+        <source>Descer ação</source>
+        <translation>Descer ação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="472"/>
+        <source>Remover ação</source>
+        <translation>Remover ação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="481"/>
+        <source>Debounce (ms)</source>
+        <translation>Debounce (ms)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="490"/>
+        <source>Orçamento (ms)</source>
+        <translation>Orçamento (ms)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="499"/>
+        <source>Falhas até pausar</source>
+        <translation>Falhas até pausar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="521"/>
+        <source>Salvar</source>
+        <translation>Salvar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="523"/>
+        <source>Ensaiar</source>
+        <translation>Ensaiar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="528"/>
+        <source>Retomar</source>
+        <translation>Retomar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="537"/>
+        <source>Excluir</source>
+        <translation>Excluir</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="554"/>
+        <source>HISTÓRICO</source>
+        <translation>HISTÓRICO</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="590"/>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="600"/>
+        <source>Excluir automação</source>
+        <translation>Excluir automação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="607"/>
+        <source>A automação e o histórico dela serão apagados. Confirmar?</source>
+        <translation>A automação e o histórico dela serão apagados. Confirmar?</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="622"/>
+        <source>Processos externos autorizados</source>
+        <translation>Processos externos autorizados</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="631"/>
+        <source>Permitir que automações executem processos externos</source>
+        <translation>Permitir que automações executem processos externos</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="638"/>
+        <source>Só executáveis desta lista podem ser acionados, sempre pelo caminho real e sem shell.</source>
+        <translation>Só executáveis desta lista podem ser acionados, sempre pelo caminho real e sem shell.</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="648"/>
+        <source>/caminho/absoluto/do/executavel</source>
+        <translation>/caminho/absoluto/do/executavel</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="650"/>
+        <source>Procurar</source>
+        <translation>Procurar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="652"/>
+        <source>Autorizar</source>
+        <translation>Autorizar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="684"/>
+        <source>Revogar</source>
+        <translation>Revogar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="695"/>
+        <source>Escolher executável</source>
+        <translation>Escolher executável</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="701"/>
+        <source>Importar automações</source>
+        <translation>Importar automações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="703"/>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="712"/>
+        <source>Automações HolyScreen (*.json)</source>
+        <translation>Automações HolyScreen (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/AutomationsArea.qml" line="709"/>
+        <source>Exportar automações</source>
+        <translation>Exportar automações</translation>
+    </message>
+</context>
+<context>
     <name>BibleBrowser</name>
     <message>
         <location filename="../src/ui/operator/BibleBrowser.qml" line="16"/>
