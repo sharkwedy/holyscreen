@@ -270,6 +270,10 @@ add_library(presenter-app
     app/DataRecoveryService.h
     app/AppLogger.cpp
     app/AppLogger.h
+    app/EnduranceRunner.cpp
+    app/EnduranceRunner.h
+    app/ProcessMetrics.cpp
+    app/ProcessMetrics.h
     app/UpdateChecker.cpp
     app/UpdateChecker.h
     remote/LocalApiServer.cpp
@@ -294,6 +298,10 @@ qt_add_resources(presenter-app "presenter_remote_web"
         remote/web/sw.js
 )
 target_link_libraries(presenter-app PRIVATE miniz)
+if(WIN32)
+    # GetProcessMemoryInfo, usada pela amostragem de memória do endurance.
+    target_link_libraries(presenter-app PRIVATE Psapi)
+endif()
 
 qt_add_executable(church-presenter
     WIN32

@@ -272,6 +272,14 @@ set_tests_properties(test_application_command_bridge PROPERTIES
     TIMEOUT 15
 )
 
+qt_add_executable(test_endurance_runner unit/app/EnduranceRunnerTest.cpp)
+target_link_libraries(test_endurance_runner PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_endurance_runner COMMAND test_endurance_runner)
+set_tests_properties(test_endurance_runner PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+    TIMEOUT 60
+)
+
 qt_add_executable(test_app_logger unit/app/AppLoggerTest.cpp)
 target_link_libraries(test_app_logger PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_app_logger COMMAND test_app_logger)
@@ -392,3 +400,6 @@ set_tests_properties(test_qml_output_views PROPERTIES LABELS "qml;golden")
 set_tests_properties(test_application_command_bridge test_app_starts
     PROPERTIES LABELS "e2e")
 set_tests_properties(test_performance_budgets PROPERTIES LABELS "performance")
+# O executor de endurance é exercitado por uma sessão curta na suíte E2E. A
+# execução longa da validação da 1.0 roda pelo executável, não pelo CTest.
+set_tests_properties(test_endurance_runner PROPERTIES LABELS "e2e;endurance")
