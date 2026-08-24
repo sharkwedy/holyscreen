@@ -11,6 +11,8 @@ Dialog {
     signal openLibrary()
     signal chooseBackground()
     signal restoreLayout()
+    signal restoreBackup()
+    signal exportDiagnostics()
     property string profileStatus: ""
 
     function openTab(index) {
@@ -95,25 +97,11 @@ Dialog {
                         text: qsTr("Salvar mensagem")
                         onClicked: settings.controller.stageMessage = stageMessageSetting.text
                     }
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
-                    Label { text: qsTr("Atualizações e manutenção"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
-                    TextField {
+                    MaintenanceArea {
                         Layout.fillWidth: true
-                        text: settings.controller.maintenanceContext.updateEndpoint
-                        placeholderText: qsTr("API oficial de Releases do GitHub")
-                        readOnly: true
-                    }
-                    RowLayout {
-                        Button { text: qsTr("Verificar atualizações"); onClicked: settings.controller.maintenanceContext.checkForUpdates() }
-                        Button { text: qsTr("Criar backup"); onClicked: settings.controller.maintenanceContext.createBackup() }
-                    }
-                    Label {
-                        Layout.fillWidth: true
-                        text: settings.controller.maintenanceContext.updateStatus.length > 0
-                              ? settings.controller.maintenanceContext.updateStatus
-                              : settings.controller.maintenanceContext.autosaveStatus
-                        color: settings.textMuted
-                        wrapMode: Text.WordWrap
+                        context: settings.controller.maintenanceContext
+                        onRestoreRequested: settings.restoreBackup()
+                        onDiagnosticsExportRequested: settings.exportDiagnostics()
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
                     Label { text: qsTr("Perfil do operador"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
