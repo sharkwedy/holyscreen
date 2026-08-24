@@ -2,9 +2,12 @@
 #include "app/AppLogger.h"
 
 #include <QGuiApplication>
+#include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QCoreApplication>
+#include <QSettings>
+#include <QTranslator>
 #include <QTimer>
 #include <QTemporaryDir>
 #include <QStandardPaths>
@@ -16,6 +19,16 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("HolyScreen"));
     QCoreApplication::setApplicationName(QStringLiteral("HolyScreen"));
     QCoreApplication::setApplicationVersion(QStringLiteral(HOLYSCREEN_VERSION));
+
+    const QSettings operatorSettings;
+    const auto configuredLocale = operatorSettings.value(
+        QStringLiteral("operator/locale"), QStringLiteral("pt-BR")).toString();
+    const auto localeName = configuredLocale == QStringLiteral("en-US")
+        ? QStringLiteral("en_US") : QStringLiteral("pt_BR");
+    QLocale::setDefault(QLocale(localeName));
+    QTranslator translator;
+    if (translator.load(QStringLiteral(":/i18n/holyscreen_%1.qm").arg(localeName)))
+        app.installTranslator(&translator);
 
     QTemporaryDir smokeData;
     if (app.arguments().contains(QStringLiteral("--quit-after-startup"))) {

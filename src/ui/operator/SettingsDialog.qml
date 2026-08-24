@@ -149,6 +149,13 @@ Dialog {
                         }
                     }
                     Label {
+                        visible: settings.controller.localeRestartRequired
+                        Layout.fillWidth: true
+                        text: qsTr("Reinicie o HolyScreen para aplicar o novo idioma.")
+                        color: "#f0c36a"
+                        wrapMode: Text.WordWrap
+                    }
+                    Label {
                         visible: settings.profileStatus.length > 0
                         Layout.fillWidth: true
                         text: settings.profileStatus

@@ -461,6 +461,13 @@ MaintenanceContext *ApplicationController::maintenanceContext() const { return m
 MediaContext *ApplicationController::mediaContext() const { return m_mediaContext.get(); }
 OutputContext *ApplicationController::outputContext() const { return m_outputContext.get(); }
 QString ApplicationController::locale() const { return m_locale; }
+bool ApplicationController::localeRestartRequired() const
+{
+    const auto selected = QLocale(m_locale == QStringLiteral("en-US")
+                                      ? QStringLiteral("en_US")
+                                      : QStringLiteral("pt_BR"));
+    return selected.name() != QLocale().name();
+}
 bool ApplicationController::demoMode() const { return m_demoMode; }
 bool ApplicationController::onboardingCompleted() const { return m_onboardingCompleted; }
 QVariantMap ApplicationController::shortcuts() const { return m_shortcuts; }

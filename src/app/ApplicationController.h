@@ -87,6 +87,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(MediaContext *mediaContext READ mediaContext CONSTANT)
     Q_PROPERTY(OutputContext *outputContext READ outputContext CONSTANT)
     Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY preferencesChanged)
+    Q_PROPERTY(bool localeRestartRequired READ localeRestartRequired NOTIFY preferencesChanged)
     Q_PROPERTY(bool demoMode READ demoMode WRITE setDemoMode NOTIFY preferencesChanged)
     Q_PROPERTY(bool onboardingCompleted READ onboardingCompleted NOTIFY onboardingChanged)
     Q_PROPERTY(QVariantMap shortcuts READ shortcuts NOTIFY preferencesChanged)
@@ -257,6 +258,7 @@ public:
     [[nodiscard]] MediaContext *mediaContext() const;
     [[nodiscard]] OutputContext *outputContext() const;
     [[nodiscard]] QString locale() const;
+    [[nodiscard]] bool localeRestartRequired() const;
     void setLocale(const QString &locale);
     [[nodiscard]] bool demoMode() const;
     void setDemoMode(bool enabled);

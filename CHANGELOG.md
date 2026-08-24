@@ -19,6 +19,9 @@ Versioning where practical before 1.0.
   action.
 - Extracted Events/History and Maintenance/Diagnostics from the monolithic
   operator window into focused QML areas with accessible control names.
+- Added Qt Linguist catalogs for pt-BR and en-US, locale loading before QML,
+  restart guidance and a unit contract that rejects missing, unfinished or
+  placeholder-incompatible translations in migrated components.
 
 - Added the offline automation domain: triggers, declarative conditions with
   `all`/`any` grouping, ordered actions, and runs, with no scripting language.
