@@ -25,6 +25,11 @@ Corrective release. The 1.0.0 macOS disk image could not run at all.
   the bundle signature verifies, no symlink inside it is broken and the QtCore,
   QtQml, QtQuick and QtMultimedia QML modules are present. Verified against the
   broken 1.0.0 image, which it refuses.
+- Reduced release packaging time by using Ninja and the GitHub Actions-backed
+  sccache configuration already used by the main CI build on every platform.
+- Published stable semantic-version tags as stable GitHub releases instead of
+  restricting stable release handling to `v1.0.0`, and verified checksums for
+  every published release.
 
 ## [1.0.0] - 2026-08-24
 
