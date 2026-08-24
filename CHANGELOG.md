@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized Bible navigation and the keyboard-driven quick reference search in
+  pt-BR/en-US, including validation feedback and accessible field names.
 - Localized the guided onboarding checklist, status messages, and actions in
   pt-BR/en-US and added the screen to the QML translation contract.
 - Added complete pt-BR/en-US catalogs and a persistent language selector to
