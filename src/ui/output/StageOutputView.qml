@@ -21,11 +21,11 @@ Item {
         visible: !root.controller.outputContext.identifyVisible
                  && !(root.mediaEnabled && root.controller.videoVisible)
         currentText: root.controller.currentPresentationType === "bible"
-                     ? root.controller.bibleTextForSlide(
+                     ? root.controller.bibleContext.bibleTextForSlide(
                            root.controller.currentSlideIndex, root.bibleTranslationId)
                      : root.controller.currentSlideText
         nextText: root.controller.currentPresentationType === "bible"
-                  ? root.controller.bibleTextForSlide(
+                  ? root.controller.bibleContext.bibleTextForSlide(
                         root.controller.currentSlideIndex + 1, root.bibleTranslationId)
                   : root.controller.nextSlideText
         clockText: root.controller.clockText

@@ -5,6 +5,9 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Completed the `BibleContext` facade for translation selection, search,
+  imports and slide rendering, and migrated operator and output QML away from
+  the temporary root-controller Bible aliases.
 - Migrated QML screen routing, identification and blackout consumers to
   `OutputContext`, with a contract guard against temporary root aliases.
 - Migrated every operator QML media consumer to `MediaContext` and added a

@@ -31,7 +31,7 @@ ApplicationWindow {
     minimumHeight: 680
     property url pendingRestoreSource
     readonly property var optionalBibleTranslations: [{"id":"", "displayName":qsTr("Nenhuma")}]
-                                                     .concat(root.controller.bibleTranslations)
+                                                     .concat(root.controller.bibleContext.bibleTranslations)
 
     Settings {
         id: operatorWindowSettings
@@ -258,12 +258,12 @@ ApplicationWindow {
         id: bibleImportDialog
         title: qsTr("Importar JSON HolyScreen legado")
         nameFilters: [qsTr("HolyScreen Bíblia JSON (*.json)")]
-        onAccepted: root.controller.importBibleTranslation(selectedFile)
+        onAccepted: root.controller.bibleContext.importBibleTranslation(selectedFile)
     }
     FolderDialog {
         id: bibleFolderDialog
         title: qsTr("Selecionar repositório, data/canonical ou pasta da tradução")
-        onAccepted: root.controller.importBibleFolder(selectedFolder)
+        onAccepted: root.controller.bibleContext.importBibleFolder(selectedFolder)
     }
     Dialog {
         id: bibleOnlineImportDialog
@@ -289,9 +289,9 @@ ApplicationWindow {
                 }
                 Button {
                     text: qsTr("IMPORTAR GIT")
-                    enabled: !root.controller.bibleImportRunning && bibleGitUrl.text.trim().length > 0
+                    enabled: !root.controller.bibleContext.bibleImportRunning && bibleGitUrl.text.trim().length > 0
                     onClicked: {
-                        if (root.controller.importBibleGit(bibleGitUrl.text))
+                        if (root.controller.bibleContext.importBibleGit(bibleGitUrl.text))
                             bibleOnlineImportDialog.close()
                     }
                 }
@@ -306,9 +306,9 @@ ApplicationWindow {
                 }
                 Button {
                     text: qsTr("IMPORTAR ZIP")
-                    enabled: !root.controller.bibleImportRunning && bibleZipUrl.text.trim().length > 0
+                    enabled: !root.controller.bibleContext.bibleImportRunning && bibleZipUrl.text.trim().length > 0
                     onClicked: {
-                        if (root.controller.importBibleZip(bibleZipUrl.text))
+                        if (root.controller.bibleContext.importBibleZip(bibleZipUrl.text))
                             bibleOnlineImportDialog.close()
                     }
                 }
@@ -321,7 +321,7 @@ ApplicationWindow {
         modal: true
         width: 580
         standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: root.controller.confirmBibleImportLicenses()
+        onAccepted: root.controller.bibleContext.confirmBibleImportLicenses()
         contentItem: ColumnLayout {
             spacing: 10
             Label {
@@ -332,7 +332,7 @@ ApplicationWindow {
             }
             Label {
                 Layout.fillWidth: true
-                text: root.controller.bibleImportLicenseWarning
+                text: root.controller.bibleContext.bibleImportLicenseWarning
                 wrapMode: Text.WordWrap
                 color: "#eff6ff"
                 font.bold: true
@@ -342,8 +342,8 @@ ApplicationWindow {
     Connections {
         target: root.controller
         function onBibleImportStateChanged() {
-            if (root.controller.bibleImportRequiresLicenseConfirmation
-                    && !root.controller.bibleImportRunning
+            if (root.controller.bibleContext.bibleImportRequiresLicenseConfirmation
+                    && !root.controller.bibleContext.bibleImportRunning
                     && !bibleLicenseDialog.visible)
                 bibleLicenseDialog.open()
         }
@@ -366,45 +366,45 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 Button {
                     text: qsTr("IMPORTAR PASTA")
-                    enabled: !root.controller.bibleImportRunning
+                    enabled: !root.controller.bibleContext.bibleImportRunning
                     onClicked: bibleFolderDialog.open()
                 }
                 Button {
                     text: qsTr("GIT / ZIP")
-                    enabled: !root.controller.bibleImportRunning
+                    enabled: !root.controller.bibleContext.bibleImportRunning
                     onClicked: bibleOnlineImportDialog.open()
                 }
                 Button {
                     text: qsTr("JSON LEGADO")
-                    enabled: !root.controller.bibleImportRunning
+                    enabled: !root.controller.bibleContext.bibleImportRunning
                     onClicked: bibleImportDialog.open()
                 }
             }
             ColumnLayout {
                 Layout.fillWidth: true
-                visible: root.controller.bibleImportRunning
-                         || root.controller.bibleImportMessage.length > 0
+                visible: root.controller.bibleContext.bibleImportRunning
+                         || root.controller.bibleContext.bibleImportMessage.length > 0
                 RowLayout {
                     Layout.fillWidth: true
                     Label {
                         Layout.fillWidth: true
-                        text: root.controller.bibleImportMessage
-                        color: root.controller.bibleImportRunning ? "#70e1a7" : "#b8c6dc"
+                        text: root.controller.bibleContext.bibleImportMessage
+                        color: root.controller.bibleContext.bibleImportRunning ? "#70e1a7" : "#b8c6dc"
                         elide: Text.ElideRight
                     }
                     Button {
                         text: qsTr("CANCELAR")
-                        visible: root.controller.bibleImportRunning
-                        onClicked: root.controller.cancelBibleImport()
+                        visible: root.controller.bibleContext.bibleImportRunning
+                        onClicked: root.controller.bibleContext.cancelBibleImport()
                     }
                 }
                 ProgressBar {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    value: root.controller.bibleImportProgress
-                    indeterminate: root.controller.bibleImportRunning
-                                   && root.controller.bibleImportProgress === 0
+                    value: root.controller.bibleContext.bibleImportProgress
+                    indeterminate: root.controller.bibleContext.bibleImportRunning
+                                   && root.controller.bibleContext.bibleImportProgress === 0
                 }
             }
             GridLayout {
@@ -415,34 +415,34 @@ ApplicationWindow {
                 Label { text: qsTr("TERCEIRA"); color: "#8da0bc" }
                 ComboBox {
                     Layout.fillWidth: true
-                    model: root.controller.bibleTranslations
+                    model: root.controller.bibleContext.bibleTranslations
                     textRole: "displayName"; valueRole: "id"
-                    currentIndex: root.translationIndex(model, root.controller.biblePrimaryTranslationId)
-                    onActivated: root.controller.biblePrimaryTranslationId = currentValue
+                    currentIndex: root.translationIndex(model, root.controller.bibleContext.biblePrimaryTranslationId)
+                    onActivated: root.controller.bibleContext.biblePrimaryTranslationId = currentValue
                 }
                 ComboBox {
                     Layout.fillWidth: true
                     model: root.optionalBibleTranslations
                     textRole: "displayName"; valueRole: "id"
-                    currentIndex: root.translationIndex(model, root.controller.bibleSecondaryTranslationId)
-                    onActivated: root.controller.bibleSecondaryTranslationId = currentValue
+                    currentIndex: root.translationIndex(model, root.controller.bibleContext.bibleSecondaryTranslationId)
+                    onActivated: root.controller.bibleContext.bibleSecondaryTranslationId = currentValue
                 }
                 ComboBox {
                     Layout.fillWidth: true
                     model: root.optionalBibleTranslations
                     textRole: "displayName"; valueRole: "id"
-                    currentIndex: root.translationIndex(model, root.controller.bibleTertiaryTranslationId)
-                    onActivated: root.controller.bibleTertiaryTranslationId = currentValue
+                    currentIndex: root.translationIndex(model, root.controller.bibleContext.bibleTertiaryTranslationId)
+                    onActivated: root.controller.bibleContext.bibleTertiaryTranslationId = currentValue
                 }
             }
             RowLayout {
                 Layout.fillWidth: true
-                visible: root.controller.bibleTranslations.length > 0
+                visible: root.controller.bibleContext.bibleTranslations.length > 0
                 Label { text: qsTr("ORIGEM:"); color: "#8da0bc"; font.bold: true }
                 ComboBox {
                     id: bibleManagedTranslation
                     Layout.fillWidth: true
-                    model: root.controller.bibleTranslations
+                    model: root.controller.bibleContext.bibleTranslations
                     textRole: "displayName"
                     valueRole: "id"
                 }
@@ -454,10 +454,10 @@ ApplicationWindow {
                 }
                 Button {
                     text: qsTr("ATUALIZAR DA ORIGEM")
-                    enabled: !root.controller.bibleImportRunning
+                    enabled: !root.controller.bibleContext.bibleImportRunning
                              && bibleManagedTranslation.currentIndex >= 0
                              && !!bibleManagedTranslation.model[bibleManagedTranslation.currentIndex].canUpdate
-                    onClicked: root.controller.updateBibleTranslationFromSource(
+                    onClicked: root.controller.bibleContext.updateBibleTranslationFromSource(
                                    bibleManagedTranslation.currentValue)
                 }
             }
@@ -483,14 +483,14 @@ ApplicationWindow {
                 TextField {
                     Layout.fillWidth: true
                     placeholderText: qsTr("João 3:16, Jo 3 16 ou João 3.16")
-                    text: root.controller.bibleReferenceInput
-                    onTextEdited: root.controller.bibleReferenceInput = text
-                    onAccepted: root.controller.searchBibleReference()
+                    text: root.controller.bibleContext.bibleReferenceInput
+                    onTextEdited: root.controller.bibleContext.bibleReferenceInput = text
+                    onAccepted: root.controller.bibleContext.searchBibleReference()
                 }
-                Button { text: qsTr("BUSCAR"); highlighted: true; onClicked: root.controller.searchBibleReference() }
+                Button { text: qsTr("BUSCAR"); highlighted: true; onClicked: root.controller.bibleContext.searchBibleReference() }
             }
             Label {
-                visible: root.controller.bibleTranslations.length === 0
+                visible: root.controller.bibleContext.bibleTranslations.length === 0
                 Layout.fillWidth: true
                 text: qsTr("Importe uma pasta/repositório canônico, Git HTTPS, ZIP público ou JSON legado. Os textos bíblicos não são embutidos por questões de licenciamento.")
                 color: "#ffba70"
@@ -502,7 +502,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 spacing: 6
-                model: root.controller.bibleResults
+                model: root.controller.bibleContext.bibleResults
                 delegate: Rectangle {
                     id: bibleResultDelegate
                     required property var modelData
@@ -525,12 +525,12 @@ ApplicationWindow {
                                 wrapMode: Text.WordWrap
                             }
                         }
-                        Button { text: qsTr("APRESENTAR"); onClicked: root.controller.showBibleVerse(bibleResultDelegate.index) }
+                        Button { text: qsTr("APRESENTAR"); onClicked: root.controller.bibleContext.showBibleVerse(bibleResultDelegate.index) }
                     }
                 }
                 Label {
                     anchors.centerIn: parent
-                    visible: bibleResultsList.count === 0 && root.controller.bibleTranslations.length > 0
+                    visible: bibleResultsList.count === 0 && root.controller.bibleContext.bibleTranslations.length > 0
                     text: qsTr("Digite uma referência para localizar os versículos")
                     color: "#64748b"
                 }
