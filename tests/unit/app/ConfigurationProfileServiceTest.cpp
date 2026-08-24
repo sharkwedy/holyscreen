@@ -19,6 +19,7 @@ void ConfigurationProfileServiceTest::roundTripsACompleteSecretFreeProfile()
     const QVariantMap profile{
         {QStringLiteral("locale"), QStringLiteral("pt-BR")},
         {QStringLiteral("demoMode"), true},
+        {QStringLiteral("interfaceScale"), 1.5},
         {QStringLiteral("presentation"), QVariantMap{
              {QStringLiteral("wallpaperColor"), QStringLiteral("#102030")},
              {QStringLiteral("clockVisible"), true},
@@ -58,6 +59,7 @@ void ConfigurationProfileServiceTest::roundTripsACompleteSecretFreeProfile()
     const auto parsed = ConfigurationProfileService::parse(document);
     QVERIFY2(parsed.accepted, qPrintable(parsed.errors.join(u'\n')));
     QCOMPARE(parsed.profile.value(QStringLiteral("locale")).toString(), QStringLiteral("pt-BR"));
+    QCOMPARE(parsed.profile.value(QStringLiteral("interfaceScale")).toDouble(), 1.5);
     QCOMPARE(parsed.profile.value(QStringLiteral("media")).toMap()
                  .value(QStringLiteral("volume")).toDouble(), 0.75);
     QCOMPARE(parsed.profile.value(QStringLiteral("media")).toMap()
@@ -90,6 +92,7 @@ void ConfigurationProfileServiceTest::rejectsSensitiveAndUnknownFields()
 void ConfigurationProfileServiceTest::rejectsInvalidRangesEnumsAndShortcuts()
 {
     const auto result = ConfigurationProfileService::validate({
+        {QStringLiteral("interfaceScale"), 1.25},
         {QStringLiteral("presentation"), QVariantMap{
              {QStringLiteral("wallpaperFit"), QStringLiteral("tile")},
              {QStringLiteral("clockFontSize"), 500},

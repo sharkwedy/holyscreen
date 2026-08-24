@@ -161,7 +161,7 @@ Rectangle {
                               : panel.selectedTab === 1 ? "♫"
                               : panel.selectedTab === 2 ? "▶" : "▧"
                         color: panel.accentColor
-                        font.pixelSize: 18
+                        font.pixelSize: UiScale.px(18)
                     }
                     ColumnLayout {
                         Layout.fillWidth: true
@@ -180,7 +180,7 @@ Rectangle {
                                   ? (catalogDelegate.modelData.author || qsTr("Letra"))
                                   : (catalogDelegate.modelData.folderPath || "")
                             color: panel.textMutedColor
-                            font.pixelSize: 11
+                            font.pixelSize: UiScale.px(11)
                             elide: Text.ElideMiddle
                         }
                     }
@@ -224,7 +224,7 @@ Rectangle {
                 Label {
                     text: qsTr("%1 itens").arg(libraryList.count)
                     color: panel.textMutedColor
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
                 Item { Layout.fillWidth: true }
                 Button {

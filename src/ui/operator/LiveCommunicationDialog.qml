@@ -8,12 +8,12 @@ Dialog {
     id: dialog
 
     required property var controller
-    required property real availableHeight
+    required property real hostHeight
 
     title: qsTr("Comunicação ao vivo")
     modal: true
     width: 680
-    height: Math.min(dialog.availableHeight - 80, 650)
+    height: Math.min(dialog.hostHeight - 80, 650)
     standardButtons: Dialog.Close
 
     contentItem: ScrollView {
@@ -119,7 +119,7 @@ Dialog {
             RowLayout {
                 Label {
                     text: dialog.controller.stopwatchText
-                    font.pixelSize: 22
+                    font.pixelSize: UiScale.px(22)
                     font.bold: true
                 }
                 Button {

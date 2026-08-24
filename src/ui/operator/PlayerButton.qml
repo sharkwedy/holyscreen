@@ -7,7 +7,7 @@ Button {
     implicitWidth: 48
     implicitHeight: 42
     flat: true
-    font.pixelSize: 22
+    font.pixelSize: UiScale.px(22)
     font.bold: true
 
     contentItem: Label {

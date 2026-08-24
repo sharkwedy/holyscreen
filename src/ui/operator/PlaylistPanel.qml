@@ -44,7 +44,7 @@ Rectangle {
                     text: qsTr("▾  Reprodução")
                     color: panel.textMainColor
                     font.bold: true
-                    font.pixelSize: 12
+                    font.pixelSize: UiScale.px(12)
                 }
                 Item { Layout.fillWidth: true }
                 Button {
@@ -90,7 +90,7 @@ Rectangle {
                     Label {
                         text: "☰"
                         color: panel.accentColor
-                        font.pixelSize: 18
+                        font.pixelSize: UiScale.px(18)
                         Layout.preferredWidth: 24
                     }
                     Label {
@@ -107,12 +107,12 @@ Rectangle {
                     Label {
                         text: panel.duration(playlistDelegate.modelData.durationMs)
                         color: panel.textMutedColor
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                     }
                     PlayerButton {
                         implicitWidth: 38
                         implicitHeight: 36
-                        font.pixelSize: 18
+                        font.pixelSize: UiScale.px(18)
                         text: "▶"
                         Accessible.name: qsTr("Reproduzir %1").arg(
                                              playlistDelegate.modelData.title)

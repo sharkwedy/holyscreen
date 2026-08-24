@@ -40,7 +40,7 @@ ToolBar {
                 text: qsTr("HolyScreen")
                 color: "#f2f4f5"
                 font.bold: true
-                font.pixelSize: 15
+                font.pixelSize: UiScale.px(15)
             }
             ToolButton {
                 text: qsTr("Live")
@@ -111,7 +111,7 @@ ToolBar {
                     text: qsTr("★  FAVORITOS")
                     color: "#c7d2fe"
                     font.bold: true
-                    font.pixelSize: 11
+                    font.pixelSize: UiScale.px(11)
                 }
                 Rectangle {
                     Layout.preferredWidth: 1
@@ -137,7 +137,7 @@ ToolBar {
                         text: (modelData.type === "video" ? "▶  "
                               : modelData.type === "image" ? "▧  " : "♫  ")
                               + (modelData.fileName || modelData.title || qsTr("Sem título"))
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                         Accessible.name: qsTr("Reproduzir favorito %1")
                                          .arg(modelData.fileName || modelData.title || qsTr("Sem título"))
                         onClicked: header.playFavorite(modelData.path)
@@ -149,7 +149,7 @@ ToolBar {
                         visible: favoriteMediaList.count === 0
                         text: qsTr("Clique com o botão direito em uma mídia para adicioná-la")
                         color: "#8d979f"
-                        font.pixelSize: 11
+                        font.pixelSize: UiScale.px(11)
                     }
                 }
             }

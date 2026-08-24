@@ -113,6 +113,7 @@ ConfigurationProfileResult ConfigurationProfileService::validate(const QVariantM
     result.profile = profile;
     rejectUnknown(profile,
                   {QStringLiteral("locale"), QStringLiteral("demoMode"),
+                   QStringLiteral("interfaceScale"),
                    QStringLiteral("presentation"), QStringLiteral("media"),
                    QStringLiteral("bible"), QStringLiteral("remote"),
                    QStringLiteral("library"), QStringLiteral("outputs"),
@@ -124,6 +125,18 @@ ConfigurationProfileResult ConfigurationProfileService::validate(const QVariantM
                QStringLiteral("profile"), result.errors);
     expectType(profile, QStringLiteral("demoMode"), QMetaType::Bool,
                QStringLiteral("profile"), result.errors);
+    if (profile.contains(QStringLiteral("interfaceScale"))) {
+        const auto value = profile.value(QStringLiteral("interfaceScale"));
+        const auto type = value.metaType().id();
+        const bool numeric = type == QMetaType::Double || type == QMetaType::Int
+            || type == QMetaType::LongLong || type == QMetaType::UInt
+            || type == QMetaType::ULongLong;
+        const auto scale = value.toDouble();
+        if (!numeric || (scale != 1.0 && scale != 1.5 && scale != 2.0)) {
+            result.errors.append(QStringLiteral(
+                "profile.interfaceScale deve ser 1.0, 1.5 ou 2.0."));
+        }
+    }
     if (profile.contains(QStringLiteral("locale"))) {
         const auto locale = profile.value(QStringLiteral("locale")).toString();
         if (locale != QStringLiteral("pt-BR") && locale != QStringLiteral("en-US"))

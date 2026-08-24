@@ -9,15 +9,15 @@ Dialog {
     id: dialog
 
     required property var controller
-    required property real availableWidth
-    required property real availableHeight
+    required property real hostWidth
+    required property real hostHeight
 
     title: qsTr("Biblioteca de pastas")
     modal: true
-    width: Math.min(dialog.availableWidth - 80, 1000)
-    height: Math.min(dialog.availableHeight - 80, 680)
-    x: (dialog.availableWidth - width) / 2
-    y: (dialog.availableHeight - height) / 2
+    width: Math.min(dialog.hostWidth - 80, 1000)
+    height: Math.min(dialog.hostHeight - 80, 680)
+    x: (dialog.hostWidth - width) / 2
+    y: (dialog.hostHeight - height) / 2
     standardButtons: Dialog.Close
 
     FolderDialog {
