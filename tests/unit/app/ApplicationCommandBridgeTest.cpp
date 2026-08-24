@@ -74,7 +74,29 @@ private slots:
     void facadesExposeBoundedQmlContracts();
     void onboardingStepsCanBeDeferredAndRestored();
     void interfaceScaleIsValidatedAndPersisted();
+    void keyboardShortcutsRejectConflictsAndPersist();
 };
+
+void ApplicationCommandBridgeTest::keyboardShortcutsRejectConflictsAndPersist()
+{
+    ApplicationController controller;
+    const auto originalNext = controller.shortcuts().value(QStringLiteral("next")).toString();
+    const auto originalPrevious = controller.shortcuts().value(QStringLiteral("previous")).toString();
+    const auto customSequence = QStringLiteral("Ctrl+Alt+Shift+F12");
+
+    QVERIFY(controller.setShortcut(QStringLiteral("next"), customSequence));
+    QCOMPARE(controller.shortcuts().value(QStringLiteral("next")).toString(), customSequence);
+    QVERIFY(!controller.setShortcut(QStringLiteral("previous"), customSequence));
+    QCOMPARE(controller.shortcuts().value(QStringLiteral("previous")).toString(), originalPrevious);
+    QVERIFY(!controller.setShortcut(QStringLiteral("unknown"), QStringLiteral("F11")));
+
+    {
+        ApplicationController restored;
+        QCOMPARE(restored.shortcuts().value(QStringLiteral("next")).toString(), customSequence);
+    }
+
+    QVERIFY(controller.setShortcut(QStringLiteral("next"), originalNext));
+}
 
 void ApplicationCommandBridgeTest::interfaceScaleIsValidatedAndPersisted()
 {
