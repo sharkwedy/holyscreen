@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Consolidated translation selection, licensed Bible imports, source updates
+  and reference search in a `BibleSettingsFlow` backed only by `BibleContext`.
 - Extracted folder management, media catalog filtering and playlist insertion
   from `MainWindow` into a Media-context-backed `MediaLibraryDialog`.
 - Extracted the operator preview, transport controls and per-screen media
