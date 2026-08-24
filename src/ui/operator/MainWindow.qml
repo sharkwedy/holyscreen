@@ -540,7 +540,7 @@ ApplicationWindow {
     FolderDialog {
         id: mediaFolderDialog
         title: qsTr("Adicionar pasta de mídia")
-        onAccepted: root.controller.addMediaFolder(selectedFolder)
+        onAccepted: root.controller.mediaContext.addMediaFolder(selectedFolder)
     }
     Dialog {
         id: mediaLibraryDialog
@@ -559,7 +559,7 @@ ApplicationWindow {
                 Label { text: qsTr("PASTAS SELECIONADAS"); color: "#8da0bc"; font.bold: true }
                 Item { Layout.fillWidth: true }
                 Button { text: qsTr("+ PASTA"); onClicked: mediaFolderDialog.open() }
-                Button { text: qsTr("ATUALIZAR"); onClicked: root.controller.rescanMediaFolders() }
+                Button { text: qsTr("ATUALIZAR"); onClicked: root.controller.mediaContext.rescanMediaFolders() }
             }
             ListView {
                 id: mediaFoldersList
@@ -567,7 +567,7 @@ ApplicationWindow {
                 Layout.preferredHeight: Math.min(120, Math.max(42, contentHeight))
                 clip: true
                 spacing: 4
-                model: root.controller.mediaFolders
+                model: root.controller.mediaContext.mediaFolders
                 delegate: Rectangle {
                     id: mediaFolderDelegate
                     required property var modelData
@@ -584,7 +584,7 @@ ApplicationWindow {
                         ToolButton {
                             text: "×"
                             Accessible.name: qsTr("Remover pasta")
-                            onClicked: root.controller.removeMediaFolder(mediaFolderDelegate.modelData.path)
+                            onClicked: root.controller.mediaContext.removeMediaFolder(mediaFolderDelegate.modelData.path)
                         }
                     }
                 }
@@ -598,20 +598,20 @@ ApplicationWindow {
             TabBar {
                 id: mediaTypeTabs
                 Layout.fillWidth: true
-                TabButton { text: qsTr("ÁUDIOS (%1)").arg(root.controller.folderAudioFiles.length) }
-                TabButton { text: qsTr("VÍDEOS (%1)").arg(root.controller.folderVideoFiles.length) }
-                TabButton { text: qsTr("IMAGENS (%1)").arg(root.controller.folderImageFiles.length) }
+                TabButton { text: qsTr("ÁUDIOS (%1)").arg(root.controller.mediaContext.folderAudioFiles.length) }
+                TabButton { text: qsTr("VÍDEOS (%1)").arg(root.controller.mediaContext.folderVideoFiles.length) }
+                TabButton { text: qsTr("IMAGENS (%1)").arg(root.controller.mediaContext.folderImageFiles.length) }
             }
             TextField {
                 Layout.fillWidth: true
                 placeholderText: qsTr("Pesquisar por nome de arquivo")
-                text: mediaTypeTabs.currentIndex === 0 ? root.controller.audioFileSearch
-                      : mediaTypeTabs.currentIndex === 1 ? root.controller.videoFileSearch
-                      : root.controller.imageFileSearch
+                text: mediaTypeTabs.currentIndex === 0 ? root.controller.mediaContext.audioFileSearch
+                      : mediaTypeTabs.currentIndex === 1 ? root.controller.mediaContext.videoFileSearch
+                      : root.controller.mediaContext.imageFileSearch
                 onTextEdited: {
-                    if (mediaTypeTabs.currentIndex === 0) root.controller.audioFileSearch = text
-                    else if (mediaTypeTabs.currentIndex === 1) root.controller.videoFileSearch = text
-                    else root.controller.imageFileSearch = text
+                    if (mediaTypeTabs.currentIndex === 0) root.controller.mediaContext.audioFileSearch = text
+                    else if (mediaTypeTabs.currentIndex === 1) root.controller.mediaContext.videoFileSearch = text
+                    else root.controller.mediaContext.imageFileSearch = text
                 }
             }
             ListView {
@@ -620,9 +620,9 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 spacing: 4
-                model: mediaTypeTabs.currentIndex === 0 ? root.controller.folderAudioFiles
-                     : mediaTypeTabs.currentIndex === 1 ? root.controller.folderVideoFiles
-                     : root.controller.folderImageFiles
+                model: mediaTypeTabs.currentIndex === 0 ? root.controller.mediaContext.folderAudioFiles
+                     : mediaTypeTabs.currentIndex === 1 ? root.controller.mediaContext.folderVideoFiles
+                     : root.controller.mediaContext.folderImageFiles
                 delegate: Rectangle {
                     id: folderMediaDelegate
                     required property var modelData
@@ -649,14 +649,14 @@ ApplicationWindow {
                         Button {
                             text: folderMediaDelegate.modelData.inPlaylist ? qsTr("NA PLAYLIST") : qsTr("+ PLAYLIST")
                             enabled: !folderMediaDelegate.modelData.inPlaylist
-                            onClicked: root.controller.addCatalogFileToPlaylist(folderMediaDelegate.modelData.path)
+                            onClicked: root.controller.mediaContext.addCatalogFileToPlaylist(folderMediaDelegate.modelData.path)
                         }
                     }
                 }
                 Label {
                     anchors.centerIn: parent
                     visible: folderMediaList.count === 0
-                    text: root.controller.mediaFolders.length === 0
+                    text: root.controller.mediaContext.mediaFolders.length === 0
                           ? qsTr("Nenhuma pasta selecionada")
                           : qsTr("Nenhum arquivo encontrado para esta pesquisa")
                     color: "#64748b"

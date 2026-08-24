@@ -78,7 +78,7 @@ Dialog {
                     }
                     RowLayout {
                         Button { text: qsTr("Abrir biblioteca"); onClicked: settings.openLibrary() }
-                        Button { text: qsTr("Reexaminar pastas"); onClicked: settings.controller.rescanMediaFolders() }
+                        Button { text: qsTr("Reexaminar pastas"); onClicked: settings.controller.mediaContext.rescanMediaFolders() }
                         Button { text: qsTr("Restaurar layout"); onClicked: settings.restoreLayout() }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }
@@ -290,7 +290,7 @@ Dialog {
                     Label { text: qsTr("Reprodução"); color: settings.textMain; font.bold: true; font.pixelSize: 16 }
                     RowLayout {
                         Label { text: qsTr("Volume"); color: settings.textMain; Layout.preferredWidth: 160 }
-                        Slider { Layout.fillWidth: true; from: 0; to: 1; value: settings.controller.mediaVolume; onMoved: settings.controller.mediaVolume = value }
+                        Slider { Layout.fillWidth: true; from: 0; to: 1; value: settings.controller.mediaContext.mediaVolume; onMoved: settings.controller.mediaContext.mediaVolume = value }
                     }
                     RowLayout {
                         Label { text: qsTr("Saída de áudio"); color: settings.textMain; Layout.preferredWidth: 160 }
@@ -324,8 +324,8 @@ Dialog {
                                     {"id":"one", "name":qsTr("Repetir item")},
                                     {"id":"all", "name":qsTr("Repetir playlist")}]
                             textRole: "name"; valueRole: "id"
-                            currentIndex: settings.valueIndex(model, settings.controller.mediaRepeatMode)
-                            onActivated: settings.controller.mediaRepeatMode = currentValue
+                            currentIndex: settings.valueIndex(model, settings.controller.mediaContext.mediaRepeatMode)
+                            onActivated: settings.controller.mediaContext.mediaRepeatMode = currentValue
                         }
                     }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: settings.line }

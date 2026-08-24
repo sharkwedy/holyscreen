@@ -101,11 +101,23 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
     static const QRegularExpression rawVisible(
         QStringLiteral("(?:text|title|placeholderText|Accessible\\.name|ToolTip\\.text)"
                        "\\s*:\\s*\\\"(?!https?://)[^\\\";\\r\\n]*\\p{L}"));
+    static const QRegularExpression legacyMediaAlias(
+        QStringLiteral("controller\\.(?:mediaPlaylist|mediaFolders|folderAudioFiles|"
+                       "folderVideoFiles|folderImageFiles|favoriteMedia|audioFileSearch|"
+                       "videoFileSearch|imageFileSearch|currentMediaId|currentMediaTitle|"
+                       "currentMediaType|mediaState|mediaPositionMs|mediaDurationMs|"
+                       "mediaVolume|mediaRepeatMode|addMediaFolder|removeMediaFolder|"
+                       "rescanMediaFolders|addCatalogFileToPlaylist|isFavoriteMedia|"
+                       "toggleFavoriteMedia|openFileLocation|moveMedia|removeMedia|"
+                       "playMedia|toggleMediaPause|stopMedia|seekMedia|previousMedia|"
+                       "nextMedia|shuffleMediaPlaylist|clearMediaPlaylist|saveMediaPlaylist)\\b"));
     for (const auto &path : qmlFiles) {
         const auto contents = QString::fromUtf8(readFile(path));
         QVERIFY2(!contents.isEmpty(), qPrintable(QStringLiteral("Não foi possível ler %1").arg(path)));
         QVERIFY2(!rawVisible.match(contents).hasMatch(),
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
+        QVERIFY2(!legacyMediaAlias.match(contents).hasMatch(),
+                 qPrintable(QStringLiteral("Alias legado de mídia usado em %1").arg(path)));
         auto matches = translated.globalMatch(contents);
         while (matches.hasNext()) sources.insert(qmlStringValue(matches.next().captured(1)));
     }
