@@ -11,7 +11,7 @@ Dialog {
 
     required property var controller
 
-    title: "Integrações"
+    title: qsTr("Integrações")
     modal: true
     width: Math.min(940, parent ? parent.width - 60 : 940)
     height: Math.min(720, parent ? parent.height - 60 : 720)
@@ -29,19 +29,19 @@ Dialog {
     property var draft: ({})
 
     readonly property var fieldsByType: ({
-        "http": [{"key": "url", "label": "URL", "hint": "https://servidor.local/hook"},
-                 {"key": "method", "label": "Método", "options": ["POST", "GET", "PUT", "PATCH", "DELETE"]},
-                 {"key": "body", "label": "Corpo", "multiline": true,
+        "http": [{"key": "url", "label": qsTr("URL"), "hint": "https://servidor.local/hook"},
+                 {"key": "method", "label": qsTr("Método"), "options": ["POST", "GET", "PUT", "PATCH", "DELETE"]},
+                 {"key": "body", "label": qsTr("Corpo"), "multiline": true,
                   "hint": "{\"slide\":\"{{slide}}\"}"}],
-        "websocket": [{"key": "url", "label": "URL", "hint": "ws://127.0.0.1:9000"},
-                      {"key": "message", "label": "Mensagem", "multiline": true}],
-        "obs": [{"key": "host", "label": "Host", "hint": "127.0.0.1"},
-                {"key": "port", "label": "Porta", "number": true, "fallback": 4455}],
-        "midi": [{"key": "port", "label": "Porta de saída", "midiPorts": true},
-                 {"key": "channel", "label": "Canal", "number": true, "fallback": 1}],
-        "osc": [{"key": "host", "label": "Host", "hint": "127.0.0.1"},
-                {"key": "port", "label": "Porta", "number": true, "fallback": 9000},
-                {"key": "address", "label": "Caminho OSC", "hint": "/cena/1"}]
+        "websocket": [{"key": "url", "label": qsTr("URL"), "hint": "ws://127.0.0.1:9000"},
+                      {"key": "message", "label": qsTr("Mensagem"), "multiline": true}],
+        "obs": [{"key": "host", "label": qsTr("Host"), "hint": "127.0.0.1"},
+                {"key": "port", "label": qsTr("Porta"), "number": true, "fallback": 4455}],
+        "midi": [{"key": "port", "label": qsTr("Porta de saída"), "midiPorts": true},
+                 {"key": "channel", "label": qsTr("Canal"), "number": true, "fallback": 1}],
+        "osc": [{"key": "host", "label": qsTr("Host"), "hint": "127.0.0.1"},
+                {"key": "port", "label": qsTr("Porta"), "number": true, "fallback": 9000},
+                {"key": "address", "label": qsTr("Caminho OSC"), "hint": "/cena/1"}]
     })
 
     readonly property var secretFieldByType: ({
@@ -83,7 +83,7 @@ Dialog {
 
     function startNewIntegration() {
         area.selectedId = ""
-        area.draft = {"id": "", "name": "Nova integração", "type": "http", "enabled": true,
+        area.draft = {"id": "", "name": qsTr("Nova integração"), "type": "http", "enabled": true,
                       "timeoutMs": 5000, "retryAttempts": 1, "retryBackoffMs": 250,
                       "configuration": {}, "secretReferences": []}
     }
@@ -116,8 +116,8 @@ Dialog {
         Label {
             Layout.fillWidth: true
             visible: !area.controller.integrationSecretsPersistent
-            text: "Sem cofre do sistema (" + area.controller.integrationSecretBackend
-                  + "): os segredos valem apenas nesta sessão."
+            text: qsTr("Sem cofre do sistema (%1): os segredos valem apenas nesta sessão.")
+                  .arg(area.controller.integrationSecretBackend)
             color: "#ffba70"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -139,11 +139,11 @@ Dialog {
                     TextField {
                         id: searchField
                         Layout.fillWidth: true
-                        placeholderText: "Pesquisar"
+                        placeholderText: qsTr("Pesquisar")
                     }
                     Button {
                         text: "+"
-                        Accessible.name: "Nova integração"
+                        Accessible.name: qsTr("Nova integração")
                         onClicked: area.startNewIntegration()
                     }
                 }
@@ -191,7 +191,7 @@ Dialog {
                             }
                             Switch {
                                 checked: integrationRow.modelData.enabled
-                                Accessible.name: "Ativar integração"
+                                Accessible.name: qsTr("Ativar integração")
                                 onClicked: area.controller.setIntegrationEnabled(
                                                integrationRow.modelData.id, checked)
                             }
@@ -203,7 +203,7 @@ Dialog {
                     Label {
                         anchors.centerIn: parent
                         visible: integrationList.count === 0
-                        text: "Nenhuma integração configurada"
+                        text: qsTr("Nenhuma integração configurada")
                         color: area.textMuted
                         font.pixelSize: 12
                     }
@@ -225,7 +225,7 @@ Dialog {
                         TextField {
                             Layout.fillWidth: true
                             text: area.draft.name || ""
-                            placeholderText: "Nome"
+                            placeholderText: qsTr("Nome")
                             onEditingFinished: area.updateDraft("name", text)
                         }
                         ComboBox {
@@ -296,7 +296,7 @@ Dialog {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: "Timeout (ms)"; color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Timeout (ms)"); color: area.textMuted; font.pixelSize: 11 }
                         SpinBox {
                             from: 250
                             to: 60000
@@ -305,7 +305,7 @@ Dialog {
                             value: area.draft.timeoutMs || 5000
                             onValueModified: area.updateDraft("timeoutMs", value)
                         }
-                        Label { text: "Tentativas"; color: area.textMuted; font.pixelSize: 11 }
+                        Label { text: qsTr("Tentativas"); color: area.textMuted; font.pixelSize: 11 }
                         SpinBox {
                             from: 1
                             to: 5
@@ -322,10 +322,10 @@ Dialog {
                             id: secretField
                             Layout.fillWidth: true
                             echoMode: TextInput.Password
-                            placeholderText: "Segredo (fica no cofre do sistema)"
+                            placeholderText: qsTr("Segredo (fica no cofre do sistema)")
                         }
                         Button {
-                            text: "Guardar segredo"
+                            text: qsTr("Guardar segredo")
                             enabled: secretField.text.length > 0
                             onClicked: {
                                 area.controller.setIntegrationSecret(area.selectedId,
@@ -349,14 +349,14 @@ Dialog {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
-                        Button { text: "Salvar"; highlighted: true; onClicked: area.save() }
+                        Button { text: qsTr("Salvar"); highlighted: true; onClicked: area.save() }
                         Button {
-                            text: "Testar conexão"
+                            text: qsTr("Testar conexão")
                             enabled: area.selectedId.length > 0
                             onClicked: area.controller.testIntegration(area.selectedId)
                         }
                         Button {
-                            text: "Duplicar"
+                            text: qsTr("Duplicar")
                             enabled: area.selectedId.length > 0
                             onClicked: {
                                 const copyId = area.controller.duplicateIntegration(area.selectedId)
@@ -366,7 +366,7 @@ Dialog {
                         }
                         Item { Layout.fillWidth: true }
                         Button {
-                            text: "Excluir"
+                            text: qsTr("Excluir")
                             enabled: area.selectedId.length > 0
                             onClicked: removeConfirmation.open()
                         }
@@ -386,7 +386,7 @@ Dialog {
                             }
                         }
                         Button {
-                            text: "Executar operação"
+                            text: qsTr("Executar operação")
                             enabled: operationPicker.currentText.length > 0
                             onClicked: area.controller.executeIntegration(
                                            area.selectedId, operationPicker.currentText, {})
@@ -406,7 +406,7 @@ Dialog {
             elide: Text.ElideRight
         }
 
-        Label { text: "HISTÓRICO"; color: area.textMuted; font.bold: true; font.pixelSize: 11 }
+        Label { text: qsTr("HISTÓRICO"); color: area.textMuted; font.bold: true; font.pixelSize: 11 }
 
         ListView {
             Layout.fillWidth: true
@@ -447,7 +447,7 @@ Dialog {
                         elide: Text.ElideRight
                     }
                     Label {
-                        text: historyRow.modelData.durationMs + " ms"
+                        text: qsTr("%1 ms").arg(historyRow.modelData.durationMs)
                         color: area.textMuted
                         font.pixelSize: 11
                     }
@@ -458,14 +458,14 @@ Dialog {
 
     Dialog {
         id: removeConfirmation
-        title: "Excluir integração"
+        title: qsTr("Excluir integração")
         modal: true
         width: 380
         anchors.centerIn: parent
         standardButtons: Dialog.Cancel | Dialog.Yes
         contentItem: Label {
             width: removeConfirmation.availableWidth
-            text: "A integração e o histórico dela serão apagados. Confirmar?"
+            text: qsTr("A integração e o histórico dela serão apagados. Confirmar?")
             color: area.textMain
             wrapMode: Text.WordWrap
         }

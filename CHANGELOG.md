@@ -5,6 +5,8 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized the complete Integrations editor in pt-BR/en-US, including dynamic
+  field labels, secret-storage warnings, actions, history, and confirmations.
 - Localized Stage output labels, output-window titles, and Broadcast profile
   controls in pt-BR/en-US with translation-contract coverage.
 - Localized Bible navigation and the keyboard-driven quick reference search in
