@@ -72,7 +72,28 @@ private slots:
     void acceptedRemoteAndTimerCommandsBecomeAutomationFacts();
     void automationDefinitionsRoundTripWithoutOverwritingOrSecrets();
     void facadesExposeBoundedQmlContracts();
+    void onboardingStepsCanBeDeferredAndRestored();
 };
+
+void ApplicationCommandBridgeTest::onboardingStepsCanBeDeferredAndRestored()
+{
+    {
+        ApplicationController controller;
+        controller.resumeOnboardingStep(QStringLiteral("broadcast"));
+        QSignalSpy onboardingSpy(&controller, &ApplicationController::onboardingChanged);
+        QVERIFY(!controller.skipOnboardingStep(QStringLiteral("unknown")));
+        QVERIFY(controller.skipOnboardingStep(QStringLiteral("broadcast")));
+        QVERIFY(!controller.skipOnboardingStep(QStringLiteral("broadcast")));
+        QCOMPARE(controller.onboardingSkippedSteps(), QStringList{QStringLiteral("broadcast")});
+        QCOMPARE(onboardingSpy.count(), 1);
+    }
+
+    ApplicationController restored;
+    QCOMPARE(restored.onboardingSkippedSteps(), QStringList{QStringLiteral("broadcast")});
+    QVERIFY(restored.resumeOnboardingStep(QStringLiteral("broadcast")));
+    QVERIFY(restored.onboardingSkippedSteps().isEmpty());
+    QVERIFY(!restored.resumeOnboardingStep(QStringLiteral("broadcast")));
+}
 
 void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
 {

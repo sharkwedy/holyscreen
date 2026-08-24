@@ -486,6 +486,10 @@ bool ApplicationController::localeRestartRequired() const
 }
 bool ApplicationController::demoMode() const { return m_demoMode; }
 bool ApplicationController::onboardingCompleted() const { return m_onboardingCompleted; }
+QStringList ApplicationController::onboardingSkippedSteps() const
+{
+    return m_onboardingSkippedSteps;
+}
 QVariantMap ApplicationController::shortcuts() const { return m_shortcuts; }
 
 void ApplicationController::setLocale(const QString &locale)
@@ -519,6 +523,33 @@ void ApplicationController::reopenOnboarding()
     m_onboardingCompleted = false;
     if (m_settings) m_settings->setValue(QStringLiteral("operator/onboardingCompleted"), false);
     emit onboardingChanged();
+}
+
+bool ApplicationController::skipOnboardingStep(const QString &stepId)
+{
+    static const QStringList allowedSteps{
+        QStringLiteral("screens"), QStringLiteral("audio"), QStringLiteral("library"),
+        QStringLiteral("bible"), QStringLiteral("remote"), QStringLiteral("broadcast"),
+    };
+    if (!allowedSteps.contains(stepId) || m_onboardingSkippedSteps.contains(stepId)) return false;
+    m_onboardingSkippedSteps.append(stepId);
+    if (m_settings) {
+        m_settings->setValue(QStringLiteral("operator/onboardingSkippedSteps"),
+                             m_onboardingSkippedSteps);
+    }
+    emit onboardingChanged();
+    return true;
+}
+
+bool ApplicationController::resumeOnboardingStep(const QString &stepId)
+{
+    if (!m_onboardingSkippedSteps.removeOne(stepId)) return false;
+    if (m_settings) {
+        m_settings->setValue(QStringLiteral("operator/onboardingSkippedSteps"),
+                             m_onboardingSkippedSteps);
+    }
+    emit onboardingChanged();
+    return true;
 }
 
 bool ApplicationController::setShortcut(const QString &action, const QString &sequence)

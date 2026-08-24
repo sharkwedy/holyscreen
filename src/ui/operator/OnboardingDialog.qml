@@ -40,7 +40,14 @@ Dialog {
         return false
     }
 
+    function stepSkipped(stepId) {
+        return controller.onboardingSkippedSteps.indexOf(stepId) >= 0
+    }
+
     function firstIncompleteStep() {
+        for (let index = 0; index < steps.length; ++index) {
+            if (!stepComplete(steps[index].id) && !stepSkipped(steps[index].id)) return index
+        }
         for (let index = 0; index < steps.length; ++index) {
             if (!stepComplete(steps[index].id)) return index
         }
@@ -49,6 +56,7 @@ Dialog {
 
     function configureCurrentStep() {
         const step = steps[currentStep]
+        controller.resumeOnboardingStep(step.id)
         if (step.id === "bible") openBible()
         else openSettings(step.tab)
     }
@@ -84,7 +92,9 @@ Dialog {
                     required property int index
                     width: checklist.width
                     highlighted: onboarding.currentStep === index
-                    text: (onboarding.stepComplete(modelData.id) ? "✓  " : "○  ") + modelData.title
+                    text: (onboarding.stepComplete(modelData.id) ? "✓  "
+                           : onboarding.stepSkipped(modelData.id) ? "–  " : "○  ")
+                          + modelData.title
                     Accessible.name: text
                     onClicked: onboarding.currentStep = index
                 }
@@ -111,20 +121,41 @@ Dialog {
                     implicitHeight: 54
                     radius: 7
                     color: onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
-                           ? "#183f31" : "#3c3421"
+                           ? "#183f31"
+                           : onboarding.stepSkipped(onboarding.steps[onboarding.currentStep].id)
+                             ? "#283746" : "#3c3421"
                     Label {
                         anchors.centerIn: parent
                         text: onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
-                              ? qsTr("Etapa configurada") : qsTr("Configuração pendente")
+                              ? qsTr("Etapa configurada")
+                              : onboarding.stepSkipped(onboarding.steps[onboarding.currentStep].id)
+                                ? qsTr("Etapa adiada") : qsTr("Configuração pendente")
                         color: onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
-                               ? "#70e1a7" : "#f0c36a"
+                               ? "#70e1a7"
+                               : onboarding.stepSkipped(onboarding.steps[onboarding.currentStep].id)
+                                 ? "#9fc5e8" : "#f0c36a"
                         font.bold: true
                     }
                 }
-                Button {
-                    text: qsTr("Configurar esta etapa")
-                    Accessible.name: text
-                    onClicked: onboarding.configureCurrentStep()
+                RowLayout {
+                    Button {
+                        text: onboarding.stepSkipped(onboarding.steps[onboarding.currentStep].id)
+                              ? qsTr("Retomar esta etapa") : qsTr("Configurar esta etapa")
+                        Accessible.name: text
+                        onClicked: onboarding.configureCurrentStep()
+                    }
+                    Button {
+                        visible: !onboarding.stepComplete(onboarding.steps[onboarding.currentStep].id)
+                                 && !onboarding.stepSkipped(onboarding.steps[onboarding.currentStep].id)
+                        text: qsTr("Fazer depois")
+                        flat: true
+                        Accessible.name: text
+                        onClicked: {
+                            onboarding.controller.skipOnboardingStep(
+                                onboarding.steps[onboarding.currentStep].id)
+                            onboarding.currentStep = onboarding.firstIncompleteStep()
+                        }
+                    }
                 }
                 Item { Layout.fillHeight: true }
                 Label {
