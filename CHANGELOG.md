@@ -5,6 +5,10 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- Localized the main operator window in pt-BR/en-US, including dialogs, media
+  library, live controls, legacy panels, dynamic player states and accessible
+  names for icon-only actions; expanded the translation contract to titles and
+  tooltips.
 - Localized every Settings tab in pt-BR/en-US, including profiles, shortcuts,
   displays, media, background, clock, remote control, and development options;
   also removed the Settings shortcut delegate's QML lint warnings.
