@@ -4,6 +4,16 @@ Atualizado em 2026-08-24. Este documento registra o estado exato do repositório
 no checkpoint posterior à `v0.14.0`, o que foi validado e o que ainda bloqueia a
 publicação da `v1.0.0`.
 
+> **Encerrado.** Os itens 1 e 2 da lista "antes da `v1.0.0-rc.1`" foram
+> implementados: o modo de endurance com relatório JSON e a geração de mídia
+> sintética. Por decisão do mantenedor, os demais itens — validação física,
+> pacotes multiplataforma, PWA em celular, OBS real, operação controlada e
+> endurance de duas horas — foram adiados para depois do lançamento, e a
+> `v1.0.0` foi publicada sem eles. A dívida correspondente, com procedimento e
+> formulário de evidência para cada gate, está em
+> [`POST_1.0_VALIDATION.md`](POST_1.0_VALIDATION.md). Este handoff fica como
+> registro histórico do checkpoint da `v0.14.0`.
+
 ## Estado atual
 
 - versão do código: `0.14.0`;

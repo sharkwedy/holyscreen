@@ -14,16 +14,23 @@ O handoff detalhado das ondas 4 a 7 está em
 | 4 | Broadcast e integrações HTTP/WebSocket/OBS/MIDI/OSC | Concluída e validada na v0.12.0 |
 | 5 | Automações offline | Concluída e publicada na v0.13.0 |
 | 6 | UX final, onboarding, acessibilidade e documentação | Concluída e publicada na v0.14.0 |
-| 7 | Validação multiplataforma, endurance e release 1.0 | Em andamento |
+| 7 | Validação multiplataforma, endurance e release 1.0 | Publicada na v1.0.0, com validação de campo adiada |
 
 ## Critério final
 
-- macOS ARM64, Windows x64 e Linux x64 verdes;
-- zero falhas P0/P1 conhecidas;
-- migração com backup e rollback testados;
-- operador + duas telas físicas e cinco saídas simuladas validados;
-- endurance de duas horas sem crash, congelamento, dropout ou perda de saída;
-- pacotes reproduzíveis com checksums e changelog.
+| Critério | Estado na v1.0.0 |
+|---|---|
+| macOS ARM64, Windows x64 e Linux x64 verdes | Atendido |
+| zero falhas P0/P1 conhecidas | Atendido |
+| migração com backup e rollback testados | Atendido |
+| operador + duas telas físicas e cinco saídas simuladas validados | Atendido |
+| endurance de duas horas sem crash, congelamento, dropout ou perda de saída | **Adiado** |
+| pacotes reproduzíveis com checksums e changelog | Gerados; instalação e desinstalação por sistema **adiadas** |
+
+Os dois critérios adiados foram uma decisão do mantenedor, não uma aprovação. O
+procedimento e o formulário de evidência de cada gate pendente estão em
+[`POST_1.0_VALIDATION.md`](POST_1.0_VALIDATION.md), e o resultado deve entrar em
+`releases/1.0.x-field-validation.md`.
 
 ## Checkpoint v0.12.0
 
