@@ -23,6 +23,11 @@ como domínio público e importada de [`damarals/biblias`](https://github.com/da
 As prévias podem não ter assinatura digital. Faça backup dos dados importantes
 antes de atualizar entre versões de desenvolvimento.
 
+O verificador de atualizações consulta diretamente a API oficial de Releases
+do GitHub, incluindo pré-releases publicadas, e apenas avisa o operador. Ele não
+baixa nem instala atualizações automaticamente. Confira todo pacote baixado
+manualmente com o arquivo `SHA256SUMS` da release.
+
 - No Windows, o SmartScreen pode exigir **Mais informações → Executar assim mesmo**.
 - No macOS, use **Ajustes do Sistema → Privacidade e Segurança** após o primeiro
   bloqueio, ou clique no app com Control e escolha **Abrir**.

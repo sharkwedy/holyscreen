@@ -279,6 +279,10 @@ qt_add_executable(test_configuration_profile_service unit/app/ConfigurationProfi
 target_link_libraries(test_configuration_profile_service PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_configuration_profile_service COMMAND test_configuration_profile_service)
 
+qt_add_executable(test_update_checker unit/app/UpdateCheckerTest.cpp)
+target_link_libraries(test_update_checker PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_update_checker COMMAND test_update_checker)
+
 qt_add_executable(test_translation_catalog unit/app/TranslationCatalogTest.cpp)
 target_link_libraries(test_translation_catalog PRIVATE Qt6::Test Qt6::Core)
 target_compile_definitions(test_translation_catalog PRIVATE

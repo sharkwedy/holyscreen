@@ -5,6 +5,11 @@ Versioning where practical before 1.0.
 
 ## [Unreleased]
 
+- The update checker now reads published releases directly from the official
+  `sharkwedy/holyscreen` GitHub Releases API, including pre-releases. It
+  rejects drafts and untrusted URLs, applies timeout and response-size limits,
+  compares SemVer versions and only accepts platform assets with valid GitHub
+  SHA-256 metadata. It never downloads or installs an update automatically.
 - Added bounded Output, Media, Bible, Event, Integration, Automation and
   Maintenance QML facades while preserving the compatible
   `ApplicationController` aliases. Event, history, maintenance and primary

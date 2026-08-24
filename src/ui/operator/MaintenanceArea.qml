@@ -44,10 +44,10 @@ ColumnLayout {
     }
     TextField {
         Layout.fillWidth: true
-        placeholderText: qsTr("URL HTTPS do manifesto de atualização")
+        placeholderText: qsTr("API oficial de Releases do GitHub")
         Accessible.name: placeholderText
         text: area.context.updateEndpoint
-        onEditingFinished: area.context.updateEndpoint = text
+        readOnly: true
     }
     RowLayout {
         Layout.fillWidth: true

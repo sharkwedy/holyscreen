@@ -53,6 +53,11 @@ Development previews may be unsigned. Your operating system can ask you to
 confirm that you trust the application. Back up important presentation data
 before upgrading between previews.
 
+HolyScreen's update checker reads the official GitHub Releases API directly,
+including published pre-releases, and only notifies the operator. It does not
+download or install updates automatically. Always verify a manually downloaded
+package against the release's `SHA256SUMS` file.
+
 - Windows SmartScreen can require **More info → Run anyway**.
 - On macOS, open **System Settings → Privacy & Security** after the first
   blocked launch, or Control-click the app and choose **Open**.
