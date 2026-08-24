@@ -858,6 +858,24 @@
     </message>
 </context>
 <context>
+    <name>EventsDialog</name>
+    <message>
+        <location filename="../src/ui/operator/EventsDialog.qml" line="12"/>
+        <source>Agenda do culto</source>
+        <translation>Agenda do culto</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/EventsDialog.qml" line="39"/>
+        <source>Limpar histórico?</source>
+        <translation>Limpar histórico?</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/EventsDialog.qml" line="45"/>
+        <source>Essa ação remove definitivamente os registros de execução.</source>
+        <translation>Essa ação remove definitivamente os registros de execução.</translation>
+    </message>
+</context>
+<context>
     <name>IntegrationsArea</name>
     <message>
         <location filename="../src/ui/operator/IntegrationsArea.qml" line="14"/>
@@ -1475,86 +1493,6 @@
         <source>Registrar mensagens DEBUG</source>
         <translation>Registrar mensagens DEBUG</translation>
     </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="715"/>
-        <source>HolyScreen</source>
-        <translation>HolyScreen</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="720"/>
-        <source>Live</source>
-        <translation>Live</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="721"/>
-        <source>Prévia</source>
-        <translation>Prévia</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="722"/>
-        <source>Agenda</source>
-        <translation>Agenda</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="723"/>
-        <source>Biblioteca</source>
-        <translation>Biblioteca</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="724"/>
-        <source>Integrações</source>
-        <translation>Integrações</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="726"/>
-        <source>Automações</source>
-        <translation>Automações</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="729"/>
-        <source>Automações pausadas</source>
-        <translation>Automações pausadas</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="734"/>
-        <source>Configurações</source>
-        <translation>Configurações</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="739"/>
-        <source>Alternar tela cheia</source>
-        <translation>Alternar tela cheia</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="742"/>
-        <source>Restaurar</source>
-        <translation>Restaurar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="742"/>
-        <source>Ao vivo</source>
-        <translation>Ao vivo</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="755"/>
-        <source>★  FAVORITOS</source>
-        <translation>★  FAVORITOS</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="776"/>
-        <source>Sem título</source>
-        <translation>Sem título</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="780"/>
-        <source>Reproduzir %1</source>
-        <translation>Reproduzir %1</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/operator/MainWindow.qml" line="785"/>
-        <source>Clique com o botão direito em uma mídia para adicioná-la</source>
-        <translation>Clique com o botão direito em uma mídia para adicioná-la</translation>
-    </message>
 </context>
 <context>
     <name>MaintenanceArea</name>
@@ -1715,6 +1653,135 @@
         <location filename="../src/ui/operator/OnboardingDialog.qml" line="154"/>
         <source>Concluir configuração</source>
         <translation>Concluir configuração</translation>
+    </message>
+</context>
+<context>
+    <name>OperatorHeader</name>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="40"/>
+        <source>HolyScreen</source>
+        <translation>HolyScreen</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="46"/>
+        <source>Live</source>
+        <translation>Live</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="47"/>
+        <source>Abrir comunicação ao vivo</source>
+        <translation>Abrir comunicação ao vivo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="51"/>
+        <source>Operação</source>
+        <translation>Operação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="53"/>
+        <source>Área de operação atual</source>
+        <translation>Área de operação atual</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="56"/>
+        <source>Agenda</source>
+        <translation>Agenda</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="57"/>
+        <source>Abrir agenda do culto</source>
+        <translation>Abrir agenda do culto</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="61"/>
+        <source>Biblioteca</source>
+        <translation>Biblioteca</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="62"/>
+        <source>Abrir biblioteca de mídia</source>
+        <translation>Abrir biblioteca de mídia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="66"/>
+        <source>Integrações</source>
+        <translation>Integrações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="67"/>
+        <source>Abrir integrações</source>
+        <translation>Abrir integrações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="71"/>
+        <source>Automações</source>
+        <translation>Automações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="72"/>
+        <source>Abrir automações</source>
+        <translation>Abrir automações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="75"/>
+        <source>Automações pausadas</source>
+        <translation>Automações pausadas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="80"/>
+        <source>Configurações</source>
+        <translation>Configurações</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="85"/>
+        <source>Alternar tela cheia</source>
+        <translation>Alternar tela cheia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="89"/>
+        <source>Restaurar</source>
+        <translation>Restaurar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="89"/>
+        <source>Ao vivo</source>
+        <translation>Ao vivo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="91"/>
+        <source>Restaurar apresentação</source>
+        <translation>Restaurar apresentação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="92"/>
+        <source>Manter apresentação ao vivo</source>
+        <translation>Manter apresentação ao vivo</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="111"/>
+        <source>★  FAVORITOS</source>
+        <translation>★  FAVORITOS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="139"/>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="142"/>
+        <source>Sem título</source>
+        <translation>Sem título</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="141"/>
+        <source>Reproduzir favorito %1</source>
+        <translation>Reproduzir favorito %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="145"/>
+        <source>Reproduzir %1</source>
+        <translation>Reproduzir %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/OperatorHeader.qml" line="150"/>
+        <source>Clique com o botão direito em uma mídia para adicioná-la</source>
+        <translation>Clique com o botão direito em uma mídia para adicioná-la</translation>
     </message>
 </context>
 <context>

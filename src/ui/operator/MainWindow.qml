@@ -110,11 +110,6 @@ ApplicationWindow {
         }
     }
 
-    function playFavorite(path) {
-        const mediaId = root.controller.addCatalogFileToPlaylist(path)
-        if (mediaId.length > 0)
-            root.controller.playMedia(mediaId)
-    }
     IntegrationsArea {
         id: integrationsArea
         controller: root.controller.integrationContext
@@ -123,6 +118,11 @@ ApplicationWindow {
     AutomationsArea {
         id: automationsArea
         controller: root.controller.automationContext
+    }
+
+    EventsDialog {
+        id: eventsDialog
+        controller: root.controller
     }
 
     SettingsDialog {
@@ -699,97 +699,16 @@ ApplicationWindow {
         }
     }
 
-    header: ToolBar {
-        height: 92
-        background: Rectangle { color: "#15191d"; border.color: "#353b40" }
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 0
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
-                Layout.leftMargin: 18
-                Layout.rightMargin: 14
-                spacing: 12
-                Label {
-                    text: qsTr("HolyScreen")
-                    color: "#f2f4f5"
-                    font.bold: true
-                    font.pixelSize: 15
-                }
-                ToolButton { text: qsTr("Live"); onClicked: liveDialog.open() }
-                ToolButton { text: qsTr("Prévia") }
-                ToolButton { text: qsTr("Agenda") }
-                ToolButton { text: qsTr("Biblioteca"); font.bold: true; onClicked: mediaLibraryDialog.open() }
-                ToolButton { text: qsTr("Integrações"); onClicked: integrationsArea.open() }
-                ToolButton {
-                    text: qsTr("Automações")
-                    onClicked: automationsArea.open()
-                    ToolTip.visible: hovered && !root.controller.automationsEnabled
-                    ToolTip.text: qsTr("Automações pausadas")
-                }
-                Item { Layout.fillWidth: true }
-                ToolButton {
-                    text: "⚙"
-                    Accessible.name: qsTr("Configurações")
-                    onClicked: settingsDialog.open()
-                }
-                ToolButton {
-                    text: "⛶"
-                    Accessible.name: qsTr("Alternar tela cheia")
-                    onClicked: root.visibility = root.visibility === Window.FullScreen ? Window.Windowed : Window.FullScreen
-                }
-                Button { text: root.controller.outputContext.blackout ? qsTr("Restaurar") : qsTr("Ao vivo"); highlighted: true; onClicked: root.controller.outputContext.blackout = false }
-            }
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                color: "#1d2227"
-                border.color: "#353b40"
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 18
-                    anchors.rightMargin: 14
-                    spacing: 10
-                    Label {
-                        text: qsTr("★  FAVORITOS")
-                        color: "#c7d2fe"
-                        font.bold: true
-                        font.pixelSize: 11
-                    }
-                    Rectangle { Layout.preferredWidth: 1; Layout.fillHeight: true; Layout.topMargin: 8; Layout.bottomMargin: 8; color: "#41484e" }
-                    ListView {
-                        id: favoriteMediaList
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        orientation: ListView.Horizontal
-                        spacing: 6
-                        clip: true
-                        model: root.controller.favoriteMedia
-                        delegate: Button {
-                            required property var modelData
-                            height: 32
-                            width: Math.min(220, Math.max(110, implicitWidth))
-                            y: (favoriteMediaList.height - height) / 2
-                            text: (modelData.type === "video" ? "▶  "
-                                  : modelData.type === "image" ? "▧  " : "♫  ")
-                                  + (modelData.fileName || modelData.title || qsTr("Sem título"))
-                            font.pixelSize: 11
-                            onClicked: root.playFavorite(modelData.path)
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Reproduzir %1").arg(modelData.fileName || modelData.title)
-                        }
-                        Label {
-                            anchors.centerIn: parent
-                            visible: favoriteMediaList.count === 0
-                            text: qsTr("Clique com o botão direito em uma mídia para adicioná-la")
-                            color: "#8d979f"
-                            font.pixelSize: 11
-                        }
-                    }
-                }
-            }
-        }
+    header: OperatorHeader {
+        controller: root.controller
+        onOpenLive: liveDialog.open()
+        onOpenEvents: eventsDialog.open()
+        onOpenLibrary: mediaLibraryDialog.open()
+        onOpenIntegrations: integrationsArea.open()
+        onOpenAutomations: automationsArea.open()
+        onOpenSettings: settingsDialog.open()
+        onToggleFullScreen: root.visibility = root.visibility === Window.FullScreen
+                            ? Window.Windowed : Window.FullScreen
     }
     BibleBrowser {
         id: bibleBrowser
