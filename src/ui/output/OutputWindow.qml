@@ -11,7 +11,7 @@ Window {
     color: root.transparentBroadcast ? "transparent" : "black"
     flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
            | Qt.WindowDoesNotAcceptFocus | Qt.Window
-    title: "HolyScreen — " + root.outputDisplayName
+    title: qsTr("HolyScreen — %1").arg(root.outputDisplayName)
 
     property int targetScreenIndex: -1
     property int targetScreenX: 0

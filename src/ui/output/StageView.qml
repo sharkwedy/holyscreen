@@ -31,7 +31,7 @@ Item {
         }
 
         Text {
-            text: "ATUAL"
+            text: qsTr("ATUAL")
             color: "#94a3b8"
             font.bold: true
             font.letterSpacing: 3
@@ -53,7 +53,7 @@ Item {
         Rectangle { width: parent.width; height: 2; color: "#334155" }
 
         Text {
-            text: "PRÓXIMO"
+            text: qsTr("PRÓXIMO")
             color: "#94a3b8"
             font.bold: true
             font.letterSpacing: 3
@@ -63,7 +63,7 @@ Item {
         Text {
             width: parent.width
             height: Math.max(90, root.height * 0.18)
-            text: root.nextText.length > 0 ? root.nextText : "Fim da apresentação"
+            text: root.nextText.length > 0 ? root.nextText : qsTr("Fim da apresentação")
             color: "#cbd5e1"
             wrapMode: Text.Wrap
             elide: Text.ElideRight
