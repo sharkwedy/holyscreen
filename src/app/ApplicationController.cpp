@@ -2893,7 +2893,7 @@ bool ApplicationController::exportDiagnostics(const QUrl &destination)
     return exported;
 }
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
-void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(QUrl(m_updateEndpoint),QCoreApplication::applicationVersion());}
+void ApplicationController::checkForUpdates(){m_updateStatus=QStringLiteral("Verificando...");emit updateChanged();m_updateChecker.check(UpdateChecker::defaultEndpoint(),QCoreApplication::applicationVersion());}
 
 int ApplicationController::importBibleTranslation(const QUrl &source)
 {
@@ -3693,7 +3693,7 @@ void ApplicationController::setSongSearch(const QString &search)
 {
     const auto normalized=search.trimmed();if(m_songSearch==normalized)return;m_songSearch=normalized;emit songSearchChanged();refreshSongs();
 }
-void ApplicationController::setUpdateEndpoint(const QString&endpoint){const auto value=endpoint.trimmed();if(m_updateEndpoint==value)return;m_updateEndpoint=value;saveSetting(QStringLiteral("updateEndpoint"),value);emit updateChanged();}
+void ApplicationController::setUpdateEndpoint(const QString&endpoint){Q_UNUSED(endpoint);const auto value=UpdateChecker::defaultEndpoint().toString();if(m_updateEndpoint==value)return;m_updateEndpoint=value;saveSetting(QStringLiteral("updateEndpoint"),value);emit updateChanged();}
 
 void ApplicationController::setBiblePrimaryTranslationId(const QString &id)
 {
@@ -3836,7 +3836,7 @@ void ApplicationController::loadSettings()
         m_settings->value(QStringLiteral("presentation/videoLoop"), false).toBool()
             ? QStringLiteral("one") : QStringLiteral("off")).toString();
     m_video.setLoop(m_mediaRepeatMode == QStringLiteral("one"));
-    m_updateEndpoint=m_settings->value(QStringLiteral("presentation/updateEndpoint"),QString{}).toString();
+    m_updateEndpoint = UpdateChecker::defaultEndpoint().toString();
     const auto storedImageFit = m_settings->value(QStringLiteral("presentation/imageFit"), QStringLiteral("contain")).toString();
     m_images.setFit(storedImageFit == QStringLiteral("cover") ? ImageFit::Cover
                     : storedImageFit == QStringLiteral("stretch") ? ImageFit::Stretch

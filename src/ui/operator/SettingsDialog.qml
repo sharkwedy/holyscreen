@@ -100,8 +100,8 @@ Dialog {
                     TextField {
                         Layout.fillWidth: true
                         text: settings.controller.maintenanceContext.updateEndpoint
-                        placeholderText: "Endereço de atualização"
-                        onEditingFinished: settings.controller.maintenanceContext.updateEndpoint = text
+                        placeholderText: "API oficial de Releases do GitHub"
+                        readOnly: true
                     }
                     RowLayout {
                         Button { text: "Verificar atualizações"; onClicked: settings.controller.maintenanceContext.checkForUpdates() }

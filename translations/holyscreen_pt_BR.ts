@@ -148,8 +148,8 @@
     </message>
     <message>
         <location filename="../src/ui/operator/MaintenanceArea.qml" line="47"/>
-        <source>URL HTTPS do manifesto de atualização</source>
-        <translation>URL HTTPS do manifesto de atualização</translation>
+        <source>API oficial de Releases do GitHub</source>
+        <translation>API oficial de Releases do GitHub</translation>
     </message>
     <message>
         <location filename="../src/ui/operator/MaintenanceArea.qml" line="54"/>
