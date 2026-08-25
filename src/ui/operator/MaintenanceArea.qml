@@ -52,6 +52,52 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Button { text: qsTr("VERIFICAR ATUALIZAÇÕES"); onClicked: area.context.checkForUpdates() }
-        Label { Layout.fillWidth: true; text: area.context.updateStatus; color: "#8da0bc"; wrapMode: Text.WordWrap }
+        Button {
+            text: area.context.updateDownloading
+                ? qsTr("CANCELAR DOWNLOAD") : qsTr("BAIXAR ATUALIZAÇÃO")
+            enabled: area.context.updateDownloading || area.context.updateDownloadable
+            onClicked: area.context.updateDownloading
+                ? area.context.cancelUpdateDownload() : area.context.downloadUpdate()
+        }
+        Button {
+            text: qsTr("MOSTRAR ARQUIVO")
+            visible: area.context.updateDownloadedPath !== ""
+            onClicked: area.context.revealUpdateDownload()
+        }
+    }
+    ProgressBar {
+        Layout.fillWidth: true
+        visible: area.context.updateDownloading
+        from: 0
+        to: 1
+        value: area.context.updateDownloadProgress
+        Accessible.name: qsTr("Progresso do download da atualização")
+    }
+    Label {
+        Layout.fillWidth: true
+        text: area.context.updateStatus
+        color: "#8da0bc"
+        wrapMode: Text.WordWrap
+    }
+    Label {
+        Layout.fillWidth: true
+        visible: area.context.updateAvailable
+        text: qsTr("Notas da versão: %1").arg(area.context.updateReleaseUrl)
+        color: "#8da0bc"
+        wrapMode: Text.WrapAnywhere
+    }
+    CheckBox {
+        Layout.fillWidth: true
+        text: qsTr("Verificar atualizações automaticamente")
+        checked: area.context.automaticUpdateChecks
+        onToggled: area.context.automaticUpdateChecks = checked
+    }
+    Label {
+        Layout.fillWidth: true
+        text: qsTr("Quando ligada, a verificação acontece na abertura e uma vez por dia. "
+                 + "Nada é baixado nem instalado sem o seu clique.")
+        color: "#6f7f92"
+        font.pixelSize: UiScale.px(11)
+        wrapMode: Text.WordWrap
     }
 }

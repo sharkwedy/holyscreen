@@ -412,12 +412,48 @@ ApplicationController::ApplicationController(QObject *parent)
         emit textVisibleChanged();
     });
     connect(&m_overlays, &OverlayController::changed, this, &ApplicationController::overlaysChanged);
-    connect(&m_updateChecker,&UpdateChecker::completed,this,[this](const QString&latest,const QUrl&url,bool available,const QString&error){
+    connect(&m_updateChecker,&UpdateChecker::completed,this,[this](const UpdateRelease &release){
+        m_updateRelease = release;
+        const auto error = release.error;
         if(!error.isEmpty())m_updateStatus=tr("Falha ao verificar: %1").arg(error);
-        else if(available)m_updateStatus=tr("Versão %1 disponível: %2").arg(latest,url.toString());
+        else if(release.available){
+            m_updateStatus = updateDownloadable()
+                ? tr("Versão %1 disponível.").arg(release.latestVersion)
+                : tr("Versão %1 disponível, mas sem pacote verificável para este sistema.")
+                      .arg(release.latestVersion);
+        }
         else m_updateStatus=tr("HolyScreen está atualizado (%1).").arg(QCoreApplication::applicationVersion());
         emit updateChanged();
     });
+
+    connect(&m_updateDownloader, &UpdateDownloader::progress, this,
+            [this](qint64 received, qint64 total) {
+        m_updateDownloadProgress = total > 0
+            ? static_cast<double>(received) / static_cast<double>(total) : 0.0;
+        emit updateDownloadChanged();
+    });
+    connect(&m_updateDownloader, &UpdateDownloader::finished, this,
+            [this](const QString &path, const QString &error) {
+        m_updateDownloading = false;
+        m_updateDownloadedPath = error.isEmpty() ? path : QString{};
+        m_updateDownloadProgress = error.isEmpty() ? 1.0 : 0.0;
+        emit updateDownloadChanged();
+        m_updateStatus = error.isEmpty()
+            ? tr("Pacote verificado e salvo em %1.").arg(path)
+            : tr("Falha no download: %1").arg(error);
+        emit updateChanged();
+    });
+
+    // O HolyScreen só verifica atualizações quando o operador pede ou quando
+    // autoriza a verificação automática. Uma vez por dia é suficiente e não
+    // interfere numa operação ao vivo, porque nada é baixado sem um clique.
+    m_updateCheckTimer.setInterval(24 * 60 * 60 * 1000);
+    connect(&m_updateCheckTimer, &QTimer::timeout, this, &ApplicationController::checkForUpdates);
+    if (m_automaticUpdateChecks) {
+        m_updateCheckTimer.start();
+        // Uma pequena espera evita competir com a abertura das saídas.
+        QTimer::singleShot(5000, this, &ApplicationController::checkForUpdates);
+    }
     connect(&m_bibleImportWatcher, &QFutureWatcher<BibleImportResult>::finished,
             this, [this] { finishBibleImport(m_bibleImportWatcher.result()); });
 }
@@ -827,6 +863,20 @@ bool ApplicationController::recoveredFromCrash()const{return m_recovery&&m_recov
 QVariantMap ApplicationController::diagnostics()const{return m_diagnostics;}
 QString ApplicationController::updateStatus()const{return m_updateStatus;}
 QString ApplicationController::updateEndpoint()const{return m_updateEndpoint;}
+bool ApplicationController::automaticUpdateChecks()const{return m_automaticUpdateChecks;}
+bool ApplicationController::updateAvailable()const{return m_updateRelease.available;}
+QString ApplicationController::updateLatestVersion()const{return m_updateRelease.latestVersion;}
+QString ApplicationController::updateReleaseUrl()const{return m_updateRelease.releaseUrl.toString();}
+QString ApplicationController::updateAssetName()const{return m_updateRelease.assetName;}
+bool ApplicationController::updateDownloadable()const
+{
+    return m_updateRelease.available && !m_updateRelease.assetName.isEmpty()
+        && m_updateRelease.sha256.size() == 64 && m_updateRelease.assetSize > 0
+        && UpdateChecker::isTrustedDownloadUrl(m_updateRelease.downloadUrl);
+}
+bool ApplicationController::updateDownloading()const{return m_updateDownloading;}
+double ApplicationController::updateDownloadProgress()const{return m_updateDownloadProgress;}
+QString ApplicationController::updateDownloadedPath()const{return m_updateDownloadedPath;}
 QVariantList ApplicationController::bibleTranslations() const{return m_bibleTranslations;}
 bool ApplicationController::bibleImportRunning() const{return m_bibleImportActive;}
 int ApplicationController::bibleImportProgress() const
@@ -2975,7 +3025,62 @@ bool ApplicationController::exportDiagnostics(const QUrl &destination)
     return exported;
 }
 void ApplicationController::runBenchmark(){QElapsedTimer timer;timer.start();volatile quint64 checksum=0;for(int frame=0;frame<100000;++frame)checksum+=qHash(QString::number(frame));const auto elapsed=std::max<qint64>(1,timer.nsecsElapsed());m_diagnostics["benchmarkOperationsPerSecond"]=static_cast<qint64>(100000.0*1e9/elapsed);m_diagnostics["benchmarkChecksum"]=static_cast<qulonglong>(checksum);m_diagnostics["benchmarkAt"]=QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);emit diagnosticsChanged();}
-void ApplicationController::checkForUpdates(){m_updateStatus=tr("Verificando...");emit updateChanged();m_updateChecker.check(UpdateChecker::defaultEndpoint(),QCoreApplication::applicationVersion());}
+void ApplicationController::checkForUpdates()
+{
+    m_updateStatus = tr("Verificando...");
+    emit updateChanged();
+    m_updateChecker.check(UpdateChecker::defaultEndpoint(), QCoreApplication::applicationVersion());
+}
+
+void ApplicationController::setAutomaticUpdateChecks(bool enabled)
+{
+    if (m_automaticUpdateChecks == enabled) return;
+    m_automaticUpdateChecks = enabled;
+    saveSetting(QStringLiteral("automaticUpdateChecks"), enabled);
+    // A verificação periódica só existe enquanto o operador a mantém ligada; o
+    // HolyScreen é offline por padrão e não fala com a rede sem autorização.
+    if (enabled) {
+        m_updateCheckTimer.start();
+        checkForUpdates();
+    } else {
+        m_updateCheckTimer.stop();
+    }
+    emit updateChanged();
+}
+
+void ApplicationController::downloadUpdate()
+{
+    if (m_updateDownloading) return;
+    if (!updateDownloadable()) {
+        setStatusMessage(tr("Não há pacote verificável para baixar."));
+        return;
+    }
+    const auto directory = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    const auto destination = directory.isEmpty()
+        ? m_dataDirectory + QStringLiteral("/updates") : directory;
+
+    m_updateDownloading = true;
+    m_updateDownloadProgress = 0.0;
+    m_updateDownloadedPath.clear();
+    emit updateDownloadChanged();
+    m_updateStatus = tr("Baixando %1...").arg(m_updateRelease.assetName);
+    emit updateChanged();
+
+    m_updateDownloader.start(m_updateRelease.downloadUrl, m_updateRelease.sha256,
+                             m_updateRelease.assetSize, destination,
+                             m_updateRelease.assetName);
+}
+
+void ApplicationController::cancelUpdateDownload()
+{
+    if (m_updateDownloading) m_updateDownloader.cancel();
+}
+
+bool ApplicationController::revealUpdateDownload()
+{
+    if (m_updateDownloadedPath.isEmpty()) return false;
+    return openFileLocation(m_updateDownloadedPath);
+}
 
 int ApplicationController::importBibleTranslation(const QUrl &source)
 {
@@ -3962,6 +4067,8 @@ void ApplicationController::loadSettings()
             ? QStringLiteral("one") : QStringLiteral("off")).toString();
     m_video.setLoop(m_mediaRepeatMode == QStringLiteral("one"));
     m_updateEndpoint = UpdateChecker::defaultEndpoint().toString();
+    m_automaticUpdateChecks = m_settings->value(
+        QStringLiteral("presentation/automaticUpdateChecks"), false).toBool();
     const auto storedImageFit = m_settings->value(QStringLiteral("presentation/imageFit"), QStringLiteral("contain")).toString();
     m_images.setFit(storedImageFit == QStringLiteral("cover") ? ImageFit::Cover
                     : storedImageFit == QStringLiteral("stretch") ? ImageFit::Stretch

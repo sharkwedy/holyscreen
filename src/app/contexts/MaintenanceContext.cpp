@@ -17,6 +17,8 @@ MaintenanceContext::MaintenanceContext(ApplicationController &controller, QObjec
             this, &MaintenanceContext::autosaveChanged);
     connect(&controller, &ApplicationController::debugOptionsChanged,
             this, &MaintenanceContext::debugOptionsChanged);
+    connect(&controller, &ApplicationController::updateDownloadChanged,
+            this, &MaintenanceContext::updateDownloadChanged);
 }
 
 QString MaintenanceContext::lastBackupPath() const { return m_controller.lastBackupPath(); }
@@ -36,5 +38,18 @@ bool MaintenanceContext::scheduleRestore(const QUrl &source) { return m_controll
 bool MaintenanceContext::exportDiagnostics(const QUrl &destination) { return m_controller.exportDiagnostics(destination); }
 void MaintenanceContext::runBenchmark() { m_controller.runBenchmark(); }
 void MaintenanceContext::checkForUpdates() { m_controller.checkForUpdates(); }
+bool MaintenanceContext::automaticUpdateChecks() const { return m_controller.automaticUpdateChecks(); }
+void MaintenanceContext::setAutomaticUpdateChecks(bool enabled) { m_controller.setAutomaticUpdateChecks(enabled); }
+bool MaintenanceContext::updateAvailable() const { return m_controller.updateAvailable(); }
+QString MaintenanceContext::updateLatestVersion() const { return m_controller.updateLatestVersion(); }
+QString MaintenanceContext::updateReleaseUrl() const { return m_controller.updateReleaseUrl(); }
+QString MaintenanceContext::updateAssetName() const { return m_controller.updateAssetName(); }
+bool MaintenanceContext::updateDownloadable() const { return m_controller.updateDownloadable(); }
+bool MaintenanceContext::updateDownloading() const { return m_controller.updateDownloading(); }
+double MaintenanceContext::updateDownloadProgress() const { return m_controller.updateDownloadProgress(); }
+QString MaintenanceContext::updateDownloadedPath() const { return m_controller.updateDownloadedPath(); }
+void MaintenanceContext::downloadUpdate() { m_controller.downloadUpdate(); }
+void MaintenanceContext::cancelUpdateDownload() { m_controller.cancelUpdateDownload(); }
+bool MaintenanceContext::revealUpdateDownload() { return m_controller.revealUpdateDownload(); }
 
 } // namespace churchpresenter

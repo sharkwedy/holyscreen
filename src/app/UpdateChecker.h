@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QMetaType>
 #include <QNetworkAccessManager>
 #include <QObject>
 #include <QString>
@@ -34,11 +35,19 @@ public:
 
     void check(const QUrl &endpoint, const QString &currentVersion);
 
+    //! Verdadeiro quando \a url é um endereço HTTPS do GitHub sem credenciais
+    //! embutidas. O download da atualização usa a mesma regra do manifesto.
+    [[nodiscard]] static bool isTrustedDownloadUrl(const QUrl &url);
+
 signals:
-    void completed(QString latestVersion, QUrl downloadUrl, bool available, QString error);
+    //! Entrega a release inteira, incluindo o pacote da plataforma, o tamanho e
+    //! o SHA-256 publicado pelo GitHub, para que o download possa ser conferido.
+    void completed(const churchpresenter::UpdateRelease &release);
 
 private:
     QNetworkAccessManager m_network;
 };
 
 } // namespace churchpresenter
+
+Q_DECLARE_METATYPE(churchpresenter::UpdateRelease)

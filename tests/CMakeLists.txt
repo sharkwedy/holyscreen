@@ -296,6 +296,11 @@ qt_add_executable(test_update_checker unit/app/UpdateCheckerTest.cpp)
 target_link_libraries(test_update_checker PRIVATE Qt6::Test presenter-app)
 add_test(NAME test_update_checker COMMAND test_update_checker)
 
+qt_add_executable(test_update_downloader unit/app/UpdateDownloaderTest.cpp)
+target_link_libraries(test_update_downloader PRIVATE Qt6::Test Qt6::HttpServer presenter-app)
+add_test(NAME test_update_downloader COMMAND test_update_downloader)
+set_tests_properties(test_update_downloader PROPERTIES TIMEOUT 30)
+
 qt_add_executable(test_translation_catalog unit/app/TranslationCatalogTest.cpp)
 target_link_libraries(test_translation_catalog PRIVATE Qt6::Test Qt6::Core)
 target_compile_definitions(test_translation_catalog PRIVATE
@@ -394,6 +399,7 @@ set_tests_properties(
     test_database_migrator
     test_application_database
     test_upgrade_compatibility
+    test_update_downloader
     PROPERTIES LABELS "integration"
 )
 set_tests_properties(test_qml_output_views PROPERTIES LABELS "qml;golden")

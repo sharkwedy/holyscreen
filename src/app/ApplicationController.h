@@ -43,6 +43,7 @@
 #include "app/DataRecoveryService.h"
 #include "app/AutosaveCoordinator.h"
 #include "app/UpdateChecker.h"
+#include "app/UpdateDownloader.h"
 #include "presentation/TextPresentationController.h"
 #include "presentation/TimedMediaPlayback.h"
 #include "presentation/OverlayController.h"
@@ -238,6 +239,15 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QVariantMap diagnostics READ diagnostics NOTIFY diagnosticsChanged)
     Q_PROPERTY(QString updateStatus READ updateStatus NOTIFY updateChanged)
     Q_PROPERTY(QString updateEndpoint READ updateEndpoint WRITE setUpdateEndpoint NOTIFY updateChanged)
+    Q_PROPERTY(bool automaticUpdateChecks READ automaticUpdateChecks WRITE setAutomaticUpdateChecks NOTIFY updateChanged)
+    Q_PROPERTY(bool updateAvailable READ updateAvailable NOTIFY updateChanged)
+    Q_PROPERTY(QString updateLatestVersion READ updateLatestVersion NOTIFY updateChanged)
+    Q_PROPERTY(QString updateReleaseUrl READ updateReleaseUrl NOTIFY updateChanged)
+    Q_PROPERTY(QString updateAssetName READ updateAssetName NOTIFY updateChanged)
+    Q_PROPERTY(bool updateDownloadable READ updateDownloadable NOTIFY updateChanged)
+    Q_PROPERTY(bool updateDownloading READ updateDownloading NOTIFY updateDownloadChanged)
+    Q_PROPERTY(double updateDownloadProgress READ updateDownloadProgress NOTIFY updateDownloadChanged)
+    Q_PROPERTY(QString updateDownloadedPath READ updateDownloadedPath NOTIFY updateDownloadChanged)
     Q_PROPERTY(QVariantList bibleTranslations READ bibleTranslations NOTIFY bibleTranslationsChanged)
     Q_PROPERTY(QVariantList bibleBooks READ bibleBooks CONSTANT)
     Q_PROPERTY(QString biblePrimaryTranslationId READ biblePrimaryTranslationId WRITE setBiblePrimaryTranslationId NOTIFY bibleSelectionChanged)
@@ -420,6 +430,16 @@ public:
     [[nodiscard]] QVariantMap diagnostics() const;
     [[nodiscard]] QString updateStatus() const;
     [[nodiscard]] QString updateEndpoint() const;
+    [[nodiscard]] bool automaticUpdateChecks() const;
+    void setAutomaticUpdateChecks(bool enabled);
+    [[nodiscard]] bool updateAvailable() const;
+    [[nodiscard]] QString updateLatestVersion() const;
+    [[nodiscard]] QString updateReleaseUrl() const;
+    [[nodiscard]] QString updateAssetName() const;
+    [[nodiscard]] bool updateDownloadable() const;
+    [[nodiscard]] bool updateDownloading() const;
+    [[nodiscard]] double updateDownloadProgress() const;
+    [[nodiscard]] QString updateDownloadedPath() const;
     [[nodiscard]] QVariantList bibleTranslations() const;
     [[nodiscard]] QVariantList bibleBooks() const;
     [[nodiscard]] QString biblePrimaryTranslationId() const;
@@ -567,6 +587,11 @@ public:
     Q_INVOKABLE void revokeRemoteSessions();
     Q_INVOKABLE void runBenchmark();
     Q_INVOKABLE void checkForUpdates();
+    Q_INVOKABLE void downloadUpdate();
+    Q_INVOKABLE void cancelUpdateDownload();
+    //! Abre o pacote baixado com o gerenciador de arquivos do sistema. O
+    //! HolyScreen nunca executa o instalador por conta própria.
+    Q_INVOKABLE bool revealUpdateDownload();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
     Q_INVOKABLE bool importBibleFolder(const QUrl &folder);
     Q_INVOKABLE bool importBibleGit(const QString &url);
@@ -719,6 +744,7 @@ signals:
     void maintenanceChanged();
     void diagnosticsChanged();
     void updateChanged();
+    void updateDownloadChanged();
     void bibleTranslationsChanged();
     void bibleSelectionChanged();
     void bibleResultsChanged();
@@ -946,6 +972,13 @@ private:
     QString m_lastBackupPath;
     QVariantMap m_diagnostics;
     UpdateChecker m_updateChecker;
+    UpdateDownloader m_updateDownloader;
+    QTimer m_updateCheckTimer;
+    UpdateRelease m_updateRelease;
+    bool m_automaticUpdateChecks = false;
+    bool m_updateDownloading = false;
+    double m_updateDownloadProgress = 0.0;
+    QString m_updateDownloadedPath;
     QString m_updateStatus;
     QString m_updateEndpoint;
     std::unique_ptr<BibleRepository> m_bibleRepository;

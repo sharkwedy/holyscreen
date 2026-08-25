@@ -5,6 +5,17 @@ Versioning.
 
 ## [Unreleased]
 
+- Added downloading of the update package from inside the application. The
+  checker already selected the platform asset and read the SHA-256 that GitHub
+  publishes, but discarded both; the release is now carried whole, the package
+  is streamed to the downloads folder and only handed over after its digest and
+  size match. A package that does not match is deleted rather than offered.
+- Added an opt-in automatic update check that runs at startup and once a day,
+  and only reports. Nothing is downloaded or installed without an explicit
+  click, so a service is never interrupted by an update. The preference is off
+  by default, keeping the application offline unless the operator asks
+  otherwise.
+
 ## [1.0.2] - 2026-08-24
 
 - Fixed a startup crash on macOS machines where CoreMIDI is unavailable. RtMidi
