@@ -198,7 +198,7 @@ ConfigurationProfileResult ConfigurationProfileService::validate(const QVariantM
                  result.errors, true);
     if (media.contains(QStringLiteral("volume"))) {
         const auto volume = media.value(QStringLiteral("volume")).toDouble();
-        if (volume < 0.0 || volume > 1.0)
+        if (!std::isfinite(volume) || volume < 0.0 || volume > 1.0)
             result.errors.append(QStringLiteral("media.volume deve estar entre 0 e 1."));
     }
     expectOneOf(media, QStringLiteral("repeatMode"),
