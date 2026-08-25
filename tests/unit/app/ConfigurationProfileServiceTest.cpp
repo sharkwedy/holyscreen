@@ -1,5 +1,7 @@
 #include <QtTest/QTest>
 
+#include <limits>
+
 #include "app/ConfigurationProfileService.h"
 
 using namespace churchpresenter;
@@ -116,6 +118,14 @@ void ConfigurationProfileServiceTest::rejectsInvalidRangesEnumsAndShortcuts()
     QVERIFY(errors.contains(QStringLiteral("imageIntervalMs")));
     QVERIFY(errors.contains(QStringLiteral("duplicado")));
     QVERIFY(errors.contains(QStringLiteral("unknownAction")));
+
+    const auto nanResult = ConfigurationProfileService::validate({
+        {QStringLiteral("media"), QVariantMap{
+             {QStringLiteral("volume"), std::numeric_limits<double>::quiet_NaN()},
+         }},
+    });
+    QVERIFY(!nanResult.accepted);
+    QVERIFY(nanResult.errors.join(u'\n').contains(QStringLiteral("media.volume")));
 }
 
 void ConfigurationProfileServiceTest::rejectsMalformedUnsupportedAndOversizedDocuments()
