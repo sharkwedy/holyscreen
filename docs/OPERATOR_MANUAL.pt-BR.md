@@ -154,8 +154,19 @@ cópia fora do computador de apresentação.
 ## 10. Atualizações e encerramento
 
 O verificador consulta as releases publicadas no repositório oficial do
-HolyScreen no GitHub. Ele apenas informa a versão e abre a página da release;
-nunca baixa nem instala pacotes. Verifique todo download com `SHA256SUMS`.
+HolyScreen no GitHub. Quando há versão nova, **Baixar atualização** traz o
+pacote correspondente ao seu sistema para a pasta de downloads e confere o
+SHA-256 publicado na release antes de entregá-lo: um arquivo que não confere é
+descartado, não guardado. **Mostrar arquivo** abre a pasta para você instalar
+como de costume.
+
+O HolyScreen nunca instala sozinho. São três formatos de pacote diferentes, e
+uma instalação automática que falhe deixaria você sem o programa — possivelmente
+perto de um culto. A instalação continua sendo um passo seu, consciente.
+
+**Verificar atualizações automaticamente** faz a consulta na abertura e uma vez
+por dia, e apenas avisa. A opção nasce desligada: sem ela, o HolyScreen não
+acessa a rede para isso.
 
 Feche normalmente a janela do operador. O HolyScreen salva o layout, encerra
 serviços locais, fecha as saídas e termina completamente. Se o sistema forçar o
