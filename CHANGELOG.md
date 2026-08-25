@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-25
+
 - Added an accessible remove button to every media playlist row, with a visible
   × icon, localized tooltip and direct removal through the existing undoable
   playlist command.
