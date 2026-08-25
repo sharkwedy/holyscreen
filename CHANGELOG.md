@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-24
+
 - Added downloading of the update package from inside the application. The
   checker already selected the platform asset and read the SHA-256 that GitHub
   publishes, but discarded both; the release is now carried whole, the package

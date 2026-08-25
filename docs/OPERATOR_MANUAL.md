@@ -156,9 +156,19 @@ least one copy outside the presentation computer.
 ## 10. Updates and shutdown
 
 The update checker reads published releases from the official HolyScreen
-GitHub repository. It only reports the available version and opens its release
-page; it never downloads or installs a package. Verify every downloaded asset
-against `SHA256SUMS` before installation.
+GitHub repository. When a newer version exists, **Download update** fetches the
+package for your system into the downloads folder and verifies the SHA-256
+published in the release before handing it over: a file that does not match is
+discarded, not kept. **Show file** opens the folder so you can install it the
+usual way.
+
+HolyScreen never installs on its own. There are three different package formats,
+and a failed automatic installation would leave you without the program —
+possibly close to a service. Installing stays a deliberate step you take.
+
+**Check for updates automatically** runs the query at startup and once a day,
+and only reports. The option starts disabled: without it, HolyScreen does not
+reach the network for this.
 
 Close the operator window normally. HolyScreen then saves layout state, stops
 local services, closes output windows and exits completely. If an operating
