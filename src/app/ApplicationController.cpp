@@ -9,6 +9,7 @@
 #include "remote/RemoteQrCode.h"
 #include "app/AppLogger.h"
 #include "app/DiagnosticExporter.h"
+#include "app/MediaThumbnailer.h"
 #include "persistence/ApplicationDatabase.h"
 #include "core/CommandCatalog.h"
 #include "integrations/IntegrationSanitizer.h"
@@ -52,7 +53,7 @@
 namespace churchpresenter {
 
 namespace {
-QVariantMap mapMedia(const MediaItem &item)
+QVariantMap mapMedia(const MediaItem &item, const QUrl &thumbnailSource = {})
 {
     const auto type = item.type == MediaType::Video ? QStringLiteral("video")
                     : item.type == MediaType::Image ? QStringLiteral("image")
@@ -65,6 +66,7 @@ QVariantMap mapMedia(const MediaItem &item)
         {QStringLiteral("artist"), item.artist},
         {QStringLiteral("album"), item.album},
         {QStringLiteral("type"), type},
+        {QStringLiteral("thumbnailSource"), thumbnailSource},
         {QStringLiteral("typeLabel"), type == QStringLiteral("video")
              ? QCoreApplication::translate("ApplicationController", "VÍDEO")
              : type == QStringLiteral("audio")
@@ -73,7 +75,8 @@ QVariantMap mapMedia(const MediaItem &item)
     };
 }
 
-QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist, bool favorite = false)
+QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist, bool favorite = false,
+                            const QUrl &thumbnailSource = {})
 {
     const auto type = entry.type == MediaType::Video ? QStringLiteral("video")
                     : entry.type == MediaType::Image ? QStringLiteral("image")
@@ -84,6 +87,7 @@ QVariantMap mapCatalogEntry(const MediaCatalogEntry &entry, bool inPlaylist, boo
         {QStringLiteral("path"), entry.path},
         {QStringLiteral("folderPath"), entry.folderPath},
         {QStringLiteral("type"), type},
+        {QStringLiteral("thumbnailSource"), thumbnailSource},
         {QStringLiteral("inPlaylist"), inPlaylist},
         {QStringLiteral("favorite"), favorite},
     };
@@ -320,6 +324,14 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    m_thumbnailRefreshDebounce.setSingleShot(true);
+    m_thumbnailRefreshDebounce.setInterval(100);
+    connect(&m_thumbnailRefreshDebounce, &QTimer::timeout, this, [this] {
+        refreshAudioLibrary();
+        refreshVideoLibrary();
+        refreshImageLibrary();
+        refreshMediaPlaylist();
+    });
     m_mediaDevices = std::make_unique<QMediaDevices>();
     connect(m_mediaDevices.get(), &QMediaDevices::audioOutputsChanged, this, [this] {
         const bool selectedDeviceWasActive = !m_audioOutputId.isEmpty()
@@ -2210,6 +2222,14 @@ void ApplicationController::removeMedia(const QString &id)
     m_playlistCommands->requestRemove(id);
 }
 
+void ApplicationController::requestMediaThumbnail(const QString &path, const QString &type)
+{
+    if (!m_mediaThumbnailer) return;
+    const auto mediaType = type == QStringLiteral("video") ? MediaType::Video
+        : type == QStringLiteral("image") ? MediaType::Image : MediaType::Audio;
+    m_mediaThumbnailer->request(path, mediaType);
+}
+
 bool ApplicationController::applyRemoveMedia(const QString &id)
 {
     if (!m_mediaRepository) return false;
@@ -3971,6 +3991,12 @@ void ApplicationController::loadSettings()
         : overridePath;
     m_dataDirectory=appData;
     QDir().mkpath(appData);
+    m_mediaThumbnailer = std::make_unique<MediaThumbnailer>(
+        QDir(appData).filePath(QStringLiteral("thumbnails")), this);
+    connect(m_mediaThumbnailer.get(), &MediaThumbnailer::thumbnailReady,
+            this, [this](const QString &, const QUrl &) {
+        m_thumbnailRefreshDebounce.start();
+    });
     const auto databasePath = appData + QStringLiteral("/presenter.db");
     m_recovery=std::make_unique<DataRecoveryService>(appData);
     if(!m_recovery->applyPendingRestore())qWarning()<<"Could not apply pending database restore";
@@ -4122,6 +4148,11 @@ void ApplicationController::loadSettings()
 
 }
 
+QUrl ApplicationController::thumbnailSourceFor(const QString &path, MediaType type)
+{
+    return m_mediaThumbnailer ? m_mediaThumbnailer->sourceFor(path, type) : QUrl{};
+}
+
 void ApplicationController::saveSetting(const QString &key, const QVariant &value)
 {
     if (!m_settings) return;
@@ -4198,7 +4229,8 @@ void ApplicationController::refreshMediaCatalogViews()
         QVariantList result;
         for (const auto &entry : MediaFolderScanner::filter(m_mediaCatalogEntries, type, search)) {
             result.append(mapCatalogEntry(entry, playlistPaths.contains(entry.path),
-                                          m_favoriteMediaPaths.contains(entry.path)));
+                                          m_favoriteMediaPaths.contains(entry.path),
+                                          thumbnailSourceFor(entry.path, entry.type)));
         }
         return result;
     };
@@ -4224,7 +4256,8 @@ void ApplicationController::refreshFavoriteMedia()
         if (!info.isFile()) continue;
 
         if (playlistItems.contains(path)) {
-            auto mapped = mapMedia(playlistItems.value(path));
+            const auto item = playlistItems.value(path);
+            auto mapped = mapMedia(item, thumbnailSourceFor(item.path, item.type));
             mapped.insert(QStringLiteral("fileName"), info.fileName());
             mapped.insert(QStringLiteral("favorite"), true);
             mapped.insert(QStringLiteral("inPlaylist"), true);
@@ -4236,19 +4269,23 @@ void ApplicationController::refreshFavoriteMedia()
             m_mediaCatalogEntries.cbegin(), m_mediaCatalogEntries.cend(),
             [&](const auto &entry) { return entry.path == path; });
         if (catalogEntry != m_mediaCatalogEntries.cend()) {
-            updated.append(mapCatalogEntry(*catalogEntry, false, true));
+            updated.append(mapCatalogEntry(*catalogEntry, false, true,
+                                           thumbnailSourceFor(catalogEntry->path,
+                                                              catalogEntry->type)));
             continue;
         }
 
         const auto type = MediaFolderScanner::mediaTypeForFile(path);
         if (!type.has_value()) continue;
-        updated.append(mapCatalogEntry(MediaCatalogEntry{
+        const MediaCatalogEntry entry{
             .type = type.value(),
             .fileName = info.fileName(),
             .title = info.completeBaseName(),
             .path = path,
             .folderPath = info.absolutePath(),
-        }, false, true));
+        };
+        updated.append(mapCatalogEntry(entry, false, true,
+                                       thumbnailSourceFor(entry.path, entry.type)));
     }
     m_favoriteMedia = updated;
     emit favoriteMediaChanged();
@@ -4258,7 +4295,9 @@ void ApplicationController::refreshMediaPlaylist()
 {
     QVariantList updated;
     if (m_mediaRepository) {
-        for (const auto &item : m_mediaRepository->playlistItems()) updated.append(mapMedia(item));
+        for (const auto &item : m_mediaRepository->playlistItems()) {
+            updated.append(mapMedia(item, thumbnailSourceFor(item.path, item.type)));
+        }
     }
     m_mediaPlaylist = updated;
     emit mediaPlaylistChanged();
@@ -4287,7 +4326,7 @@ void ApplicationController::refreshAudioLibrary()
     QVariantList updated;
     if (m_mediaRepository) {
         for (const auto &item : m_mediaRepository->items(MediaType::Audio)) {
-            updated.append(mapMedia(item));
+            updated.append(mapMedia(item, thumbnailSourceFor(item.path, item.type)));
         }
     }
     m_audioLibrary = updated;
@@ -4311,7 +4350,9 @@ void ApplicationController::refreshVideoLibrary()
 {
     QVariantList updated;
     if (m_mediaRepository) {
-        for (const auto &item : m_mediaRepository->items(MediaType::Video)) updated.append(mapMedia(item));
+        for (const auto &item : m_mediaRepository->items(MediaType::Video)) {
+            updated.append(mapMedia(item, thumbnailSourceFor(item.path, item.type)));
+        }
     }
     m_videoLibrary = updated;
     emit videoLibraryChanged();
@@ -4334,7 +4375,9 @@ void ApplicationController::refreshImageLibrary()
     QVector<MediaItem> playlist;
     if (m_mediaRepository) {
         playlist = m_mediaRepository->items(MediaType::Image);
-        for (const auto &item : playlist) updated.append(mapMedia(item));
+        for (const auto &item : playlist) {
+            updated.append(mapMedia(item, thumbnailSourceFor(item.path, item.type)));
+        }
     }
     m_imageLibrary = updated;
     m_images.setPlaylist(std::move(playlist));

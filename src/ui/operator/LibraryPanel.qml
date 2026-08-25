@@ -156,12 +156,17 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 10
                     spacing: 10
-                    Label {
-                        text: panel.selectedTab === 0 ? "≡"
-                              : panel.selectedTab === 1 ? "♫"
-                              : panel.selectedTab === 2 ? "▶" : "▧"
-                        color: panel.accentColor
-                        font.pixelSize: UiScale.px(18)
+                    MediaThumbnail {
+                        objectName: "libraryThumbnail-" + catalogDelegate.index
+                        Layout.preferredWidth: 64
+                        Layout.preferredHeight: 38
+                        source: catalogDelegate.modelData.thumbnailSource || ""
+                        mediaType: panel.selectedTab === 0
+                                   ? "lyrics"
+                                   : (catalogDelegate.modelData.type || "audio")
+                        mediaPath: catalogDelegate.modelData.path || ""
+                        controller: panel.controller
+                        accentColor: panel.accentColor
                     }
                     ColumnLayout {
                         Layout.fillWidth: true

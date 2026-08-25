@@ -73,7 +73,7 @@ Rectangle {
                 required property int index
                 property real dragDistance: 0
                 width: ListView.view.width
-                height: 48
+                height: 58
                 z: reorderDrag.active ? 10 : 0
                 radius: 4
                 color: reorderDrag.active ? "#40546b"
@@ -97,6 +97,17 @@ Rectangle {
                         text: playlistDelegate.index + 1
                         color: panel.textMutedColor
                         Layout.preferredWidth: 24
+                    }
+                    MediaThumbnail {
+                        objectName: "playlistThumbnail-"
+                                    + playlistDelegate.modelData.id
+                        Layout.preferredWidth: 68
+                        Layout.preferredHeight: 40
+                        source: playlistDelegate.modelData.thumbnailSource || ""
+                        mediaType: playlistDelegate.modelData.type || "audio"
+                        mediaPath: playlistDelegate.modelData.path || ""
+                        controller: panel.controller
+                        accentColor: panel.accentColor
                     }
                     Label {
                         Layout.fillWidth: true

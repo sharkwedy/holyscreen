@@ -64,6 +64,10 @@ void MediaContext::toggleFavoriteMedia(const QString &path) { m_controller.toggl
 bool MediaContext::openFileLocation(const QString &path) { return m_controller.openFileLocation(path); }
 void MediaContext::moveMedia(const QString &id, int index) { m_controller.moveMedia(id, index); }
 void MediaContext::removeMedia(const QString &id) { m_controller.removeMedia(id); }
+void MediaContext::requestMediaThumbnail(const QString &path, const QString &type)
+{
+    m_controller.requestMediaThumbnail(path, type);
+}
 void MediaContext::playMedia(const QString &id) { m_controller.playMedia(id); }
 void MediaContext::toggleMediaPause() { m_controller.toggleMediaPause(); }
 void MediaContext::stopMedia() { m_controller.stopMedia(); }

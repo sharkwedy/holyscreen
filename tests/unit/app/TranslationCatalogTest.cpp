@@ -66,7 +66,23 @@ class TranslationCatalogTest final : public QObject {
 private slots:
     void migratedSurfacesUseCataloguedVisibleStrings();
     void playlistItemsExposeAccessibleRemovalAction();
+    void mediaListsExposeThumbnailSources();
 };
+
+void TranslationCatalogTest::mediaListsExposeThumbnailSources()
+{
+    const auto playlist = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlaylistPanel.qml")));
+    const auto library = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/LibraryPanel.qml")));
+    const auto thumbnail = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/MediaThumbnail.qml")));
+    QVERIFY(playlist.contains(QStringLiteral("MediaThumbnail {")));
+    QVERIFY(playlist.contains(QStringLiteral("modelData.thumbnailSource")));
+    QVERIFY(library.contains(QStringLiteral("MediaThumbnail {")));
+    QVERIFY(library.contains(QStringLiteral("modelData.thumbnailSource")));
+    QVERIFY(thumbnail.contains(QStringLiteral("requestMediaThumbnail(")));
+}
 
 void TranslationCatalogTest::playlistItemsExposeAccessibleRemovalAction()
 {
@@ -99,6 +115,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/LibraryPanel.qml"),
         QStringLiteral("src/ui/operator/PlaylistPanel.qml"),
         QStringLiteral("src/ui/operator/PlayerButton.qml"),
+        QStringLiteral("src/ui/operator/MediaThumbnail.qml"),
         QStringLiteral("src/ui/operator/PlaybackPanel.qml"),
         QStringLiteral("src/ui/operator/MediaLibraryDialog.qml"),
         QStringLiteral("src/ui/operator/BibleSettingsFlow.qml"),
@@ -134,6 +151,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                        "mediaVolume|mediaRepeatMode|addMediaFolder|removeMediaFolder|"
                        "rescanMediaFolders|addCatalogFileToPlaylist|isFavoriteMedia|"
                        "toggleFavoriteMedia|openFileLocation|moveMedia|removeMedia|"
+                       "requestMediaThumbnail|"
                        "playMedia|toggleMediaPause|stopMedia|seekMedia|previousMedia|"
                        "nextMedia|shuffleMediaPlaylist|clearMediaPlaylist|saveMediaPlaylist)\\b"));
     static const QRegularExpression legacyOutputAlias(
@@ -157,6 +175,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("String visível sem qsTr em %1").arg(path)));
         const bool receivesMediaContext = path.endsWith(QStringLiteral("/LibraryPanel.qml"))
             || path.endsWith(QStringLiteral("/PlaylistPanel.qml"))
+            || path.endsWith(QStringLiteral("/MediaThumbnail.qml"))
             || path.endsWith(QStringLiteral("/MediaLibraryDialog.qml"))
             || path.endsWith(QStringLiteral("/MediaImportFlow.qml"));
         QVERIFY2(receivesMediaContext || !legacyMediaAlias.match(contents).hasMatch(),

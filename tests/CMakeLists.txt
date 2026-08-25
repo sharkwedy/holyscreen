@@ -308,6 +308,10 @@ target_compile_definitions(test_translation_catalog PRIVATE
 )
 add_test(NAME test_translation_catalog COMMAND test_translation_catalog)
 
+qt_add_executable(test_media_thumbnailer unit/app/MediaThumbnailerTest.cpp)
+target_link_libraries(test_media_thumbnailer PRIVATE Qt6::Test Qt6::Gui presenter-app)
+add_test(NAME test_media_thumbnailer COMMAND test_media_thumbnailer)
+
 qt_add_executable(test_qml_accessibility_contract
     unit/app/QmlAccessibilityContractTest.cpp)
 target_link_libraries(test_qml_accessibility_contract PRIVATE Qt6::Test Qt6::Core)

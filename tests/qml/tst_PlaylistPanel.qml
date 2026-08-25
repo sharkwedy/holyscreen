@@ -15,6 +15,8 @@ TestCase {
         property var mediaPlaylist: [{
             "id": "media-1",
             "title": "Vídeo de abertura",
+            "type": "video",
+            "thumbnailSource": "",
             "durationMs": 92000
         }]
         property string currentMediaId: ""
@@ -49,11 +51,17 @@ TestCase {
         fakeController.mediaPlaylist = [{
             "id": "media-1",
             "title": "Vídeo de abertura",
+            "type": "video",
+            "thumbnailSource": "",
             "durationMs": 92000
         }]
     }
 
     function test_removeButtonRemovesItsPlaylistItem() {
+        const thumbnail = findChild(panel, "playlistThumbnail-media-1")
+        verify(thumbnail !== null)
+        compare(thumbnail.mediaType, "video")
+
         const removeButton = findChild(panel, "removePlaylistItem-media-1")
         verify(removeButton !== null)
         compare(removeButton.text, "×")
