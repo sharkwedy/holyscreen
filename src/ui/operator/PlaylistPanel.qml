@@ -73,7 +73,7 @@ Rectangle {
                 required property int index
                 property real dragDistance: 0
                 width: ListView.view.width
-                height: 48
+                height: 58
                 z: reorderDrag.active ? 10 : 0
                 radius: 4
                 color: reorderDrag.active ? "#40546b"
@@ -98,6 +98,17 @@ Rectangle {
                         color: panel.textMutedColor
                         Layout.preferredWidth: 24
                     }
+                    MediaThumbnail {
+                        objectName: "playlistThumbnail-"
+                                    + playlistDelegate.modelData.id
+                        Layout.preferredWidth: 68
+                        Layout.preferredHeight: 40
+                        source: playlistDelegate.modelData.thumbnailSource || ""
+                        mediaType: playlistDelegate.modelData.type || "audio"
+                        mediaPath: playlistDelegate.modelData.path || ""
+                        controller: panel.controller
+                        accentColor: panel.accentColor
+                    }
                     Label {
                         Layout.fillWidth: true
                         text: playlistDelegate.modelData.title
@@ -117,6 +128,20 @@ Rectangle {
                         Accessible.name: qsTr("Reproduzir %1").arg(
                                              playlistDelegate.modelData.title)
                         onClicked: panel.controller.playMedia(
+                                       playlistDelegate.modelData.id)
+                    }
+                    PlayerButton {
+                        objectName: "removePlaylistItem-"
+                                    + playlistDelegate.modelData.id
+                        implicitWidth: 38
+                        implicitHeight: 36
+                        font.pixelSize: UiScale.px(22)
+                        text: "×"
+                        Accessible.name: qsTr("Remover %1 da playlist").arg(
+                                             playlistDelegate.modelData.title)
+                        ToolTip.visible: hovered
+                        ToolTip.text: Accessible.name
+                        onClicked: panel.controller.removeMedia(
                                        playlistDelegate.modelData.id)
                     }
                 }

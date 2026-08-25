@@ -185,6 +185,7 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     const auto mediaMeta = media->metaObject();
     QVERIFY(mediaMeta->indexOfProperty("mediaPlaylist") >= 0);
     QVERIFY(mediaMeta->indexOfMethod("playMedia(QString)") >= 0);
+    QVERIFY(mediaMeta->indexOfMethod("requestMediaThumbnail(QString,QString)") >= 0);
     const auto outputMeta = output->metaObject();
     QVERIFY(outputMeta->indexOfProperty("screens") >= 0);
     QVERIFY(outputMeta->indexOfMethod("toggleScreen(QString,bool)") >= 0);

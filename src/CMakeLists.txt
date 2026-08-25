@@ -270,6 +270,8 @@ add_library(presenter-app
     app/DataRecoveryService.h
     app/AppLogger.cpp
     app/AppLogger.h
+    app/MediaThumbnailer.cpp
+    app/MediaThumbnailer.h
     app/EnduranceRunner.cpp
     app/EnduranceRunner.h
     app/ProcessMetrics.cpp
@@ -291,6 +293,7 @@ target_include_directories(presenter-app PRIVATE ${qrcodegen_SOURCE_DIR}/cpp)
 target_link_libraries(presenter-app PUBLIC
     presenter-core presenter-modules presenter-persistence presenter-screens presenter-presentation presenter-library presenter-bible Qt6::Gui Qt6::Network Qt6::Concurrent Qt6::HttpServer Qt6::WebSockets
 )
+target_link_libraries(presenter-app PRIVATE Qt6::Multimedia)
 qt_add_resources(presenter-app "presenter_remote_web"
     PREFIX "/holyscreen/remote"
     BASE remote/web
@@ -351,6 +354,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/LibraryPanel.qml
         ui/operator/PlaylistPanel.qml
         ui/operator/PlayerButton.qml
+        ui/operator/MediaThumbnail.qml
         ui/operator/PlaybackPanel.qml
         ui/operator/MediaLibraryDialog.qml
         ui/operator/BibleSettingsFlow.qml

@@ -79,6 +79,7 @@ public:
     Q_INVOKABLE bool openFileLocation(const QString &path);
     Q_INVOKABLE void moveMedia(const QString &id, int newIndex);
     Q_INVOKABLE void removeMedia(const QString &id);
+    Q_INVOKABLE void requestMediaThumbnail(const QString &path, const QString &type);
     Q_INVOKABLE void playMedia(const QString &id);
     Q_INVOKABLE void toggleMediaPause();
     Q_INVOKABLE void stopMedia();

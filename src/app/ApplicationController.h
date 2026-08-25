@@ -80,6 +80,8 @@ QT_FORWARD_DECLARE_CLASS(QMediaDevices)
 
 namespace churchpresenter {
 
+class MediaThumbnailer;
+
 class ApplicationController final : public QObject {
     Q_OBJECT
     Q_PROPERTY(AutomationContext *automationContext READ automationContext CONSTANT)
@@ -517,6 +519,7 @@ public:
     Q_INVOKABLE void toggleFavoriteMedia(const QString &path);
     Q_INVOKABLE bool openFileLocation(const QString &path);
     Q_INVOKABLE void removeMedia(const QString &id);
+    Q_INVOKABLE void requestMediaThumbnail(const QString &path, const QString &type);
     Q_INVOKABLE void playMedia(const QString &id);
     Q_INVOKABLE void toggleMediaPause();
     Q_INVOKABLE void stopMedia();
@@ -772,6 +775,7 @@ private:
     void refreshMediaPlaylist();
     void refreshMediaCatalog();
     void refreshMediaCatalogViews();
+    [[nodiscard]] QUrl thumbnailSourceFor(const QString &path, MediaType type);
     void refreshFavoriteMedia();
     void saveFavoriteMedia();
     void saveMediaFolders();
@@ -931,6 +935,8 @@ private:
     MediaFolderScanner m_mediaFolderScanner;
     QFileSystemWatcher m_mediaFolderWatcher;
     QTimer m_mediaCatalogDebounce;
+    QTimer m_thumbnailRefreshDebounce;
+    std::unique_ptr<MediaThumbnailer> m_mediaThumbnailer;
     QStringList m_mediaFolderPaths;
     QVector<MediaCatalogEntry> m_mediaCatalogEntries;
     QVariantList m_folderAudioFiles;
