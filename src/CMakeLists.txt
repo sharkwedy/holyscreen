@@ -276,6 +276,8 @@ add_library(presenter-app
     app/ProcessMetrics.h
     app/UpdateChecker.cpp
     app/UpdateChecker.h
+    app/UpdateDownloader.cpp
+    app/UpdateDownloader.h
     remote/LocalApiServer.cpp
     remote/LocalApiServer.h
     remote/RemoteAuthManager.cpp

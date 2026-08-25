@@ -85,6 +85,11 @@ bool isSecureGitHubUrl(const QUrl &url, const QString &host)
 }
 }
 
+bool UpdateChecker::isTrustedDownloadUrl(const QUrl &url)
+{
+    return isSecureGitHubUrl(url, QStringLiteral("github.com"));
+}
+
 UpdateChecker::UpdateChecker(QObject *parent)
     : QObject(parent)
 {
@@ -189,7 +194,7 @@ void UpdateChecker::check(const QUrl &url, const QString &currentVersion)
     const auto trustedPath = endpoint.path() == QStringLiteral("/repos/sharkwedy/holyscreen/releases")
         || endpoint.path() == QStringLiteral("/repos/sharkwedy/holyscreen/releases/latest");
     if (!isSecureGitHubUrl(endpoint, QStringLiteral("api.github.com")) || !trustedPath) {
-        emit completed({}, {}, false, QStringLiteral("Endpoint de atualização do GitHub inválido."));
+        emit completed({.error = QStringLiteral("Endpoint de atualização do GitHub inválido.")});
         return;
     }
 
@@ -216,28 +221,26 @@ void UpdateChecker::check(const QUrl &url, const QString &currentVersion)
         payload->append(reply->readAll());
         if (*tooLarge || payload->size() > maximumManifestSize) {
             reply->deleteLater();
-            emit completed({}, {}, false, QStringLiteral("Resposta de atualização maior que 256 KiB."));
+            emit completed({.error = QStringLiteral("Resposta de atualização maior que 256 KiB.")});
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
             const auto error = reply->errorString();
             reply->deleteLater();
-            emit completed({}, {}, false, error);
+            emit completed({.error = error});
             return;
         }
         if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() != 200) {
             const auto status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             reply->deleteLater();
-            emit completed({}, {}, false,
-                           QStringLiteral("GitHub respondeu com HTTP %1.").arg(status));
+            emit completed({.error = QStringLiteral("GitHub respondeu com HTTP %1.").arg(status)});
             return;
         }
 
         const auto release = parseGitHubRelease(*payload, currentVersion, runtimePlatform());
 
         reply->deleteLater();
-        emit completed(release.latestVersion, release.releaseUrl,
-                       release.available, release.error);
+        emit completed(release);
     });
 }
 
