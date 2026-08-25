@@ -119,6 +119,20 @@ Rectangle {
                         onClicked: panel.controller.playMedia(
                                        playlistDelegate.modelData.id)
                     }
+                    PlayerButton {
+                        objectName: "removePlaylistItem-"
+                                    + playlistDelegate.modelData.id
+                        implicitWidth: 38
+                        implicitHeight: 36
+                        font.pixelSize: UiScale.px(22)
+                        text: "×"
+                        Accessible.name: qsTr("Remover %1 da playlist").arg(
+                                             playlistDelegate.modelData.title)
+                        ToolTip.visible: hovered
+                        ToolTip.text: Accessible.name
+                        onClicked: panel.controller.removeMedia(
+                                       playlistDelegate.modelData.id)
+                    }
                 }
                 HoverHandler { id: playlistHover }
                 TapHandler {

@@ -65,7 +65,19 @@ class TranslationCatalogTest final : public QObject {
 
 private slots:
     void migratedSurfacesUseCataloguedVisibleStrings();
+    void playlistItemsExposeAccessibleRemovalAction();
 };
+
+void TranslationCatalogTest::playlistItemsExposeAccessibleRemovalAction()
+{
+    const auto playlist = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlaylistPanel.qml")));
+    QVERIFY(!playlist.isEmpty());
+    QVERIFY(playlist.contains(QStringLiteral("objectName: \"removePlaylistItem-\"")));
+    QVERIFY(playlist.contains(QStringLiteral("text: \"×\"")));
+    QVERIFY(playlist.contains(QStringLiteral("Accessible.name: qsTr(\"Remover %1 da playlist\")")));
+    QVERIFY(playlist.contains(QStringLiteral("panel.controller.removeMedia(")));
+}
 
 void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
 {

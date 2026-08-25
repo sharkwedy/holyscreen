@@ -1843,12 +1843,17 @@
         <translation>Reproduzir %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/PlaylistPanel.qml" line="162"/>
+        <location filename="../src/ui/operator/PlaylistPanel.qml" line="129"/>
+        <source>Remover %1 da playlist</source>
+        <translation>Remover %1 da playlist</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/PlaylistPanel.qml" line="176"/>
         <source>Salvar playlist</source>
         <translation>Salvar playlist</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/PlaylistPanel.qml" line="164"/>
+        <location filename="../src/ui/operator/PlaylistPanel.qml" line="178"/>
         <source>Playlist M3U8 (*.m3u8)</source>
         <translation>Playlist M3U8 (*.m3u8)</translation>
     </message>
