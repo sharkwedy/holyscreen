@@ -54,7 +54,8 @@ bool expectNumber(const QVariantMap &map, const QString &key, const QString &sec
     const bool numeric = type == QMetaType::Double || type == QMetaType::Float
         || type == QMetaType::Int || type == QMetaType::UInt
         || type == QMetaType::LongLong || type == QMetaType::ULongLong;
-    if (numeric && (!integer || value.toDouble() == std::floor(value.toDouble()))) return true;
+    const auto doubleValue = value.toDouble();
+    if (numeric && std::isfinite(doubleValue) && (!integer || doubleValue == std::floor(doubleValue))) return true;
     errors.append(QStringLiteral("%1.%2 possui tipo inválido.").arg(section, key));
     return false;
 }
@@ -132,7 +133,7 @@ ConfigurationProfileResult ConfigurationProfileService::validate(const QVariantM
             || type == QMetaType::LongLong || type == QMetaType::UInt
             || type == QMetaType::ULongLong;
         const auto scale = value.toDouble();
-        if (!numeric || (scale != 1.0 && scale != 1.5 && scale != 2.0)) {
+        if (!numeric || !std::isfinite(scale) || (scale != 1.0 && scale != 1.5 && scale != 2.0)) {
             result.errors.append(QStringLiteral(
                 "profile.interfaceScale deve ser 1.0, 1.5 ou 2.0."));
         }

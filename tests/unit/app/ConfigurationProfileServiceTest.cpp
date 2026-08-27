@@ -120,12 +120,25 @@ void ConfigurationProfileServiceTest::rejectsInvalidRangesEnumsAndShortcuts()
     QVERIFY(errors.contains(QStringLiteral("unknownAction")));
 
     const auto nanResult = ConfigurationProfileService::validate({
+        {QStringLiteral("interfaceScale"), std::numeric_limits<double>::quiet_NaN()},
+        {QStringLiteral("presentation"), QVariantMap{
+             {QStringLiteral("clockFontSize"), std::numeric_limits<double>::infinity()},
+         }},
         {QStringLiteral("media"), QVariantMap{
              {QStringLiteral("volume"), std::numeric_limits<double>::quiet_NaN()},
+             {QStringLiteral("imageIntervalMs"), std::numeric_limits<double>::quiet_NaN()},
+         }},
+        {QStringLiteral("remote"), QVariantMap{
+             {QStringLiteral("port"), std::numeric_limits<double>::quiet_NaN()},
          }},
     });
     QVERIFY(!nanResult.accepted);
-    QVERIFY(nanResult.errors.join(u'\n').contains(QStringLiteral("media.volume")));
+    const auto nanErrors = nanResult.errors.join(u'\n');
+    QVERIFY(nanErrors.contains(QStringLiteral("profile.interfaceScale")));
+    QVERIFY(nanErrors.contains(QStringLiteral("presentation.clockFontSize")));
+    QVERIFY(nanErrors.contains(QStringLiteral("media.volume")));
+    QVERIFY(nanErrors.contains(QStringLiteral("media.imageIntervalMs")));
+    QVERIFY(nanErrors.contains(QStringLiteral("remote.port")));
 }
 
 void ConfigurationProfileServiceTest::rejectsMalformedUnsupportedAndOversizedDocuments()
