@@ -272,6 +272,8 @@ add_library(presenter-app
     app/AppLogger.h
     app/MediaThumbnailer.cpp
     app/MediaThumbnailer.h
+    app/OnlineLyricsService.cpp
+    app/OnlineLyricsService.h
     app/EnduranceRunner.cpp
     app/EnduranceRunner.h
     app/ProcessMetrics.cpp
@@ -357,6 +359,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/MediaThumbnail.qml
         ui/operator/PlaybackPanel.qml
         ui/operator/MediaLibraryDialog.qml
+        ui/operator/OnlineLyricsDialog.qml
         ui/operator/BibleSettingsFlow.qml
         ui/operator/LiveCommunicationDialog.qml
         ui/operator/MaintenanceDialogs.qml

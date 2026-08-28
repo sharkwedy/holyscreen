@@ -312,6 +312,15 @@ qt_add_executable(test_media_thumbnailer unit/app/MediaThumbnailerTest.cpp)
 target_link_libraries(test_media_thumbnailer PRIVATE Qt6::Test Qt6::Gui presenter-app)
 add_test(NAME test_media_thumbnailer COMMAND test_media_thumbnailer)
 
+qt_add_executable(test_online_lyrics_service
+    unit/app/OnlineLyricsServiceTest.cpp
+    ${CMAKE_SOURCE_DIR}/src/app/OnlineLyricsService.cpp
+    ${CMAKE_SOURCE_DIR}/src/app/OnlineLyricsService.h
+)
+target_include_directories(test_online_lyrics_service PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_online_lyrics_service PRIVATE Qt6::Test Qt6::Network)
+add_test(NAME test_online_lyrics_service COMMAND test_online_lyrics_service)
+
 qt_add_executable(test_qml_accessibility_contract
     unit/app/QmlAccessibilityContractTest.cpp)
 target_link_libraries(test_qml_accessibility_contract PRIVATE Qt6::Test Qt6::Core)
