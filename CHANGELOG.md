@@ -5,6 +5,22 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-28
+
+- Added online lyrics search to the existing Library workflow. Saved local
+  songs remain first and LRCLIB results appear below them after a debounced
+  search, with direct background saving that does not change the current
+  presentation.
+- Added a dedicated online lyrics editor for reviewing title, artist and lyrics
+  before saving. Lyrics with common section markers are preserved, while plain
+  results are split into presentation-ready verses automatically.
+- Added an optional Vagalume fallback when LRCLIB has no usable result. Its API
+  key is kept in the operating system secret store, and provider requests use
+  HTTPS, timeouts, response-size limits, rate-limit reporting and a short-lived
+  cache. No lyrics website scraping is used.
+- Rejected non-finite interface-scale and numeric profile values so malformed
+  imported configuration cannot propagate `NaN` or infinity into the QML UI.
+
 ## [1.1.1] - 2026-08-25
 
 - Added an accessible remove button to every media playlist row, with a visible
@@ -378,7 +394,16 @@ release. The procedure and evidence form for every deferred gate is in
 
 - Added the initial cross-platform preview and automated release packaging.
 
-[Unreleased]: https://github.com/sharkwedy/holyscreen/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/sharkwedy/holyscreen/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.2.0
+[1.1.1]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.1.1
+[1.1.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.1.0
+[1.0.2]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.0.2
+[1.0.1]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.0.1
+[1.0.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v1.0.0
+[0.14.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.14.0
+[0.13.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.13.0
+[0.12.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.12.0
 [0.11.0]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.11.0
 [0.10.3]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.10.3
 [0.10.2]: https://github.com/sharkwedy/holyscreen/releases/tag/v0.10.2
