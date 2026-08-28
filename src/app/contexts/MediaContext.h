@@ -1,5 +1,7 @@
 #pragma once
 
+#include "app/OnlineLyricsService.h"
+
 #include <QObject>
 #include <QUrl>
 #include <QVariantList>
@@ -32,6 +34,13 @@ class MediaContext final : public QObject {
     Q_PROPERTY(QVariantList audioOutputs READ audioOutputs NOTIFY audioOutputsChanged)
     Q_PROPERTY(QString audioOutputId READ audioOutputId WRITE setAudioOutputId NOTIFY audioOutputsChanged)
     Q_PROPERTY(bool audioOutputConfigured READ audioOutputConfigured NOTIFY audioOutputsChanged)
+    Q_PROPERTY(QVariantList onlineLyricsResults READ onlineLyricsResults NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(bool onlineLyricsBusy READ onlineLyricsBusy NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(QString onlineLyricsError READ onlineLyricsError NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(QString onlineLyricsStatus READ onlineLyricsStatus NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(bool vagalumeApiKeyConfigured READ vagalumeApiKeyConfigured NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(bool lyricsSecretStoragePersistent READ lyricsSecretStoragePersistent NOTIFY onlineLyricsChanged)
+    Q_PROPERTY(QString lyricsSecretStorageName READ lyricsSecretStorageName NOTIFY onlineLyricsChanged)
 
 public:
     explicit MediaContext(ApplicationController &controller, QObject *parent = nullptr);
@@ -65,6 +74,13 @@ public:
     [[nodiscard]] QString audioOutputId() const;
     void setAudioOutputId(const QString &id);
     [[nodiscard]] bool audioOutputConfigured() const;
+    [[nodiscard]] QVariantList onlineLyricsResults() const;
+    [[nodiscard]] bool onlineLyricsBusy() const;
+    [[nodiscard]] QString onlineLyricsError() const;
+    [[nodiscard]] QString onlineLyricsStatus() const;
+    [[nodiscard]] bool vagalumeApiKeyConfigured() const;
+    [[nodiscard]] bool lyricsSecretStoragePersistent() const;
+    [[nodiscard]] QString lyricsSecretStorageName() const;
 
     Q_INVOKABLE int importAudioFiles(const QVariantList &urls);
     Q_INVOKABLE int importVideoFiles(const QVariantList &urls);
@@ -89,6 +105,16 @@ public:
     Q_INVOKABLE void shuffleMediaPlaylist();
     Q_INVOKABLE void clearMediaPlaylist();
     Q_INVOKABLE bool saveMediaPlaylist(const QUrl &destination);
+    Q_INVOKABLE void searchOnlineLyrics(const QString &query);
+    Q_INVOKABLE void cancelOnlineLyricsSearch();
+    Q_INVOKABLE void loadOnlineLyrics(const QString &key);
+    Q_INVOKABLE QVariantMap onlineLyricsResult(const QString &key) const;
+    Q_INVOKABLE QString saveOnlineLyrics(const QString &key);
+    Q_INVOKABLE QString saveEditedOnlineLyrics(const QString &key, const QString &title,
+                                               const QString &artist, const QString &lyrics);
+    Q_INVOKABLE bool setVagalumeApiKey(const QString &apiKey);
+    Q_INVOKABLE bool clearVagalumeApiKey();
+    Q_INVOKABLE bool openOnlineLyricsSource(const QString &key);
 
 signals:
     void songsChanged();
@@ -104,9 +130,17 @@ signals:
     void mediaVolumeChanged();
     void mediaRepeatModeChanged();
     void audioOutputsChanged();
+    void onlineLyricsChanged();
+    void onlineLyricsLoaded(const QString &key);
 
 private:
+    QString persistOnlineLyrics(const QString &key, const QString &title,
+                                const QString &artist, const QString &lyrics);
+
     ApplicationController &m_controller;
+    OnlineLyricsService m_onlineLyrics;
+    QString m_onlineLyricsStatus;
+    QString m_pendingQuickSaveKey;
 };
 
 } // namespace churchpresenter

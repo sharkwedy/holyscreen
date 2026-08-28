@@ -13,6 +13,7 @@ Item {
     signal importAudio()
     signal importVideo()
     signal importImage()
+    signal openOnlineLyrics(string key)
 
     function saveLayout() {
         if (!layoutSettings) return
@@ -122,6 +123,7 @@ Item {
             accentColor: dashboard.accent
             onOpenLibrary: dashboard.openLibrary()
             onShowMediaOptions: function(item) { dashboard.openMediaContextMenu(item) }
+            onEditOnlineLyrics: function(key) { dashboard.openOnlineLyrics(key) }
         }
 
         SplitView {

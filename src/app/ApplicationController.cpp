@@ -2940,7 +2940,16 @@ bool ApplicationController::applyThemeSelection(const QString &id)
 }
 
 QString ApplicationController::createSong(const QString &title, const QString &author,
-                                          const QString &structuredLyrics, const QString &sequenceText)
+                                           const QString &structuredLyrics, const QString &sequenceText)
+{
+    const auto id = saveSongToLibrary(title, author, structuredLyrics, sequenceText);
+    if (!id.isEmpty()) selectSong(id);
+    return id;
+}
+
+QString ApplicationController::saveSongToLibrary(const QString &title, const QString &author,
+                                                  const QString &structuredLyrics,
+                                                  const QString &sequenceText)
 {
     if (m_autosave && !m_autosave->flush()) return {};
     if(!m_presentationRepository)return{};
@@ -2957,7 +2966,38 @@ QString ApplicationController::createSong(const QString &title, const QString &a
     for(const auto&label:requested)if(sectionIds.contains(label))song.sequence.append(sectionIds[label]);
     if(song.sequence.isEmpty())for(const auto&s:song.slides)song.sequence.append(s.id);
     if(song.slides.isEmpty())return{};
-    const auto id=m_presentationRepository->save(song);if(!id.isEmpty()){refreshSongs();selectSong(id);}return id;
+    const auto id=m_presentationRepository->save(song);if(!id.isEmpty())refreshSongs();return id;
+}
+
+bool ApplicationController::storeVagalumeApiKey(const QString &apiKey)
+{
+    return m_secretStore && !apiKey.trimmed().isEmpty()
+        && m_secretStore->store(QStringLiteral("online-lyrics/vagalume-api-key"), apiKey.trimmed());
+}
+
+bool ApplicationController::clearVagalumeApiKey()
+{
+    return m_secretStore && m_secretStore->remove(
+        QStringLiteral("online-lyrics/vagalume-api-key"));
+}
+
+QString ApplicationController::vagalumeApiKey() const
+{
+    if (!m_secretStore) return {};
+    const auto stored = m_secretStore->retrieve(
+        QStringLiteral("online-lyrics/vagalume-api-key"));
+    return stored.has_value() ? *stored : QString{};
+}
+
+bool ApplicationController::secretStoragePersistent() const
+{
+    return m_secretStore && m_secretStore->isPersistent();
+}
+
+QString ApplicationController::secretStorageName() const
+{
+    return m_secretStore ? m_secretStore->backendName()
+                         : SecretStoreFactory::platformBackendName();
 }
 
 void ApplicationController::selectSong(const QString &id)

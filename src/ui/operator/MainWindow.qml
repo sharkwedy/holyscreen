@@ -127,6 +127,12 @@ ApplicationWindow {
         hostWidth: root.width
         hostHeight: root.height
     }
+    OnlineLyricsDialog {
+        id: onlineLyricsDialog
+        controller: root.controller.mediaContext
+        hostWidth: root.width
+        hostHeight: root.height
+    }
     menuBar: MenuBar {
         visible: root.controller.debugEnabled
         Menu {
@@ -203,6 +209,9 @@ ApplicationWindow {
         onImportAudio: mediaImportFlow.openAudio()
         onImportVideo: mediaImportFlow.openVideo()
         onImportImage: mediaImportFlow.openImage()
+        onOpenOnlineLyrics: function(key) {
+            onlineLyricsDialog.openFor(key, root.controller.mediaContext.songSearch)
+        }
     }
 
     Component.onCompleted: {

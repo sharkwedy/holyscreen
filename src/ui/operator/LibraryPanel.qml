@@ -18,11 +18,12 @@ Rectangle {
 
     signal openLibrary()
     signal showMediaOptions(var item)
+    signal editOnlineLyrics(string key)
 
     property int selectedTab: 1
     property string searchText: panel.controller.audioFileSearch
     readonly property var libraryModel: panel.selectedTab === 0
-                                                ? panel.controller.songs
+                                                ? panel.lyricsModel()
                                       : panel.selectedTab === 1
                                                 ? panel.controller.folderAudioFiles
                                       : panel.selectedTab === 2
@@ -33,19 +34,64 @@ Rectangle {
     border.color: panel.lineColor
     radius: 6
 
+    function lyricsModel() {
+        const combined = []
+        const localSongs = panel.controller.songs
+        for (let index = 0; index < localSongs.length; ++index) {
+            const song = localSongs[index]
+            combined.push({"kind": "local", "id": song.id, "title": song.title,
+                           "author": song.author, "slideCount": song.slideCount,
+                           "sequenceCount": song.sequenceCount})
+        }
+        if (panel.searchText.trim().length >= 3) {
+            combined.push({"kind": "onlineHeader"})
+            const online = panel.controller.onlineLyricsResults
+            for (let onlineIndex = 0; onlineIndex < online.length; ++onlineIndex) {
+                const result = online[onlineIndex]
+                combined.push({"kind": "online", "key": result.key,
+                               "title": result.title, "author": result.artist,
+                               "provider": result.provider, "album": result.album,
+                               "savedCount": result.savedCount || 0})
+            }
+            if (panel.controller.onlineLyricsError.length > 0)
+                combined.push({"kind": "onlineError",
+                               "message": panel.controller.onlineLyricsError})
+            else if (panel.controller.onlineLyricsStatus.length > 0)
+                combined.push({"kind": "onlineStatus",
+                               "message": panel.controller.onlineLyricsStatus})
+        }
+        return combined
+    }
+
+    function scheduleOnlineSearch() {
+        if (panel.selectedTab === 0 && panel.visible
+                && panel.searchText.trim().length >= 3) {
+            onlineSearchDebounce.restart()
+        } else {
+            onlineSearchDebounce.stop()
+            panel.controller.cancelOnlineLyricsSearch()
+        }
+    }
+
     function updateSearch(value) {
         if (panel.selectedTab === 0) panel.controller.songSearch = value
         else if (panel.selectedTab === 1) panel.controller.audioFileSearch = value
         else if (panel.selectedTab === 2) panel.controller.videoFileSearch = value
         else panel.controller.imageFileSearch = value
+        panel.scheduleOnlineSearch()
     }
 
     function activateItem(item) {
-        if (panel.selectedTab === 0) panel.controller.selectSong(item.id)
+        if (item.kind === "online") panel.controller.saveOnlineLyrics(item.key)
+        else if (panel.selectedTab === 0) panel.controller.selectSong(item.id)
         else panel.controller.addCatalogFileToPlaylist(item.path)
     }
 
     function activateItemFromDoubleClick(item) {
+        if (item.kind === "online") {
+            panel.editOnlineLyrics(item.key)
+            return
+        }
         if (panel.selectedTab === 0) {
             panel.controller.selectSong(item.id)
             return
@@ -69,6 +115,14 @@ Rectangle {
     }
 
     onSelectedTabChanged: updateSearch(panel.searchText)
+    onVisibleChanged: scheduleOnlineSearch()
+
+    Timer {
+        id: onlineSearchDebounce
+        interval: 500
+        repeat: false
+        onTriggered: panel.controller.searchOnlineLyrics(panel.searchText)
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -139,6 +193,7 @@ Rectangle {
 
         ListView {
             id: libraryList
+            objectName: "libraryList"
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
@@ -148,7 +203,11 @@ Rectangle {
                 required property var modelData
                 required property int index
                 width: ListView.view.width
-                height: 58
+                readonly property bool isHeader: catalogDelegate.modelData.kind === "onlineHeader"
+                readonly property bool isError: catalogDelegate.modelData.kind === "onlineError"
+                readonly property bool isStatus: catalogDelegate.modelData.kind === "onlineStatus"
+                readonly property bool isOnline: catalogDelegate.modelData.kind === "online"
+                height: isHeader || isError || isStatus ? 42 : 64
                 color: catalogHover.hovered ? "#343b43" : "transparent"
                 border.color: catalogDelegate.modelData.inPlaylist === true
                               ? panel.accentColor : "transparent"
@@ -156,6 +215,8 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 10
                     spacing: 10
+                    visible: !catalogDelegate.isHeader && !catalogDelegate.isError
+                             && !catalogDelegate.isStatus
                     MediaThumbnail {
                         objectName: "libraryThumbnail-" + catalogDelegate.index
                         Layout.preferredWidth: 64
@@ -181,7 +242,11 @@ Rectangle {
                         }
                         Label {
                             Layout.fillWidth: true
-                            text: panel.selectedTab === 0
+                            text: catalogDelegate.isOnline
+                                  ? qsTr("%1 · %2 · resultado online")
+                                        .arg(catalogDelegate.modelData.author)
+                                        .arg(catalogDelegate.modelData.provider)
+                                  : panel.selectedTab === 0
                                   ? (catalogDelegate.modelData.author || qsTr("Letra"))
                                   : (catalogDelegate.modelData.folderPath || "")
                             color: panel.textMutedColor
@@ -190,21 +255,57 @@ Rectangle {
                         }
                     }
                     Button {
-                        text: panel.selectedTab === 0
+                        text: catalogDelegate.isOnline
+                              ? (catalogDelegate.modelData.savedCount > 0
+                                 ? qsTr("SALVA ✓") : qsTr("SALVAR"))
+                              : panel.selectedTab === 0
                               ? qsTr("ABRIR")
                               : (catalogDelegate.modelData.inPlaylist ? "✓" : "+")
                         flat: true
-                        enabled: panel.selectedTab === 0
-                                 || !catalogDelegate.modelData.inPlaylist
+                        enabled: (!catalogDelegate.isOnline
+                                  || !panel.controller.onlineLyricsBusy)
+                                 && (panel.selectedTab === 0
+                                     || !catalogDelegate.modelData.inPlaylist)
                         onClicked: panel.activateItem(catalogDelegate.modelData)
                     }
+                    Button {
+                        visible: catalogDelegate.isOnline
+                        text: qsTr("EDITAR")
+                        enabled: !panel.controller.onlineLyricsBusy
+                        onClicked: panel.editOnlineLyrics(catalogDelegate.modelData.key)
+                    }
+                }
+                Label {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    visible: catalogDelegate.isHeader
+                    text: panel.controller.onlineLyricsBusy
+                          ? qsTr("Buscando letras online…")
+                          : qsTr("RESULTADOS ONLINE (%1)").arg(
+                                panel.controller.onlineLyricsResults.length)
+                    color: panel.accentColor
+                    font.bold: true
+                    verticalAlignment: Text.AlignVCenter
+                }
+                Label {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    visible: catalogDelegate.isError || catalogDelegate.isStatus
+                    text: catalogDelegate.modelData.message || ""
+                    color: catalogDelegate.isError ? "#ffba70" : "#70e1a7"
+                    wrapMode: Text.Wrap
+                    verticalAlignment: Text.AlignVCenter
                 }
                 HoverHandler { id: catalogHover }
                 TapHandler {
+                    enabled: !catalogDelegate.isHeader && !catalogDelegate.isError
+                             && !catalogDelegate.isStatus
                     onDoubleTapped: panel.activateItemFromDoubleClick(
                                         catalogDelegate.modelData)
                 }
                 TapHandler {
+                    enabled: !catalogDelegate.isHeader && !catalogDelegate.isError
+                             && !catalogDelegate.isStatus
                     acceptedButtons: Qt.RightButton
                     onTapped: panel.showMediaOptions(catalogDelegate.modelData)
                 }
@@ -227,11 +328,21 @@ Rectangle {
                 anchors.fill: parent
                 anchors.margins: 10
                 Label {
-                    text: qsTr("%1 itens").arg(libraryList.count)
+                    text: panel.selectedTab === 0
+                          ? qsTr("%1 locais · %2 online").arg(
+                                panel.controller.songs.length).arg(
+                                panel.controller.onlineLyricsResults.length)
+                          : qsTr("%1 itens").arg(libraryList.count)
                     color: panel.textMutedColor
                     font.pixelSize: UiScale.px(11)
                 }
                 Item { Layout.fillWidth: true }
+                Button {
+                    visible: panel.selectedTab === 0
+                    text: qsTr("BUSCAR ONLINE")
+                    flat: true
+                    onClicked: panel.editOnlineLyrics("")
+                }
                 Button {
                     text: qsTr("Biblioteca")
                     flat: true

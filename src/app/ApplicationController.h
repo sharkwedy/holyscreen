@@ -575,6 +575,15 @@ public:
     Q_INVOKABLE QString createSong(const QString &title, const QString &author, const QString &structuredLyrics, const QString &sequence);
     Q_INVOKABLE void selectSong(const QString &id);
     Q_INVOKABLE void updateSongSequence(const QString &sequence);
+
+    //! Persiste uma música sem trocar a apresentação atualmente selecionada.
+    QString saveSongToLibrary(const QString &title, const QString &author,
+                              const QString &structuredLyrics, const QString &sequence = {});
+    bool storeVagalumeApiKey(const QString &apiKey);
+    bool clearVagalumeApiKey();
+    [[nodiscard]] QString vagalumeApiKey() const;
+    [[nodiscard]] bool secretStoragePersistent() const;
+    [[nodiscard]] QString secretStorageName() const;
     Q_INVOKABLE QString createEvent(const QString &title, const QString &scheduledAt);
     Q_INVOKABLE void selectEvent(const QString &id);
     Q_INVOKABLE void deleteEvent(const QString &id);
