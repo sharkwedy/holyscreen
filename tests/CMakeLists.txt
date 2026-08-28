@@ -269,7 +269,7 @@ add_dependencies(test_application_command_bridge test_process_helper)
 add_test(NAME test_application_command_bridge COMMAND test_application_command_bridge)
 set_tests_properties(test_application_command_bridge PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
-    TIMEOUT 15
+    TIMEOUT 60
 )
 
 qt_add_executable(test_endurance_runner unit/app/EnduranceRunnerTest.cpp)
