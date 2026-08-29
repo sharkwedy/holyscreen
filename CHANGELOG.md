@@ -5,6 +5,16 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-08-29
+
+- Added verified in-app installation for Windows updates. After downloading an
+  official NSIS package, **Install now** rechecks its size and SHA-256, starts
+  the installer silently, closes HolyScreen through its normal shutdown path
+  and relaunches the updated application when installation finishes. **Show
+  file** remains available as a recovery path.
+- Fixed a Windows FFmpeg crash while generating media thumbnails by deferring
+  player teardown until the frame and metadata callbacks have returned.
+
 ## [1.2.0] - 2026-08-28
 
 - Added online lyrics search to the existing Library workflow. Saved local

@@ -157,12 +157,17 @@ O verificador consulta as releases publicadas no repositório oficial do
 HolyScreen no GitHub. Quando há versão nova, **Baixar atualização** traz o
 pacote correspondente ao seu sistema para a pasta de downloads e confere o
 SHA-256 publicado na release antes de entregá-lo: um arquivo que não confere é
-descartado, não guardado. **Mostrar arquivo** abre a pasta para você instalar
-como de costume.
+descartado, não guardado. No Windows, **Instalar agora** confere novamente o
+tamanho e o SHA-256, inicia silenciosamente o instalador oficial, fecha o
+HolyScreen pelo fluxo normal e abre a versão atualizada quando a instalação
+terminar. O Windows ainda pode pedir a confirmação do Controle de Conta de
+Usuário (UAC). **Mostrar arquivo** permanece disponível caso o Windows bloqueie
+a execução automática.
 
-O HolyScreen nunca instala sozinho. São três formatos de pacote diferentes, e
-uma instalação automática que falhe deixaria você sem o programa — possivelmente
-perto de um culto. A instalação continua sendo um passo seu, consciente.
+Nada é instalado sem o clique do operador. A instalação assistida está
+disponível apenas para o instalador NSIS no Windows; no macOS e no Linux, use
+**Mostrar arquivo** e siga o procedimento do sistema para DMG, AppImage ou DEB.
+Não inicie uma atualização durante um culto.
 
 **Verificar atualizações automaticamente** faz a consulta na abertura e uma vez
 por dia, e apenas avisa. A opção nasce desligada: sem ela, o HolyScreen não

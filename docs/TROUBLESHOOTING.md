@@ -71,11 +71,13 @@ replace a valid translation. See [Bible import](BIBLE_IMPORT.md).
 - After forced termination, let HolyScreen recovery checks finish before
   restoring manually.
 
-## Update check fails
+## Update check or installation fails
 
-The check needs HTTPS access to `api.github.com` and never installs anything.
-Retry after restoring internet access or open the official Releases page
-manually. Do not replace the endpoint or accept packages from another host.
+The check needs HTTPS access to `api.github.com`. Retry after restoring internet
+access or open the official Releases page manually. Do not replace the endpoint
+or accept packages from another host. If **Install now** fails on Windows, use
+**Show file**, confirm that antivirus software did not quarantine the package,
+and run the verified installer manually.
 
 ## HolyScreen appears to remain running after close
 

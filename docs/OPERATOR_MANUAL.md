@@ -159,12 +159,16 @@ The update checker reads published releases from the official HolyScreen
 GitHub repository. When a newer version exists, **Download update** fetches the
 package for your system into the downloads folder and verifies the SHA-256
 published in the release before handing it over: a file that does not match is
-discarded, not kept. **Show file** opens the folder so you can install it the
-usual way.
+discarded, not kept. On Windows, **Install now** rechecks the size and SHA-256,
+starts the official installer silently, closes HolyScreen through its normal
+shutdown path and opens the updated version when installation finishes. Windows
+may still request User Account Control (UAC) confirmation. **Show file** remains
+available if Windows blocks automatic execution.
 
-HolyScreen never installs on its own. There are three different package formats,
-and a failed automatic installation would leave you without the program —
-possibly close to a service. Installing stays a deliberate step you take.
+Nothing is installed without an operator click. Assisted installation is only
+available for the Windows NSIS installer; on macOS and Linux, use **Show file**
+and follow the system procedure for DMG, AppImage or DEB packages. Do not start
+an update during a service.
 
 **Check for updates automatically** runs the query at startup and once a day,
 and only reports. The option starts disabled: without it, HolyScreen does not

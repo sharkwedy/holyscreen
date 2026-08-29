@@ -60,6 +60,11 @@ ColumnLayout {
                 ? area.context.cancelUpdateDownload() : area.context.downloadUpdate()
         }
         Button {
+            text: qsTr("INSTALAR AGORA")
+            visible: area.context.updateInstallable
+            onClicked: area.context.installDownloadedUpdate()
+        }
+        Button {
             text: qsTr("MOSTRAR ARQUIVO")
             visible: area.context.updateDownloadedPath !== ""
             onClicked: area.context.revealUpdateDownload()
