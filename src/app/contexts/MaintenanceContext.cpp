@@ -48,8 +48,10 @@ bool MaintenanceContext::updateDownloadable() const { return m_controller.update
 bool MaintenanceContext::updateDownloading() const { return m_controller.updateDownloading(); }
 double MaintenanceContext::updateDownloadProgress() const { return m_controller.updateDownloadProgress(); }
 QString MaintenanceContext::updateDownloadedPath() const { return m_controller.updateDownloadedPath(); }
+bool MaintenanceContext::updateInstallable() const { return m_controller.updateInstallable(); }
 void MaintenanceContext::downloadUpdate() { m_controller.downloadUpdate(); }
 void MaintenanceContext::cancelUpdateDownload() { m_controller.cancelUpdateDownload(); }
+bool MaintenanceContext::installDownloadedUpdate() { return m_controller.installDownloadedUpdate(); }
 bool MaintenanceContext::revealUpdateDownload() { return m_controller.revealUpdateDownload(); }
 
 } // namespace churchpresenter

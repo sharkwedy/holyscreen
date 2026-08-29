@@ -68,11 +68,13 @@ preparadas separadamente e não devem substituir uma tradução válida. Consult
 - Preserve o banco original ao relatar falha de migração.
 - Após encerramento forçado, aguarde a recuperação antes de restaurar à mão.
 
-## Verificação de atualização falha
+## Verificação ou instalação de atualização falha
 
-A consulta exige HTTPS para `api.github.com` e nunca instala nada. Tente de
-novo após recuperar a internet ou abra manualmente a página oficial de
-Releases. Não substitua o endpoint nem aceite pacotes de outro host.
+A consulta exige HTTPS para `api.github.com`. Tente de novo após recuperar a
+internet ou abra manualmente a página oficial de Releases. Não substitua o
+endpoint nem aceite pacotes de outro host. Se **Instalar agora** falhar no
+Windows, use **Mostrar arquivo**, confirme que o antivírus não colocou o pacote
+em quarentena e execute o instalador verificado manualmente.
 
 ## HolyScreen continua aberto após fechar
 

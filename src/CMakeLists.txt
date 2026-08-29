@@ -282,6 +282,8 @@ add_library(presenter-app
     app/UpdateChecker.h
     app/UpdateDownloader.cpp
     app/UpdateDownloader.h
+    app/UpdateInstaller.cpp
+    app/UpdateInstaller.h
     remote/LocalApiServer.cpp
     remote/LocalApiServer.h
     remote/RemoteAuthManager.cpp
@@ -315,6 +317,16 @@ qt_add_executable(church-presenter
     MACOSX_BUNDLE
     app/main.cpp
 )
+if(WIN32)
+    # Auxiliar sem Qt: ele roda fora do diretório de instalação enquanto o NSIS
+    # substitui o aplicativo e o reinicia com o token normal do operador.
+    add_executable(holyscreen-update-helper WIN32 app/WinUpdateHelper.cpp)
+    target_compile_definitions(holyscreen-update-helper PRIVATE UNICODE _UNICODE)
+    target_link_libraries(holyscreen-update-helper PRIVATE Bcrypt Shell32)
+    set_target_properties(holyscreen-update-helper PROPERTIES
+        OUTPUT_NAME "holyscreen-update-helper")
+    install(TARGETS holyscreen-update-helper RUNTIME DESTINATION bin)
+endif()
 target_compile_definitions(church-presenter PRIVATE HOLYSCREEN_VERSION="${PROJECT_VERSION}")
 set_target_properties(church-presenter PROPERTIES
     OUTPUT_NAME "holyscreen"

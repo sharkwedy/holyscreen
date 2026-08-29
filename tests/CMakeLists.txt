@@ -301,6 +301,10 @@ target_link_libraries(test_update_downloader PRIVATE Qt6::Test Qt6::HttpServer p
 add_test(NAME test_update_downloader COMMAND test_update_downloader)
 set_tests_properties(test_update_downloader PROPERTIES TIMEOUT 30)
 
+qt_add_executable(test_update_installer unit/app/UpdateInstallerTest.cpp)
+target_link_libraries(test_update_installer PRIVATE Qt6::Test presenter-app)
+add_test(NAME test_update_installer COMMAND test_update_installer)
+
 qt_add_executable(test_translation_catalog unit/app/TranslationCatalogTest.cpp)
 target_link_libraries(test_translation_catalog PRIVATE Qt6::Test Qt6::Core)
 target_compile_definitions(test_translation_catalog PRIVATE

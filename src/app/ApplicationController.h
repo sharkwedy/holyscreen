@@ -44,6 +44,7 @@
 #include "app/AutosaveCoordinator.h"
 #include "app/UpdateChecker.h"
 #include "app/UpdateDownloader.h"
+#include "app/UpdateInstaller.h"
 #include "presentation/TextPresentationController.h"
 #include "presentation/TimedMediaPlayback.h"
 #include "presentation/OverlayController.h"
@@ -250,6 +251,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool updateDownloading READ updateDownloading NOTIFY updateDownloadChanged)
     Q_PROPERTY(double updateDownloadProgress READ updateDownloadProgress NOTIFY updateDownloadChanged)
     Q_PROPERTY(QString updateDownloadedPath READ updateDownloadedPath NOTIFY updateDownloadChanged)
+    Q_PROPERTY(bool updateInstallable READ updateInstallable NOTIFY updateDownloadChanged)
     Q_PROPERTY(QVariantList bibleTranslations READ bibleTranslations NOTIFY bibleTranslationsChanged)
     Q_PROPERTY(QVariantList bibleBooks READ bibleBooks CONSTANT)
     Q_PROPERTY(QString biblePrimaryTranslationId READ biblePrimaryTranslationId WRITE setBiblePrimaryTranslationId NOTIFY bibleSelectionChanged)
@@ -442,6 +444,7 @@ public:
     [[nodiscard]] bool updateDownloading() const;
     [[nodiscard]] double updateDownloadProgress() const;
     [[nodiscard]] QString updateDownloadedPath() const;
+    [[nodiscard]] bool updateInstallable() const;
     [[nodiscard]] QVariantList bibleTranslations() const;
     [[nodiscard]] QVariantList bibleBooks() const;
     [[nodiscard]] QString biblePrimaryTranslationId() const;
@@ -601,8 +604,11 @@ public:
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE void downloadUpdate();
     Q_INVOKABLE void cancelUpdateDownload();
-    //! Abre o pacote baixado com o gerenciador de arquivos do sistema. O
-    //! HolyScreen nunca executa o instalador por conta própria.
+    //! Revalida o pacote, inicia a instalação e encerra o HolyScreen. A
+    //! instalação automática está disponível para o instalador NSIS no Windows.
+    Q_INVOKABLE bool installDownloadedUpdate();
+    //! Abre o pacote baixado com o gerenciador de arquivos do sistema como
+    //! alternativa quando a instalação automática não estiver disponível.
     Q_INVOKABLE bool revealUpdateDownload();
     Q_INVOKABLE int importBibleTranslation(const QUrl &source);
     Q_INVOKABLE bool importBibleFolder(const QUrl &folder);
@@ -988,12 +994,15 @@ private:
     QVariantMap m_diagnostics;
     UpdateChecker m_updateChecker;
     UpdateDownloader m_updateDownloader;
+    UpdateInstaller m_updateInstaller;
     QTimer m_updateCheckTimer;
     UpdateRelease m_updateRelease;
     bool m_automaticUpdateChecks = false;
     bool m_updateDownloading = false;
     double m_updateDownloadProgress = 0.0;
     QString m_updateDownloadedPath;
+    QString m_updateDownloadedSha256;
+    qint64 m_updateDownloadedSize = 0;
     QString m_updateStatus;
     QString m_updateEndpoint;
     std::unique_ptr<BibleRepository> m_bibleRepository;

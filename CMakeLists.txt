@@ -4,7 +4,7 @@ if(POLICY CMP0219)
     cmake_policy(SET CMP0219 OLD)
 endif()
 
-project(holyscreen VERSION 1.2.0 LANGUAGES C CXX)
+project(holyscreen VERSION 1.2.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -242,6 +242,9 @@ if(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
 elseif(WIN32)
     set(CPACK_GENERATOR "NSIS;ZIP")
+    # Instalações interativas oferecem o reinício na página final. O fluxo
+    # silencioso do aplicativo é coordenado por holyscreen-update-helper.exe.
+    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "bin\\\\holyscreen.exe")
 else()
     set(CPACK_GENERATOR "TGZ;DEB")
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "HolyScreen")

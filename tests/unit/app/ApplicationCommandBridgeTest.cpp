@@ -181,7 +181,9 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QVERIFY(eventMeta->indexOfMethod("addEventItem(QString,QString,QString,qlonglong)") >= 0);
     const auto maintenanceMeta = maintenance->metaObject();
     QVERIFY(maintenanceMeta->indexOfProperty("diagnostics") >= 0);
+    QVERIFY(maintenanceMeta->indexOfProperty("updateInstallable") >= 0);
     QVERIFY(maintenanceMeta->indexOfMethod("exportDiagnostics(QUrl)") >= 0);
+    QVERIFY(maintenanceMeta->indexOfMethod("installDownloadedUpdate()") >= 0);
     const auto mediaMeta = media->metaObject();
     QVERIFY(mediaMeta->indexOfProperty("mediaPlaylist") >= 0);
     QVERIFY(mediaMeta->indexOfMethod("playMedia(QString)") >= 0);

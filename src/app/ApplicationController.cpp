@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QGuiApplication>
+#include <QWindow>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QLocale>
@@ -448,6 +449,10 @@ ApplicationController::ApplicationController(QObject *parent)
             [this](const QString &path, const QString &error) {
         m_updateDownloading = false;
         m_updateDownloadedPath = error.isEmpty() ? path : QString{};
+        if (!error.isEmpty()) {
+            m_updateDownloadedSha256.clear();
+            m_updateDownloadedSize = 0;
+        }
         m_updateDownloadProgress = error.isEmpty() ? 1.0 : 0.0;
         emit updateDownloadChanged();
         m_updateStatus = error.isEmpty()
@@ -889,6 +894,10 @@ bool ApplicationController::updateDownloadable()const
 bool ApplicationController::updateDownloading()const{return m_updateDownloading;}
 double ApplicationController::updateDownloadProgress()const{return m_updateDownloadProgress;}
 QString ApplicationController::updateDownloadedPath()const{return m_updateDownloadedPath;}
+bool ApplicationController::updateInstallable()const
+{
+    return m_updateInstaller.canInstall(m_updateDownloadedPath);
+}
 QVariantList ApplicationController::bibleTranslations() const{return m_bibleTranslations;}
 bool ApplicationController::bibleImportRunning() const{return m_bibleImportActive;}
 int ApplicationController::bibleImportProgress() const
@@ -3122,6 +3131,8 @@ void ApplicationController::downloadUpdate()
     m_updateDownloading = true;
     m_updateDownloadProgress = 0.0;
     m_updateDownloadedPath.clear();
+    m_updateDownloadedSha256 = m_updateRelease.sha256;
+    m_updateDownloadedSize = m_updateRelease.assetSize;
     emit updateDownloadChanged();
     m_updateStatus = tr("Baixando %1...").arg(m_updateRelease.assetName);
     emit updateChanged();
@@ -3134,6 +3145,32 @@ void ApplicationController::downloadUpdate()
 void ApplicationController::cancelUpdateDownload()
 {
     if (m_updateDownloading) m_updateDownloader.cancel();
+}
+
+bool ApplicationController::installDownloadedUpdate()
+{
+    if (m_updateDownloading) return false;
+
+    QString error;
+    if (!m_updateInstaller.install(m_updateDownloadedPath, m_updateDownloadedSha256,
+                                   m_updateDownloadedSize, &error)) {
+        m_updateStatus = tr("Não foi possível instalar a atualização: %1").arg(error);
+        emit updateChanged();
+        emit updateDownloadChanged();
+        return false;
+    }
+
+    m_updateStatus = tr("Instalador iniciado. Encerrando o HolyScreen...");
+    emit updateChanged();
+    QTimer::singleShot(0, QCoreApplication::instance(), [] {
+        // Fechar as janelas dispara o mesmo caminho usado pelo operador, que
+        // salva o layout. quit() é a garantia final para janelas de saída.
+        for (auto *window : QGuiApplication::allWindows()) {
+            if (window) window->close();
+        }
+        QCoreApplication::quit();
+    });
+    return true;
 }
 
 bool ApplicationController::revealUpdateDownload()

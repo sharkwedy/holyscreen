@@ -24,6 +24,7 @@ class MaintenanceContext final : public QObject {
     Q_PROPERTY(bool updateDownloading READ updateDownloading NOTIFY updateDownloadChanged)
     Q_PROPERTY(double updateDownloadProgress READ updateDownloadProgress NOTIFY updateDownloadChanged)
     Q_PROPERTY(QString updateDownloadedPath READ updateDownloadedPath NOTIFY updateDownloadChanged)
+    Q_PROPERTY(bool updateInstallable READ updateInstallable NOTIFY updateDownloadChanged)
     Q_PROPERTY(bool autosavePending READ autosavePending NOTIFY autosaveChanged)
     Q_PROPERTY(QString autosaveStatus READ autosaveStatus NOTIFY autosaveChanged)
     Q_PROPERTY(bool debugEnabled READ debugEnabled WRITE setDebugEnabled NOTIFY debugOptionsChanged)
@@ -48,6 +49,7 @@ public:
     [[nodiscard]] bool updateDownloading() const;
     [[nodiscard]] double updateDownloadProgress() const;
     [[nodiscard]] QString updateDownloadedPath() const;
+    [[nodiscard]] bool updateInstallable() const;
     [[nodiscard]] bool autosavePending() const;
     [[nodiscard]] QString autosaveStatus() const;
     [[nodiscard]] bool debugEnabled() const;
@@ -62,6 +64,7 @@ public:
     Q_INVOKABLE void checkForUpdates();
     Q_INVOKABLE void downloadUpdate();
     Q_INVOKABLE void cancelUpdateDownload();
+    Q_INVOKABLE bool installDownloadedUpdate();
     Q_INVOKABLE bool revealUpdateDownload();
 
 signals:

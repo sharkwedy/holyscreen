@@ -25,7 +25,7 @@ MediaThumbnailer::MediaThumbnailer(QString cacheDirectory, QObject *parent)
     m_timeout.setSingleShot(true);
     m_timeout.setInterval(7000);
 
-    connect(&m_timeout, &QTimer::timeout, this, [this] { finishCurrent(false); });
+    connect(&m_timeout, &QTimer::timeout, this, [this] { scheduleFinish(false); });
     connect(m_player, &QMediaPlayer::metaDataChanged,
             this, &MediaThumbnailer::tryEmbeddedArtwork);
     connect(m_player, &QMediaPlayer::mediaStatusChanged, this,
@@ -39,12 +39,12 @@ MediaThumbnailer::MediaThumbnailer(QString cacheDirectory, QObject *parent)
             m_player->setPosition(target);
             m_player->play();
         } else if (status == QMediaPlayer::InvalidMedia) {
-            finishCurrent(false);
+            scheduleFinish(false);
         }
     });
     connect(m_player, &QMediaPlayer::errorOccurred, this,
             [this](QMediaPlayer::Error error, const QString &) {
-        if (error != QMediaPlayer::NoError) finishCurrent(false);
+        if (error != QMediaPlayer::NoError) scheduleFinish(false);
     });
     connect(m_videoSink, &QVideoSink::videoFrameChanged, this,
             [this](const QVideoFrame &frame) {
@@ -53,7 +53,7 @@ MediaThumbnailer::MediaThumbnailer(QString cacheDirectory, QObject *parent)
             return;
         }
         const auto image = frame.toImage();
-        if (!image.isNull() && saveThumbnail(image)) finishCurrent(true);
+        if (!image.isNull() && saveThumbnail(image)) scheduleFinish(true);
     });
 }
 
@@ -117,10 +117,10 @@ void MediaThumbnailer::tryEmbeddedArtwork()
     const auto metadata = m_player->metaData();
     auto image = metadata.value(QMediaMetaData::ThumbnailImage).value<QImage>();
     if (image.isNull()) image = metadata.value(QMediaMetaData::CoverArtImage).value<QImage>();
-    if (!image.isNull() && saveThumbnail(image)) finishCurrent(true);
+    if (!image.isNull() && saveThumbnail(image)) scheduleFinish(true);
     else if (m_current.type == MediaType::Audio
              && m_player->mediaStatus() == QMediaPlayer::LoadedMedia) {
-        finishCurrent(false);
+        scheduleFinish(false);
     }
 }
 
@@ -139,11 +139,21 @@ bool MediaThumbnailer::saveThumbnail(const QImage &image)
     return file.commit();
 }
 
-void MediaThumbnailer::finishCurrent(bool succeeded)
+void MediaThumbnailer::scheduleFinish(bool succeeded)
 {
     if (!m_busy || m_finishing) return;
     m_finishing = true;
     m_timeout.stop();
+    // QMediaPlayer/FFmpeg ainda está entregando o callback que detectou a
+    // miniatura. Limpar a fonte aqui é reentrante e pode invalidar estruturas
+    // internas do plugin. Concluir no próximo ciclo mantém o backend vivo até
+    // o retorno do callback e também coalesce sinais de erro/status repetidos.
+    QTimer::singleShot(0, this, [this, succeeded] { finishCurrent(succeeded); });
+}
+
+void MediaThumbnailer::finishCurrent(bool succeeded)
+{
+    if (!m_busy || !m_finishing) return;
     const auto completed = m_current;
     const auto source = succeeded ? QUrl::fromLocalFile(cachePathFor(completed.path)) : QUrl{};
     m_player->stop();

@@ -42,6 +42,7 @@ private:
     void startNext();
     void tryEmbeddedArtwork();
     bool saveThumbnail(const QImage &image);
+    void scheduleFinish(bool succeeded);
     void finishCurrent(bool succeeded);
 
     QString m_cacheDirectory;
