@@ -67,7 +67,47 @@ private slots:
     void migratedSurfacesUseCataloguedVisibleStrings();
     void playlistItemsExposeAccessibleRemovalAction();
     void mediaListsExposeThumbnailSources();
+    void playerAndFavoriteSurfacesExposeRequestedContracts();
+    void bibleNavigationAndComparisonExposeRequestedContracts();
 };
+
+void TranslationCatalogTest::bibleNavigationAndComparisonExposeRequestedContracts()
+{
+    const auto browser = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/BibleBrowser.qml")));
+    const auto comparison = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/BibleComparisonDialog.qml")));
+    const auto panel = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/BiblePanel.qml")));
+
+    QVERIFY(browser.contains(QStringLiteral("width: parent ? parent.width")));
+    QVERIFY(browser.contains(QStringLiteral("height: parent ? parent.height")));
+    QVERIFY(comparison.contains(QStringLiteral("compareBibleReference(")));
+    QVERIFY(comparison.contains(QStringLiteral("orientation: ListView.Horizontal")));
+    QVERIFY(panel.contains(QStringLiteral("openComparison()")));
+}
+
+void TranslationCatalogTest::playerAndFavoriteSurfacesExposeRequestedContracts()
+{
+    const auto playback = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlaybackPanel.qml")));
+    const auto playerButton = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlayerButton.qml")));
+    const auto header = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/OperatorHeader.qml")));
+    const auto dashboard = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/Dashboard.qml")));
+
+    QVERIFY(playback.contains(QStringLiteral("text: \"-\" + panel.duration(Math.max(")));
+    QVERIFY(playback.contains(QStringLiteral("mediaDurationMs")));
+    QVERIFY(playback.contains(QStringLiteral("mediaPositionMs")));
+    QVERIFY(playback.contains(QStringLiteral("Math.round(value * 100)")));
+    QVERIFY(playerButton.contains(QStringLiteral(
+        "playerButton.visualFocus || playerButton.highlighted")));
+    QVERIFY(header.contains(QStringLiteral("favoriteBibleVerses")));
+    QVERIFY(header.contains(QStringLiteral("MediaThumbnail {")));
+    QVERIFY(dashboard.contains(QStringLiteral("LyricsPanel {")));
+}
 
 void TranslationCatalogTest::mediaListsExposeThumbnailSources()
 {
@@ -104,6 +144,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/MaintenanceArea.qml"),
         QStringLiteral("src/ui/operator/OnboardingDialog.qml"),
         QStringLiteral("src/ui/operator/BibleBrowser.qml"),
+        QStringLiteral("src/ui/operator/BibleComparisonDialog.qml"),
         QStringLiteral("src/ui/operator/QuickBibleSearch.qml"),
         QStringLiteral("src/ui/operator/BroadcastSettings.qml"),
         QStringLiteral("src/ui/output/StageView.qml"),
@@ -118,6 +159,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/PlayerButton.qml"),
         QStringLiteral("src/ui/operator/MediaThumbnail.qml"),
         QStringLiteral("src/ui/operator/PlaybackPanel.qml"),
+        QStringLiteral("src/ui/operator/LyricsPanel.qml"),
+        QStringLiteral("src/ui/operator/ThemeEditorDialog.qml"),
         QStringLiteral("src/ui/operator/MediaLibraryDialog.qml"),
         QStringLiteral("src/ui/operator/BibleSettingsFlow.qml"),
         QStringLiteral("src/ui/operator/LiveCommunicationDialog.qml"),
@@ -186,6 +229,7 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
                  qPrintable(QStringLiteral("Alias legado de saída usado em %1").arg(path)));
         const bool receivesBibleContext = path.endsWith(QStringLiteral("/BiblePanel.qml"))
             || path.endsWith(QStringLiteral("/BibleBrowser.qml"))
+            || path.endsWith(QStringLiteral("/BibleComparisonDialog.qml"))
             || path.endsWith(QStringLiteral("/QuickBibleSearch.qml"))
             || path.endsWith(QStringLiteral("/BibleSettingsFlow.qml"));
         QVERIFY2(receivesBibleContext || !legacyBibleAlias.match(contents).hasMatch(),

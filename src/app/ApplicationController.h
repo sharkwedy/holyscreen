@@ -227,6 +227,8 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(bool stopwatchRunning READ stopwatchRunning NOTIFY overlaysChanged)
     Q_PROPERTY(QVariantList themes READ themes NOTIFY themesChanged)
     Q_PROPERTY(QVariantMap activeTheme READ activeTheme NOTIFY activeThemeChanged)
+    Q_PROPERTY(QString bibleThemeId READ bibleThemeId NOTIFY contentThemeDefaultsChanged)
+    Q_PROPERTY(QString lyricsThemeId READ lyricsThemeId NOTIFY contentThemeDefaultsChanged)
     Q_PROPERTY(QVariantList songs READ songs NOTIFY songsChanged)
     Q_PROPERTY(QString songSearch READ songSearch WRITE setSongSearch NOTIFY songSearchChanged)
     Q_PROPERTY(QString songSequence READ songSequence NOTIFY currentPresentationChanged)
@@ -259,6 +261,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(QString bibleTertiaryTranslationId READ bibleTertiaryTranslationId WRITE setBibleTertiaryTranslationId NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QString bibleReferenceInput READ bibleReferenceInput WRITE setBibleReferenceInput NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QVariantList bibleResults READ bibleResults NOTIFY bibleResultsChanged)
+    Q_PROPERTY(QVariantList favoriteBibleVerses READ favoriteBibleVerses NOTIFY favoriteBibleVersesChanged)
     Q_PROPERTY(bool bibleImportRunning READ bibleImportRunning NOTIFY bibleImportStateChanged)
     Q_PROPERTY(int bibleImportProgress READ bibleImportProgress NOTIFY bibleImportStateChanged)
     Q_PROPERTY(QString bibleImportMessage READ bibleImportMessage NOTIFY bibleImportStateChanged)
@@ -419,6 +422,8 @@ public:
     [[nodiscard]] bool stopwatchRunning() const;
     [[nodiscard]] QVariantList themes() const;
     [[nodiscard]] QVariantMap activeTheme() const;
+    [[nodiscard]] QString bibleThemeId() const;
+    [[nodiscard]] QString lyricsThemeId() const;
     [[nodiscard]] QVariantList songs() const;
     [[nodiscard]] QString songSearch() const;
     [[nodiscard]] QString songSequence() const;
@@ -452,6 +457,7 @@ public:
     [[nodiscard]] QString bibleTertiaryTranslationId() const;
     [[nodiscard]] QString bibleReferenceInput() const;
     [[nodiscard]] QVariantList bibleResults() const;
+    [[nodiscard]] QVariantList favoriteBibleVerses() const;
     [[nodiscard]] bool bibleImportRunning() const;
     [[nodiscard]] int bibleImportProgress() const;
     [[nodiscard]] QString bibleImportMessage() const;
@@ -573,8 +579,10 @@ public:
     Q_INVOKABLE void stopTextPresentation();
     Q_INVOKABLE QString createTheme(const QString &name);
     Q_INVOKABLE void updateTheme(const QVariantMap &values);
+    Q_INVOKABLE bool updateThemeById(const QString &id, const QVariantMap &values);
     Q_INVOKABLE void deleteTheme(const QString &id);
     Q_INVOKABLE void applyTheme(const QString &id);
+    Q_INVOKABLE bool applyThemeForContent(const QString &scope, const QString &id);
     Q_INVOKABLE QString createSong(const QString &title, const QString &author, const QString &structuredLyrics, const QString &sequence);
     Q_INVOKABLE void selectSong(const QString &id);
     Q_INVOKABLE void updateSongSequence(const QString &sequence);
@@ -619,10 +627,12 @@ public:
     Q_INVOKABLE bool updateBibleTranslationFromSource(const QString &translationId);
     Q_INVOKABLE bool searchBibleReference();
     Q_INVOKABLE void showBibleVerse(int index);
+    Q_INVOKABLE void toggleFavoriteBibleVerse(int index);
     Q_INVOKABLE QVariantList bibleChapterNumbers(int bookId) const;
     Q_INVOKABLE QVariantList bibleVerseNumbers(int bookId, int chapter) const;
     Q_INVOKABLE bool presentBibleReference(int bookId, int chapter, int verse);
     Q_INVOKABLE QString bibleTextForSlide(int slideIndex, const QString &translationId) const;
+    Q_INVOKABLE QVariantList compareBibleReference(const QString &reference) const;
     Q_INVOKABLE void setAudienceMessage(const QString &message);
     Q_INVOKABLE void setAlertMessage(const QString &message);
     Q_INVOKABLE void setLowerThird(const QString &title, const QString &subtitle);
@@ -753,6 +763,7 @@ signals:
     void textVisibleChanged();
     void themesChanged();
     void activeThemeChanged();
+    void contentThemeDefaultsChanged();
     void songsChanged();
     void songSearchChanged();
     void eventsChanged();
@@ -766,6 +777,7 @@ signals:
     void bibleTranslationsChanged();
     void bibleSelectionChanged();
     void bibleResultsChanged();
+    void favoriteBibleVersesChanged();
     void bibleImportStateChanged();
     void stageMessageChanged();
     void overlaysChanged();
@@ -793,6 +805,7 @@ private:
     [[nodiscard]] QUrl thumbnailSourceFor(const QString &path, MediaType type);
     void refreshFavoriteMedia();
     void saveFavoriteMedia();
+    void saveFavoriteBibleVerses();
     void saveMediaFolders();
     void rebuildMediaFolderWatcher();
     void updateCurrentMediaMetadata(const MediaItem &metadata);
@@ -983,6 +996,8 @@ private:
     QVariantList m_textPresentations;
     QVariantList m_themes;
     Theme m_activeTheme;
+    QString m_bibleThemeId;
+    QString m_lyricsThemeId;
     QVariantList m_songs;
     QString m_songSearch;
     QVariantList m_events;
@@ -1014,6 +1029,7 @@ private:
     QString m_bibleTertiaryTranslationId;
     QString m_bibleReferenceInput;
     QVariantList m_bibleResults;
+    QVariantList m_favoriteBibleVerses;
     QFutureWatcher<BibleImportResult> m_bibleImportWatcher;
     bool m_bibleImportActive = false;
     std::shared_ptr<std::atomic_bool> m_bibleImportCancelled;

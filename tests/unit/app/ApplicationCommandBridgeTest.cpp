@@ -6,6 +6,7 @@
 #include "core/CommandCatalog.h"
 
 #include <QGuiApplication>
+#include <QImage>
 #include <QDir>
 #include <QFile>
 #include <QEventLoop>
@@ -60,6 +61,7 @@ private slots:
     void registersEveryCatalogCommand();
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
+    void stopThenPlayRestartsPlaylistFromBeginning();
     void operatorPresentationNavigationUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
     void autosaveDebouncesPresentationEdits();
@@ -75,6 +77,7 @@ private slots:
     void onboardingStepsCanBeDeferredAndRestored();
     void interfaceScaleIsValidatedAndPersisted();
     void keyboardShortcutsRejectConflictsAndPersist();
+    void bibleFavoritesAndContentThemesPersist();
 };
 
 void ApplicationCommandBridgeTest::keyboardShortcutsRejectConflictsAndPersist()
@@ -160,6 +163,7 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QCOMPARE(integration->integrations(), controller.integrations());
     QCOMPARE(integration->integrationTypes(), controller.integrationTypes());
     QCOMPARE(bible->bibleBooks(), controller.bibleBooks());
+    QCOMPARE(bible->favoriteBibleVerses(), controller.favoriteBibleVerses());
     QCOMPARE(event->events(), controller.events());
     QCOMPARE(maintenance->updateEndpoint(), controller.updateEndpoint());
     QCOMPARE(media->mediaPlaylist(), controller.mediaPlaylist());
@@ -175,7 +179,10 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QVERIFY(integrationMeta->indexOfMethod("executeIntegration(QString,QString,QVariantMap)") >= 0);
     const auto bibleMeta = bible->metaObject();
     QVERIFY(bibleMeta->indexOfProperty("bibleTranslations") >= 0);
+    QVERIFY(bibleMeta->indexOfProperty("favoriteBibleVerses") >= 0);
     QVERIFY(bibleMeta->indexOfMethod("presentBibleReference(int,int,int)") >= 0);
+    QVERIFY(bibleMeta->indexOfMethod("toggleFavoriteBibleVerse(int)") >= 0);
+    QVERIFY(bibleMeta->indexOfMethod("compareBibleReference(QString)") >= 0);
     const auto eventMeta = event->metaObject();
     QVERIFY(eventMeta->indexOfProperty("eventItems") >= 0);
     QVERIFY(eventMeta->indexOfMethod("addEventItem(QString,QString,QString,qlonglong)") >= 0);
@@ -191,6 +198,12 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     const auto outputMeta = output->metaObject();
     QVERIFY(outputMeta->indexOfProperty("screens") >= 0);
     QVERIFY(outputMeta->indexOfMethod("toggleScreen(QString,bool)") >= 0);
+
+    const auto controllerMeta = controller.metaObject();
+    QVERIFY(controllerMeta->indexOfProperty("bibleThemeId") >= 0);
+    QVERIFY(controllerMeta->indexOfProperty("lyricsThemeId") >= 0);
+    QVERIFY(controllerMeta->indexOfMethod("updateThemeById(QString,QVariantMap)") >= 0);
+    QVERIFY(controllerMeta->indexOfMethod("applyThemeForContent(QString,QString)") >= 0);
 }
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -270,6 +283,142 @@ void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
     QCOMPARE(command.type, QStringLiteral("media.stop"));
     QCOMPARE(event.type, QStringLiteral("media.state.changed"));
     QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::stopThenPlayRestartsPlaylistFromBeginning()
+{
+    ApplicationController controller;
+    controller.clearMediaPlaylist();
+
+    const auto directory = qEnvironmentVariable("HOLYSCREEN_DATA_DIR");
+    const auto firstPath = QDir(directory).filePath(QStringLiteral("first-slide.png"));
+    const auto secondPath = QDir(directory).filePath(QStringLiteral("second-slide.png"));
+    QImage firstImage(4, 4, QImage::Format_ARGB32_Premultiplied);
+    QImage secondImage(4, 4, QImage::Format_ARGB32_Premultiplied);
+    firstImage.fill(Qt::red);
+    secondImage.fill(Qt::blue);
+    QVERIFY(firstImage.save(firstPath));
+    QVERIFY(secondImage.save(secondPath));
+    QCOMPARE(controller.importImageFiles({QUrl::fromLocalFile(firstPath),
+                                          QUrl::fromLocalFile(secondPath)}), 2);
+
+    const auto playlist = controller.mediaPlaylist();
+    QCOMPARE(playlist.size(), 2);
+    const auto firstId = playlist.at(0).toMap().value(QStringLiteral("id")).toString();
+    const auto secondId = playlist.at(1).toMap().value(QStringLiteral("id")).toString();
+    QVERIFY(!firstId.isEmpty());
+    QVERIFY(!secondId.isEmpty());
+
+    controller.playMedia(secondId);
+    QCOMPARE(controller.currentMediaId(), secondId);
+    controller.stopMedia();
+    QCOMPARE(controller.mediaState(), QStringLiteral("stopped"));
+    controller.toggleMediaPause();
+    QCOMPARE(controller.currentMediaId(), firstId);
+    QCOMPARE(controller.mediaState(), QStringLiteral("playing"));
+}
+
+void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
+{
+    const auto directory = qEnvironmentVariable("HOLYSCREEN_DATA_DIR");
+    const auto biblePath = QDir(directory).filePath(QStringLiteral("favorites-bible.json"));
+    const auto comparisonBiblePath = QDir(directory).filePath(
+        QStringLiteral("comparison-bible.json"));
+    QFile bibleFile(biblePath);
+    QVERIFY(bibleFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    const QByteArray bibleJson = R"JSON({
+        "translation": {"name":"Português Favoritos","abbreviation":"PTF","language":"pt-BR"},
+        "verses": [
+            {"book":"João","chapter":3,"verse":16,"text":"Porque Deus amou o mundo."}
+        ]
+    })JSON";
+    QCOMPARE(bibleFile.write(bibleJson), bibleJson.size());
+    bibleFile.close();
+    QFile comparisonBibleFile(comparisonBiblePath);
+    QVERIFY(comparisonBibleFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    const QByteArray comparisonBibleJson = R"JSON({
+        "translation": {"name":"Português Comparação","abbreviation":"PTC","language":"pt-BR"},
+        "verses": [
+            {"book":"João","chapter":3,"verse":16,"text":"Deus amou o mundo de tal maneira."}
+        ]
+    })JSON";
+    QCOMPARE(comparisonBibleFile.write(comparisonBibleJson), comparisonBibleJson.size());
+    comparisonBibleFile.close();
+
+    QString themeId;
+    QString originalBibleThemeId;
+    QString originalLyricsThemeId;
+    {
+        ApplicationController controller;
+        originalBibleThemeId = controller.bibleThemeId();
+        originalLyricsThemeId = controller.lyricsThemeId();
+        QCOMPARE(controller.importBibleTranslation(QUrl::fromLocalFile(biblePath)), 1);
+        QCOMPARE(controller.importBibleTranslation(
+                     QUrl::fromLocalFile(comparisonBiblePath)), 1);
+
+        QString translationId;
+        for (const auto &entry : controller.bibleTranslations()) {
+            const auto translation = entry.toMap();
+            if (translation.value(QStringLiteral("abbreviation")).toString()
+                == QStringLiteral("PTF")) {
+                translationId = translation.value(QStringLiteral("id")).toString();
+                break;
+            }
+        }
+        QVERIFY(!translationId.isEmpty());
+        const auto comparison = controller.compareBibleReference(
+            QStringLiteral("João 3:16"));
+        const auto containsTranslation = [&comparison](const QString &abbreviation,
+                                                       const QString &text) {
+            return std::any_of(comparison.cbegin(), comparison.cend(),
+                               [&](const QVariant &entry) {
+                const auto translation = entry.toMap();
+                if (translation.value(QStringLiteral("abbreviation")).toString()
+                    != abbreviation) return false;
+                const auto verses = translation.value(QStringLiteral("verses")).toList();
+                return !verses.isEmpty()
+                    && verses.front().toMap().value(QStringLiteral("text")).toString()
+                        == text;
+            });
+        };
+        QVERIFY(containsTranslation(QStringLiteral("PTF"),
+                                    QStringLiteral("Porque Deus amou o mundo.")));
+        QVERIFY(containsTranslation(
+            QStringLiteral("PTC"),
+            QStringLiteral("Deus amou o mundo de tal maneira.")));
+        controller.setBiblePrimaryTranslationId(translationId);
+        controller.setBibleReferenceInput(QStringLiteral("João 3:16"));
+        QVERIFY(controller.searchBibleReference());
+        QCOMPARE(controller.bibleResults().size(), 1);
+        controller.toggleFavoriteBibleVerse(0);
+        QCOMPARE(controller.favoriteBibleVerses().size(), 1);
+
+        themeId = controller.createTheme(QStringLiteral("Tema persistente de teste"));
+        QVERIFY(!themeId.isEmpty());
+        QVERIFY(controller.applyThemeForContent(QStringLiteral("bible"), themeId));
+        QVERIFY(controller.applyThemeForContent(QStringLiteral("lyrics"), themeId));
+    }
+
+    ApplicationController restored;
+    QCOMPARE(restored.bibleThemeId(), themeId);
+    QCOMPARE(restored.lyricsThemeId(), themeId);
+    QCOMPARE(restored.favoriteBibleVerses().size(), 1);
+    const auto favorite = restored.favoriteBibleVerses().front().toMap();
+    QCOMPARE(favorite.value(QStringLiteral("bookId")).toInt(), 43);
+    QCOMPARE(favorite.value(QStringLiteral("chapter")).toInt(), 3);
+    QCOMPARE(favorite.value(QStringLiteral("verse")).toInt(), 16);
+
+    restored.setBibleReferenceInput(QStringLiteral("João 3:16"));
+    QVERIFY(restored.searchBibleReference());
+    restored.toggleFavoriteBibleVerse(0);
+    QVERIFY(restored.favoriteBibleVerses().isEmpty());
+    if (!originalBibleThemeId.isEmpty())
+        QVERIFY(restored.applyThemeForContent(QStringLiteral("bible"),
+                                              originalBibleThemeId));
+    if (!originalLyricsThemeId.isEmpty())
+        QVERIFY(restored.applyThemeForContent(QStringLiteral("lyrics"),
+                                              originalLyricsThemeId));
+    restored.deleteTheme(themeId);
 }
 
 void ApplicationCommandBridgeTest::operatorPresentationNavigationUsesCommandAndEventBuses()

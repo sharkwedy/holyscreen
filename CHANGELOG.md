@@ -5,6 +5,24 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-30
+
+- Improved media playback controls: pressing Play after Stop now restarts the
+  playlist from its first item, the timeline shows elapsed and remaining time,
+  changing or muting the volume displays its percentage, and inactive player
+  buttons no longer retain a focus outline after mouse clicks.
+- Added a dedicated lyrics panel in the operator workspace, with direct
+  double-click presentation and quick navigation between lyrics and the Bible.
+- Expanded favorites with media thumbnails and persistent Bible verse
+  favorites that can be presented directly from the top bar.
+- Added independent Bible and lyrics themes with background images, typography,
+  alignment, spacing, margins, outline and shadow settings.
+- Made Bible navigation use the full operator window and added side-by-side
+  comparison of a passage across every imported translation, including direct
+  presentation from the comparison window.
+- Hardened update package verification by rejecting malformed SHA-256 digests
+  before a downloaded installer can be accepted.
+
 ## [1.2.1] - 2026-08-29
 
 - Added verified in-app installation for Windows updates. After downloading an

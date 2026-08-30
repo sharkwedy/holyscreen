@@ -22,6 +22,9 @@ Rectangle {
 
     signal openBrowser()
     signal openSettings()
+    signal openThemes()
+    signal openComparison()
+    signal showLyrics()
 
     property int selectedBookId: 1
     property int selectedChapter: 1
@@ -53,6 +56,15 @@ Rectangle {
                 return book
         }
         return null
+    }
+
+    function isFavoriteVerse(referenceKey) {
+        const favorites = panel.controller.favoriteBibleVerses
+        for (let index = 0; index < favorites.length; ++index) {
+            if (favorites[index].referenceKey === referenceKey)
+                return true
+        }
+        return false
     }
 
     function searchSelectedChapter() {
@@ -126,9 +138,28 @@ Rectangle {
                 }
                 Item { Layout.fillWidth: true }
                 Button {
+                    visible: panel.currentPresentationType === "song"
+                    text: qsTr("LETRA")
+                    flat: true
+                    onClicked: panel.showLyrics()
+                }
+                Button {
                     text: qsTr("NAVEGAR")
                     flat: true
                     onClicked: panel.openBrowser()
+                }
+                Button {
+                    text: qsTr("TEMAS")
+                    flat: true
+                    onClicked: panel.openThemes()
+                }
+                Button {
+                    text: "⇄"
+                    flat: true
+                    Accessible.name: qsTr("Comparar traduções")
+                    ToolTip.visible: hovered
+                    ToolTip.text: Accessible.name
+                    onClicked: panel.openComparison()
                 }
                 Button {
                     text: "☰"
@@ -244,6 +275,22 @@ Rectangle {
                         color: panel.textMainColor
                         wrapMode: Text.WordWrap
                         lineHeight: 1.25
+                    }
+                    Button {
+                        text: panel.isFavoriteVerse(
+                                  bibleVerseDelegate.modelData.referenceKey) ? "★" : "☆"
+                        flat: true
+                        font.pixelSize: UiScale.px(20)
+                        Accessible.name: panel.isFavoriteVerse(
+                                             bibleVerseDelegate.modelData.referenceKey)
+                                         ? qsTr("Remover %1 dos favoritos").arg(
+                                               bibleVerseDelegate.modelData.label)
+                                         : qsTr("Adicionar %1 aos favoritos").arg(
+                                               bibleVerseDelegate.modelData.label)
+                        ToolTip.visible: hovered
+                        ToolTip.text: Accessible.name
+                        onClicked: panel.controller.toggleFavoriteBibleVerse(
+                                       bibleVerseDelegate.index)
                     }
                 }
                 TapHandler {

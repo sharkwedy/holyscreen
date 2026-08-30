@@ -850,6 +850,8 @@ QString ApplicationController::stopwatchText() const { return m_overlays.stopwat
 bool ApplicationController::stopwatchRunning() const { return m_overlays.stopwatchRunning(); }
 QVariantList ApplicationController::themes() const { return m_themes; }
 QVariantMap ApplicationController::activeTheme() const { return mapTheme(m_activeTheme); }
+QString ApplicationController::bibleThemeId() const { return m_bibleThemeId; }
+QString ApplicationController::lyricsThemeId() const { return m_lyricsThemeId; }
 QVariantList ApplicationController::songs() const { return m_songs; }
 QString ApplicationController::songSearch() const { return m_songSearch; }
 QString ApplicationController::songSequence() const
@@ -931,6 +933,10 @@ QString ApplicationController::bibleSecondaryTranslationId() const{return m_bibl
 QString ApplicationController::bibleTertiaryTranslationId() const{return m_bibleTertiaryTranslationId;}
 QString ApplicationController::bibleReferenceInput() const{return m_bibleReferenceInput;}
 QVariantList ApplicationController::bibleResults() const{return m_bibleResults;}
+QVariantList ApplicationController::favoriteBibleVerses() const
+{
+    return m_favoriteBibleVerses;
+}
 
 bool ApplicationController::toggleScreen(const QString &screenFingerprint, bool enabled)
 {
@@ -2446,6 +2452,14 @@ void ApplicationController::toggleMediaPause()
 
 bool ApplicationController::applyToggleMediaPause()
 {
+    // Depois de Stop, Play representa uma nova execução da playlist. Isso
+    // também cobre o estado inicial, quando ainda não há item selecionado.
+    if (mediaState() == QStringLiteral("stopped")) {
+        if (m_mediaPlaylist.isEmpty()) return false;
+        const auto firstId = m_mediaPlaylist.front().toMap()
+                                 .value(QStringLiteral("id")).toString();
+        return !firstId.isEmpty() && applyPlayMedia(firstId);
+    }
     if (currentMediaType() == QStringLiteral("image")) {
         if (m_stillMedia.playing()) m_stillMedia.pause();
         else m_stillMedia.resume();
@@ -2897,14 +2911,20 @@ QString ApplicationController::createTheme(const QString &name)
     if (!m_themeRepository) return {};
     Theme theme; theme.name = name.trimmed(); theme.fontFamily = m_clockFontFamily;
     const auto id = m_themeRepository->save(theme);
-    if (!id.isEmpty()) { refreshThemes(); applyTheme(id); }
+    if (!id.isEmpty()) refreshThemes();
     return id;
 }
 
 void ApplicationController::updateTheme(const QVariantMap &v)
 {
-    if (!m_themeRepository || m_activeTheme.id.isEmpty()) return;
-    auto &t=m_activeTheme;
+    updateThemeById(m_activeTheme.id, v);
+}
+
+bool ApplicationController::updateThemeById(const QString &id, const QVariantMap &v)
+{
+    if (!m_themeRepository || id.isEmpty()) return false;
+    auto t = m_themeRepository->theme(id);
+    if (t.id.isEmpty()) return false;
     if(v.contains("name"))t.name=v.value("name").toString();
     if(v.contains("backgroundType"))t.backgroundType=static_cast<BackgroundType>(v.value("backgroundType").toInt());
     if(v.contains("backgroundColor"))t.backgroundColor=v.value("backgroundColor").toString();
@@ -2923,12 +2943,29 @@ void ApplicationController::updateTheme(const QVariantMap &v)
     if(v.contains("shadow"))t.shadow=v.value("shadow").toBool();
     if(v.contains("shadowColor"))t.shadowColor=v.value("shadowColor").toString();
     if(v.contains("transition"))t.transition=v.value("transition").toString();
-    if (!m_themeRepository->save(t).isEmpty()) { refreshThemes(); emit activeThemeChanged(); }
+    if (m_themeRepository->save(t).isEmpty()) return false;
+    if (m_activeTheme.id == t.id) {
+        m_activeTheme = t;
+        emit activeThemeChanged();
+    }
+    refreshThemes();
+    return true;
 }
 
 void ApplicationController::deleteTheme(const QString &id)
 {
     if (!m_themeRepository || !m_themeRepository->remove(id)) return;
+    if (m_bibleThemeId == id) m_bibleThemeId.clear();
+    if (m_lyricsThemeId == id) m_lyricsThemeId.clear();
+    const auto remainingThemes = m_themeRepository->themes();
+    const auto fallbackThemeId = remainingThemes.isEmpty() ? QString{} : remainingThemes.front().id;
+    if (m_bibleThemeId.isEmpty()) m_bibleThemeId = fallbackThemeId;
+    if (m_lyricsThemeId.isEmpty()) m_lyricsThemeId = fallbackThemeId;
+    if (m_settings) {
+        m_settings->setValue(QStringLiteral("presentation/bibleThemeId"), m_bibleThemeId);
+        m_settings->setValue(QStringLiteral("presentation/lyricsThemeId"), m_lyricsThemeId);
+    }
+    emit contentThemeDefaultsChanged();
     if (m_activeTheme.id==id) m_activeTheme={};
     refreshThemes(); loadActiveTheme();
 }
@@ -2948,6 +2985,45 @@ bool ApplicationController::applyThemeSelection(const QString &id)
     return true;
 }
 
+bool ApplicationController::applyThemeForContent(const QString &scope, const QString &id)
+{
+    if (!m_themeRepository) return false;
+    const auto theme = m_themeRepository->theme(id);
+    if (theme.id.isEmpty()) return false;
+
+    const auto normalizedScope = scope.trimmed().toLower();
+    if (normalizedScope == QStringLiteral("bible")) {
+        m_bibleThemeId = id;
+        if (m_settings)
+            m_settings->setValue(QStringLiteral("presentation/bibleThemeId"), id);
+        if (currentPresentationType() == QStringLiteral("bible")) {
+            auto presentation = m_textPresentation.presentation();
+            presentation.defaultTheme = id;
+            m_textPresentation.setPresentation(presentation);
+            m_activeTheme = theme;
+            emit currentPresentationChanged();
+            emit activeThemeChanged();
+        }
+    } else if (normalizedScope == QStringLiteral("lyrics")) {
+        m_lyricsThemeId = id;
+        if (m_settings)
+            m_settings->setValue(QStringLiteral("presentation/lyricsThemeId"), id);
+        if (currentPresentationType() == QStringLiteral("song")) {
+            auto presentation = m_textPresentation.presentation();
+            presentation.defaultTheme = id;
+            m_textPresentation.setPresentation(presentation);
+            saveCurrentPresentation();
+            m_activeTheme = theme;
+            emit currentPresentationChanged();
+            emit activeThemeChanged();
+        }
+    } else {
+        return false;
+    }
+    emit contentThemeDefaultsChanged();
+    return true;
+}
+
 QString ApplicationController::createSong(const QString &title, const QString &author,
                                            const QString &structuredLyrics, const QString &sequenceText)
 {
@@ -2962,7 +3038,9 @@ QString ApplicationController::saveSongToLibrary(const QString &title, const QSt
 {
     if (m_autosave && !m_autosave->flush()) return {};
     if(!m_presentationRepository)return{};
-    Presentation song{.type=PresentationType::Song,.title=title.trimmed(),.author=author.trimmed(),.defaultTheme=m_activeTheme.id};
+    Presentation song{.type=PresentationType::Song,.title=title.trimmed(),.author=author.trimmed(),
+                      .defaultTheme=m_lyricsThemeId.isEmpty() ? m_activeTheme.id
+                                                             : m_lyricsThemeId};
     const auto blocks=structuredLyrics.split(QRegularExpression(QStringLiteral("\\n\\s*\\n")),Qt::SkipEmptyParts);
     QHash<QString,QString> sectionIds;
     for(const auto&block:blocks){
@@ -3402,7 +3480,12 @@ bool ApplicationController::applyBibleSearch(const QString &referenceInput)
         if (versions.isEmpty()) continue;
         const auto label = QStringLiteral("%1 %2:%3")
             .arg(bookName).arg(reference->chapter).arg(verseNumber);
+        const auto referenceKey = QStringLiteral("%1:%2:%3")
+            .arg(static_cast<int>(reference->book)).arg(reference->chapter).arg(verseNumber);
         m_bibleResults.append(QVariantMap{
+            {QStringLiteral("referenceKey"), referenceKey},
+            {QStringLiteral("bookId"), static_cast<int>(reference->book)},
+            {QStringLiteral("chapter"), reference->chapter},
             {QStringLiteral("verse"), verseNumber},
             {QStringLiteral("label"), label},
             {QStringLiteral("text"), combinedTexts.join(QStringLiteral("\n\n"))},
@@ -3426,6 +3509,7 @@ void ApplicationController::showBibleVerse(int index)
         .id = QUuid::createUuid().toString(QUuid::WithoutBraces),
         .type = PresentationType::Bible,
         .title = m_bibleReferenceInput.trimmed(),
+        .defaultTheme = m_bibleThemeId,
     };
     for (int slideIndex = 0; slideIndex < m_bibleResults.size(); ++slideIndex) {
         const auto result = m_bibleResults.at(slideIndex).toMap();
@@ -3437,9 +3521,39 @@ void ApplicationController::showBibleVerse(int index)
         });
     }
     m_textPresentation.setPresentation(std::move(presentation));
+    loadActiveTheme();
     emit currentPresentationChanged();
     emit textSlidesChanged();
     showTextSlide(index);
+}
+
+void ApplicationController::toggleFavoriteBibleVerse(int index)
+{
+    if (index < 0 || index >= m_bibleResults.size()) return;
+    const auto result = m_bibleResults.at(index).toMap();
+    const auto referenceKey = result.value(QStringLiteral("referenceKey")).toString();
+    if (referenceKey.isEmpty()) return;
+
+    for (int favoriteIndex = 0; favoriteIndex < m_favoriteBibleVerses.size();
+         ++favoriteIndex) {
+        const auto favorite = m_favoriteBibleVerses.at(favoriteIndex).toMap();
+        if (favorite.value(QStringLiteral("referenceKey")).toString() == referenceKey) {
+            m_favoriteBibleVerses.removeAt(favoriteIndex);
+            saveFavoriteBibleVerses();
+            emit favoriteBibleVersesChanged();
+            setStatusMessage(tr("%1 removido dos favoritos.")
+                                 .arg(result.value(QStringLiteral("label")).toString()));
+            return;
+        }
+    }
+
+    auto favorite = result;
+    favorite.remove(QStringLiteral("versions"));
+    m_favoriteBibleVerses.append(favorite);
+    saveFavoriteBibleVerses();
+    emit favoriteBibleVersesChanged();
+    setStatusMessage(tr("%1 adicionado aos favoritos.")
+                         .arg(result.value(QStringLiteral("label")).toString()));
 }
 
 QVariantList ApplicationController::bibleChapterNumbers(int bookId) const
@@ -3500,6 +3614,39 @@ QString ApplicationController::bibleTextForSlide(
         }
     }
     return result.value(QStringLiteral("text")).toString();
+}
+
+QVariantList ApplicationController::compareBibleReference(const QString &referenceInput) const
+{
+    QVariantList comparison;
+    if (!m_bibleRepository) return comparison;
+    const auto reference = m_bibleReferenceParser.parse(referenceInput.trimmed());
+    if (!reference.has_value()) return comparison;
+
+    const auto bookName = bibleBookName(reference->book);
+    for (const auto &translation : m_bibleRepository->translations()) {
+        QVariantList verses;
+        for (const auto &verse : m_bibleRepository->verses(translation.id,
+                                                            reference.value())) {
+            verses.append(QVariantMap{
+                {QStringLiteral("label"), QStringLiteral("%1 %2:%3")
+                     .arg(bookName).arg(verse.chapter).arg(verse.verse)},
+                {QStringLiteral("bookId"), static_cast<int>(verse.book)},
+                {QStringLiteral("chapter"), verse.chapter},
+                {QStringLiteral("verse"), verse.verse},
+                {QStringLiteral("text"), verse.text},
+            });
+        }
+        if (verses.isEmpty()) continue;
+        comparison.append(QVariantMap{
+            {QStringLiteral("translationId"), translation.id},
+            {QStringLiteral("name"), translation.name},
+            {QStringLiteral("abbreviation"), translation.abbreviation},
+            {QStringLiteral("language"), translation.language},
+            {QStringLiteral("verses"), verses},
+        });
+    }
+    return comparison;
 }
 
 void ApplicationController::setWallpaperColor(const QString &color)
@@ -4155,9 +4302,15 @@ void ApplicationController::loadSettings()
     }
     m_mediaFolderPaths = m_settings->value(QStringLiteral("library/mediaFolders"), QStringList{}).toStringList();
     m_favoriteMediaPaths = m_settings->value(QStringLiteral("library/favoriteMedia"), QStringList{}).toStringList();
+    const auto favoriteBibleDocument = QJsonDocument::fromJson(
+        m_settings->value(QStringLiteral("bible/favoriteVerses")).toByteArray());
+    if (favoriteBibleDocument.isArray())
+        m_favoriteBibleVerses = favoriteBibleDocument.array().toVariantList();
     m_biblePrimaryTranslationId = m_settings->value(QStringLiteral("bible/primaryTranslationId")).toString();
     m_bibleSecondaryTranslationId = m_settings->value(QStringLiteral("bible/secondaryTranslationId")).toString();
     m_bibleTertiaryTranslationId = m_settings->value(QStringLiteral("bible/tertiaryTranslationId")).toString();
+    m_bibleThemeId = m_settings->value(QStringLiteral("presentation/bibleThemeId")).toString();
+    m_lyricsThemeId = m_settings->value(QStringLiteral("presentation/lyricsThemeId")).toString();
     AppLogger::setDebugMessagesEnabled(m_debugEnabled && m_debugLogging);
     const auto legacyVolume = m_settings->value(QStringLiteral("presentation/videoVolume"),
         m_settings->value(QStringLiteral("presentation/audioVolume"), 0.8)).toDouble();
@@ -4202,6 +4355,19 @@ void ApplicationController::loadSettings()
     if (m_themeRepository->themes().isEmpty()) {
         Theme standard; standard.name=tr("Padrão"); standard.fontFamily=m_clockFontFamily;
         m_themeRepository->save(standard);
+    }
+    const auto availableThemes = m_themeRepository->themes();
+    const auto themeExists = [&availableThemes](const QString &id) {
+        return std::ranges::any_of(availableThemes, [&id](const Theme &theme) {
+            return theme.id == id;
+        });
+    };
+    const auto defaultThemeId = availableThemes.isEmpty() ? QString{} : availableThemes.front().id;
+    if (!themeExists(m_bibleThemeId)) m_bibleThemeId = defaultThemeId;
+    if (!themeExists(m_lyricsThemeId)) m_lyricsThemeId = defaultThemeId;
+    if (m_settings) {
+        m_settings->setValue(QStringLiteral("presentation/bibleThemeId"), m_bibleThemeId);
+        m_settings->setValue(QStringLiteral("presentation/lyricsThemeId"), m_lyricsThemeId);
     }
     refreshThemes(); loadActiveTheme();
     refreshSongs();
@@ -4264,6 +4430,14 @@ void ApplicationController::saveFavoriteMedia()
     if (m_settings) {
         m_settings->setValue(QStringLiteral("library/favoriteMedia"), m_favoriteMediaPaths);
     }
+}
+
+void ApplicationController::saveFavoriteBibleVerses()
+{
+    if (!m_settings) return;
+    m_settings->setValue(
+        QStringLiteral("bible/favoriteVerses"),
+        QJsonDocument::fromVariant(m_favoriteBibleVerses).toJson(QJsonDocument::Compact));
 }
 
 void ApplicationController::rebuildMediaFolderWatcher()
@@ -4536,7 +4710,12 @@ void ApplicationController::loadActiveTheme()
 {
     Theme selected;
     if(m_themeRepository){
-        const auto id=m_textPresentation.presentation().defaultTheme;
+        auto id=m_textPresentation.presentation().defaultTheme;
+        if (id.isEmpty() && m_textPresentation.presentation().type == PresentationType::Bible)
+            id = m_bibleThemeId;
+        else if (id.isEmpty()
+                 && m_textPresentation.presentation().type == PresentationType::Song)
+            id = m_lyricsThemeId;
         if(!id.isEmpty())selected=m_themeRepository->theme(id);
         if(selected.id.isEmpty()){const auto all=m_themeRepository->themes();if(!all.isEmpty())selected=all.front();}
     }

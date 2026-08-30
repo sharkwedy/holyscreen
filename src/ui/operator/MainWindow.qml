@@ -133,6 +133,10 @@ ApplicationWindow {
         hostWidth: root.width
         hostHeight: root.height
     }
+    ThemeEditorDialog {
+        id: themeEditorDialog
+        controller: root.controller
+    }
     menuBar: MenuBar {
         visible: root.controller.debugEnabled
         Menu {
@@ -183,6 +187,10 @@ ApplicationWindow {
         id: bibleBrowser
         controller: root.controller.bibleContext
     }
+    BibleComparisonDialog {
+        id: bibleComparisonDialog
+        controller: root.controller.bibleContext
+    }
     QuickBibleSearch {
         id: quickBibleSearch
         controller: root.controller.bibleContext
@@ -206,6 +214,9 @@ ApplicationWindow {
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleSettingsFlow.open()
         onOpenBibleBrowser: bibleBrowser.open()
+        onOpenBibleComparison: bibleComparisonDialog.openFor(
+                                  root.controller.bibleContext.bibleReferenceInput)
+        onOpenThemeEditor: function(scope) { themeEditorDialog.openFor(scope) }
         onImportAudio: mediaImportFlow.openAudio()
         onImportVideo: mediaImportFlow.openVideo()
         onImportImage: mediaImportFlow.openImage()

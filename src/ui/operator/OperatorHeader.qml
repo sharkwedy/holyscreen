@@ -16,13 +16,37 @@ ToolBar {
     signal openSettings()
     signal toggleFullScreen()
 
-    function playFavorite(path) {
-        const mediaId = header.controller.mediaContext.addCatalogFileToPlaylist(path)
+    readonly property var favoriteItems: {
+        const result = []
+        const media = header.controller.mediaContext.favoriteMedia
+        for (let index = 0; index < media.length; ++index) {
+            const item = media[index]
+            result.push({"kind": "media", "path": item.path,
+                         "type": item.type, "title": item.fileName || item.title,
+                         "thumbnailSource": item.thumbnailSource || ""})
+        }
+        const verses = header.controller.bibleContext.favoriteBibleVerses
+        for (let verseIndex = 0; verseIndex < verses.length; ++verseIndex) {
+            const verse = verses[verseIndex]
+            result.push({"kind": "bible", "title": verse.label,
+                         "text": verse.text, "bookId": verse.bookId,
+                         "chapter": verse.chapter, "verse": verse.verse})
+        }
+        return result
+    }
+
+    function activateFavorite(item) {
+        if (item.kind === "bible") {
+            header.controller.bibleContext.presentBibleReference(
+                        item.bookId, item.chapter, item.verse)
+            return
+        }
+        const mediaId = header.controller.mediaContext.addCatalogFileToPlaylist(item.path)
         if (mediaId.length > 0)
             header.controller.mediaContext.playMedia(mediaId)
     }
 
-    height: 92
+    height: 108
     background: Rectangle { color: "#15191d"; border.color: "#353b40" }
 
     ColumnLayout {
@@ -97,7 +121,7 @@ ToolBar {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 44
+            Layout.preferredHeight: 60
             color: "#1d2227"
             border.color: "#353b40"
 
@@ -127,27 +151,63 @@ ToolBar {
                     orientation: ListView.Horizontal
                     spacing: 6
                     clip: true
-                    model: header.controller.mediaContext.favoriteMedia
+                    model: header.favoriteItems
 
                     delegate: Button {
+                        id: favoriteButton
                         required property var modelData
-                        height: 32
-                        width: Math.min(220, Math.max(110, implicitWidth))
+                        height: 46
+                        width: Math.min(260, Math.max(150,
+                                                     favoriteContent.implicitWidth + 18))
                         y: (favoriteMediaList.height - height) / 2
-                        text: (modelData.type === "video" ? "▶  "
-                              : modelData.type === "image" ? "▧  " : "♫  ")
-                              + (modelData.fileName || modelData.title || qsTr("Sem título"))
                         font.pixelSize: UiScale.px(11)
-                        Accessible.name: qsTr("Reproduzir favorito %1")
-                                         .arg(modelData.fileName || modelData.title || qsTr("Sem título"))
-                        onClicked: header.playFavorite(modelData.path)
+                        Accessible.name: modelData.kind === "bible"
+                                         ? qsTr("Exibir versículo favorito %1").arg(
+                                               modelData.title)
+                                         : qsTr("Reproduzir favorito %1").arg(
+                                               modelData.title || qsTr("Sem título"))
+                        onClicked: header.activateFavorite(modelData)
                         ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Reproduzir %1").arg(modelData.fileName || modelData.title)
+                        ToolTip.text: Accessible.name
+                        contentItem: RowLayout {
+                            id: favoriteContent
+                            spacing: 7
+                            MediaThumbnail {
+                                visible: favoriteButton.modelData.kind === "media"
+                                Layout.preferredWidth: visible ? 58 : 0
+                                Layout.preferredHeight: 34
+                                source: favoriteButton.modelData.thumbnailSource || ""
+                                mediaType: favoriteButton.modelData.type || "audio"
+                                mediaPath: favoriteButton.modelData.path || ""
+                                controller: header.controller.mediaContext
+                                accentColor: "#b9c7ff"
+                            }
+                            Rectangle {
+                                visible: favoriteButton.modelData.kind === "bible"
+                                Layout.preferredWidth: visible ? 42 : 0
+                                Layout.preferredHeight: 34
+                                radius: 4
+                                color: "#30455c"
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: "▣"
+                                    color: "#c7d2fe"
+                                    font.pixelSize: UiScale.px(18)
+                                }
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                text: favoriteButton.modelData.title || qsTr("Sem título")
+                                color: "#f2f4f5"
+                                elide: Text.ElideRight
+                                font.pixelSize: UiScale.px(11)
+                            }
+                        }
                     }
                     Label {
                         anchors.centerIn: parent
                         visible: favoriteMediaList.count === 0
-                        text: qsTr("Clique com o botão direito em uma mídia para adicioná-la")
+                        text: qsTr("Adicione mídias ou versículos aos favoritos")
                         color: "#8d979f"
                         font.pixelSize: UiScale.px(11)
                     }
