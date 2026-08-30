@@ -77,6 +77,7 @@ private slots:
     void onboardingStepsCanBeDeferredAndRestored();
     void interfaceScaleIsValidatedAndPersisted();
     void keyboardShortcutsRejectConflictsAndPersist();
+    void bibleFavoritesAndContentThemesPersist();
 };
 
 void ApplicationCommandBridgeTest::keyboardShortcutsRejectConflictsAndPersist()
@@ -314,6 +315,75 @@ void ApplicationCommandBridgeTest::stopThenPlayRestartsPlaylistFromBeginning()
     controller.toggleMediaPause();
     QCOMPARE(controller.currentMediaId(), firstId);
     QCOMPARE(controller.mediaState(), QStringLiteral("playing"));
+}
+
+void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
+{
+    const auto directory = qEnvironmentVariable("HOLYSCREEN_DATA_DIR");
+    const auto biblePath = QDir(directory).filePath(QStringLiteral("favorites-bible.json"));
+    QFile bibleFile(biblePath);
+    QVERIFY(bibleFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    const QByteArray bibleJson = R"JSON({
+        "translation": {"name":"Português Favoritos","abbreviation":"PTF","language":"pt-BR"},
+        "verses": [
+            {"book":"João","chapter":3,"verse":16,"text":"Porque Deus amou o mundo."}
+        ]
+    })JSON";
+    QCOMPARE(bibleFile.write(bibleJson), bibleJson.size());
+    bibleFile.close();
+
+    QString themeId;
+    QString originalBibleThemeId;
+    QString originalLyricsThemeId;
+    {
+        ApplicationController controller;
+        originalBibleThemeId = controller.bibleThemeId();
+        originalLyricsThemeId = controller.lyricsThemeId();
+        QCOMPARE(controller.importBibleTranslation(QUrl::fromLocalFile(biblePath)), 1);
+
+        QString translationId;
+        for (const auto &entry : controller.bibleTranslations()) {
+            const auto translation = entry.toMap();
+            if (translation.value(QStringLiteral("abbreviation")).toString()
+                == QStringLiteral("PTF")) {
+                translationId = translation.value(QStringLiteral("id")).toString();
+                break;
+            }
+        }
+        QVERIFY(!translationId.isEmpty());
+        controller.setBiblePrimaryTranslationId(translationId);
+        controller.setBibleReferenceInput(QStringLiteral("João 3:16"));
+        QVERIFY(controller.searchBibleReference());
+        QCOMPARE(controller.bibleResults().size(), 1);
+        controller.toggleFavoriteBibleVerse(0);
+        QCOMPARE(controller.favoriteBibleVerses().size(), 1);
+
+        themeId = controller.createTheme(QStringLiteral("Tema persistente de teste"));
+        QVERIFY(!themeId.isEmpty());
+        QVERIFY(controller.applyThemeForContent(QStringLiteral("bible"), themeId));
+        QVERIFY(controller.applyThemeForContent(QStringLiteral("lyrics"), themeId));
+    }
+
+    ApplicationController restored;
+    QCOMPARE(restored.bibleThemeId(), themeId);
+    QCOMPARE(restored.lyricsThemeId(), themeId);
+    QCOMPARE(restored.favoriteBibleVerses().size(), 1);
+    const auto favorite = restored.favoriteBibleVerses().front().toMap();
+    QCOMPARE(favorite.value(QStringLiteral("bookId")).toInt(), 43);
+    QCOMPARE(favorite.value(QStringLiteral("chapter")).toInt(), 3);
+    QCOMPARE(favorite.value(QStringLiteral("verse")).toInt(), 16);
+
+    restored.setBibleReferenceInput(QStringLiteral("João 3:16"));
+    QVERIFY(restored.searchBibleReference());
+    restored.toggleFavoriteBibleVerse(0);
+    QVERIFY(restored.favoriteBibleVerses().isEmpty());
+    if (!originalBibleThemeId.isEmpty())
+        QVERIFY(restored.applyThemeForContent(QStringLiteral("bible"),
+                                              originalBibleThemeId));
+    if (!originalLyricsThemeId.isEmpty())
+        QVERIFY(restored.applyThemeForContent(QStringLiteral("lyrics"),
+                                              originalLyricsThemeId));
+    restored.deleteTheme(themeId);
 }
 
 void ApplicationCommandBridgeTest::operatorPresentationNavigationUsesCommandAndEventBuses()
