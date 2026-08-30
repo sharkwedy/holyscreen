@@ -434,64 +434,112 @@
     </message>
 </context>
 <context>
+    <name>BibleComparisonDialog</name>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="13"/>
+        <source>Comparar traduções bíblicas</source>
+        <translation>Comparar traduções bíblicas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="31"/>
+        <source>Nenhum texto foi encontrado para essa referência</source>
+        <translation>Nenhum texto foi encontrado para essa referência</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="66"/>
+        <source>Veja a mesma passagem em todas as traduções importadas</source>
+        <translation>Veja a mesma passagem em todas as traduções importadas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="77"/>
+        <source>Ex.: João 3:16</source>
+        <translation>Ex.: João 3:16</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="80"/>
+        <source>Referência para comparação</source>
+        <translation>Referência para comparação</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="84"/>
+        <source>COMPARAR</source>
+        <translation>COMPARAR</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="181"/>
+        <source>Apresentar %1</source>
+        <translation>Apresentar %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BibleComparisonDialog.qml" line="207"/>
+        <source>Digite uma referência para comparar</source>
+        <translation>Digite uma referência para comparar</translation>
+    </message>
+</context>
+<context>
     <name>BiblePanel</name>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="134"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="135"/>
         <source>▣  Bíblia Sagrada</source>
         <translation>▣  Bíblia Sagrada</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="141"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="142"/>
         <source>LETRA</source>
         <translation>LETRA</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="146"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="147"/>
         <source>NAVEGAR</source>
         <translation>NAVEGAR</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="151"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="152"/>
         <source>TEMAS</source>
         <translation>TEMAS</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="158"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="159"/>
+        <source>Comparar traduções</source>
+        <translation>Comparar traduções</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="167"/>
         <source>Configurar Bíblia</source>
         <translation>Configurar Bíblia</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="277"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="286"/>
         <source>Remover %1 dos favoritos</source>
         <translation>Remover %1 dos favoritos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="279"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="288"/>
         <source>Adicionar %1 aos favoritos</source>
         <translation>Adicionar %1 aos favoritos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="299"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="308"/>
         <source>Importe uma tradução bíblica para visualizar passagens</source>
         <translation>Importe uma tradução bíblica para visualizar passagens</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="300"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="309"/>
         <source>Nenhum versículo encontrado</source>
         <translation>Nenhum versículo encontrado</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="315"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="324"/>
         <source>Nenhuma tradução importada</source>
         <translation>Nenhuma tradução importada</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="323"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="332"/>
         <source>Domínio público</source>
         <translation>Domínio público</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/BiblePanel.qml" line="325"/>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="334"/>
         <source>Use uma origem com licença adequada</source>
         <translation>Use uma origem com licença adequada</translation>
     </message>
@@ -725,17 +773,17 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="70"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="71"/>
         <source>Abrir local do arquivo</source>
         <translation>Abrir local do arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="84"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="85"/>
         <source>★ Remover dos favoritos</source>
         <translation>★ Remover dos favoritos</translation>
     </message>
     <message>
-        <location filename="../src/ui/operator/Dashboard.qml" line="86"/>
+        <location filename="../src/ui/operator/Dashboard.qml" line="87"/>
         <source>☆ Adicionar aos favoritos</source>
         <translation>☆ Adicionar aos favoritos</translation>
     </message>
@@ -3773,67 +3821,67 @@ na tela de apresentação</translation>
         <translation>%1 versículo(s) encontrado(s).</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3632"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3665"/>
         <source>Não foi possível abrir o wallpaper selecionado.</source>
         <translation>Não foi possível abrir o wallpaper selecionado.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3877"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3910"/>
         <source>Defina uma senha antes de habilitar o controle remoto.</source>
         <translation>Defina uma senha antes de habilitar o controle remoto.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3883"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3916"/>
         <source>Controle remoto habilitado.</source>
         <translation>Controle remoto habilitado.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3888"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3921"/>
         <source>Controle remoto desabilitado.</source>
         <translation>Controle remoto desabilitado.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3911"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3944"/>
         <source>Informe um endereço IPv4 válido para o remoto.</source>
         <translation>Informe um endereço IPv4 válido para o remoto.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3928"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3961"/>
         <source>A senha do remoto deve ter pelo menos 8 caracteres.</source>
         <translation>A senha do remoto deve ter pelo menos 8 caracteres.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3934"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3967"/>
         <source>Não foi possível salvar a senha do remoto.</source>
         <translation>Não foi possível salvar a senha do remoto.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3937"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3970"/>
         <source>Senha do controle remoto atualizada. Sessões antigas foram revogadas.</source>
         <translation>Senha do controle remoto atualizada. Sessões antigas foram revogadas.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="3945"/>
+        <location filename="../src/app/ApplicationController.cpp" line="3978"/>
         <source>Todas as sessões remotas foram revogadas.</source>
         <translation>Todas as sessões remotas foram revogadas.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="4049"/>
+        <location filename="../src/app/ApplicationController.cpp" line="4082"/>
         <source>A saída de áudio selecionada não está disponível.</source>
         <translation>A saída de áudio selecionada não está disponível.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="4057"/>
+        <location filename="../src/app/ApplicationController.cpp" line="4090"/>
         <source>Saída de áudio alterada para %1.</source>
         <translation>Saída de áudio alterada para %1.</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="4202"/>
+        <location filename="../src/app/ApplicationController.cpp" line="4235"/>
         <source>Não foi possível atualizar o banco local: %1</source>
         <translation>Não foi possível atualizar o banco local: %1</translation>
     </message>
     <message>
-        <location filename="../src/app/ApplicationController.cpp" line="4323"/>
+        <location filename="../src/app/ApplicationController.cpp" line="4356"/>
         <source>Padrão</source>
         <translation>Padrão</translation>
     </message>

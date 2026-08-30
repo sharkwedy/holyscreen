@@ -65,5 +65,9 @@ QString BibleContext::bibleTextForSlide(int slideIndex, const QString &translati
 {
     return m_controller.bibleTextForSlide(slideIndex, translationId);
 }
+QVariantList BibleContext::compareBibleReference(const QString &reference) const
+{
+    return m_controller.compareBibleReference(reference);
+}
 
 } // namespace churchpresenter

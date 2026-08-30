@@ -23,6 +23,7 @@ Rectangle {
     signal openBrowser()
     signal openSettings()
     signal openThemes()
+    signal openComparison()
     signal showLyrics()
 
     property int selectedBookId: 1
@@ -151,6 +152,14 @@ Rectangle {
                     text: qsTr("TEMAS")
                     flat: true
                     onClicked: panel.openThemes()
+                }
+                Button {
+                    text: "⇄"
+                    flat: true
+                    Accessible.name: qsTr("Comparar traduções")
+                    ToolTip.visible: hovered
+                    ToolTip.text: Accessible.name
+                    onClicked: panel.openComparison()
                 }
                 Button {
                     text: "☰"

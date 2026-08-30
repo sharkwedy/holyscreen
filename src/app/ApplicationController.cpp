@@ -3616,6 +3616,39 @@ QString ApplicationController::bibleTextForSlide(
     return result.value(QStringLiteral("text")).toString();
 }
 
+QVariantList ApplicationController::compareBibleReference(const QString &referenceInput) const
+{
+    QVariantList comparison;
+    if (!m_bibleRepository) return comparison;
+    const auto reference = m_bibleReferenceParser.parse(referenceInput.trimmed());
+    if (!reference.has_value()) return comparison;
+
+    const auto bookName = bibleBookName(reference->book);
+    for (const auto &translation : m_bibleRepository->translations()) {
+        QVariantList verses;
+        for (const auto &verse : m_bibleRepository->verses(translation.id,
+                                                            reference.value())) {
+            verses.append(QVariantMap{
+                {QStringLiteral("label"), QStringLiteral("%1 %2:%3")
+                     .arg(bookName).arg(verse.chapter).arg(verse.verse)},
+                {QStringLiteral("bookId"), static_cast<int>(verse.book)},
+                {QStringLiteral("chapter"), verse.chapter},
+                {QStringLiteral("verse"), verse.verse},
+                {QStringLiteral("text"), verse.text},
+            });
+        }
+        if (verses.isEmpty()) continue;
+        comparison.append(QVariantMap{
+            {QStringLiteral("translationId"), translation.id},
+            {QStringLiteral("name"), translation.name},
+            {QStringLiteral("abbreviation"), translation.abbreviation},
+            {QStringLiteral("language"), translation.language},
+            {QStringLiteral("verses"), verses},
+        });
+    }
+    return comparison;
+}
+
 void ApplicationController::setWallpaperColor(const QString &color)
 {
     if (m_wallpaperColor == color) return;

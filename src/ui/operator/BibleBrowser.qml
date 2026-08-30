@@ -15,10 +15,10 @@ Dialog {
 
     title: qsTr("Navegação bíblica")
     modal: true
-    width: Math.min(parent ? parent.width - 48 : 1240, 1240)
-    height: Math.min(parent ? parent.height - 48 : 760, 760)
-    x: parent ? (parent.width - width) / 2 : 0
-    y: parent ? (parent.height - height) / 2 : 0
+    width: parent ? parent.width : 1240
+    height: parent ? parent.height : 760
+    x: 0
+    y: 0
     standardButtons: Dialog.Close
 
     readonly property color panel: "#20252a"
@@ -57,7 +57,7 @@ Dialog {
     background: Rectangle {
         color: browser.panel
         border.color: browser.line
-        radius: 8
+        radius: 0
     }
 
     contentItem: ColumnLayout {

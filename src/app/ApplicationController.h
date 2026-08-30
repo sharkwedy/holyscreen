@@ -632,6 +632,7 @@ public:
     Q_INVOKABLE QVariantList bibleVerseNumbers(int bookId, int chapter) const;
     Q_INVOKABLE bool presentBibleReference(int bookId, int chapter, int verse);
     Q_INVOKABLE QString bibleTextForSlide(int slideIndex, const QString &translationId) const;
+    Q_INVOKABLE QVariantList compareBibleReference(const QString &reference) const;
     Q_INVOKABLE void setAudienceMessage(const QString &message);
     Q_INVOKABLE void setAlertMessage(const QString &message);
     Q_INVOKABLE void setLowerThird(const QString &title, const QString &subtitle);

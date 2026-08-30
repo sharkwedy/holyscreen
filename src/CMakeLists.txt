@@ -381,6 +381,7 @@ qt_add_qml_module(presenter-ui
         ui/operator/OperatorShortcuts.qml
         ui/operator/SettingsDialog.qml
         ui/operator/BibleBrowser.qml
+        ui/operator/BibleComparisonDialog.qml
         ui/operator/QuickBibleSearch.qml
         ui/output/OutputWindow.qml
         ui/output/AudienceView.qml

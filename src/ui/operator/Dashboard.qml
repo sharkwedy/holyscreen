@@ -11,6 +11,7 @@ Item {
     signal openLibrary()
     signal openBible()
     signal openBibleBrowser()
+    signal openBibleComparison()
     signal openThemeEditor(string scope)
     signal importAudio()
     signal importVideo()
@@ -206,6 +207,7 @@ Item {
                 onOpenBrowser: dashboard.openBibleBrowser()
                 onOpenSettings: dashboard.openBible()
                 onOpenThemes: dashboard.openThemeEditor("bible")
+                onOpenComparison: dashboard.openBibleComparison()
                 onShowLyrics: dashboard.biblePanelOverride = false
             }
 

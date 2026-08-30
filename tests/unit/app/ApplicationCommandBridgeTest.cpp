@@ -182,6 +182,7 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QVERIFY(bibleMeta->indexOfProperty("favoriteBibleVerses") >= 0);
     QVERIFY(bibleMeta->indexOfMethod("presentBibleReference(int,int,int)") >= 0);
     QVERIFY(bibleMeta->indexOfMethod("toggleFavoriteBibleVerse(int)") >= 0);
+    QVERIFY(bibleMeta->indexOfMethod("compareBibleReference(QString)") >= 0);
     const auto eventMeta = event->metaObject();
     QVERIFY(eventMeta->indexOfProperty("eventItems") >= 0);
     QVERIFY(eventMeta->indexOfMethod("addEventItem(QString,QString,QString,qlonglong)") >= 0);
@@ -321,6 +322,8 @@ void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
 {
     const auto directory = qEnvironmentVariable("HOLYSCREEN_DATA_DIR");
     const auto biblePath = QDir(directory).filePath(QStringLiteral("favorites-bible.json"));
+    const auto comparisonBiblePath = QDir(directory).filePath(
+        QStringLiteral("comparison-bible.json"));
     QFile bibleFile(biblePath);
     QVERIFY(bibleFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
     const QByteArray bibleJson = R"JSON({
@@ -331,6 +334,16 @@ void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
     })JSON";
     QCOMPARE(bibleFile.write(bibleJson), bibleJson.size());
     bibleFile.close();
+    QFile comparisonBibleFile(comparisonBiblePath);
+    QVERIFY(comparisonBibleFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    const QByteArray comparisonBibleJson = R"JSON({
+        "translation": {"name":"Português Comparação","abbreviation":"PTC","language":"pt-BR"},
+        "verses": [
+            {"book":"João","chapter":3,"verse":16,"text":"Deus amou o mundo de tal maneira."}
+        ]
+    })JSON";
+    QCOMPARE(comparisonBibleFile.write(comparisonBibleJson), comparisonBibleJson.size());
+    comparisonBibleFile.close();
 
     QString themeId;
     QString originalBibleThemeId;
@@ -340,6 +353,8 @@ void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
         originalBibleThemeId = controller.bibleThemeId();
         originalLyricsThemeId = controller.lyricsThemeId();
         QCOMPARE(controller.importBibleTranslation(QUrl::fromLocalFile(biblePath)), 1);
+        QCOMPARE(controller.importBibleTranslation(
+                     QUrl::fromLocalFile(comparisonBiblePath)), 1);
 
         QString translationId;
         for (const auto &entry : controller.bibleTranslations()) {
@@ -351,6 +366,26 @@ void ApplicationCommandBridgeTest::bibleFavoritesAndContentThemesPersist()
             }
         }
         QVERIFY(!translationId.isEmpty());
+        const auto comparison = controller.compareBibleReference(
+            QStringLiteral("João 3:16"));
+        const auto containsTranslation = [&comparison](const QString &abbreviation,
+                                                       const QString &text) {
+            return std::any_of(comparison.cbegin(), comparison.cend(),
+                               [&](const QVariant &entry) {
+                const auto translation = entry.toMap();
+                if (translation.value(QStringLiteral("abbreviation")).toString()
+                    != abbreviation) return false;
+                const auto verses = translation.value(QStringLiteral("verses")).toList();
+                return !verses.isEmpty()
+                    && verses.front().toMap().value(QStringLiteral("text")).toString()
+                        == text;
+            });
+        };
+        QVERIFY(containsTranslation(QStringLiteral("PTF"),
+                                    QStringLiteral("Porque Deus amou o mundo.")));
+        QVERIFY(containsTranslation(
+            QStringLiteral("PTC"),
+            QStringLiteral("Deus amou o mundo de tal maneira.")));
         controller.setBiblePrimaryTranslationId(translationId);
         controller.setBibleReferenceInput(QStringLiteral("João 3:16"));
         QVERIFY(controller.searchBibleReference());

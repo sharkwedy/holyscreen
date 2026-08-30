@@ -187,6 +187,10 @@ ApplicationWindow {
         id: bibleBrowser
         controller: root.controller.bibleContext
     }
+    BibleComparisonDialog {
+        id: bibleComparisonDialog
+        controller: root.controller.bibleContext
+    }
     QuickBibleSearch {
         id: quickBibleSearch
         controller: root.controller.bibleContext
@@ -210,6 +214,8 @@ ApplicationWindow {
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleSettingsFlow.open()
         onOpenBibleBrowser: bibleBrowser.open()
+        onOpenBibleComparison: bibleComparisonDialog.openFor(
+                                  root.controller.bibleContext.bibleReferenceInput)
         onOpenThemeEditor: function(scope) { themeEditorDialog.openFor(scope) }
         onImportAudio: mediaImportFlow.openAudio()
         onImportVideo: mediaImportFlow.openVideo()
