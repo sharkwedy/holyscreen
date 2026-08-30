@@ -18,6 +18,7 @@ Rectangle {
 
     property bool screenControlsExpanded: true
     property real mediaVolumeBeforeMute: 0.8
+    property bool volumePercentageVisible: false
     property var screenBeingRenamed: null
 
     color: panel.panelColor
@@ -74,6 +75,18 @@ Rectangle {
     Connections {
         target: panel.outputController
         function onScreensChanged() { Qt.callLater(panel.ensureExternalOutputs) }
+    }
+
+    Timer {
+        id: volumePercentageTimer
+        interval: 1400
+        repeat: false
+        onTriggered: panel.volumePercentageVisible = false
+    }
+
+    function showVolumePercentage() {
+        panel.volumePercentageVisible = true
+        volumePercentageTimer.restart()
     }
 
     Dialog {
@@ -169,9 +182,12 @@ Rectangle {
                 }
                 Item { Layout.fillWidth: true }
                 Label {
-                    text: panel.duration(panel.mediaController.mediaDurationMs)
+                    text: "-" + panel.duration(Math.max(
+                              0, panel.mediaController.mediaDurationMs
+                                 - panel.mediaController.mediaPositionMs))
                     color: panel.textMutedColor
                     font.pixelSize: UiScale.px(11)
+                    Accessible.name: qsTr("Tempo restante: %1").arg(text)
                 }
             }
             RowLayout {
@@ -206,7 +222,8 @@ Rectangle {
                 PlayerButton {
                     text: panel.mediaController.mediaState === "playing"
                           || panel.mediaController.mediaState === "buffering" ? "⏸" : "▶"
-                    highlighted: true
+                    highlighted: panel.mediaController.mediaState === "playing"
+                                 || panel.mediaController.mediaState === "buffering"
                     Accessible.name: panel.mediaController.mediaState === "playing"
                                      || panel.mediaController.mediaState === "buffering"
                                      ? qsTr("Pausar") : qsTr("Reproduzir")
@@ -238,14 +255,45 @@ Rectangle {
                             panel.mediaController.mediaVolume = Math.max(
                                         0.05, panel.mediaVolumeBeforeMute)
                         }
+                        panel.showVolumePercentage()
                     }
                 }
-                Slider {
+                Item {
                     Layout.preferredWidth: 110
-                    from: 0
-                    to: 1
-                    value: panel.mediaController.mediaVolume
-                    onMoved: panel.mediaController.mediaVolume = value
+                    Layout.preferredHeight: 36
+                    Slider {
+                        id: volumeSlider
+                        anchors.fill: parent
+                        from: 0
+                        to: 1
+                        value: panel.mediaController.mediaVolume
+                        Accessible.name: qsTr("Volume: %1%").arg(
+                                             Math.round(value * 100))
+                        onMoved: {
+                            panel.mediaController.mediaVolume = value
+                            panel.showVolumePercentage()
+                        }
+                    }
+                    Rectangle {
+                        anchors.horizontalCenter: volumeSlider.handle.horizontalCenter
+                        anchors.bottom: volumeSlider.top
+                        anchors.bottomMargin: 2
+                        width: volumePercentageLabel.implicitWidth + 14
+                        height: 26
+                        radius: 5
+                        color: "#11161a"
+                        border.color: panel.accentColor
+                        visible: panel.volumePercentageVisible
+                        Label {
+                            id: volumePercentageLabel
+                            anchors.centerIn: parent
+                            text: qsTr("%1%").arg(Math.round(
+                                                       panel.mediaController.mediaVolume * 100))
+                            color: panel.textMainColor
+                            font.bold: true
+                            font.pixelSize: UiScale.px(11)
+                        }
+                    }
                 }
                 PlayerButton {
                     implicitWidth: 42

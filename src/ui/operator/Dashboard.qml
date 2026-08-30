@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Item {
     id: dashboard
@@ -10,6 +11,7 @@ Item {
     signal openLibrary()
     signal openBible()
     signal openBibleBrowser()
+    signal openThemeEditor(string scope)
     signal importAudio()
     signal importVideo()
     signal importImage()
@@ -35,7 +37,7 @@ Item {
             layoutSettings.dashboardVerticalState = undefined
         }
         libraryPane.SplitView.preferredWidth = Math.max(280, dashboard.width * 0.25)
-        biblePane.SplitView.preferredWidth = Math.max(300, dashboard.width * 0.27)
+        rightPane.SplitView.preferredWidth = Math.max(300, dashboard.width * 0.27)
         previewPane.SplitView.preferredHeight = Math.max(350, dashboard.height * 0.53)
     }
 
@@ -48,6 +50,15 @@ Item {
     readonly property color accent: "#b9c7ff"
 
     property var contextMediaItem: null
+    property bool biblePanelOverride: false
+
+    Connections {
+        target: dashboard.controller
+        function onCurrentPresentationChanged() {
+            if (dashboard.controller.currentPresentationType === "song")
+                dashboard.biblePanelOverride = false
+        }
+    }
 
     Component.onCompleted: Qt.callLater(function() {
         restoreLayout()
@@ -172,24 +183,46 @@ Item {
             }
         }
 
-        BiblePanel {
-            id: biblePane
+        StackLayout {
+            id: rightPane
             SplitView.preferredWidth: Math.max(300, dashboard.width * 0.27)
             SplitView.minimumWidth: 280
-            controller: dashboard.controller.bibleContext
-            currentPresentationType: dashboard.controller.currentPresentationType
-            currentSlideLabel: dashboard.controller.currentSlideLabel
-            panelColor: dashboard.panel
-            panelHighColor: dashboard.panelHigh
-            lineColor: dashboard.line
-            textMainColor: dashboard.textMain
-            textMutedColor: dashboard.textMuted
-            accentColor: dashboard.accent
-            selectedColor: "#344d78"
-            presentedColor: "#245d45"
-            presentedBorderColor: "#58dc9a"
-            onOpenBrowser: dashboard.openBibleBrowser()
-            onOpenSettings: dashboard.openBible()
+            currentIndex: dashboard.controller.currentPresentationType === "song"
+                          && !dashboard.biblePanelOverride ? 1 : 0
+
+            BiblePanel {
+                controller: dashboard.controller.bibleContext
+                currentPresentationType: dashboard.controller.currentPresentationType
+                currentSlideLabel: dashboard.controller.currentSlideLabel
+                panelColor: dashboard.panel
+                panelHighColor: dashboard.panelHigh
+                lineColor: dashboard.line
+                textMainColor: dashboard.textMain
+                textMutedColor: dashboard.textMuted
+                accentColor: dashboard.accent
+                selectedColor: "#344d78"
+                presentedColor: "#245d45"
+                presentedBorderColor: "#58dc9a"
+                onOpenBrowser: dashboard.openBibleBrowser()
+                onOpenSettings: dashboard.openBible()
+                onOpenThemes: dashboard.openThemeEditor("bible")
+                onShowLyrics: dashboard.biblePanelOverride = false
+            }
+
+            LyricsPanel {
+                controller: dashboard.controller
+                panelColor: dashboard.panel
+                panelHighColor: dashboard.panelHigh
+                lineColor: dashboard.line
+                textMainColor: dashboard.textMain
+                textMutedColor: dashboard.textMuted
+                accentColor: dashboard.accent
+                selectedColor: "#344d78"
+                presentedColor: "#245d45"
+                presentedBorderColor: "#58dc9a"
+                onShowBible: dashboard.biblePanelOverride = true
+                onOpenThemes: dashboard.openThemeEditor("lyrics")
+            }
         }
     }
 

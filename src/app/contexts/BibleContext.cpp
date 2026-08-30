@@ -13,6 +13,8 @@ BibleContext::BibleContext(ApplicationController &controller, QObject *parent)
             this, &BibleContext::bibleSelectionChanged);
     connect(&controller, &ApplicationController::bibleResultsChanged,
             this, &BibleContext::bibleResultsChanged);
+    connect(&controller, &ApplicationController::favoriteBibleVersesChanged,
+            this, &BibleContext::favoriteBibleVersesChanged);
     connect(&controller, &ApplicationController::bibleImportStateChanged,
             this, &BibleContext::bibleImportStateChanged);
     connect(&controller, &ApplicationController::statusMessageChanged,
@@ -30,6 +32,10 @@ void BibleContext::setBibleTertiaryTranslationId(const QString &id) { m_controll
 QString BibleContext::bibleReferenceInput() const { return m_controller.bibleReferenceInput(); }
 void BibleContext::setBibleReferenceInput(const QString &value) { m_controller.setBibleReferenceInput(value); }
 QVariantList BibleContext::bibleResults() const { return m_controller.bibleResults(); }
+QVariantList BibleContext::favoriteBibleVerses() const
+{
+    return m_controller.favoriteBibleVerses();
+}
 bool BibleContext::bibleImportRunning() const { return m_controller.bibleImportRunning(); }
 int BibleContext::bibleImportProgress() const { return m_controller.bibleImportProgress(); }
 QString BibleContext::bibleImportMessage() const { return m_controller.bibleImportMessage(); }
@@ -48,6 +54,10 @@ bool BibleContext::updateBibleTranslationFromSource(const QString &translationId
 }
 bool BibleContext::searchBibleReference() { return m_controller.searchBibleReference(); }
 void BibleContext::showBibleVerse(int index) { m_controller.showBibleVerse(index); }
+void BibleContext::toggleFavoriteBibleVerse(int index)
+{
+    m_controller.toggleFavoriteBibleVerse(index);
+}
 QVariantList BibleContext::bibleChapterNumbers(int bookId) const { return m_controller.bibleChapterNumbers(bookId); }
 QVariantList BibleContext::bibleVerseNumbers(int bookId, int chapter) const { return m_controller.bibleVerseNumbers(bookId, chapter); }
 bool BibleContext::presentBibleReference(int bookId, int chapter, int verse) { return m_controller.presentBibleReference(bookId, chapter, verse); }

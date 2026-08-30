@@ -6,6 +6,7 @@
 #include "core/CommandCatalog.h"
 
 #include <QGuiApplication>
+#include <QImage>
 #include <QDir>
 #include <QFile>
 #include <QEventLoop>
@@ -60,6 +61,7 @@ private slots:
     void registersEveryCatalogCommand();
     void operatorOverlayUsesCommandAndEventBuses();
     void operatorMediaUsesCommandAndEventBuses();
+    void stopThenPlayRestartsPlaylistFromBeginning();
     void operatorPresentationNavigationUsesCommandAndEventBuses();
     void undoAndRedoUseCommandBus();
     void autosaveDebouncesPresentationEdits();
@@ -160,6 +162,7 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QCOMPARE(integration->integrations(), controller.integrations());
     QCOMPARE(integration->integrationTypes(), controller.integrationTypes());
     QCOMPARE(bible->bibleBooks(), controller.bibleBooks());
+    QCOMPARE(bible->favoriteBibleVerses(), controller.favoriteBibleVerses());
     QCOMPARE(event->events(), controller.events());
     QCOMPARE(maintenance->updateEndpoint(), controller.updateEndpoint());
     QCOMPARE(media->mediaPlaylist(), controller.mediaPlaylist());
@@ -175,7 +178,9 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     QVERIFY(integrationMeta->indexOfMethod("executeIntegration(QString,QString,QVariantMap)") >= 0);
     const auto bibleMeta = bible->metaObject();
     QVERIFY(bibleMeta->indexOfProperty("bibleTranslations") >= 0);
+    QVERIFY(bibleMeta->indexOfProperty("favoriteBibleVerses") >= 0);
     QVERIFY(bibleMeta->indexOfMethod("presentBibleReference(int,int,int)") >= 0);
+    QVERIFY(bibleMeta->indexOfMethod("toggleFavoriteBibleVerse(int)") >= 0);
     const auto eventMeta = event->metaObject();
     QVERIFY(eventMeta->indexOfProperty("eventItems") >= 0);
     QVERIFY(eventMeta->indexOfMethod("addEventItem(QString,QString,QString,qlonglong)") >= 0);
@@ -191,6 +196,12 @@ void ApplicationCommandBridgeTest::facadesExposeBoundedQmlContracts()
     const auto outputMeta = output->metaObject();
     QVERIFY(outputMeta->indexOfProperty("screens") >= 0);
     QVERIFY(outputMeta->indexOfMethod("toggleScreen(QString,bool)") >= 0);
+
+    const auto controllerMeta = controller.metaObject();
+    QVERIFY(controllerMeta->indexOfProperty("bibleThemeId") >= 0);
+    QVERIFY(controllerMeta->indexOfProperty("lyricsThemeId") >= 0);
+    QVERIFY(controllerMeta->indexOfMethod("updateThemeById(QString,QVariantMap)") >= 0);
+    QVERIFY(controllerMeta->indexOfMethod("applyThemeForContent(QString,QString)") >= 0);
 }
 
 void ApplicationCommandBridgeTest::operatorBlackoutUsesCommandAndEventBuses()
@@ -270,6 +281,39 @@ void ApplicationCommandBridgeTest::operatorMediaUsesCommandAndEventBuses()
     QCOMPARE(command.type, QStringLiteral("media.stop"));
     QCOMPARE(event.type, QStringLiteral("media.state.changed"));
     QCOMPARE(event.correlationId, command.id);
+}
+
+void ApplicationCommandBridgeTest::stopThenPlayRestartsPlaylistFromBeginning()
+{
+    ApplicationController controller;
+    controller.clearMediaPlaylist();
+
+    const auto directory = qEnvironmentVariable("HOLYSCREEN_DATA_DIR");
+    const auto firstPath = QDir(directory).filePath(QStringLiteral("first-slide.png"));
+    const auto secondPath = QDir(directory).filePath(QStringLiteral("second-slide.png"));
+    QImage firstImage(4, 4, QImage::Format_ARGB32_Premultiplied);
+    QImage secondImage(4, 4, QImage::Format_ARGB32_Premultiplied);
+    firstImage.fill(Qt::red);
+    secondImage.fill(Qt::blue);
+    QVERIFY(firstImage.save(firstPath));
+    QVERIFY(secondImage.save(secondPath));
+    QCOMPARE(controller.importImageFiles({QUrl::fromLocalFile(firstPath),
+                                          QUrl::fromLocalFile(secondPath)}), 2);
+
+    const auto playlist = controller.mediaPlaylist();
+    QCOMPARE(playlist.size(), 2);
+    const auto firstId = playlist.at(0).toMap().value(QStringLiteral("id")).toString();
+    const auto secondId = playlist.at(1).toMap().value(QStringLiteral("id")).toString();
+    QVERIFY(!firstId.isEmpty());
+    QVERIFY(!secondId.isEmpty());
+
+    controller.playMedia(secondId);
+    QCOMPARE(controller.currentMediaId(), secondId);
+    controller.stopMedia();
+    QCOMPARE(controller.mediaState(), QStringLiteral("stopped"));
+    controller.toggleMediaPause();
+    QCOMPARE(controller.currentMediaId(), firstId);
+    QCOMPARE(controller.mediaState(), QStringLiteral("playing"));
 }
 
 void ApplicationCommandBridgeTest::operatorPresentationNavigationUsesCommandAndEventBuses()

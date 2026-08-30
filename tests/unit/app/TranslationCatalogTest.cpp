@@ -67,7 +67,30 @@ private slots:
     void migratedSurfacesUseCataloguedVisibleStrings();
     void playlistItemsExposeAccessibleRemovalAction();
     void mediaListsExposeThumbnailSources();
+    void playerAndFavoriteSurfacesExposeRequestedContracts();
 };
+
+void TranslationCatalogTest::playerAndFavoriteSurfacesExposeRequestedContracts()
+{
+    const auto playback = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlaybackPanel.qml")));
+    const auto playerButton = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/PlayerButton.qml")));
+    const auto header = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/OperatorHeader.qml")));
+    const auto dashboard = QString::fromUtf8(
+        readFile(QStringLiteral("src/ui/operator/Dashboard.qml")));
+
+    QVERIFY(playback.contains(QStringLiteral("text: \"-\" + panel.duration(Math.max(")));
+    QVERIFY(playback.contains(QStringLiteral("mediaDurationMs")));
+    QVERIFY(playback.contains(QStringLiteral("mediaPositionMs")));
+    QVERIFY(playback.contains(QStringLiteral("Math.round(value * 100)")));
+    QVERIFY(playerButton.contains(QStringLiteral(
+        "playerButton.visualFocus || playerButton.highlighted")));
+    QVERIFY(header.contains(QStringLiteral("favoriteBibleVerses")));
+    QVERIFY(header.contains(QStringLiteral("MediaThumbnail {")));
+    QVERIFY(dashboard.contains(QStringLiteral("LyricsPanel {")));
+}
 
 void TranslationCatalogTest::mediaListsExposeThumbnailSources()
 {
@@ -118,6 +141,8 @@ void TranslationCatalogTest::migratedSurfacesUseCataloguedVisibleStrings()
         QStringLiteral("src/ui/operator/PlayerButton.qml"),
         QStringLiteral("src/ui/operator/MediaThumbnail.qml"),
         QStringLiteral("src/ui/operator/PlaybackPanel.qml"),
+        QStringLiteral("src/ui/operator/LyricsPanel.qml"),
+        QStringLiteral("src/ui/operator/ThemeEditorDialog.qml"),
         QStringLiteral("src/ui/operator/MediaLibraryDialog.qml"),
         QStringLiteral("src/ui/operator/BibleSettingsFlow.qml"),
         QStringLiteral("src/ui/operator/LiveCommunicationDialog.qml"),

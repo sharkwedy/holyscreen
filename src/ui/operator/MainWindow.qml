@@ -133,6 +133,10 @@ ApplicationWindow {
         hostWidth: root.width
         hostHeight: root.height
     }
+    ThemeEditorDialog {
+        id: themeEditorDialog
+        controller: root.controller
+    }
     menuBar: MenuBar {
         visible: root.controller.debugEnabled
         Menu {
@@ -206,6 +210,7 @@ ApplicationWindow {
         onOpenLibrary: mediaLibraryDialog.open()
         onOpenBible: bibleSettingsFlow.open()
         onOpenBibleBrowser: bibleBrowser.open()
+        onOpenThemeEditor: function(scope) { themeEditorDialog.openFor(scope) }
         onImportAudio: mediaImportFlow.openAudio()
         onImportVideo: mediaImportFlow.openVideo()
         onImportImage: mediaImportFlow.openImage()

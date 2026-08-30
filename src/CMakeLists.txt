@@ -365,6 +365,8 @@ qt_add_qml_module(presenter-ui
         ui/operator/EventsDialog.qml
         ui/operator/Dashboard.qml
         ui/operator/BiblePanel.qml
+        ui/operator/LyricsPanel.qml
+        ui/operator/ThemeEditorDialog.qml
         ui/operator/LibraryPanel.qml
         ui/operator/PlaylistPanel.qml
         ui/operator/PlayerButton.qml
