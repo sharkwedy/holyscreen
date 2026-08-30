@@ -61,6 +61,7 @@ private slots:
     void refusesAPackageLargerThanAnnounced();
     void refusesUntrustedOrigins();
     void refusesAnUnusableDigest();
+    void refusesANonHexDigestBeforeStartingTheRequest();
 };
 
 void UpdateDownloaderTest::savesThePackageWhenTheDigestMatches()
@@ -155,6 +156,23 @@ void UpdateDownloaderTest::refusesAnUnusableDigest()
                      destination.path(), QStringLiteral("HolyScreen.dmg"));
     QCOMPARE(finished.size(), 1);
     QVERIFY(!finished.first().at(1).toString().isEmpty());
+}
+
+void UpdateDownloaderTest::refusesANonHexDigestBeforeStartingTheRequest()
+{
+    QTemporaryDir destination;
+    QVERIFY(destination.isValid());
+
+    UpdateDownloader downloader(acceptLocalhost(), nullptr);
+    QSignalSpy finished(&downloader, &UpdateDownloader::finished);
+    downloader.start(QUrl(QStringLiteral("http://127.0.0.1:1/pacote.bin")),
+                     QString(64, QLatin1Char('z')), 10,
+                     destination.path(), QStringLiteral("HolyScreen.dmg"));
+
+    QCOMPARE(finished.size(), 1);
+    QVERIFY(finished.first().at(0).toString().isEmpty());
+    QVERIFY(!finished.first().at(1).toString().isEmpty());
+    QVERIFY(!downloader.isRunning());
 }
 
 QTEST_MAIN(UpdateDownloaderTest)
