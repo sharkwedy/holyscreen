@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QRegularExpression>
 #include <QSaveFile>
 
 namespace churchpresenter {
@@ -61,7 +62,9 @@ void UpdateDownloader::start(const QUrl &url, const QString &expectedSha256, qin
         emit finished({}, tr("O endereço do pacote não é uma origem confiável."));
         return;
     }
-    if (expectedSha256.size() != 64 || expectedSize <= 0) {
+    static const QRegularExpression digestExpression(
+        QStringLiteral(R"(^[0-9a-fA-F]{64}$)"));
+    if (expectedSize <= 0 || !digestExpression.match(expectedSha256).hasMatch()) {
         emit finished({}, tr("A release não publicou tamanho e digest utilizáveis."));
         return;
     }
