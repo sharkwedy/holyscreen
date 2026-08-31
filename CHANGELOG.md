@@ -5,6 +5,10 @@ Versioning.
 
 ## [Unreleased]
 
+- Fixed the Windows automatic-update helper crashing with a stack overflow
+  while revalidating the downloaded installer. SHA-256 is now streamed through
+  a heap-backed buffer and covered by a Windows regression test.
+
 ## [1.3.0] - 2026-08-30
 
 - Improved media playback controls: pressing Play after Stop now restarts the

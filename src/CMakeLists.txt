@@ -320,9 +320,17 @@ qt_add_executable(church-presenter
 if(WIN32)
     # Auxiliar sem Qt: ele roda fora do diretório de instalação enquanto o NSIS
     # substitui o aplicativo e o reinicia com o token normal do operador.
+    add_library(holyscreen-update-verifier STATIC
+        app/WinUpdateVerifier.cpp
+        app/WinUpdateVerifier.h
+    )
+    target_include_directories(holyscreen-update-verifier PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(holyscreen-update-verifier PRIVATE UNICODE _UNICODE)
+    target_link_libraries(holyscreen-update-verifier PRIVATE Bcrypt)
+
     add_executable(holyscreen-update-helper WIN32 app/WinUpdateHelper.cpp)
     target_compile_definitions(holyscreen-update-helper PRIVATE UNICODE _UNICODE)
-    target_link_libraries(holyscreen-update-helper PRIVATE Bcrypt Shell32)
+    target_link_libraries(holyscreen-update-helper PRIVATE holyscreen-update-verifier Shell32)
     set_target_properties(holyscreen-update-helper PROPERTIES
         OUTPUT_NAME "holyscreen-update-helper")
     install(TARGETS holyscreen-update-helper RUNTIME DESTINATION bin)
