@@ -5,6 +5,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-01
+
 - Improved large media-library responsiveness with a persistent catalog cache,
   background folder indexing, a single traversal shared with filesystem
   watchers, lazy thumbnail cache lookups and per-media-type filtering.
