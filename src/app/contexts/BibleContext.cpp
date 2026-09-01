@@ -15,6 +15,8 @@ BibleContext::BibleContext(ApplicationController &controller, QObject *parent)
             this, &BibleContext::bibleResultsChanged);
     connect(&controller, &ApplicationController::favoriteBibleVersesChanged,
             this, &BibleContext::favoriteBibleVersesChanged);
+    connect(&controller, &ApplicationController::historyChanged,
+            this, &BibleContext::bibleHistoryChanged);
     connect(&controller, &ApplicationController::bibleImportStateChanged,
             this, &BibleContext::bibleImportStateChanged);
     connect(&controller, &ApplicationController::statusMessageChanged,
@@ -35,6 +37,16 @@ QVariantList BibleContext::bibleResults() const { return m_controller.bibleResul
 QVariantList BibleContext::favoriteBibleVerses() const
 {
     return m_controller.favoriteBibleVerses();
+}
+QVariantList BibleContext::bibleHistory() const
+{
+    QVariantList result;
+    for (const auto &entryValue : m_controller.history()) {
+        const auto entry = entryValue.toMap();
+        if (entry.value(QStringLiteral("type")).toString() == QStringLiteral("bible"))
+            result.append(entry);
+    }
+    return result;
 }
 bool BibleContext::bibleImportRunning() const { return m_controller.bibleImportRunning(); }
 int BibleContext::bibleImportProgress() const { return m_controller.bibleImportProgress(); }
@@ -68,6 +80,15 @@ QString BibleContext::bibleTextForSlide(int slideIndex, const QString &translati
 QVariantList BibleContext::compareBibleReference(const QString &reference) const
 {
     return m_controller.compareBibleReference(reference);
+}
+bool BibleContext::presentBibleHistory(const QString &reference)
+{
+    const auto normalizedReference = reference.trimmed();
+    if (normalizedReference.isEmpty()) return false;
+    m_controller.setBibleReferenceInput(normalizedReference);
+    if (!m_controller.searchBibleReference()) return false;
+    m_controller.showBibleVerse(0);
+    return true;
 }
 
 } // namespace churchpresenter

@@ -69,6 +69,7 @@
 
 #include <QObject>
 #include <QFileSystemWatcher>
+#include <QHash>
 #include <QTimer>
 #include <QUrl>
 #include <QVariantList>
@@ -802,11 +803,15 @@ private:
     void refreshMediaPlaylist();
     void refreshMediaCatalog();
     void refreshMediaCatalogViews();
+    void refreshMediaCatalogView(MediaType type);
+    [[nodiscard]] QVariantList mediaCatalogView(MediaType type, const QString &search);
     [[nodiscard]] QUrl thumbnailSourceFor(const QString &path, MediaType type);
     void refreshFavoriteMedia();
     void saveFavoriteMedia();
     void saveFavoriteBibleVerses();
     void saveMediaFolders();
+    void saveMediaCatalogCache();
+    bool restoreMediaCatalogCache();
     void rebuildMediaFolderWatcher();
     void updateCurrentMediaMetadata(const MediaItem &metadata);
     void advanceMediaAfterFinish();
@@ -960,18 +965,22 @@ private:
     std::unique_ptr<AutosaveCoordinator> m_autosave;
     QString m_autosaveStatus;
     QVariantList m_mediaPlaylist;
-    MediaFolderScanner m_mediaFolderScanner;
     QFileSystemWatcher m_mediaFolderWatcher;
     QTimer m_mediaCatalogDebounce;
+    QFutureWatcher<MediaCatalogSnapshot> m_mediaCatalogScanWatcher;
     QTimer m_thumbnailRefreshDebounce;
     std::unique_ptr<MediaThumbnailer> m_mediaThumbnailer;
     QStringList m_mediaFolderPaths;
+    QStringList m_mediaCatalogDirectories;
+    QStringList m_mediaCatalogScanFolders;
     QVector<MediaCatalogEntry> m_mediaCatalogEntries;
+    bool m_mediaCatalogRescanPending = false;
     QVariantList m_folderAudioFiles;
     QVariantList m_folderVideoFiles;
     QVariantList m_folderImageFiles;
     QStringList m_favoriteMediaPaths;
     QVariantList m_favoriteMedia;
+    QHash<QString, QUrl> m_thumbnailSourceCache;
     QString m_audioFileSearch;
     QString m_videoFileSearch;
     QString m_imageFileSearch;

@@ -21,8 +21,9 @@ TestCase {
         }]
         property string currentMediaId: ""
         property string removedMediaId: ""
+        property string playedMediaId: ""
 
-        function playMedia() {}
+        function playMedia(id) { playedMediaId = id }
         function moveMedia() {}
         function clearMediaPlaylist() {}
         function saveMediaPlaylist() { return true }
@@ -48,6 +49,7 @@ TestCase {
 
     function init() {
         fakeController.removedMediaId = ""
+        fakeController.playedMediaId = ""
         fakeController.mediaPlaylist = [{
             "id": "media-1",
             "title": "Vídeo de abertura",
@@ -55,6 +57,16 @@ TestCase {
             "thumbnailSource": "",
             "durationMs": 92000
         }]
+    }
+
+    function test_doubleClickStartsPlaylistItemPlayback() {
+        const doubleClickArea = findChild(panel, "playlistDoubleClick-media-1")
+        verify(doubleClickArea !== null)
+
+        mouseDoubleClickSequence(doubleClickArea, doubleClickArea.width / 2,
+                                 doubleClickArea.height / 2, Qt.LeftButton)
+
+        compare(fakeController.playedMediaId, "media-1")
     }
 
     function test_removeButtonRemovesItsPlaylistItem() {

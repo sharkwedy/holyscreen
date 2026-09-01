@@ -5,6 +5,18 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-01
+
+- Improved large media-library responsiveness with a persistent catalog cache,
+  background folder indexing, a single traversal shared with filesystem
+  watchers, lazy thumbnail cache lookups and per-media-type filtering.
+- Added an explicit magnifier search button and Enter confirmation so expensive
+  local and online searches are no longer restarted on every typed character.
+- Ensured that double-clicking a playlist item starts its playback immediately,
+  with a Qt Quick regression test for the interaction.
+- Added discoverable Bible translation comparison and Bible-history controls;
+  the history view lists previously presented passages and can present them again.
+
 ## [1.3.0] - 2026-08-30
 
 - Improved media playback controls: pressing Play after Stop now restarts the

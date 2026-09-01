@@ -29,6 +29,11 @@ Rectangle {
         return minutes + ":" + (seconds < 10 ? "0" : "") + seconds
     }
 
+    function playPlaylistItem(item) {
+        if (item && item.id)
+            panel.controller.playMedia(item.id)
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -69,6 +74,7 @@ Rectangle {
             model: panel.controller.mediaPlaylist
             delegate: Rectangle {
                 id: playlistDelegate
+                objectName: "playlistItem-" + playlistDelegate.modelData.id
                 required property var modelData
                 required property int index
                 property real dragDistance: 0
@@ -83,6 +89,14 @@ Rectangle {
                       : (index % 2 ? "#1d2226" : "transparent")
                 border.color: reorderDrag.active ? panel.accentColor : "transparent"
                 transform: Translate { y: playlistDelegate.dragDistance }
+                MouseArea {
+                    objectName: "playlistDoubleClick-"
+                                + playlistDelegate.modelData.id
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton
+                    onDoubleClicked: panel.playPlaylistItem(
+                                         playlistDelegate.modelData)
+                }
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 12
@@ -127,8 +141,8 @@ Rectangle {
                         text: "▶"
                         Accessible.name: qsTr("Reproduzir %1").arg(
                                              playlistDelegate.modelData.title)
-                        onClicked: panel.controller.playMedia(
-                                       playlistDelegate.modelData.id)
+                        onClicked: panel.playPlaylistItem(
+                                       playlistDelegate.modelData)
                     }
                     PlayerButton {
                         objectName: "removePlaylistItem-"
@@ -146,11 +160,6 @@ Rectangle {
                     }
                 }
                 HoverHandler { id: playlistHover }
-                TapHandler {
-                    acceptedButtons: Qt.LeftButton
-                    onDoubleTapped: panel.controller.playMedia(
-                                        playlistDelegate.modelData.id)
-                }
                 TapHandler {
                     acceptedButtons: Qt.RightButton
                     onTapped: panel.showMediaOptions(playlistDelegate.modelData)

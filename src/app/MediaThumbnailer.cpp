@@ -79,8 +79,14 @@ void MediaThumbnailer::request(const QString &path, MediaType type)
 {
     const QFileInfo info(path);
     const auto canonicalPath = info.canonicalFilePath();
-    if (!info.isFile() || canonicalPath.isEmpty() || type == MediaType::Image
-        || !sourceFor(canonicalPath, type).isEmpty()) {
+    if (!info.isFile() || canonicalPath.isEmpty() || type == MediaType::Image) {
+        return;
+    }
+    const auto cachedSource = sourceFor(canonicalPath, type);
+    if (!cachedSource.isEmpty()) {
+        QTimer::singleShot(0, this, [this, canonicalPath, cachedSource] {
+            emit thumbnailReady(canonicalPath, cachedSource);
+        });
         return;
     }
     if (m_failedCachePaths.contains(cachePathFor(canonicalPath))) return;

@@ -22,6 +22,7 @@ Rectangle {
 
     property int selectedTab: 1
     property string searchText: panel.controller.audioFileSearch
+    property string searchDraft: panel.searchText
     readonly property var libraryModel: panel.selectedTab === 0
                                                 ? panel.lyricsModel()
                                       : panel.selectedTab === 1
@@ -81,6 +82,11 @@ Rectangle {
         panel.scheduleOnlineSearch()
     }
 
+    function confirmSearch() {
+        panel.searchText = mediaSearch.text
+        panel.updateSearch(panel.searchText)
+    }
+
     function activateItem(item) {
         if (item.kind === "online") panel.controller.saveOnlineLyrics(item.key)
         else if (panel.selectedTab === 0) panel.controller.selectSong(item.id)
@@ -115,6 +121,10 @@ Rectangle {
     }
 
     onSelectedTabChanged: updateSearch(panel.searchText)
+    onSearchTextChanged: {
+        if (!mediaSearch.activeFocus)
+            panel.searchDraft = panel.searchText
+    }
     onVisibleChanged: scheduleOnlineSearch()
 
     Timer {
@@ -130,40 +140,52 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 92
+            Layout.preferredHeight: 96
             color: "transparent"
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 12
                 spacing: 8
-                TextField {
-                    id: mediaSearch
+                RowLayout {
                     Layout.fillWidth: true
-                    placeholderText: qsTr("Pesquisar mídia...")
-                    placeholderTextColor: "#9ca6ad"
-                    color: panel.textMainColor
-                    selectionColor: panel.accentColor
-                    selectedTextColor: panel.backgroundColor
-                    Accessible.name: qsTr("Pesquisar mídia")
-                    text: panel.searchText
-                    onTextEdited: {
-                        panel.searchText = text
-                        panel.updateSearch(text)
+                    spacing: 6
+                    TextField {
+                        id: mediaSearch
+                        objectName: "librarySearchField"
+                        Layout.fillWidth: true
+                        placeholderText: qsTr("Pesquisar mídia...")
+                        placeholderTextColor: "#9ca6ad"
+                        color: panel.textMainColor
+                        selectionColor: panel.accentColor
+                        selectedTextColor: panel.backgroundColor
+                        Accessible.name: qsTr("Pesquisar mídia")
+                        text: panel.searchDraft
+                        onTextEdited: panel.searchDraft = text
+                        onAccepted: panel.confirmSearch()
+                        leftPadding: 34
+                        background: Rectangle {
+                            color: panel.panelHighColor
+                            border.color: mediaSearch.activeFocus
+                                          ? panel.accentColor : panel.lineColor
+                            border.width: mediaSearch.activeFocus ? 2 : 1
+                            radius: 4
+                        }
+                        Label {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 10
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "⌕"
+                            color: panel.textMutedColor
+                        }
                     }
-                    leftPadding: 34
-                    background: Rectangle {
-                        color: panel.panelHighColor
-                        border.color: mediaSearch.activeFocus
-                                      ? panel.accentColor : panel.lineColor
-                        border.width: mediaSearch.activeFocus ? 2 : 1
-                        radius: 4
-                    }
-                    Label {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "⌕"
-                        color: panel.textMutedColor
+                    Button {
+                        objectName: "confirmLibrarySearchButton"
+                        Layout.preferredWidth: 38
+                        text: qsTr("🔍")
+                        font.pixelSize: UiScale.px(16)
+                        highlighted: true
+                        Accessible.name: qsTr("Confirmar busca")
+                        onClicked: panel.confirmSearch()
                     }
                 }
                 RowLayout {

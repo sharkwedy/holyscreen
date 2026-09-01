@@ -504,6 +504,16 @@
         <translation>Comparar traduções</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="178"/>
+        <source>Voltar aos versículos</source>
+        <translation>Voltar aos versículos</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="179"/>
+        <source>Mostrar histórico bíblico</source>
+        <translation>Mostrar histórico bíblico</translation>
+    </message>
+    <message>
         <location filename="../src/ui/operator/BiblePanel.qml" line="167"/>
         <source>Configurar Bíblia</source>
         <translation>Configurar Bíblia</translation>
@@ -527,6 +537,26 @@
         <location filename="../src/ui/operator/BiblePanel.qml" line="309"/>
         <source>Nenhum versículo encontrado</source>
         <translation>Nenhum versículo encontrado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="345"/>
+        <source>HISTÓRICO BÍBLICO</source>
+        <translation>HISTÓRICO BÍBLICO</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="375"/>
+        <source>Referência sem título</source>
+        <translation>Referência sem título</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="394"/>
+        <source>Apresentar novamente %1</source>
+        <translation>Apresentar novamente %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/BiblePanel.qml" line="414"/>
+        <source>Nenhuma passagem bíblica foi apresentada ainda</source>
+        <translation>Nenhuma passagem bíblica foi apresentada ainda</translation>
     </message>
     <message>
         <location filename="../src/ui/operator/BiblePanel.qml" line="324"/>
@@ -1077,6 +1107,16 @@
         <location filename="../src/ui/operator/LibraryPanel.qml" line="147"/>
         <source>Pesquisar mídia</source>
         <translation>Pesquisar mídia</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="183"/>
+        <source>🔍</source>
+        <translation>🔍</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="186"/>
+        <source>Confirmar busca</source>
+        <translation>Confirmar busca</translation>
     </message>
     <message>
         <location filename="../src/ui/operator/LibraryPanel.qml" line="173"/>
