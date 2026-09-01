@@ -40,11 +40,12 @@ TestCase {
         property string lyricsSecretStorageName: "Windows Credential Manager"
         property string savedKey: ""
         property string editedTitle: ""
+        property string onlineSearchQuery: ""
 
         signal onlineLyricsLoaded(string key)
 
         function cancelOnlineLyricsSearch() {}
-        function searchOnlineLyrics() {}
+        function searchOnlineLyrics(query) { onlineSearchQuery = query }
         function selectSong() {}
         function addCatalogFileToPlaylist() { return "" }
         function saveOnlineLyrics(key) { savedKey = key; return "song-2" }
@@ -94,6 +95,11 @@ TestCase {
     function init() {
         fakeController.savedKey = ""
         fakeController.editedTitle = ""
+        fakeController.onlineSearchQuery = ""
+        fakeController.songSearch = "santo"
+        library.selectedTab = 0
+        library.searchText = "santo"
+        library.searchDraft = "santo"
     }
 
     function test_localResultsComeBeforeOnlineResultsAndQuickSave() {
@@ -127,5 +133,21 @@ TestCase {
         compare(fakeController.savedKey, "lrclib:42")
         compare(fakeController.editedTitle, "Santo Pra Sempre (editada)")
         editorDialog.close()
+    }
+
+    function test_searchIsAppliedOnlyAfterConfirmation() {
+        const field = findChild(library, "librarySearchField")
+        const confirm = findChild(library, "confirmLibrarySearchButton")
+        verify(field !== null)
+        verify(confirm !== null)
+
+        field.forceActiveFocus()
+        field.selectAll()
+        keyClicks(field, "graca")
+        compare(fakeController.songSearch, "santo")
+
+        mouseClick(confirm)
+        compare(fakeController.songSearch, "graca")
+        compare(library.searchText, "graca")
     }
 }

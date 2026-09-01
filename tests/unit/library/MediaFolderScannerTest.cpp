@@ -14,6 +14,8 @@ private slots:
     void recursivelyClassifiesSupportedFilesAndIgnoresUnknownOnes();
     void deduplicatesOverlappingSelectedFolders();
     void filtersByTypeAndFileNameWithoutCaseSensitivity();
+    void roundTripsThePersistentCatalogCache();
+    void rejectsCacheFromAnotherFolderSelection();
 };
 
 static QString createFile(const QString &directory, const QString &relativePath)
@@ -65,6 +67,41 @@ void MediaFolderScannerTest::filtersByTypeAndFileNameWithoutCaseSensitivity()
     const auto filtered = MediaFolderScanner::filter(entries, MediaType::Audio, QStringLiteral("grande"));
     QCOMPARE(filtered.size(), 1);
     QCOMPARE(filtered.front().fileName, QStringLiteral("Grande É.mp3"));
+}
+
+void MediaFolderScannerTest::roundTripsThePersistentCatalogCache()
+{
+    const auto folder = QDir::cleanPath(QDir::root().filePath(QStringLiteral("midias")));
+    const QStringList folders{folder};
+    const MediaCatalogSnapshot snapshot{
+        .entries = {
+            {MediaType::Audio, QStringLiteral("Santo.mp3"), QStringLiteral("Santo"),
+             QDir(folder).filePath(QStringLiteral("Santo.mp3")), folder},
+            {MediaType::Video, QStringLiteral("Abertura.mp4"), QStringLiteral("Abertura"),
+             QDir(folder).filePath(QStringLiteral("Abertura.mp4")), folder},
+        },
+        .directories = {folder},
+    };
+
+    const auto decoded = MediaFolderScanner::decodeCache(
+        MediaFolderScanner::encodeCache(snapshot, folders), folders);
+    QVERIFY(decoded.has_value());
+    QCOMPARE(decoded.value(), snapshot);
+}
+
+void MediaFolderScannerTest::rejectsCacheFromAnotherFolderSelection()
+{
+    const auto folder = QDir::cleanPath(QDir::root().filePath(QStringLiteral("midias")));
+    const auto otherFolder = QDir::cleanPath(
+        QDir::root().filePath(QStringLiteral("outras-midias")));
+    const MediaCatalogSnapshot snapshot{
+        .entries = {},
+        .directories = {folder},
+    };
+    const auto payload = MediaFolderScanner::encodeCache(
+        snapshot, {folder});
+    QVERIFY(!MediaFolderScanner::decodeCache(
+        payload, {otherFolder}).has_value());
 }
 
 QTEST_APPLESS_MAIN(MediaFolderScannerTest)

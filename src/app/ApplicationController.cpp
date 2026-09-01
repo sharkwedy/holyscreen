@@ -51,6 +51,8 @@
 #include <QJsonObject>
 #include <QtConcurrentRun>
 
+#include <utility>
+
 namespace churchpresenter {
 
 namespace {
@@ -325,6 +327,26 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    connect(&m_mediaCatalogScanWatcher,
+            &QFutureWatcher<MediaCatalogSnapshot>::finished, this, [this] {
+        const auto scannedFolders = m_mediaCatalogScanFolders;
+        const auto foldersChanged = scannedFolders != m_mediaFolderPaths;
+        if (!foldersChanged) {
+            auto snapshot = m_mediaCatalogScanWatcher.result();
+            m_mediaCatalogEntries = std::move(snapshot.entries);
+            m_mediaCatalogDirectories = std::move(snapshot.directories);
+            m_thumbnailSourceCache.clear();
+            saveMediaCatalogCache();
+            rebuildMediaFolderWatcher();
+            refreshMediaCatalogViews();
+            refreshFavoriteMedia();
+        }
+        const auto shouldRescan = std::exchange(m_mediaCatalogRescanPending, false)
+            || foldersChanged;
+        if (shouldRescan) {
+            QTimer::singleShot(0, this, &ApplicationController::refreshMediaCatalog);
+        }
+    });
     m_thumbnailRefreshDebounce.setSingleShot(true);
     m_thumbnailRefreshDebounce.setInterval(100);
     connect(&m_thumbnailRefreshDebounce, &QTimer::timeout, this, [this] {
@@ -3820,21 +3842,21 @@ void ApplicationController::setAudioFileSearch(const QString &search)
 {
     if (m_audioFileSearch == search) return;
     m_audioFileSearch = search;
-    refreshMediaCatalogViews();
+    refreshMediaCatalogView(MediaType::Audio);
 }
 
 void ApplicationController::setVideoFileSearch(const QString &search)
 {
     if (m_videoFileSearch == search) return;
     m_videoFileSearch = search;
-    refreshMediaCatalogViews();
+    refreshMediaCatalogView(MediaType::Video);
 }
 
 void ApplicationController::setImageFileSearch(const QString &search)
 {
     if (m_imageFileSearch == search) return;
     m_imageFileSearch = search;
-    refreshMediaCatalogViews();
+    refreshMediaCatalogView(MediaType::Image);
 }
 
 void ApplicationController::setStageMessage(const QString &message)
@@ -4218,7 +4240,8 @@ void ApplicationController::loadSettings()
     m_mediaThumbnailer = std::make_unique<MediaThumbnailer>(
         QDir(appData).filePath(QStringLiteral("thumbnails")), this);
     connect(m_mediaThumbnailer.get(), &MediaThumbnailer::thumbnailReady,
-            this, [this](const QString &, const QUrl &) {
+            this, [this](const QString &path, const QUrl &source) {
+        m_thumbnailSourceCache.insert(path, source);
         m_thumbnailRefreshDebounce.start();
     });
     const auto databasePath = appData + QStringLiteral("/presenter.db");
@@ -4339,6 +4362,7 @@ void ApplicationController::loadSettings()
     if (!m_mediaRepository->open()) {
         qWarning() << "Failed to open media database";
     }
+    restoreMediaCatalogCache();
     refreshAudioLibrary();
     refreshVideoLibrary();
     refreshMediaPlaylist();
@@ -4393,7 +4417,8 @@ void ApplicationController::loadSettings()
 
 QUrl ApplicationController::thumbnailSourceFor(const QString &path, MediaType type)
 {
-    return m_mediaThumbnailer ? m_mediaThumbnailer->sourceFor(path, type) : QUrl{};
+    if (type == MediaType::Image) return QUrl::fromLocalFile(path);
+    return m_thumbnailSourceCache.value(path);
 }
 
 void ApplicationController::saveSetting(const QString &key, const QVariant &value)
@@ -4425,6 +4450,29 @@ void ApplicationController::saveMediaFolders()
     }
 }
 
+void ApplicationController::saveMediaCatalogCache()
+{
+    if (!m_settings) return;
+    const MediaCatalogSnapshot snapshot{
+        .entries = m_mediaCatalogEntries,
+        .directories = m_mediaCatalogDirectories,
+    };
+    m_settings->setValue(QStringLiteral("library/mediaCatalogCache"),
+                         MediaFolderScanner::encodeCache(snapshot, m_mediaFolderPaths));
+}
+
+bool ApplicationController::restoreMediaCatalogCache()
+{
+    if (!m_settings) return false;
+    auto snapshot = MediaFolderScanner::decodeCache(
+        m_settings->value(QStringLiteral("library/mediaCatalogCache")).toByteArray(),
+        m_mediaFolderPaths);
+    if (!snapshot.has_value()) return false;
+    m_mediaCatalogEntries = std::move(snapshot->entries);
+    m_mediaCatalogDirectories = std::move(snapshot->directories);
+    return true;
+}
+
 void ApplicationController::saveFavoriteMedia()
 {
     if (m_settings) {
@@ -4444,50 +4492,55 @@ void ApplicationController::rebuildMediaFolderWatcher()
 {
     const auto watched = m_mediaFolderWatcher.directories();
     if (!watched.isEmpty()) m_mediaFolderWatcher.removePaths(watched);
-
-    QSet<QString> directories;
-    for (const auto &folder : m_mediaFolderPaths) {
-        const QFileInfo info(folder);
-        if (!info.isDir()) continue;
-        directories.insert(info.canonicalFilePath());
-        QDirIterator iterator(folder,
-                              QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot | QDir::NoSymLinks,
-                              QDirIterator::Subdirectories);
-        while (iterator.hasNext()) {
-            const auto path = QFileInfo(iterator.next()).canonicalFilePath();
-            if (!path.isEmpty()) directories.insert(path);
-        }
-    }
-    if (!directories.isEmpty()) m_mediaFolderWatcher.addPaths(directories.values());
+    if (!m_mediaCatalogDirectories.isEmpty())
+        m_mediaFolderWatcher.addPaths(m_mediaCatalogDirectories);
 }
 
 void ApplicationController::refreshMediaCatalog()
 {
-    m_mediaCatalogEntries = m_mediaFolderScanner.scan(m_mediaFolderPaths);
-    rebuildMediaFolderWatcher();
-    refreshMediaCatalogViews();
-    refreshFavoriteMedia();
+    if (m_mediaCatalogScanWatcher.isRunning()) {
+        m_mediaCatalogRescanPending = true;
+        return;
+    }
+    m_mediaCatalogScanFolders = m_mediaFolderPaths;
+    const auto folders = m_mediaCatalogScanFolders;
+    m_mediaCatalogScanWatcher.setFuture(QtConcurrent::run([folders] {
+        return MediaFolderScanner{}.scanSnapshot(folders);
+    }));
 }
 
-void ApplicationController::refreshMediaCatalogViews()
+QVariantList ApplicationController::mediaCatalogView(MediaType type, const QString &search)
 {
     QSet<QString> playlistPaths;
     if (m_mediaRepository) {
         for (const auto &item : m_mediaRepository->playlistItems()) playlistPaths.insert(item.path);
     }
 
-    const auto mapEntries = [&](MediaType type, const QString &search) {
-        QVariantList result;
-        for (const auto &entry : MediaFolderScanner::filter(m_mediaCatalogEntries, type, search)) {
-            result.append(mapCatalogEntry(entry, playlistPaths.contains(entry.path),
-                                          m_favoriteMediaPaths.contains(entry.path),
-                                          thumbnailSourceFor(entry.path, entry.type)));
-        }
-        return result;
-    };
-    m_folderAudioFiles = mapEntries(MediaType::Audio, m_audioFileSearch);
-    m_folderVideoFiles = mapEntries(MediaType::Video, m_videoFileSearch);
-    m_folderImageFiles = mapEntries(MediaType::Image, m_imageFileSearch);
+    QVariantList result;
+    for (const auto &entry : MediaFolderScanner::filter(m_mediaCatalogEntries, type, search)) {
+        result.append(mapCatalogEntry(entry, playlistPaths.contains(entry.path),
+                                      m_favoriteMediaPaths.contains(entry.path),
+                                      thumbnailSourceFor(entry.path, entry.type)));
+    }
+    return result;
+}
+
+void ApplicationController::refreshMediaCatalogViews()
+{
+    m_folderAudioFiles = mediaCatalogView(MediaType::Audio, m_audioFileSearch);
+    m_folderVideoFiles = mediaCatalogView(MediaType::Video, m_videoFileSearch);
+    m_folderImageFiles = mediaCatalogView(MediaType::Image, m_imageFileSearch);
+    emit mediaCatalogChanged();
+}
+
+void ApplicationController::refreshMediaCatalogView(MediaType type)
+{
+    if (type == MediaType::Audio)
+        m_folderAudioFiles = mediaCatalogView(type, m_audioFileSearch);
+    else if (type == MediaType::Video)
+        m_folderVideoFiles = mediaCatalogView(type, m_videoFileSearch);
+    else
+        m_folderImageFiles = mediaCatalogView(type, m_imageFileSearch);
     emit mediaCatalogChanged();
 }
 

@@ -1079,6 +1079,11 @@
         <translation>Pesquisar mídia</translation>
     </message>
     <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="183"/>
+        <source>Confirmar busca</source>
+        <translation>Confirmar busca</translation>
+    </message>
+    <message>
         <location filename="../src/ui/operator/LibraryPanel.qml" line="173"/>
         <source>Letras</source>
         <translation>Letras</translation>
