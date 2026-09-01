@@ -85,6 +85,11 @@ void TranslationCatalogTest::bibleNavigationAndComparisonExposeRequestedContract
     QVERIFY(comparison.contains(QStringLiteral("compareBibleReference(")));
     QVERIFY(comparison.contains(QStringLiteral("orientation: ListView.Horizontal")));
     QVERIFY(panel.contains(QStringLiteral("openComparison()")));
+    QVERIFY(panel.contains(QStringLiteral(
+        "objectName: \"compareBibleTranslationsButton\"")));
+    QVERIFY(panel.contains(QStringLiteral("objectName: \"toggleBibleHistoryButton\"")));
+    QVERIFY(panel.contains(QStringLiteral("model: panel.controller.bibleHistory")));
+    QVERIFY(panel.contains(QStringLiteral("panel.controller.presentBibleHistory(")));
 }
 
 void TranslationCatalogTest::playerAndFavoriteSurfacesExposeRequestedContracts()

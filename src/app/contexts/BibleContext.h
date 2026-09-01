@@ -18,6 +18,7 @@ class BibleContext final : public QObject {
     Q_PROPERTY(QString bibleReferenceInput READ bibleReferenceInput WRITE setBibleReferenceInput NOTIFY bibleSelectionChanged)
     Q_PROPERTY(QVariantList bibleResults READ bibleResults NOTIFY bibleResultsChanged)
     Q_PROPERTY(QVariantList favoriteBibleVerses READ favoriteBibleVerses NOTIFY favoriteBibleVersesChanged)
+    Q_PROPERTY(QVariantList bibleHistory READ bibleHistory NOTIFY bibleHistoryChanged)
     Q_PROPERTY(bool bibleImportRunning READ bibleImportRunning NOTIFY bibleImportStateChanged)
     Q_PROPERTY(int bibleImportProgress READ bibleImportProgress NOTIFY bibleImportStateChanged)
     Q_PROPERTY(QString bibleImportMessage READ bibleImportMessage NOTIFY bibleImportStateChanged)
@@ -40,6 +41,7 @@ public:
     void setBibleReferenceInput(const QString &reference);
     [[nodiscard]] QVariantList bibleResults() const;
     [[nodiscard]] QVariantList favoriteBibleVerses() const;
+    [[nodiscard]] QVariantList bibleHistory() const;
     [[nodiscard]] bool bibleImportRunning() const;
     [[nodiscard]] int bibleImportProgress() const;
     [[nodiscard]] QString bibleImportMessage() const;
@@ -62,12 +64,14 @@ public:
     Q_INVOKABLE bool presentBibleReference(int bookId, int chapter, int verse);
     Q_INVOKABLE QString bibleTextForSlide(int slideIndex, const QString &translationId) const;
     Q_INVOKABLE QVariantList compareBibleReference(const QString &reference) const;
+    Q_INVOKABLE bool presentBibleHistory(const QString &reference);
 
 signals:
     void bibleTranslationsChanged();
     void bibleSelectionChanged();
     void bibleResultsChanged();
     void favoriteBibleVersesChanged();
+    void bibleHistoryChanged();
     void bibleImportStateChanged();
     void statusMessageChanged();
 

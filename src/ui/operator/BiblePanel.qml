@@ -29,6 +29,7 @@ Rectangle {
     property int selectedBookId: 1
     property int selectedChapter: 1
     property int selectedVerseIndex: -1
+    property bool historyVisible: false
 
     readonly property var selectedTranslation: {
         for (let index = 0; index < panel.controller.bibleTranslations.length; ++index) {
@@ -79,6 +80,14 @@ Rectangle {
         panel.controller.bibleReferenceInput = book.name + " " + panel.selectedChapter
                 + ":" + verses[0] + "-" + verses[verses.length - 1]
         panel.controller.searchBibleReference()
+        panel.historyVisible = false
+    }
+
+    function presentHistoryEntry(entry) {
+        if (entry && panel.controller.presentBibleHistory(entry.title)) {
+            panel.historyVisible = false
+            panel.syncSelectors()
+        }
     }
 
     function selectBook(bookId) {
@@ -154,12 +163,25 @@ Rectangle {
                     onClicked: panel.openThemes()
                 }
                 Button {
+                    objectName: "compareBibleTranslationsButton"
                     text: "⇄"
                     flat: true
                     Accessible.name: qsTr("Comparar traduções")
                     ToolTip.visible: hovered
                     ToolTip.text: Accessible.name
                     onClicked: panel.openComparison()
+                }
+                Button {
+                    objectName: "toggleBibleHistoryButton"
+                    text: "◷"
+                    flat: true
+                    highlighted: panel.historyVisible
+                    Accessible.name: panel.historyVisible
+                                     ? qsTr("Voltar aos versículos")
+                                     : qsTr("Mostrar histórico bíblico")
+                    ToolTip.visible: hovered
+                    ToolTip.text: Accessible.name
+                    onClicked: panel.historyVisible = !panel.historyVisible
                 }
                 Button {
                     text: "☰"
@@ -231,13 +253,17 @@ Rectangle {
             color: panel.lineColor
         }
 
-        ListView {
+        StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
-            spacing: 0
-            model: panel.controller.bibleResults
-            delegate: Rectangle {
+            currentIndex: panel.historyVisible ? 1 : 0
+
+            ListView {
+                id: bibleVersesList
+                clip: true
+                spacing: 0
+                model: panel.controller.bibleResults
+                delegate: Rectangle {
                 id: bibleVerseDelegate
                 required property var modelData
                 required property int index
@@ -300,14 +326,90 @@ Rectangle {
                         panel.controller.showBibleVerse(bibleVerseDelegate.index)
                     }
                 }
+                }
+                Label {
+                    anchors.centerIn: parent
+                    visible: bibleVersesList.count === 0
+                    text: panel.controller.bibleTranslations.length === 0
+                          ? qsTr("Importe uma tradução bíblica para visualizar passagens")
+                          : qsTr("Nenhum versículo encontrado")
+                    color: panel.textMutedColor
+                }
             }
-            Label {
-                anchors.centerIn: parent
-                visible: parent.count === 0
-                text: panel.controller.bibleTranslations.length === 0
-                      ? qsTr("Importe uma tradução bíblica para visualizar passagens")
-                      : qsTr("Nenhum versículo encontrado")
-                color: panel.textMutedColor
+
+            ListView {
+                id: bibleHistoryList
+                objectName: "bibleHistoryList"
+                clip: true
+                spacing: 2
+                model: panel.controller.bibleHistory
+                header: Label {
+                    width: bibleHistoryList.width
+                    height: 38
+                    leftPadding: 10
+                    text: qsTr("HISTÓRICO BÍBLICO")
+                    color: panel.accentColor
+                    font.bold: true
+                    verticalAlignment: Text.AlignVCenter
+                }
+                delegate: Rectangle {
+                    id: bibleHistoryDelegate
+                    required property var modelData
+                    required property int index
+                    objectName: "bibleHistoryItem-" + bibleHistoryDelegate.index
+                    width: ListView.view.width
+                    height: 58
+                    color: bibleHistoryHover.hovered
+                           ? panel.selectedColor
+                           : index % 2 ? panel.panelHighColor : "transparent"
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+                            Label {
+                                Layout.fillWidth: true
+                                text: bibleHistoryDelegate.modelData.title
+                                      || qsTr("Referência sem título")
+                                color: panel.textMainColor
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                text: (bibleHistoryDelegate.modelData.executedAt || "")
+                                      .replace("T", " ").slice(0, 16)
+                                color: panel.textMutedColor
+                                font.pixelSize: UiScale.px(10)
+                            }
+                        }
+                        Button {
+                            text: "▶"
+                            flat: true
+                            Accessible.name: qsTr("Apresentar novamente %1").arg(
+                                                 bibleHistoryDelegate.modelData.title)
+                            ToolTip.visible: hovered
+                            ToolTip.text: Accessible.name
+                            onClicked: panel.presentHistoryEntry(
+                                           bibleHistoryDelegate.modelData)
+                        }
+                    }
+                    HoverHandler { id: bibleHistoryHover }
+                    TapHandler {
+                        onDoubleTapped: panel.presentHistoryEntry(
+                                            bibleHistoryDelegate.modelData)
+                    }
+                }
+                Label {
+                    anchors.centerIn: parent
+                    visible: bibleHistoryList.count === 0
+                    text: qsTr("Nenhuma passagem bíblica foi apresentada ainda")
+                    color: panel.textMutedColor
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
             }
         }
 

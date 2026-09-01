@@ -63,8 +63,8 @@ TestCase {
         const item = findChild(panel, "playlistItem-media-1")
         verify(item !== null)
 
-        mouseDoubleClick(item, item.width / 2, item.height / 2,
-                         Qt.LeftButton)
+        mouseClick(item, item.width / 2, item.height / 2, Qt.LeftButton)
+        mouseClick(item, item.width / 2, item.height / 2, Qt.LeftButton)
 
         compare(fakeController.playedMediaId, "media-1")
     }
