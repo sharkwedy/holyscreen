@@ -60,11 +60,11 @@ TestCase {
     }
 
     function test_doubleClickStartsPlaylistItemPlayback() {
-        const item = findChild(panel, "playlistItem-media-1")
-        verify(item !== null)
+        const doubleClickArea = findChild(panel, "playlistDoubleClick-media-1")
+        verify(doubleClickArea !== null)
 
-        mouseClick(item, item.width / 2, item.height / 2, Qt.LeftButton)
-        mouseClick(item, item.width / 2, item.height / 2, Qt.LeftButton)
+        mouseDoubleClickSequence(doubleClickArea, doubleClickArea.width / 2,
+                                 doubleClickArea.height / 2, Qt.LeftButton)
 
         compare(fakeController.playedMediaId, "media-1")
     }

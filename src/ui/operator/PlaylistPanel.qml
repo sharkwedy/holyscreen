@@ -89,6 +89,14 @@ Rectangle {
                       : (index % 2 ? "#1d2226" : "transparent")
                 border.color: reorderDrag.active ? panel.accentColor : "transparent"
                 transform: Translate { y: playlistDelegate.dragDistance }
+                MouseArea {
+                    objectName: "playlistDoubleClick-"
+                                + playlistDelegate.modelData.id
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton
+                    onDoubleClicked: panel.playPlaylistItem(
+                                         playlistDelegate.modelData)
+                }
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 12
@@ -152,11 +160,6 @@ Rectangle {
                     }
                 }
                 HoverHandler { id: playlistHover }
-                TapHandler {
-                    acceptedButtons: Qt.LeftButton
-                    onDoubleTapped: panel.playPlaylistItem(
-                                        playlistDelegate.modelData)
-                }
                 TapHandler {
                     acceptedButtons: Qt.RightButton
                     onTapped: panel.showMediaOptions(playlistDelegate.modelData)
