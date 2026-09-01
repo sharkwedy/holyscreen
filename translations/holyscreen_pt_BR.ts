@@ -1080,6 +1080,11 @@
     </message>
     <message>
         <location filename="../src/ui/operator/LibraryPanel.qml" line="183"/>
+        <source>🔍</source>
+        <translation>🔍</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/operator/LibraryPanel.qml" line="186"/>
         <source>Confirmar busca</source>
         <translation>Confirmar busca</translation>
     </message>

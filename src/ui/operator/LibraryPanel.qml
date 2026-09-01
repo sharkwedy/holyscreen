@@ -181,7 +181,7 @@ Rectangle {
                     Button {
                         objectName: "confirmLibrarySearchButton"
                         Layout.preferredWidth: 38
-                        text: "\uD83D\uDD0D"
+                        text: qsTr("\uD83D\uDD0D")
                         font.pixelSize: UiScale.px(16)
                         highlighted: true
                         Accessible.name: qsTr("Confirmar busca")

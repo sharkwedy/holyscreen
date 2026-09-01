@@ -142,8 +142,8 @@ TestCase {
         verify(confirm !== null)
 
         field.forceActiveFocus()
-        field.selectAll()
-        keyClicks(field, "graca")
+        field.text = "graca"
+        field.textEdited()
         compare(fakeController.songSearch, "santo")
 
         mouseClick(confirm)
