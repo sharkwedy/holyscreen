@@ -10,6 +10,8 @@ Versioning.
   watchers, lazy thumbnail cache lookups and per-media-type filtering.
 - Added an explicit magnifier search button and Enter confirmation so expensive
   local and online searches are no longer restarted on every typed character.
+- Ensured that double-clicking a playlist item starts its playback immediately,
+  with a Qt Quick regression test for the interaction.
 
 ## [1.3.0] - 2026-08-30
 
