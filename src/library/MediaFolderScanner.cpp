@@ -1,5 +1,6 @@
 #include "library/MediaFolderScanner.h"
 
+#include <QDir>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QSet>
@@ -30,6 +31,7 @@ const QSet<QString> imageExtensions{
 QVector<MediaCatalogEntry> MediaFolderScanner::scan(const QStringList &folders) const
 {
     QVector<MediaCatalogEntry> result;
+    result.reserve(256);
     QSet<QString> visitedFiles;
 
     for (const auto &folder : folders) {
@@ -43,16 +45,19 @@ QVector<MediaCatalogEntry> MediaFolderScanner::scan(const QStringList &folders) 
         while (iterator.hasNext()) {
             const QFileInfo fileInfo(iterator.next());
             const auto type = mediaTypeForFile(fileInfo.fileName());
-            const auto canonicalPath = fileInfo.canonicalFilePath();
-            if (!type.has_value() || canonicalPath.isEmpty() || visitedFiles.contains(canonicalPath)) {
+            // NoSymLinks excludes symbolic links, so resolving every file through
+            // canonicalFilePath() only adds a filesystem lookup per entry. A
+            // normalized absolute path is sufficient for deduplication here.
+            const auto normalizedPath = QDir::cleanPath(fileInfo.absoluteFilePath());
+            if (!type.has_value() || normalizedPath.isEmpty() || visitedFiles.contains(normalizedPath)) {
                 continue;
             }
-            visitedFiles.insert(canonicalPath);
+            visitedFiles.insert(normalizedPath);
             result.append(MediaCatalogEntry{
                 .type = type.value(),
                 .fileName = fileInfo.fileName(),
                 .title = fileInfo.completeBaseName(),
-                .path = canonicalPath,
+                .path = normalizedPath,
                 .folderPath = canonicalFolder,
             });
         }
@@ -69,6 +74,7 @@ QVector<MediaCatalogEntry> MediaFolderScanner::filter(
     const QVector<MediaCatalogEntry> &entries, MediaType type, const QString &fileNameQuery)
 {
     QVector<MediaCatalogEntry> result;
+    result.reserve(entries.size());
     const auto query = fileNameQuery.trimmed();
     for (const auto &entry : entries) {
         if (entry.type != type) continue;
