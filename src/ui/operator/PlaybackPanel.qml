@@ -197,6 +197,17 @@ Rectangle {
                                    panel.mediaController.mediaRepeatMode === "off" ? "all"
                                  : panel.mediaController.mediaRepeatMode === "all" ? "one" : "off"
                 }
+                PlayerButton {
+                    text: "⇢"
+                    highlighted: panel.mediaController.mediaSmoothTransition
+                    Accessible.name: panel.mediaController.mediaSmoothTransition
+                                     ? qsTr("Desativar transição suave entre faixas")
+                                     : qsTr("Ativar transição suave entre faixas")
+                    ToolTip.visible: hovered
+                    ToolTip.text: Accessible.name
+                    onClicked: panel.mediaController.mediaSmoothTransition =
+                               !panel.mediaController.mediaSmoothTransition
+                }
                 Item { Layout.fillWidth: true }
                 PlayerButton {
                     text: "⏮"

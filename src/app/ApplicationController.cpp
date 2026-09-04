@@ -320,6 +320,25 @@ ApplicationController::ApplicationController(QObject *parent)
             this, &ApplicationController::refreshMediaCatalog);
     connect(&m_mediaFolderWatcher, &QFileSystemWatcher::directoryChanged,
             this, [this] { m_mediaCatalogDebounce.start(); });
+    m_audioTransitionTimer.setInterval(30);
+    connect(&m_audioTransitionTimer, &QTimer::timeout, this, [this] {
+        const auto progress = std::clamp(
+            static_cast<double>(m_audioTransitionClock.elapsed()) / AudioTransitionDurationMs,
+            0.0, 1.0);
+        const auto volume = m_audioTransitionFadingIn ? progress : 1.0 - progress;
+        m_video.setVolume(m_audioTransitionTargetVolume * volume);
+        if (progress >= 1.0) {
+            m_audioTransitionTimer.stop();
+            if (!m_audioTransitionFadingIn) {
+                m_audioTransitionFadingIn = true;
+                m_video.setVolume(0.0);
+                advanceMediaAfterFinish();
+                return;
+            }
+            m_audioTransitionActive = false;
+            m_audioTransitionFadingIn = false;
+        }
+    });
     m_mediaDevices = std::make_unique<QMediaDevices>();
     connect(m_mediaDevices.get(), &QMediaDevices::audioOutputsChanged, this, [this] {
         const bool selectedDeviceWasActive = !m_audioOutputId.isEmpty()
@@ -365,10 +384,25 @@ ApplicationController::ApplicationController(QObject *parent)
         emit audioStateChanged();
         emit videoStateChanged();
     });
-    connect(&m_video, &VideoEngine::positionChanged, this, [this] {
+    connect(&m_video, &VideoEngine::positionChanged, this, [this](int positionMs) {
         emit mediaPositionChanged();
         emit audioPositionChanged();
         emit videoPositionChanged();
+        if (!m_mediaSmoothTransition || m_audioTransitionActive
+            || currentMediaType() != QStringLiteral("audio")) return;
+        const auto remaining = mediaDurationMs() - positionMs;
+        if (remaining > AudioTransitionDurationMs || remaining <= 0) return;
+        m_audioTransitionActive = true;
+        m_audioTransitionFadingIn = false;
+        m_audioTransitionTargetVolume = mediaVolume();
+        m_audioTransitionClock.restart();
+        m_audioTransitionTimer.start();
+        m_video.setVolume(m_audioTransitionTargetVolume);
+    });
+    connect(&m_video, &VideoEngine::playbackStarted, this, [this] {
+        if (!m_mediaSmoothTransition || !m_audioTransitionFadingIn) return;
+        m_audioTransitionClock.restart();
+        m_audioTransitionTimer.start();
     });
     connect(&m_video, &VideoEngine::durationChanged, this, [this] {
         emit mediaDurationChanged();
@@ -697,6 +731,7 @@ int ApplicationController::mediaDurationMs() const
 }
 double ApplicationController::mediaVolume() const { return m_video.volume(); }
 QString ApplicationController::mediaRepeatMode() const { return m_mediaRepeatMode; }
+bool ApplicationController::mediaSmoothTransition() const { return m_mediaSmoothTransition; }
 QVariantList ApplicationController::audioOutputs() const
 {
     QVariantList outputs;
@@ -2390,11 +2425,16 @@ void ApplicationController::stopMedia()
 
 bool ApplicationController::applyStopMedia()
 {
+    const auto restoreVolume = m_audioTransitionActive ? m_audioTransitionTargetVolume : mediaVolume();
+    m_audioTransitionTimer.stop();
+    m_audioTransitionActive = false;
+    m_audioTransitionFadingIn = false;
     if (currentMediaType() == QStringLiteral("image")) {
         m_stillMedia.stop();
         m_images.stop();
     }
     m_video.stop();
+    m_video.setVolume(restoreVolume);
     if (m_videoVisible) {
         m_videoVisible = false;
         emit videoVisibleChanged();
@@ -3701,6 +3741,7 @@ void ApplicationController::setVideoVolume(double volume)
 void ApplicationController::setMediaVolume(double volume)
 {
     const auto normalized = std::clamp(volume, 0.0, 1.0);
+    if (m_audioTransitionActive) m_audioTransitionTargetVolume = normalized;
     if (qFuzzyCompare(m_video.volume(), normalized)) return;
     m_video.setVolume(normalized);
     saveSetting(QStringLiteral("mediaVolume"), normalized);
@@ -3712,6 +3753,14 @@ void ApplicationController::setMediaVolume(double volume)
 void ApplicationController::setMediaRepeatMode(const QString &mode)
 {
     m_mediaCommands->requestRepeat(mode);
+}
+
+void ApplicationController::setMediaSmoothTransition(bool enabled)
+{
+    if (m_mediaSmoothTransition == enabled) return;
+    m_mediaSmoothTransition = enabled;
+    saveSetting(QStringLiteral("mediaSmoothTransition"), enabled);
+    emit mediaSmoothTransitionChanged();
 }
 
 void ApplicationController::setAudioOutputId(const QString &id)
@@ -3960,6 +4009,8 @@ void ApplicationController::loadSettings()
     m_mediaRepeatMode = m_settings->value(QStringLiteral("presentation/mediaRepeatMode"),
         m_settings->value(QStringLiteral("presentation/videoLoop"), false).toBool()
             ? QStringLiteral("one") : QStringLiteral("off")).toString();
+    m_mediaSmoothTransition = m_settings->value(
+        QStringLiteral("presentation/mediaSmoothTransition"), false).toBool();
     m_video.setLoop(m_mediaRepeatMode == QStringLiteral("one"));
     m_updateEndpoint = UpdateChecker::defaultEndpoint().toString();
     const auto storedImageFit = m_settings->value(QStringLiteral("presentation/imageFit"), QStringLiteral("contain")).toString();

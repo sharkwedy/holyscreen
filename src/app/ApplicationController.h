@@ -68,6 +68,7 @@
 #include <QObject>
 #include <QFileSystemWatcher>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QUrl>
 #include <QVariantList>
 #include <QFutureWatcher>
@@ -174,6 +175,7 @@ class ApplicationController final : public QObject {
     Q_PROPERTY(int mediaDurationMs READ mediaDurationMs NOTIFY mediaDurationChanged)
     Q_PROPERTY(double mediaVolume READ mediaVolume WRITE setMediaVolume NOTIFY mediaVolumeChanged)
     Q_PROPERTY(QString mediaRepeatMode READ mediaRepeatMode WRITE setMediaRepeatMode NOTIFY mediaRepeatModeChanged)
+    Q_PROPERTY(bool mediaSmoothTransition READ mediaSmoothTransition WRITE setMediaSmoothTransition NOTIFY mediaSmoothTransitionChanged)
     Q_PROPERTY(QVariantList audioOutputs READ audioOutputs NOTIFY audioOutputsChanged)
     Q_PROPERTY(QString audioOutputId READ audioOutputId WRITE setAudioOutputId NOTIFY audioOutputsChanged)
     Q_PROPERTY(bool audioOutputConfigured READ audioOutputConfigured NOTIFY audioOutputsChanged)
@@ -356,6 +358,7 @@ public:
     [[nodiscard]] int mediaDurationMs() const;
     [[nodiscard]] double mediaVolume() const;
     [[nodiscard]] QString mediaRepeatMode() const;
+    [[nodiscard]] bool mediaSmoothTransition() const;
     [[nodiscard]] QVariantList audioOutputs() const;
     [[nodiscard]] QString audioOutputId() const;
     [[nodiscard]] bool audioOutputConfigured() const;
@@ -622,6 +625,7 @@ public slots:
     void setRemoteInterface(const QString &interfaceAddress);
     void setMediaVolume(double volume);
     void setMediaRepeatMode(const QString &mode);
+    void setMediaSmoothTransition(bool enabled);
     void setAudioOutputId(const QString &id);
     void setAudioVolume(double volume);
     void setVideoVolume(double volume);
@@ -680,6 +684,7 @@ signals:
     void mediaDurationChanged();
     void mediaVolumeChanged();
     void mediaRepeatModeChanged();
+    void mediaSmoothTransitionChanged();
     void audioOutputsChanged();
     void audioLibraryChanged();
     void currentAudioChanged();
@@ -917,6 +922,13 @@ private:
     QString m_imageFileSearch;
     QString m_currentMediaId;
     QString m_mediaRepeatMode = QStringLiteral("off");
+    bool m_mediaSmoothTransition = false;
+    bool m_audioTransitionActive = false;
+    bool m_audioTransitionFadingIn = false;
+    double m_audioTransitionTargetVolume = 0.8;
+    QElapsedTimer m_audioTransitionClock;
+    QTimer m_audioTransitionTimer;
+    static constexpr int AudioTransitionDurationMs = 750;
     std::unique_ptr<MediaCommandModule> m_mediaCommands;
     QVariantList m_audioLibrary;
     QString m_currentAudioId;
